@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand Colors */
+    --brand-dark-blue: 211 53% 23%; /* #1E3D59 */
+    --brand-light-blue: 211 31% 84%; /* #D4E2EC */
+    --brand-gold: 42 40% 62%; /* #D6A767 */
+    --brand-white: 0 0% 100%; /* #FFFFFF */
+    --brand-charcoal: 0 0% 13%; /* #222222 */
+    --brand-dark-charcoal: 0 0% 20%; /* #333333 */
+
+    /* shadcn/ui Variables mapped to brand colors */
+    --background: var(--brand-white);
+    --foreground: var(--brand-charcoal);
+    --card: var(--brand-white);
+    --card-foreground: var(--brand-charcoal);
+    --popover: var(--brand-white);
+    --popover-foreground: var(--brand-charcoal);
+    --primary: var(--brand-dark-blue);
+    --primary-foreground: var(--brand-white);
+    --secondary: var(--brand-light-blue);
+    --secondary-foreground: var(--brand-dark-blue);
+    --muted: var(--brand-light-blue);
+    --muted-foreground: var(--brand-dark-charcoal);
+    --accent: var(--brand-gold);
+    --accent-foreground: var(--brand-white);
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: var(--brand-white);
+    --border: 211 20% 90%;
+    --input: 211 20% 90%;
+    --ring: var(--brand-dark-blue);
+    --radius: 0.5rem;
+    --chart-1: var(--brand-dark-blue);
+    --chart-2: var(--brand-light-blue);
+    --chart-3: var(--brand-gold);
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --sidebar-background: var(--brand-white);
+    --sidebar-foreground: var(--brand-charcoal);
+    --sidebar-primary: var(--brand-dark-blue);
+    --sidebar-primary-foreground: var(--brand-white);
+    --sidebar-accent: var(--brand-light-blue);
+    --sidebar-accent-foreground: var(--brand-dark-blue);
+    --sidebar-border: 211 20% 90%;
+    --sidebar-ring: var(--brand-dark-blue);
+  }
+
+  .dark {
+    /* Dark mode adaptations */
+    --background: var(--brand-charcoal);
+    --foreground: var(--brand-white);
+    --card: var(--brand-dark-charcoal);
+    --card-foreground: var(--brand-white);
+    --popover: var(--brand-dark-charcoal);
+    --popover-foreground: var(--brand-white);
+    --primary: var(--brand-light-blue);
+    --primary-foreground: var(--brand-dark-blue);
+    --secondary: var(--brand-dark-blue);
+    --secondary-foreground: var(--brand-white);
+    --muted: 211 20% 25%;
+    --muted-foreground: 211 15% 70%;
+    --accent: var(--brand-gold);
+    --accent-foreground: var(--brand-charcoal);
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: var(--brand-white);
+    --border: 211 20% 30%;
+    --input: 211 20% 30%;
+    --ring: var(--brand-light-blue);
+    --chart-1: var(--brand-light-blue);
+    --chart-2: var(--brand-gold);
+    --chart-3: var(--brand-dark-blue);
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: var(--brand-dark-charcoal);
+    --sidebar-foreground: var(--brand-white);
+    --sidebar-primary: var(--brand-light-blue);
+    --sidebar-primary-foreground: var(--brand-dark-blue);
+    --sidebar-accent: var(--brand-dark-blue);
+    --sidebar-accent-foreground: var(--brand-white);
+    --sidebar-border: 211 20% 30%;
+    --sidebar-ring: var(--brand-light-blue);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  /* Brand Color Utilities */
+  .text-brand-dark-blue {
+    color: hsl(var(--brand-dark-blue));
+  }
+  .text-brand-light-blue {
+    color: hsl(var(--brand-light-blue));
+  }
+  .text-brand-gold {
+    color: hsl(var(--brand-gold));
+  }
+  .text-brand-charcoal {
+    color: hsl(var(--brand-charcoal));
+  }
+  .bg-brand-dark-blue {
+    background-color: hsl(var(--brand-dark-blue));
+  }
+  .bg-brand-light-blue {
+    background-color: hsl(var(--brand-light-blue));
+  }
+  .bg-brand-gold {
+    background-color: hsl(var(--brand-gold));
+  }
+  .bg-brand-white {
+    background-color: hsl(var(--brand-white));
+  }
+  .border-brand-dark-blue {
+    border-color: hsl(var(--brand-dark-blue));
+  }
+  .border-brand-light-blue {
+    border-color: hsl(var(--brand-light-blue));
+  }
+  .border-brand-gold {
+    border-color: hsl(var(--brand-gold));
+  }
+}
+
+.primaryColor {
+  color: var(--brand-dark-blue);
+}
+.secondaryColor {
+  color: var(--brand-light-blue);
+}
+
+body.__className_e8ce0c {
+  font-family: inherit;
+}
