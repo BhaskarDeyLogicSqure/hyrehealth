@@ -16,8 +16,8 @@ export function AppProviders({ children }: AppProvidersProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000, // 1 minute
-            retry: 1,
+            staleTime: 60 * 1000, // 1 minute -> means that the data will be cached for 1 minute
+            retry: 1, // means that the data will be retried 1 time
           },
         },
       })

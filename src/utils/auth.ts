@@ -19,14 +19,14 @@ export const getToken = (): string | null => {
 
 // Non-hook version for use outside React components (like axios interceptors)
 export const getTokenFromCookie = (): string | null => {
-  if (typeof document === 'undefined') {
+  if (typeof document === "undefined") {
     return null; // Server-side rendering
   }
-  
-  const cookies = document.cookie.split(';');
+
+  const cookies = document.cookie.split(";");
   for (let cookie of cookies) {
-    const [name, value] = cookie.trim().split('=');
-    if (name === 'token') {
+    const [name, value] = cookie.trim().split("=");
+    if (name === "token") {
       return decodeURIComponent(value);
     }
   }
@@ -60,6 +60,7 @@ export const logout = (
 ): void => {
   store.dispatch(clearAuth());
   localStorage.clear();
+  removeTokenFromCookie();
 
   if (navigate) {
     navigate("/login", { replace: true });
@@ -70,4 +71,8 @@ export const logout = (
   if (!navigate && window.location.pathname !== "/login") {
     window.location.href = "/login";
   }
+};
+
+export const removeTokenFromCookie = () => {
+  document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;";
 };

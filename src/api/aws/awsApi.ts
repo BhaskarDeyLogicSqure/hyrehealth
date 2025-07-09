@@ -1,8 +1,7 @@
-
-import { GET_AWS_CREDENTIALS_ENDPOINT } from '@/api-helper/endpoints';
-import { ApiResponse, IAwsCredentials } from '@/types';
-import { BASE_URL } from '@/configs';
-import apiService from '..';
+import { GET_AWS_CREDENTIALS_ENDPOINT } from "@/api-helper/AuthEndpoints";
+import { ApiResponse, IAwsCredentials } from "@/types";
+import { BASE_URL } from "@/configs";
+import apiService from "..";
 
 export interface AwsCredentialsResponse {
   success: boolean;
@@ -18,12 +17,13 @@ export interface AwsCredentialsResponse {
 }
 
 export const awsApi = {
-  fetchAwsCredentials: async (folderPrefix: string = ""): Promise<ApiResponse<IAwsCredentials>> => {
-    
+  fetchAwsCredentials: async (
+    folderPrefix: string = ""
+  ): Promise<ApiResponse<IAwsCredentials>> => {
     const response = await apiService.get(
-      `${BASE_URL}${GET_AWS_CREDENTIALS_ENDPOINT.endpoint}?folderPrefix=${folderPrefix}`,
+      `${BASE_URL}${GET_AWS_CREDENTIALS_ENDPOINT.endpoint}?folderPrefix=${folderPrefix}`
     );
     console.log("response >>", response.data);
     return response.data;
   },
-}; 
+};

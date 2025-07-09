@@ -1,2 +1,2 @@
 // Export endpoints
-export * from "./endpoints";
+export * from "./AuthEndpoints";

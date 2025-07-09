@@ -4,4 +4,4 @@ export const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY;
 export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 export const STRIPE_KEY = process.env.NEXT_PUBLIC_STRIPE_KEY;
 
-
+export const NEXT_PUBLIC_APP_DESCRIPTION = "Hyre Health Customer";
