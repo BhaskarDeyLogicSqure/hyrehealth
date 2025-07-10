@@ -20,14 +20,14 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 interface ThemeProviderProps {
   children: React.ReactNode;
-  initialTheme?: ThemeName;
+  selectedTheme?: ThemeName;
 }
 
 export function ThemeProvider({
   children,
-  initialTheme = DEFAULT_THEME,
+  selectedTheme = DEFAULT_THEME,
 }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<ThemeName>(initialTheme);
+  const [theme, setThemeState] = useState<ThemeName>(selectedTheme);
   const [isLoading, setIsLoading] = useState(true);
 
   // Keep backward compatibility with existing color system

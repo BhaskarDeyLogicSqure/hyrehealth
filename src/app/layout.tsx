@@ -48,7 +48,7 @@ export default async function RootLayout({
   return (
     <html lang="en" data-theme={theme}>
       <body className={inter.className}>
-        <ThemeProvider initialTheme={theme}>
+        <ThemeProvider selectedTheme={theme}>
           <AppProviders>
             <Topbar />
             <Layout>{children}</Layout>
