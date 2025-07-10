@@ -155,7 +155,7 @@ const DefaultProductDetailsPage = ({ params }: ProductDetailsPageProps) => {
         : "";
 
     router.push(
-      `/consultation/${params.id}?dosage=${selectedDosage}&duration=${subscriptionDuration}${relatedProductsParam}`
+      `/eligibility-questionnaire/?productId=${params.id}&dosage=${selectedDosage}&duration=${subscriptionDuration}${relatedProductsParam}`
     );
   };
 
