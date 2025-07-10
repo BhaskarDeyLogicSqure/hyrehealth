@@ -5,8 +5,6 @@ import "../styles/themes.css";
 import { AppProviders } from "@/components/providers/AppProviders";
 import ToasterWrapper from "@/components/ui/ToasterWrapper";
 import { ThemeProvider } from "@/contexts/ThemeProvider";
-import { fetchThemeFromAPIServer } from "@/lib/theme-api";
-import { headers } from "next/headers";
 import { DEFAULT_THEME } from "@/lib/theme-utils";
 import Layout from "@/components/layout/Layout";
 import Topbar from "@/components/layout/Topbar";
