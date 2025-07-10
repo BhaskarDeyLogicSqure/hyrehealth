@@ -1,17 +1,18 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { ThemeName, DEFAULT_THEME } from "@/lib/theme-utils";
+import { DEFAULT_THEME } from "@/lib/theme-utils";
+import { Theme } from "@/types/theme";
 
 interface ThemeContextType {
-  theme: ThemeName;
+  theme: Theme;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 interface ThemeProviderProps {
   children: React.ReactNode;
-  theme?: ThemeName;
+  theme?: Theme;
 }
 
 export function ThemeProvider({

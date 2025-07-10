@@ -8,6 +8,8 @@ import { ThemeProvider } from "@/contexts/ThemeProvider";
 import { DEFAULT_THEME } from "@/lib/theme-utils";
 import Layout from "@/components/layout/Layout";
 import Topbar from "@/components/layout/Topbar";
+import { cookies } from "next/headers";
+import { Theme } from "@/types/theme";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -22,28 +24,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // Get theme from API server-side
-  let theme = DEFAULT_THEME;
-
-  // TODO: Uncomment this when we have a way to fetch the theme from the API server
-  // try {
-  //   const headersList = headers();
-  //   const requestHeaders: Record<string, string> = {};
-
-  //   // Forward important headers for authentication
-  //   const authHeader = headersList.get("authorization");
-  //   if (authHeader) {
-  //     requestHeaders["authorization"] = authHeader;
-  //   }
-
-  //   const cookieHeader = headersList.get("cookie");
-  //   if (cookieHeader) {
-  //     requestHeaders["cookie"] = cookieHeader;
-  //   }
-
-  //   theme = await fetchThemeFromAPIServer(requestHeaders);
-  // } catch (error) {
-  //   console.warn("Failed to fetch theme server-side, using default:", error);
-  // }
+  const cookieStore = cookies();
+  let theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
 
   return (
     <html lang="en" data-theme={theme}>

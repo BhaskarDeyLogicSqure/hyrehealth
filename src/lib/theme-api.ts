@@ -1,5 +1,6 @@
-import { getTheme } from "@/api/theme/themeApi";
-import { ThemeName, DEFAULT_THEME, AVAILABLE_THEMES } from "./theme-utils";
+import { DEFAULT_THEME, AVAILABLE_THEMES } from "./theme-utils";
+import { Theme } from "@/types/theme";
+import axios from "axios";
 
 /**
  * Fetch theme from backend API (server-side)
@@ -7,19 +8,20 @@ import { ThemeName, DEFAULT_THEME, AVAILABLE_THEMES } from "./theme-utils";
  */
 export async function fetchThemeFromAPIServer(
   requestHeaders?: Record<string, string>
-): Promise<ThemeName> {
+): Promise<Theme> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     const url = `${baseUrl}/theme`;
 
-    const themeResponse = await getTheme.data;
+    // const themeResponse = await axios.get(url);
 
-    const theme = themeResponse?.data?.userColourTheme as ThemeName;
+    // const theme = themeResponse?.data?.userColourTheme as Theme;
 
-    console.log("theme 1234 ", theme);
-    if (theme && AVAILABLE_THEMES?.includes(theme)) {
-      return theme;
-    }
+    // console.log("theme 1234 ", theme);
+    // if (theme && AVAILABLE_THEMES?.includes(theme)) {
+    //   return theme;
+    // }
+    console.log("saucvik");
 
     return DEFAULT_THEME;
   } catch (error) {
