@@ -1,11 +1,12 @@
-"use client";
-
 import React from "react";
 import dynamic from "next/dynamic";
-import { useTheme } from "@/contexts/ThemeProvider";
+import { cookies } from "next/headers";
+import { Theme } from "@/types/theme";
+import { DEFAULT_THEME } from "@/lib/theme-utils";
 
 // Dynamic imports for theme components
-const DefaultHomePage = dynamic(() => import("@/themes/default/home"), {
+//  --------- Default Theme ---------
+const DefaultHomePage = dynamic(() => import("@/themes/default/Home"), {
   loading: () => (
     <div className="min-h-screen flex items-center justify-center">
       Loading...
@@ -13,17 +14,21 @@ const DefaultHomePage = dynamic(() => import("@/themes/default/home"), {
   ),
 });
 
-const ModernHomePage = dynamic(() => import("@/themes/modern/home"), {
+//  --------- Modern Theme ---------
+const ModernHomePage = dynamic(() => import("@/themes/modern/Home"), {
   loading: () => (
     <div className="min-h-screen flex items-center justify-center">
       Loading...
     </div>
   ),
 });
+
+// --------- Add more theme exports here ---------
 
 const HomePage = () => {
-  // Get current theme from context
-  const { theme } = useTheme();
+  // Get current theme from cookie store
+  const cookieStore = cookies(); // get the cookie store
+  const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
 
   // Component mapping based on theme
   const ThemeComponents = {
