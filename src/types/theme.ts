@@ -1,10 +1,7 @@
-export type UserColourTheme = {
-  name: string;
-  primaryColor: string;
-  secondaryColor: string;
-}
+import { ThemeName } from "@/lib/theme-utils";
 
 export interface IThemeResponseData {
-  userColourTheme: UserColourTheme;
+  ok: boolean;
+  userColourTheme: ThemeName;
   companyLogo: string;
 }
