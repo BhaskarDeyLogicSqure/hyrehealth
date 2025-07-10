@@ -1,23 +1,26 @@
 "use client";
 
 import { Gift, Mail, Phone, MapPin } from "lucide-react";
+import Link from "next/link";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="footer-bg footer-text">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 footer-logo-bg rounded-lg flex items-center justify-center">
                 <Gift className="h-5 w-5 text-white" />
               </div>
               <span className="text-xl font-bold">Hyre Health</span>
             </div>
-            <p>Hyre Health is a platform that helps you manage your health.</p>
+            <p className="footer-text-muted">
+              Hyre Health is a platform that helps you manage your health.
+            </p>
           </div>
 
           {/* Support */}
@@ -25,74 +28,62 @@ export function Footer() {
             <h3 className="text-lg font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                <a
-                  href="/help"
-                  className="text-gray-300 hover:text-white transition-colors"
-                >
+                <Link href="/help" className="footer-link transition-colors">
                   Help Center
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/contact"
-                  className="text-gray-300 hover:text-white transition-colors"
-                >
+                <Link href="/contact" className="footer-link transition-colors">
                   Contact Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/privacy"
-                  className="text-gray-300 hover:text-white transition-colors"
-                >
+                <Link href="/privacy" className="footer-link transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/terms"
-                  className="text-gray-300 hover:text-white transition-colors"
-                >
+                <Link href="/terms" className="footer-link transition-colors">
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/security"
-                  className="text-gray-300 hover:text-white transition-colors"
+                  className="footer-link transition-colors"
                 >
                   Security
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm">
+        <div className="border-t footer-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+          <p className="footer-text-muted text-sm">
             © <span suppressHydrationWarning>{currentYear}</span> Hyre Health.
-            All rights reserved.
+            All rights reserved. qwe
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <a
-              href="#"
-              className="text-gray-400 hover:text-white transition-colors text-sm"
+            <Link
+              href="/privacy"
+              className="footer-link transition-colors text-sm"
             >
               Privacy
-            </a>
-            <a
-              href="#"
-              className="text-gray-400 hover:text-white transition-colors text-sm"
+            </Link>
+            <Link
+              href="/terms"
+              className="footer-link transition-colors text-sm"
             >
               Terms
-            </a>
-            <a
-              href="#"
-              className="text-gray-400 hover:text-white transition-colors text-sm"
+            </Link>
+            <Link
+              href="/cookies"
+              className="footer-link transition-colors text-sm"
             >
               Cookies
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -1,0 +1,278 @@
+/**
+ * CENTRALIZED THEME SYSTEM
+ * 
+ * This file provides a centralized approach to theme management using CSS variables
+ * and utility classes. This eliminates the need to hardcode colors in individual
+ * components and makes theme management much easier.
+ * 
+ * AVAILABLE THEMES:
+ * - default: Clean, professional design matching the source project
+ * - modern: Contemporary gradient-based design
+ * - classic: Elegant, warm tones with sophisticated styling
+ * - ancient: Mystical, earth-toned design with deeper shadows
+ * 
+ * COMPONENT-SPECIFIC VARIABLES:
+ * 
+ * 1. NAVBAR VARIABLES:
+ *    --navbar-background: Main navbar background (solid color or gradient)
+ *    --navbar-shadow: Box shadow for navbar
+ *    --navbar-border: Border color for navbar
+ *    --navbar-logo-text: Logo text color
+ *    --navbar-logo-background: Logo background color
+ *    --navbar-nav-text: Navigation link text color
+ *    --navbar-nav-text-hover: Navigation link hover color
+ *    --navbar-nav-text-active: Active navigation link color
+ *    --navbar-dropdown-background: Dropdown menu background
+ *    --navbar-dropdown-border: Dropdown menu border
+ *    --navbar-dropdown-text: Dropdown menu text color
+ *    --navbar-dropdown-hover: Dropdown menu hover background
+ * 
+ * 2. FOOTER VARIABLES:
+ *    --footer-background: Main footer background (solid color or gradient)
+ *    --footer-text: Primary footer text color
+ *    --footer-text-muted: Muted footer text color
+ *    --footer-link-text: Footer link text color
+ *    --footer-link-hover: Footer link hover color
+ *    --footer-border: Footer border color
+ *    --footer-logo-background: Footer logo background
+ * 
+ * UTILITY CLASSES:
+ * - Use .navbar-* classes for navbar styling
+ * - Use .footer-* classes for footer styling
+ * - Use .theme-* classes for general theme styling
+ * 
+ * ADDING NEW THEMES:
+ * 1. Add the theme name to ThemeName type in theme-utils.ts
+ * 2. Add a new [data-theme="theme-name"] section below
+ * 3. Define all required CSS variables for the new theme
+ * 4. Test all components to ensure proper styling
+ * 
+ * ADDING NEW COMPONENT VARIABLES:
+ * 1. Add variables to all theme sections
+ * 2. Add corresponding utility classes at the bottom
+ * 3. Update component to use the new classes
+ */
+
+/* Base theme variables - Default theme */
+:root,
+[data-theme="default"] {
+  /* Primary colors */
+  --color-primary: #234a66;
+  --color-primary-foreground: #ffffff;
+  --color-primary-hover: #1a3851;
+
+  /* Secondary colors */
+  --color-secondary: #c9a95c;
+  --color-secondary-foreground: #000000;
+  --color-secondary-hover: #b8954a;
+
+  /* Background colors */
+  --color-background: #ffffff;
+  --color-background-secondary: #f8f9fa;
+  --color-background-muted: #f1f3f4;
+
+  /* Text colors */
+  --color-foreground: #212529;
+  --color-muted-foreground: #6c757d;
+
+  /* Border colors */
+  --color-border: #dee2e6;
+  --color-border-muted: #e9ecef;
+
+  /* Navbar specific colors - matches source project exactly */
+  --navbar-background: #ffffff;
+  --navbar-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --navbar-border: #e5e7eb;
+  --navbar-logo-text: #111827;
+  --navbar-logo-background: #2563eb;
+  --navbar-nav-text: #6b7280;
+  --navbar-nav-text-hover: #111827;
+  --navbar-nav-text-active: #111827;
+  --navbar-button-variant: outline;
+  --navbar-dropdown-background: #ffffff;
+  --navbar-dropdown-border: #e5e7eb;
+  --navbar-dropdown-text: #111827;
+  --navbar-dropdown-hover: #f9fafb;
+
+  /* Footer specific colors - elegant dark footer */
+  --footer-background: #1f2937;
+  --footer-text: #ffffff;
+  --footer-text-muted: #d1d5db;
+  --footer-link-text: #d1d5db;
+  --footer-link-hover: #ffffff;
+  --footer-border: #374151;
+  --footer-logo-background: linear-gradient(to bottom right, #2563eb, #7c3aed);
+
+  /* Status colors */
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-danger: #dc3545;
+  --color-info: #17a2b8;
+}
+
+/* Modern theme */
+[data-theme="modern"] {
+  /* Primary colors */
+  --color-primary: #6366f1;
+  --color-primary-foreground: #ffffff;
+  --color-primary-hover: #4f46e5;
+
+  /* Secondary colors */
+  --color-secondary: #f59e0b;
+  --color-secondary-foreground: #000000;
+  --color-secondary-hover: #d97706;
+
+  /* Background colors */
+  --color-background: #ffffff;
+  --color-background-secondary: #f8fafc;
+  --color-background-muted: #f1f5f9;
+
+  /* Text colors */
+  --color-foreground: #1e293b;
+  --color-muted-foreground: #64748b;
+
+  /* Border colors */
+  --color-border: #e2e8f0;
+  --color-border-muted: #f1f5f9;
+
+  /* Navbar specific colors - modern gradient style */
+  --navbar-background: linear-gradient(to right, #6366f1, #8b5cf6);
+  --navbar-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --navbar-border: #e2e8f0;
+  --navbar-logo-text: #ffffff;
+  --navbar-logo-background: #ffffff;
+  --navbar-nav-text: #e2e8f0;
+  --navbar-nav-text-hover: #ffffff;
+  --navbar-nav-text-active: #ffffff;
+  --navbar-button-variant: ghost;
+  --navbar-dropdown-background: #ffffff;
+  --navbar-dropdown-border: #e2e8f0;
+  --navbar-dropdown-text: #1e293b;
+  --navbar-dropdown-hover: #f1f5f9;
+
+  /* Footer specific colors - modern gradient footer */
+  --footer-background: linear-gradient(to right, #1e293b, #334155);
+  --footer-text: #ffffff;
+  --footer-text-muted: #cbd5e1;
+  --footer-link-text: #cbd5e1;
+  --footer-link-hover: #ffffff;
+  --footer-border: #475569;
+  --footer-logo-background: linear-gradient(to bottom right, #6366f1, #8b5cf6);
+
+  /* Status colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #06b6d4;
+}
+
+/* add more theme specific color variables here */
+
+/* Utility classes for easier theme integration */
+.theme-bg-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.theme-bg-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-foreground);
+}
+
+.theme-text-primary {
+  color: var(--color-primary);
+}
+
+.theme-text-secondary {
+  color: var(--color-secondary);
+}
+
+.theme-text-muted {
+  color: var(--color-muted-foreground);
+}
+
+.theme-border {
+  border-color: var(--color-border);
+}
+
+.theme-bg {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+.theme-bg-muted {
+  background-color: var(--color-background-muted);
+  color: var(--color-foreground);
+}
+
+/* Navbar specific utility classes */
+.navbar-bg {
+  background: var(--navbar-background);
+  box-shadow: var(--navbar-shadow);
+}
+
+.navbar-border {
+  border-color: var(--navbar-border);
+}
+
+.navbar-logo-text {
+  color: var(--navbar-logo-text);
+}
+
+.navbar-logo-bg {
+  background-color: var(--navbar-logo-background);
+}
+
+.navbar-nav-text {
+  color: var(--navbar-nav-text);
+}
+
+.navbar-nav-text:hover {
+  color: var(--navbar-nav-text-hover);
+}
+
+.navbar-nav-text-active {
+  color: var(--navbar-nav-text-active);
+}
+
+.navbar-dropdown-bg {
+  background-color: var(--navbar-dropdown-background);
+  border-color: var(--navbar-dropdown-border);
+}
+
+.navbar-dropdown-text {
+  color: var(--navbar-dropdown-text);
+}
+
+.navbar-dropdown-hover:hover {
+  background-color: var(--navbar-dropdown-hover);
+}
+
+/* Footer specific utility classes */
+.footer-bg {
+  background: var(--footer-background);
+}
+
+.footer-text {
+  color: var(--footer-text);
+}
+
+.footer-text-muted {
+  color: var(--footer-text-muted);
+}
+
+.footer-link {
+  color: var(--footer-link-text);
+}
+
+.footer-link:hover {
+  color: var(--footer-link-hover);
+}
+
+.footer-border {
+  border-color: var(--footer-border);
+}
+
+.footer-logo-bg {
+  background: var(--footer-logo-background);
+}

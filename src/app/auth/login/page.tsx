@@ -74,16 +74,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center ">
-      <Card className="w-full max-w-md shadow-lg">
+    <div className="min-h-screen theme-bg flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-lg theme-bg theme-border border">
         <CardHeader className="space-y-1 text-center">
-          <div className="w-16 h-16 bg-brand-dark-blue rounded-full flex items-center justify-center mx-auto mb-4">
-            <Lock className="h-8 w-8 text-white" />
+          <div className="w-16 h-16 theme-bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="h-8 w-8 theme-text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold text-brand-charcoal">
+          <CardTitle className="text-2xl font-bold theme-text-primary">
             Welcome Back
           </CardTitle>
-          <CardDescription className="text-brand-dark-charcoal">
+          <CardDescription className="theme-text-muted">
             Sign in to your Hyre Health account
           </CardDescription>
         </CardHeader>
@@ -91,14 +91,12 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Demo Credentials */}
-            <div className="bg-brand-light-blue/30 p-3 rounded-lg text-sm">
-              <p className="font-medium text-brand-dark-blue mb-1">
+            <div className="theme-bg-secondary p-3 rounded-lg text-sm">
+              <p className="font-medium theme-text-primary mb-1">
                 Demo Credentials:
               </p>
-              <p className="text-brand-dark-charcoal">
-                Email: admin@linden.com
-              </p>
-              <p className="text-brand-dark-charcoal">Password: password</p>
+              <p className="theme-text-muted">Email: admin@linden.com</p>
+              <p className="theme-text-muted">Password: password</p>
             </div>
 
             {/* Global Error */}
@@ -110,14 +108,11 @@ export default function LoginPage() {
 
             {/* Email Field */}
             <div className="space-y-2">
-              <Label
-                htmlFor="email"
-                className="text-brand-charcoal font-medium"
-              >
+              <Label htmlFor="email" className="theme-text-primary font-medium">
                 Email Address
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 theme-text-muted" />
                 <Input
                   id="email"
                   type="email"
@@ -132,7 +127,7 @@ export default function LoginPage() {
                       }));
                     }
                   }}
-                  className={`pl-10 ${
+                  className={`pl-10 theme-bg theme-border ${
                     validationErrors.email ? "border-red-500" : ""
                   }`}
                   disabled={isLoading}
@@ -147,12 +142,12 @@ export default function LoginPage() {
             <div className="space-y-2">
               <Label
                 htmlFor="password"
-                className="text-brand-charcoal font-medium"
+                className="theme-text-primary font-medium"
               >
                 Password
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 theme-text-muted" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -167,7 +162,7 @@ export default function LoginPage() {
                       }));
                     }
                   }}
-                  className={`pl-10 pr-10 ${
+                  className={`pl-10 pr-10 theme-bg theme-border ${
                     validationErrors.password ? "border-red-500" : ""
                   }`}
                   disabled={isLoading}
@@ -175,7 +170,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 theme-text-muted hover:theme-text-primary"
                   disabled={isLoading}
                 >
                   {showPassword ? (
@@ -195,7 +190,7 @@ export default function LoginPage() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full bg-brand-dark-blue/100 hover:bg-brand-dark-blue/90 text-white"
+              className="w-full theme-bg-primary hover:opacity-90 transition-opacity"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -211,18 +206,18 @@ export default function LoginPage() {
 
           {/* Footer Links */}
           <div className="mt-6 text-center space-y-2">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm theme-text-muted">
               Don't have an account?{" "}
               <Link
                 href="/auth/register"
-                className="text-brand-dark-blue hover:underline font-medium"
+                className="theme-text-primary hover:underline font-medium"
               >
                 Sign up
               </Link>
             </p>
             <Link
               href="/"
-              className="text-sm text-brand-dark-blue hover:underline"
+              className="text-sm theme-text-primary hover:underline"
             >
               ← Back to Home
             </Link>

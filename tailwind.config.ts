@@ -7,6 +7,7 @@ const config = {
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
+    "./themes/**/*.{ts,tsx}",
   ],
   prefix: "",
   theme: {
@@ -35,7 +36,7 @@ const config = {
           lightblue: "#E5F0F9",
           gray: "#F1F1F1",
         },
-        // shadcn/ui Color System
+        // shadcn/ui Color System - Standard compatibility
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
