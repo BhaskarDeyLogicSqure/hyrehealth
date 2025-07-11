@@ -221,6 +221,15 @@ export default function LoginPage() {
             >
               ← Back to Home
             </Link>
+            <div className="text-sm theme-text-muted">
+              Forgot your password?{" "}
+              <Link
+                href="/auth/forgot-password"
+                className="theme-text-primary hover:underline font-medium"
+              >
+                Reset it here
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>

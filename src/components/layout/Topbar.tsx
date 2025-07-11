@@ -7,12 +7,10 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/store";
 import { clearAuth } from "@/store/actions/authAction";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -21,7 +19,6 @@ import {
   X,
   LogOut,
   User,
-  Settings,
   Package,
   History,
   CreditCard,
@@ -62,14 +59,6 @@ const Topbar = () => {
     router.push("/auth/login");
   };
 
-  const handleProfile = () => {
-    router.push("/profile");
-  };
-
-  const handleSettings = () => {
-    router.push("/settings");
-  };
-
   const handleMySubscriptions = () => {
     router.push("/profile?tab=subscriptions"); // Navigate to profile page with subscriptions tab
   };
@@ -86,9 +75,9 @@ const Topbar = () => {
   const userName = user?.firstName || "John";
 
   // Don't show navigation on auth pages
-  if (pathname.startsWith("/auth/")) {
-    return null;
-  }
+  // if (pathname.startsWith("/auth/")) {
+  //   return null;
+  // }
 
   return (
     <nav className="navbar-bg navbar-border border-b sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
