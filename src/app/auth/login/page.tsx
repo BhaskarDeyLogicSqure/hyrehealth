@@ -95,7 +95,7 @@ export default function LoginPage() {
                 Demo Credentials:
               </p>
               <p className="theme-text-muted">
-                Email: akash+12@logic-square.com
+                Email: pratik+1@logic-square.com
               </p>
               <p className="theme-text-muted">Password: Qwerty@123</p>
             </div>
