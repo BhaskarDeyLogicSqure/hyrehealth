@@ -17,7 +17,7 @@ const Renewal = () => {
   const cookieStore = cookies();
   const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
 
-  return <RenewalPage theme={theme} />;
+  return <RenewalPage />;
 };
 
 export default Renewal;
