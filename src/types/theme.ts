@@ -1,10 +1,10 @@
-export type UserColourTheme = {
-  name: string;
-  primaryColor: string;
-  secondaryColor: string;
+export interface IThemeResponseData {
+  ok: boolean;
+  userColourTheme: Theme;
+  companyLogo: string;
 }
 
-export interface IThemeResponseData {
-  userColourTheme: UserColourTheme;
-  companyLogo: string;
+export const enum Theme {
+  DEFAULT = "default",
+  MODERN = "modern",
 }

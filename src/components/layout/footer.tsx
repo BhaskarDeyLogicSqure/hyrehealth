@@ -1,32 +1,64 @@
 "use client";
 
-import { Gift, Mail, Phone, MapPin } from "lucide-react";
 import Link from "next/link";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="footer-bg footer-text">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="footer-bg footer-text py-12">
+      <div className="container mx-auto px-4">
+        <div className="grid md:grid-cols-4 gap-8">
           {/* Company Info */}
-          <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 footer-logo-bg rounded-lg flex items-center justify-center">
-                <Gift className="h-5 w-5 text-white" />
+          <div>
+            <div className="flex items-center mb-4">
+              <div className="w-8 h-8 footer-logo-bg rounded-lg flex items-center justify-center mr-2">
+                <span className="text-white font-bold">H</span>
               </div>
-              <span className="text-xl font-bold">Hyre Health</span>
+              <span className="text-lg font-bold footer-text">
+                HealthPortal
+              </span>
             </div>
-            <p className="footer-text-muted">
-              Hyre Health is a platform that helps you manage your health.
+            <p className="footer-text-muted text-sm">
+              Personalized telehealth treatments delivered to your door.
             </p>
+          </div>
+
+          {/* Treatments */}
+          <div>
+            <h3 className="font-semibold mb-4 footer-text">Treatments</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link
+                  href="/categories?category=weight-loss"
+                  className="footer-link transition-colors"
+                >
+                  Weight Loss
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/categories?category=peptides"
+                  className="footer-link transition-colors"
+                >
+                  Peptides
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/categories?category=wellness"
+                  className="footer-link transition-colors"
+                >
+                  Wellness
+                </Link>
+              </li>
+            </ul>
           </div>
 
           {/* Support */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Support</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold mb-4 footer-text">Support</h3>
+            <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/help" className="footer-link transition-colors">
                   Help Center
@@ -38,6 +70,18 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/faq" className="footer-link transition-colors">
+                  FAQ
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h3 className="font-semibold mb-4 footer-text">Legal</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
                 <Link href="/privacy" className="footer-link transition-colors">
                   Privacy Policy
                 </Link>
@@ -48,11 +92,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/security"
-                  className="footer-link transition-colors"
-                >
-                  Security
+                <Link href="/hipaa" className="footer-link transition-colors">
+                  HIPAA Notice
                 </Link>
               </li>
             </ul>
@@ -60,31 +101,11 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t footer-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+        <div className="border-t footer-border mt-8 pt-8 text-center">
           <p className="footer-text-muted text-sm">
-            © <span suppressHydrationWarning>{currentYear}</span> Hyre Health.
-            All rights reserved. qwe
+            &copy; <span suppressHydrationWarning>{currentYear}</span>{" "}
+            HealthPortal. All rights reserved. | Licensed Medical Professionals
           </p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <Link
-              href="/privacy"
-              className="footer-link transition-colors text-sm"
-            >
-              Privacy
-            </Link>
-            <Link
-              href="/terms"
-              className="footer-link transition-colors text-sm"
-            >
-              Terms
-            </Link>
-            <Link
-              href="/cookies"
-              className="footer-link transition-colors text-sm"
-            >
-              Cookies
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

@@ -1,2 +1,9 @@
+import { toast } from "sonner";
 
-export * from "./auth";
+export const showToast = (message: string) => {
+  toast.success(message);
+};
+
+export const errorHandler = (message: string) => {
+  toast.error(message);
+};

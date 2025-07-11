@@ -25,7 +25,7 @@ export const getTokenFromCookie = (): string | null => {
 
   const cookies = document.cookie.split(";");
   for (let cookie of cookies) {
-    const [name, value] = cookie.trim().split("=");
+    const [name, value] = cookie?.trim()?.split("=");
     if (name === "token") {
       return decodeURIComponent(value);
     }
@@ -40,14 +40,15 @@ export const isUserAuthenticated = () => {
     return false;
   }
 
-  const tokenData = decodeJWTToken(token);
-  const expDate = new Date(+tokenData.exp * 1000); // expire in sec. convert in msec.
+  // TODO: Can implement actual token expiration check, if backend sends expiration time
+  // const tokenData = decodeJWTToken(token);
+  // const expDate = new Date(+tokenData?.exp * 1000); // expire in sec. convert in msec.
 
-  if (!expDate || expDate <= new Date()) {
-    console.log("token expired...");
-    logout();
-    return false;
-  }
+  // if (!expDate || expDate <= new Date()) {
+  //   console.log("token expired...");
+  //   logout();
+  //   return false;
+  // }
 
   return true;
 };

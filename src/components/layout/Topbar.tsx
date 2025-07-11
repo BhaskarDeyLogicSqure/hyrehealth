@@ -16,9 +16,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, LogOut, User, Settings } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  User,
+  Settings,
+  Package,
+  History,
+  CreditCard,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useCookies } from "@/hooks/useCookies";
-
+import { isUserAuthenticated } from "@/utils/auth";
 const Topbar = () => {
   const pathname = usePathname();
   const router = useRouter();
@@ -26,10 +36,12 @@ const Topbar = () => {
   const { removeCookie } = useCookies();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const { user, isAuthenticated } = useSelector(
+  const { user, isAuthenticated: isAuthenticatedFromRedux } = useSelector(
     (state: RootState) => state.authReducer
   );
 
+  // Check if user is authenticated from the cookie or the redux store
+  const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
   console.log({ user, isAuthenticated });
 
   // Navigation items for the main menu
@@ -57,6 +69,21 @@ const Topbar = () => {
   const handleSettings = () => {
     router.push("/settings");
   };
+
+  const handleMySubscriptions = () => {
+    router.push("/profile?tab=subscriptions"); // Navigate to profile page with subscriptions tab
+  };
+
+  const handleOrderHistory = () => {
+    router.push("/profile?tab=orders"); // Navigate to profile page with orders tab
+  };
+
+  const handlePaymentMethods = () => {
+    router.push("/profile?tab=payments"); // Navigate to profile page with payments tab
+  };
+
+  // Mock user name for display - in real app this would come from user data
+  const userName = user?.firstName || "John";
 
   // Don't show navigation on auth pages
   if (pathname.startsWith("/auth/")) {
@@ -101,56 +128,47 @@ const Topbar = () => {
               // Authenticated User Dropdown
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2 navbar-nav-text"
-                  >
-                    <span className="text-sm font-medium">My Account</span>
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="navbar-logo-bg text-white text-xs">
-                        {user?.firstName
-                          ? user.firstName
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")
-                              .toUpperCase()
-                          : user?.isAdmin
-                          ? "AU"
-                          : "U"}
-                      </AvatarFallback>
-                    </Avatar>
+                  <Button variant="outline" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    My Account
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="w-56 navbar-dropdown-bg"
-                >
-                  <DropdownMenuLabel className="navbar-dropdown-text">
-                    {user?.firstName} {user?.lastName}
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="navbar-border" />
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-2 py-1.5 text-sm font-medium text-gray-900">
+                    Welcome, {userName}
+                  </div>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={handleProfile}
-                    className="cursor-pointer navbar-dropdown-text navbar-dropdown-hover"
+                    onClick={handleMySubscriptions}
+                    className="cursor-pointer"
                   >
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                    <Package className="h-4 w-4 mr-2" />
+                    My Subscriptions
+                    <Badge variant="secondary" className="ml-auto">
+                      2
+                    </Badge>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={handleSettings}
-                    className="cursor-pointer navbar-dropdown-text navbar-dropdown-hover"
+                    onClick={handleOrderHistory}
+                    className="cursor-pointer"
                   >
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                    <History className="h-4 w-4 mr-2" />
+                    Order History
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="navbar-border" />
+                  <DropdownMenuItem
+                    onClick={handlePaymentMethods}
+                    className="cursor-pointer"
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Manage Payment Methods
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50"
+                    className="text-red-600 cursor-pointer"
                   >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Sign Out</span>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -208,59 +226,55 @@ const Topbar = () => {
               <div className="pt-4 border-t navbar-border">
                 {isAuthenticated ? (
                   <div className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-3 py-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="navbar-logo-bg text-white text-xs">
-                          {user?.firstName
-                            ? user.firstName
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .toUpperCase()
-                            : user?.isAdmin
-                            ? "AU"
-                            : "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm font-medium navbar-dropdown-text">
-                        {user?.firstName} {user?.lastName}
-                      </span>
+                    <div className="text-sm font-medium text-gray-900 px-2 py-1">
+                      Welcome, {userName}
                     </div>
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      variant="outline"
+                      className="w-full justify-start"
                       onClick={() => {
-                        handleProfile();
+                        handleMySubscriptions();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="justify-start navbar-nav-text navbar-dropdown-hover"
                     >
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
+                      <Package className="h-4 w-4 mr-2" />
+                      My Subscriptions
+                      <Badge variant="secondary" className="ml-auto">
+                        2
+                      </Badge>
                     </Button>
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      variant="outline"
+                      className="w-full justify-start"
                       onClick={() => {
-                        handleSettings();
+                        handleOrderHistory();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="justify-start navbar-nav-text navbar-dropdown-hover"
                     >
-                      <Settings className="mr-2 h-4 w-4" />
-                      Settings
+                      <History className="h-4 w-4 mr-2" />
+                      Order History
                     </Button>
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        handlePaymentMethods();
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Payment Methods
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-red-600"
                       onClick={() => {
                         handleLogout();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="justify-start text-red-600 hover:bg-red-50"
                     >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
                     </Button>
                   </div>
                 ) : (

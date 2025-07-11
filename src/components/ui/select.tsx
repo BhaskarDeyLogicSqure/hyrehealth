@@ -166,9 +166,9 @@ const SelectItem = React.forwardRef<
     (node: HTMLElement | null) => {
       setElement(node);
       if (typeof ref === "function") {
-        ref(node);
+        ref(node as HTMLDivElement);
       } else if (ref) {
-        ref.current = node;
+        ref.current = node as HTMLDivElement;
       }
     },
     [ref]

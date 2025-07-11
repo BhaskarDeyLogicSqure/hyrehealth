@@ -94,14 +94,14 @@
   --navbar-dropdown-text: #111827;
   --navbar-dropdown-hover: #f9fafb;
 
-  /* Footer specific colors - elegant dark footer */
-  --footer-background: #1f2937;
+  /* Footer specific colors - matches source project bg-gray-900 */
+  --footer-background: #111827;
   --footer-text: #ffffff;
-  --footer-text-muted: #d1d5db;
-  --footer-link-text: #d1d5db;
+  --footer-text-muted: #9ca3af;
+  --footer-link-text: #9ca3af;
   --footer-link-hover: #ffffff;
   --footer-border: #374151;
-  --footer-logo-background: linear-gradient(to bottom right, #2563eb, #7c3aed);
+  --footer-logo-background: #2563eb;
 
   /* Status colors */
   --color-success: #28a745;
@@ -150,13 +150,13 @@
   --navbar-dropdown-text: #1e293b;
   --navbar-dropdown-hover: #f1f5f9;
 
-  /* Footer specific colors - modern gradient footer */
-  --footer-background: linear-gradient(to right, #1e293b, #334155);
+  /* Footer specific colors - modern dark footer matching source project */
+  --footer-background: linear-gradient(to right, #111827, #1f2937);
   --footer-text: #ffffff;
-  --footer-text-muted: #cbd5e1;
-  --footer-link-text: #cbd5e1;
+  --footer-text-muted: #9ca3af;
+  --footer-link-text: #9ca3af;
   --footer-link-hover: #ffffff;
-  --footer-border: #475569;
+  --footer-border: #374151;
   --footer-logo-background: linear-gradient(to bottom right, #6366f1, #8b5cf6);
 
   /* Status colors */

@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,13 +14,14 @@ import {
 import { Loader2, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useAuthApi } from "@/api/auth/useAuthApi";
-import type { RootState } from "@/store";
+// import { useAuthApi } from "@/api/auth/useAuthApi";
+// import type { RootState } from "@/store";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const { isAuthenticated } = useSelector(
-    (state: RootState) => state.authReducer
-  );
+  // const router = useRouter();
+  // const { isAuthenticated } = useSelector(
+  //   (state: RootState) => state.authReducer
+  // );
   const { login, isLoading, error: loginError } = useAuthApi();
 
   const [email, setEmail] = useState("");
@@ -34,11 +33,11 @@ export default function LoginPage() {
   }>({});
 
   // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/gift-boxes");
-    }
-  }, [isAuthenticated, router]);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     router.push("/profile");
+  //   }
+  // }, [isAuthenticated, router]);
 
   const validateForm = () => {
     const errors: { email?: string; password?: string } = {};
@@ -78,7 +77,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-lg theme-bg theme-border border">
         <CardHeader className="space-y-1 text-center">
           <div className="w-16 h-16 theme-bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <Lock className="h-8 w-8 theme-text-primary" />
+            <Lock className="h-8 w-8 text-white" />
           </div>
           <CardTitle className="text-2xl font-bold theme-text-primary">
             Welcome Back
@@ -91,18 +90,22 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Demo Credentials */}
-            <div className="theme-bg-secondary p-3 rounded-lg text-sm">
+            <div className="theme-bg-muted p-3 rounded-lg text-sm theme-border border">
               <p className="font-medium theme-text-primary mb-1">
                 Demo Credentials:
               </p>
-              <p className="theme-text-muted">Email: admin@linden.com</p>
-              <p className="theme-text-muted">Password: password</p>
+              <p className="theme-text-muted">
+                Email: pratik+1@logic-square.com
+              </p>
+              <p className="theme-text-muted">Password: Qwerty@123</p>
             </div>
 
             {/* Global Error */}
             {loginError && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                <p className="text-red-700 text-sm">{loginError.message}</p>
+              <div className="bg-red-50 border border-red-200 rounded-md p-3 dark:bg-red-900/20 dark:border-red-800">
+                <p className="text-red-700 dark:text-red-400 text-sm">
+                  {loginError.message}
+                </p>
               </div>
             )}
 
@@ -127,14 +130,18 @@ export default function LoginPage() {
                       }));
                     }
                   }}
-                  className={`pl-10 theme-bg theme-border ${
-                    validationErrors.email ? "border-red-500" : ""
+                  className={`pl-10 theme-bg theme-border theme-text-primary placeholder:theme-text-muted ${
+                    validationErrors.email
+                      ? "border-red-500 dark:border-red-400"
+                      : ""
                   }`}
                   disabled={isLoading}
                 />
               </div>
               {validationErrors.email && (
-                <p className="text-red-600 text-sm">{validationErrors.email}</p>
+                <p className="text-red-600 dark:text-red-400 text-sm">
+                  {validationErrors.email}
+                </p>
               )}
             </div>
 
@@ -162,15 +169,17 @@ export default function LoginPage() {
                       }));
                     }
                   }}
-                  className={`pl-10 pr-10 theme-bg theme-border ${
-                    validationErrors.password ? "border-red-500" : ""
+                  className={`pl-10 pr-10 theme-bg theme-border theme-text-primary placeholder:theme-text-muted ${
+                    validationErrors.password
+                      ? "border-red-500 dark:border-red-400"
+                      : ""
                   }`}
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 theme-text-muted hover:theme-text-primary"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 theme-text-muted hover:theme-text-primary transition-colors"
                   disabled={isLoading}
                 >
                   {showPassword ? (
@@ -181,7 +190,7 @@ export default function LoginPage() {
                 </button>
               </div>
               {validationErrors.password && (
-                <p className="text-red-600 text-sm">
+                <p className="text-red-600 dark:text-red-400 text-sm">
                   {validationErrors.password}
                 </p>
               )}
@@ -190,7 +199,7 @@ export default function LoginPage() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full theme-bg-primary hover:opacity-90 transition-opacity"
+              className="w-full theme-bg-primary text-white hover:opacity-90 transition-opacity"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -206,18 +215,9 @@ export default function LoginPage() {
 
           {/* Footer Links */}
           <div className="mt-6 text-center space-y-2">
-            <p className="text-sm theme-text-muted">
-              Don't have an account?{" "}
-              <Link
-                href="/auth/register"
-                className="theme-text-primary hover:underline font-medium"
-              >
-                Sign up
-              </Link>
-            </p>
             <Link
               href="/"
-              className="text-sm theme-text-primary hover:underline"
+              className="text-sm theme-text-primary hover:underline transition-colors"
             >
               ← Back to Home
             </Link>
