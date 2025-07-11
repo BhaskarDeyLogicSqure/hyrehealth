@@ -45,3 +45,83 @@ export const treatmentCategories = [
     color: "bg-indigo-50 text-indigo-600 border-indigo-200",
   },
 ];
+
+// support contact methods
+export const contactMethods = [
+  {
+    method: "Live Chat",
+    description: "Chat with our support team",
+    availability: "24/7 Available",
+    icon: "MessageCircle",
+    action: "Start Chat",
+  },
+  {
+    method: "Phone Support",
+    description: "Call our customer service",
+    availability: "Mon-Fri 8AM-8PM EST",
+    icon: "Phone",
+    action: "Call Now",
+  },
+  {
+    method: "Email Support",
+    description: "Send us an email",
+    availability: "Response within 24 hours",
+    icon: "Mail",
+    action: "Send Email",
+  },
+];
+
+// FAQ's categories
+export const categories = [
+  "General",
+  "Treatment",
+  "Shipping",
+  "Billing",
+  "Account",
+];
+
+// FAQ's list
+export const faqs = [
+  {
+    id: 1,
+    question: "How long does it take to get approved?",
+    answer:
+      "Most patients receive approval within 24-48 hours after completing their consultation. Our licensed physicians review each case individually to ensure the treatment is safe and appropriate for you.",
+    category: "General",
+  },
+  {
+    id: 2,
+    question: "What if I don't qualify for treatment?",
+    answer:
+      "If you don't qualify for your initial treatment choice, our medical team will recommend alternative options that may be suitable for your health profile and goals.",
+    category: "Treatment",
+  },
+  {
+    id: 3,
+    question: "How is my medication shipped?",
+    answer:
+      "All medications are shipped in discreet, temperature-controlled packaging directly from our certified pharmacy. Most orders arrive within 2-3 business days.",
+    category: "Shipping",
+  },
+  {
+    id: 4,
+    question: "Can I pause or cancel my subscription?",
+    answer:
+      "Yes, you can pause or cancel your subscription at any time through your account dashboard. Paused subscriptions can be resumed when you're ready to continue treatment.",
+    category: "Billing",
+  },
+  {
+    id: 5,
+    question: "What if I experience side effects?",
+    answer:
+      "Contact our medical team immediately if you experience any concerning side effects. We provide 24/7 support and can adjust your treatment plan as needed.",
+    category: "Treatment",
+  },
+  {
+    id: 6,
+    question: "Are consultations covered by insurance?",
+    answer:
+      "Currently, our consultations and treatments are not covered by insurance. We keep our prices competitive and transparent with no hidden fees.",
+    category: "Billing",
+  },
+];
