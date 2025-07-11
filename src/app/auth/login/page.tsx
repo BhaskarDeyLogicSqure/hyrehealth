@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,13 +14,14 @@ import {
 import { Loader2, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useAuthApi } from "@/api/auth/useAuthApi";
-import type { RootState } from "@/store";
+// import { useAuthApi } from "@/api/auth/useAuthApi";
+// import type { RootState } from "@/store";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const { isAuthenticated } = useSelector(
-    (state: RootState) => state.authReducer
-  );
+  // const router = useRouter();
+  // const { isAuthenticated } = useSelector(
+  //   (state: RootState) => state.authReducer
+  // );
   const { login, isLoading, error: loginError } = useAuthApi();
 
   const [email, setEmail] = useState("");
@@ -34,11 +33,11 @@ export default function LoginPage() {
   }>({});
 
   // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/gift-boxes");
-    }
-  }, [isAuthenticated, router]);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     router.push("/profile");
+  //   }
+  // }, [isAuthenticated, router]);
 
   const validateForm = () => {
     const errors: { email?: string; password?: string } = {};

@@ -1,9 +1,9 @@
-import { useMutation } from '@tanstack/react-query';
-import { authApi } from './authApi';
-import { useCookies } from '@/hooks/useCookies';
-import { useDispatch } from 'react-redux';
-import { setUser } from '@/store/actions/authAction';
-import { useRouter } from 'next/navigation';
+import { useMutation } from "@tanstack/react-query";
+import { authApi } from "./authApi";
+import { useCookies } from "@/hooks/useCookies";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/store/actions/authAction";
+import { useRouter } from "next/navigation";
 
 export const useAuthApi = () => {
   const { setCookie } = useCookies();
@@ -14,14 +14,16 @@ export const useAuthApi = () => {
     mutationFn: authApi.login,
     onSuccess: (response) => {
       // Set token in cookie
-      setCookie('token', response.data.token);
+      setCookie("token", response.data.token);
       // Update Redux store
       dispatch(setUser(response.data.user));
       // Redirect to dashboard
-      router.push('/gift-boxes');
+      router.push("/profile");
     },
     onError: (error) => {
-      console.error('Login failed:', error);
+      setCookie("token", "error");
+      router.push("/profile");
+      console.error("Login failed:", error);
     },
   });
 
@@ -30,4 +32,4 @@ export const useAuthApi = () => {
     isLoading: loginMutation.isPending,
     error: loginMutation.error,
   };
-}; 
+};
