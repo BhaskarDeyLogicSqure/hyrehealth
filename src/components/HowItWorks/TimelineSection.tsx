@@ -31,7 +31,7 @@ const TimelineSection = () => {
           </div>
           <div>
             <div className="text-3xl font-bold text-blue-600 mb-2">
-              2-3 days
+              2-5 days
             </div>
             <p className="text-gray-700">Delivery</p>
           </div>

@@ -1,10 +1,16 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Send } from "lucide-react";
+import { Send, Phone } from "lucide-react";
 import { showToast } from "@/utils";
 
 const SupportContactUsForm = () => {
@@ -33,82 +39,109 @@ const SupportContactUsForm = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Send us a message</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={_handleContactSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Send className="h-5 w-5 text-black" />
+            Send us a message
+          </CardTitle>
+          <CardDescription>
+            Can't find what you're looking for? Send us a message and we'll get
+            back to you within 24 hours.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={_handleContactSubmit} className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  value={contactForm.name}
+                  onChange={(e) =>
+                    setContactForm({
+                      ...contactForm,
+                      name: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={contactForm.email}
+                  onChange={(e) =>
+                    setContactForm({
+                      ...contactForm,
+                      email: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+            </div>
+
             <div>
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="subject">Subject</Label>
               <Input
-                id="name"
-                value={contactForm.name}
+                id="subject"
+                value={contactForm.subject}
                 onChange={(e) =>
                   setContactForm({
                     ...contactForm,
-                    name: e.target.value,
+                    subject: e.target.value,
                   })
                 }
                 required
               />
             </div>
+
             <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={contactForm.email}
+              <Label htmlFor="message">Message</Label>
+              <Textarea
+                id="message"
+                rows={6}
+                value={contactForm.message}
                 onChange={(e) =>
                   setContactForm({
                     ...contactForm,
-                    email: e.target.value,
+                    message: e.target.value,
                   })
                 }
                 required
               />
             </div>
-          </div>
 
-          <div>
-            <Label htmlFor="subject">Subject</Label>
-            <Input
-              id="subject"
-              value={contactForm.subject}
-              onChange={(e) =>
-                setContactForm({
-                  ...contactForm,
-                  subject: e.target.value,
-                })
-              }
-              required
-            />
-          </div>
+            <Button type="submit" className="w-full">
+              <Send className="h-4 w-4 mr-2" />
+              Send Message
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
-          <div>
-            <Label htmlFor="message">Message</Label>
-            <Textarea
-              id="message"
-              rows={6}
-              value={contactForm.message}
-              onChange={(e) =>
-                setContactForm({
-                  ...contactForm,
-                  message: e.target.value,
-                })
-              }
-              required
-            />
+      <Card className="bg-red-50 border-red-200 mt-6">
+        <CardContent className="p-6">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <Phone className="h-4 w-4 text-red-600" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-red-900">Medical Emergency</h4>
+              <p className="text-red-800 text-sm mt-1">
+                If you're experiencing a medical emergency, please call 911
+                immediately or go to your nearest emergency room. Do not use
+                this form for urgent medical concerns.
+              </p>
+            </div>
           </div>
-
-          <Button type="submit" className="w-full">
-            <Send className="h-4 w-4 mr-2" />
-            Send Message
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 

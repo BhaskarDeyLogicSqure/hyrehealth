@@ -27,7 +27,6 @@ import {
   Package,
   Calendar as CalendarIcon,
   Pause,
-  Play,
   X,
   AlertTriangle,
   CheckCircle,
@@ -48,15 +47,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const ProfilePage = () => {
+  const user = useSelector((state: RootState) => state?.authReducer?.user);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
   );
   const [activeTab, setActiveTab] = useState("subscriptions");
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     const initialTab = searchParams.get("tab");
@@ -64,7 +68,6 @@ const ProfilePage = () => {
       initialTab &&
       ["subscriptions", "orders", "payments"].includes(initialTab)
     ) {
-      console.log({ initialTab });
       setActiveTab(initialTab);
     } else {
       // If no valid tab parameter, set default and update URL
@@ -409,14 +412,27 @@ const ProfilePage = () => {
     </Dialog>
   );
 
+  // This is to prevent the hydration error
+  // TODO: Remove this in future when implementing
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  const userName = user?.firstName || "";
+
+  if (!isHydrated) return null;
+
   return (
     <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {tabConfig[activeTab as keyof typeof tabConfig].title}
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          Welcome, {userName}
         </h1>
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          {tabConfig?.[activeTab as keyof typeof tabConfig]?.title}
+        </h2>
         <p className="text-gray-600">
-          {tabConfig[activeTab as keyof typeof tabConfig].subtitle}
+          {tabConfig?.[activeTab as keyof typeof tabConfig]?.subtitle}
         </p>
       </div>
 

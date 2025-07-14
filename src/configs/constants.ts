@@ -66,15 +66,6 @@ export const contactMethods = [
   },
 ];
 
-// FAQ's categories
-export const categories = [
-  "General",
-  "Treatment",
-  "Shipping",
-  "Billing",
-  "Account",
-];
-
 // FAQ's list
 export const faqs = [
   {
