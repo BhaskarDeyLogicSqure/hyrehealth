@@ -16,7 +16,6 @@ import {
   History,
   CreditCard,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { useCookies } from "@/hooks/useCookies";
 import { isUserAuthenticated } from "@/utils/auth";
 const Topbar = () => {
@@ -29,14 +28,6 @@ const Topbar = () => {
   const { user, isAuthenticated: isAuthenticatedFromRedux } = useSelector(
     (state: RootState) => state.authReducer
   );
-
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  useEffect(() => {
-    // Check if user is authenticated from the cookie or the redux store
-    const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
-    setIsAuthenticated(isAuthenticated);
-    // console.log({ user, isAuthenticated });
-  }, []);
 
   // Navigation items for the main menu
   const navigationItems = [
@@ -71,10 +62,14 @@ const Topbar = () => {
   // Mock user name for display - in real app this would come from user data
   const userName = user?.firstName || "John";
 
-  // Don't show navigation on auth pages
-  // if (pathname.startsWith("/auth/")) {
-  //   return null;
-  // }
+  // const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // useEffect(() => {
+  //   // Check if user is authenticated from the cookie or the redux store
+  //   const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
+  //   setIsAuthenticated(isAuthenticated);
+  //   // console.log({ user, isAuthenticated });
+  // }, []);
+  const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
 
   return (
     <nav className="navbar-bg navbar-border border-b sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
