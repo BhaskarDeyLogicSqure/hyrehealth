@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
@@ -37,9 +37,13 @@ const Topbar = () => {
     (state: RootState) => state.authReducer
   );
 
-  // Check if user is authenticated from the cookie or the redux store
-  const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
-  console.log({ user, isAuthenticated });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  useEffect(() => {
+    // Check if user is authenticated from the cookie or the redux store
+    const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
+    setIsAuthenticated(isAuthenticated);
+    // console.log({ user, isAuthenticated });
+  }, []);
 
   // Navigation items for the main menu
   const navigationItems = [
