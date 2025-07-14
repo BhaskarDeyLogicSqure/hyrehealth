@@ -49,18 +49,12 @@ export const treatmentCategories = [
 // support contact methods
 export const contactMethods = [
   {
-    method: "Live Chat",
-    description: "Chat with our support team",
-    availability: "24/7 Available",
-    icon: "MessageCircle",
-    action: "Start Chat",
-  },
-  {
     method: "Phone Support",
     description: "Call our customer service",
     availability: "Mon-Fri 8AM-8PM EST",
     icon: "Phone",
     action: "Call Now",
+    primary: true,
   },
   {
     method: "Email Support",
@@ -68,6 +62,7 @@ export const contactMethods = [
     availability: "Response within 24 hours",
     icon: "Mail",
     action: "Send Email",
+    primary: false,
   },
 ];
 
