@@ -125,10 +125,10 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-md shadow-lg theme-bg theme-border border">
         <CardHeader className="space-y-1 text-center">
           <div className="w-16 h-16 theme-bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <KeyRound className="h-8 w-8 text-white" />
+            <Mail className="h-8 w-8 text-white" />
           </div>
           <CardTitle className="text-2xl font-bold theme-text-primary">
-            Reset Password
+            Forgot Password
           </CardTitle>
           <CardDescription className="theme-text-muted">
             Enter your email address and we'll send you a link to reset your
@@ -204,12 +204,12 @@ export default function ForgotPasswordPage() {
               ← Back to Home
             </Link>
             <div className="text-sm theme-text-muted">
-              Back to Login{" "}
+              Remember your password?{" "}
               <Link
                 href="/auth/login"
                 className="theme-text-primary hover:underline font-medium "
               >
-                Login
+                Sign In
               </Link>
             </div>
           </div>
