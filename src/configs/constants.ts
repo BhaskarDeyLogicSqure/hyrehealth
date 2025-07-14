@@ -49,35 +49,21 @@ export const treatmentCategories = [
 // support contact methods
 export const contactMethods = [
   {
-    method: "Live Chat",
-    description: "Chat with our support team",
-    availability: "24/7 Available",
-    icon: "MessageCircle",
-    action: "Start Chat",
-  },
-  {
     method: "Phone Support",
-    description: "Call our customer service",
+    description: "Speak with a support specialist",
     availability: "Mon-Fri 8AM-8PM EST",
     icon: "Phone",
     action: "Call Now",
+    primary: true,
   },
   {
     method: "Email Support",
-    description: "Send us an email",
+    description: "Send us a detailed message",
     availability: "Response within 24 hours",
     icon: "Mail",
-    action: "Send Email",
+    action: "support@healthportal.com",
+    primary: false,
   },
-];
-
-// FAQ's categories
-export const categories = [
-  "General",
-  "Treatment",
-  "Shipping",
-  "Billing",
-  "Account",
 ];
 
 // FAQ's list

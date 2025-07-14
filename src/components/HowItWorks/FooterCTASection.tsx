@@ -18,8 +18,9 @@ const FooterCTASection = () => {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
+            variant="outline"
             size="lg"
-            className="bg-white text-blue-600 hover:bg-gray-100"
+            className="border-white bg-white text-blue-600 hover:bg-blue-600 hover:text-white"
             onClick={() => router.push("/products")}
           >
             Browse Treatments
@@ -27,7 +28,7 @@ const FooterCTASection = () => {
           <Button
             variant="outline"
             size="lg"
-            className="border-white text-white hover:bg-white hover:text-blue-600"
+            className="border-white bg-white text-blue-600 hover:bg-blue-600 hover:text-white"
             onClick={() => router.push("/support")}
           >
             Have Questions?

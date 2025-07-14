@@ -1,19 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/store";
 import { clearAuth } from "@/store/actions/authAction";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Menu,
   X,
@@ -37,9 +30,13 @@ const Topbar = () => {
     (state: RootState) => state.authReducer
   );
 
-  // Check if user is authenticated from the cookie or the redux store
-  const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
-  console.log({ user, isAuthenticated });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  useEffect(() => {
+    // Check if user is authenticated from the cookie or the redux store
+    const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
+    setIsAuthenticated(isAuthenticated);
+    // console.log({ user, isAuthenticated });
+  }, []);
 
   // Navigation items for the main menu
   const navigationItems = [
@@ -114,53 +111,73 @@ const Topbar = () => {
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
-              // Authenticated User Dropdown
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <User className="h-4 w-4 mr-2" />
-                    My Account
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-2 py-1.5 text-sm font-medium text-gray-900">
-                    Welcome, {userName}
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleMySubscriptions}
-                    className="cursor-pointer"
-                  >
-                    <Package className="h-4 w-4 mr-2" />
-                    My Subscriptions
-                    <Badge variant="secondary" className="ml-auto">
-                      2
-                    </Badge>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={handleOrderHistory}
-                    className="cursor-pointer"
-                  >
-                    <History className="h-4 w-4 mr-2" />
-                    Order History
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={handlePaymentMethods}
-                    className="cursor-pointer"
-                  >
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    Manage Payment Methods
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="text-red-600 cursor-pointer"
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleMySubscriptions} // Navigate to profile page with subscriptions tab
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  My Account
+                </Button>
+
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  size="sm"
+                  className="text-red-600 cursor-pointer hover:text-white hover:bg-red-600"
+                >
+                  <LogOut className="h-4 w- mr-2" />
+                  Logout
+                </Button>
+                {/* Authenticated User Dropdown */}
+                {/* <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <User className="h-4 w-4 mr-2" />
+                      My Account
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="px-2 py-1.5 text-sm font-medium text-gray-900">
+                      Welcome, {userName}
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleMySubscriptions}
+                      className="cursor-pointer"
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      My Subscriptions
+                      <Badge variant="secondary" className="ml-auto">
+                        2
+                      </Badge>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleOrderHistory}
+                      className="cursor-pointer"
+                    >
+                      <History className="h-4 w-4 mr-2" />
+                      Order History
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handlePaymentMethods}
+                      className="cursor-pointer"
+                    >
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Manage Payment Methods
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="text-red-600 cursor-pointer"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu> */}
+              </>
             ) : (
               // Unauthenticated Sign In Button
               <Button
@@ -228,9 +245,9 @@ const Topbar = () => {
                     >
                       <Package className="h-4 w-4 mr-2" />
                       My Subscriptions
-                      <Badge variant="secondary" className="ml-auto">
+                      {/* <Badge variant="secondary" className="ml-auto">
                         2
-                      </Badge>
+                      </Badge> */}
                     </Button>
                     <Button
                       variant="outline"
