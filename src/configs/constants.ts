@@ -50,7 +50,7 @@ export const treatmentCategories = [
 export const contactMethods = [
   {
     method: "Phone Support",
-    description: "Call our customer service",
+    description: "Speak with a support specialist",
     availability: "Mon-Fri 8AM-8PM EST",
     icon: "Phone",
     action: "Call Now",
@@ -58,10 +58,10 @@ export const contactMethods = [
   },
   {
     method: "Email Support",
-    description: "Send us an email",
+    description: "Send us a detailed message",
     availability: "Response within 24 hours",
     icon: "Mail",
-    action: "Send Email",
+    action: "support@healthportal.com",
     primary: false,
   },
 ];

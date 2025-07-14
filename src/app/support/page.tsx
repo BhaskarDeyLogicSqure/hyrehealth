@@ -11,8 +11,8 @@ const SupportPage = () => {
             How can we help you?
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Get support from our medical team and customer service
-            representatives
+            Our support team is here to assist you every step of the way. Find
+            answers to common questions or get in touch directly.
           </p>
         </div>
 

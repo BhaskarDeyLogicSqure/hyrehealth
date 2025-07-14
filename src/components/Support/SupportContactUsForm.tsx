@@ -55,10 +55,13 @@ const SupportContactUsForm = () => {
           <form onSubmit={_handleContactSubmit} className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">
+                  Full Name <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="name"
-                  value={contactForm.name}
+                  value={contactForm?.name}
+                  placeholder="Enter your full name"
                   onChange={(e) =>
                     setContactForm({
                       ...contactForm,
@@ -69,11 +72,14 @@ const SupportContactUsForm = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email">
+                  Email Address <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="email"
                   type="email"
-                  value={contactForm.email}
+                  placeholder="Enter your email address"
+                  value={contactForm?.email}
                   onChange={(e) =>
                     setContactForm({
                       ...contactForm,
@@ -86,10 +92,13 @@ const SupportContactUsForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="subject">Subject</Label>
+              <Label htmlFor="subject">
+                Subject <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="subject"
-                value={contactForm.subject}
+                placeholder="Brief description of your inquiry"
+                value={contactForm?.subject}
                 onChange={(e) =>
                   setContactForm({
                     ...contactForm,
@@ -101,11 +110,14 @@ const SupportContactUsForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="message">Message</Label>
+              <Label htmlFor="message">
+                Message <span className="text-red-500">*</span>
+              </Label>
               <Textarea
                 id="message"
                 rows={6}
-                value={contactForm.message}
+                value={contactForm?.message}
+                placeholder="Please provide as much detail as possible"
                 onChange={(e) =>
                   setContactForm({
                     ...contactForm,
