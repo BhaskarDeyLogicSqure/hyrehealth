@@ -1,4 +1,5 @@
-import { httpType } from "../services/http-services";
+import { httpType } from "@/api";
+
 export interface EndpointConfigType {
   endpoint: string;
   httpType: httpType;
