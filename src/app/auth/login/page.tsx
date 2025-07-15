@@ -22,7 +22,7 @@ export default function LoginPage() {
   // const { isAuthenticated } = useSelector(
   //   (state: RootState) => state.authReducer
   // );
-  const { login, isLoading, error: loginError } = useAuthApi();
+  const { login, isLoading } = useAuthApi();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -99,15 +99,6 @@ export default function LoginPage() {
               </p>
               <p className="theme-text-muted">Password: Qwerty@123</p>
             </div>
-
-            {/* Global Error */}
-            {loginError && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3 dark:bg-red-900/20 dark:border-red-800">
-                <p className="text-red-700 dark:text-red-400 text-sm">
-                  {loginError.message}
-                </p>
-              </div>
-            )}
 
             {/* Email Field */}
             <div className="space-y-2">
