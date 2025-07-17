@@ -10,8 +10,7 @@ export interface ProductFilters {
   search?: string;
   type?: string;
   isActive?: boolean;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
+  sort?: string;
   page?: number;
   limit?: number;
 }

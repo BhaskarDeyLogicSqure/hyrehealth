@@ -11,10 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, Star, ArrowUpDown, Loader2, X } from "lucide-react";
+import { Search, Filter, Star, ArrowUpDown } from "lucide-react";
 import { Product } from "@/types/products";
 import Image from "next/image";
-import { DEFAULT_IMAGE_URL } from "@/configs";
+import { DEFAULT_IMAGE_URL, PRODUCT_SORT_OPTIONS } from "@/configs";
 import { Category } from "@/types/categories";
 import useProducts from "@/hooks/useProducts";
 import { useRouter } from "next/navigation";
@@ -102,19 +102,19 @@ const DefaultProductsPage = () => {
 
             {/* Sort */}
             <Select
-              value={filters?.sortBy}
-              onValueChange={(value) => handleOnChangeFilters("sortBy", value)}
+              value={filters?.sort}
+              onValueChange={(value) => handleOnChangeFilters("sort", value)}
             >
               <SelectTrigger>
                 <ArrowUpDown className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="name">Name A-Z</SelectItem>
-                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                <SelectItem value="price-high">Price: High to Low</SelectItem>
-                <SelectItem value="rating">Highest Rated</SelectItem>
-                <SelectItem value="reviews">Most Reviews</SelectItem>
+                {PRODUCT_SORT_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -182,10 +182,10 @@ const DefaultProductsPage = () => {
                   <div className="flex items-center mb-4">
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                     <span className="ml-1 text-sm font-medium">
-                      {product?.rating}
+                      {product?.statistics?.averageRating}
                     </span>
                     <span className="ml-1 text-sm theme-text-muted">
-                      ({product?.reviews?.length})
+                      ({product?.statistics?.reviewCount})
                     </span>
                   </div>
 

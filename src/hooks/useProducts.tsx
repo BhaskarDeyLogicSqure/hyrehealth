@@ -7,7 +7,7 @@ import { errorToast } from "@/utils/toasters";
 const initialFilters = {
   search: "",
   category: "",
-  sortBy: "",
+  sort: "",
   page: 1,
   limit: 6,
 };

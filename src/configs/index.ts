@@ -7,3 +7,30 @@ export const STRIPE_KEY = process.env.NEXT_PUBLIC_STRIPE_KEY;
 export const NEXT_PUBLIC_APP_DESCRIPTION = "Hyre Health Customer";
 
 export const DEFAULT_IMAGE_URL = "https://placehold.co/36x36/png";
+
+export const PRODUCT_SORT_OPTIONS = [
+  {
+    label: "Name: A to Z",
+    value: "name_asc",
+  },
+  {
+    label: "Name: Z to A",
+    value: "name_desc",
+  },
+  {
+    label: "Price: Low to High",
+    value: "price_low_high",
+  },
+  {
+    label: "Price: High to Low",
+    value: "price_high_low",
+  },
+  {
+    label: "Rating",
+    value: "rating",
+  },
+  {
+    label: "Most Reviewed",
+    value: "reviews",
+  },
+];
