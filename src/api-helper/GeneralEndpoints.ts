@@ -1,7 +1,6 @@
-import { httpType } from "@/services/http-services";
-import { EndpointConfigType } from "./AuthEndpoints";
+import { httpType } from "@/api";
 
-export const GET_AWS_CREDENTIALS_ENDPOINT: EndpointConfigType = {
+export const GET_AWS_CREDENTIALS_ENDPOINT = {
   endpoint: "/aws/credentials",
   httpType: httpType.GET,
   attachToken: true,
