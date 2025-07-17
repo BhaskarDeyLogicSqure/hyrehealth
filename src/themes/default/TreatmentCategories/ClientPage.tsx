@@ -1,38 +1,17 @@
 "use client";
 
-import useCategoryApi from "@/api/categories/useCategoryApi";
 import CategoriesCard from "@/components/Categories/CategoriesCard";
+import useCategories from "@/hooks/useCategories";
 import { Category } from "@/types/categories";
-import { useEffect, useState } from "react";
 
 const TreatmentCategoriesClient = () => {
-  const [dataPayload, setDataPayload] = useState<Record<string, any>>({
-    page: 1,
-    limit: 6,
-  });
-
-  const [categories, setCategories] = useState<Record<string, any>>({
-    data: [],
-    total: 0,
-  });
-
   const {
-    categories: categoriesResponse,
-    total: totalResponse,
+    categories,
+    dataPayload,
     isCategoriesLoading,
     isCategoriesError,
-  } = useCategoryApi(dataPayload);
-
-  useEffect(() => {
-    if (categoriesResponse) {
-      setCategories({
-        data: categoriesResponse,
-        total: totalResponse,
-      });
-    }
-  }, [categoriesResponse]);
-
-  // console.log("categoriesResponse", { categoriesResponse });
+    onPageChange,
+  } = useCategories();
 
   return (
     <div className="min-h-screen theme-bg">
@@ -52,7 +31,7 @@ const TreatmentCategoriesClient = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.isArray(categories?.data) && categories?.data?.length > 0 ? (
             categories?.data?.map((category: Category) => (
-              <CategoriesCard key={category?.id} category={category} />
+              <CategoriesCard key={category?._id} category={category} />
             ))
           ) : isCategoriesLoading ? (
             <div className="col-span-full text-center py-8">
@@ -81,12 +60,7 @@ const TreatmentCategoriesClient = () => {
         {categories?.total > categories?.data?.length && (
           <div className="mt-8 flex justify-center items-center space-x-2">
             <button
-              onClick={() =>
-                setDataPayload({
-                  ...dataPayload,
-                  page: Math.max(1, dataPayload?.page! - 1),
-                })
-              }
+              onClick={() => onPageChange(Math.max(1, dataPayload?.page! - 1))}
               disabled={dataPayload?.page === 1}
               className="px-4 py-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -100,13 +74,12 @@ const TreatmentCategoriesClient = () => {
 
             <button
               onClick={() =>
-                setDataPayload({
-                  ...dataPayload,
-                  page: Math.min(
+                onPageChange(
+                  Math.min(
                     Math.ceil(categories?.total / dataPayload?.limit),
                     dataPayload?.page! + 1
-                  ),
-                })
+                  )
+                )
               }
               disabled={
                 dataPayload?.page ===
