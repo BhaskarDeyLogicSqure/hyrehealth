@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 // Dynamic imports for theme components
 //  --------- Default Theme ---------
 const DefaultCategoriesPage = dynamic(
-  () => import("@/themes/default/TreatmentCategories"),
+  () => import("@/themes/default/TreatmentCategories/ServerPage"),
   {
     loading: () => (
       <div className="min-h-screen flex items-center justify-center">
@@ -30,7 +30,11 @@ const ModernCategoriesPage = dynamic(
 
 // --------- Add more theme exports here ---------
 
-const CategoriesPage = () => {
+const CategoriesPage = ({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) => {
   // Get current theme from cookie store
   const cookieStore = cookies();
   const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
@@ -42,7 +46,7 @@ const CategoriesPage = () => {
 
   const SelectedComponent = ThemeComponents[theme] || DefaultCategoriesPage;
 
-  return <SelectedComponent />;
+  return <SelectedComponent searchParams={searchParams} />;
 };
 
 export default CategoriesPage;

@@ -1,12 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { CardContent } from "../ui/card";
-import { Scale, Zap, Heart, Shield, Brain, Activity } from "lucide-react";
-
 import { Card } from "../ui/card";
-
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const CategoriesCard = ({ category }: { category: any }) => {
   const router = useRouter();
@@ -16,50 +14,55 @@ const CategoriesCard = ({ category }: { category: any }) => {
     router.push(`/products?category=${categorySlug}`);
   };
 
-  const _getCategoryIcon = (categoryName: string) => {
-    switch (categoryName) {
-      case "Weight Loss":
-        return <Scale className="h-6 w-6" />;
-      case "Peptides":
-        return <Zap className="h-6 w-6" />;
-      case "Wellness":
-        return <Heart className="h-6 w-6" />;
-      case "Hormone Therapy":
-        return <Shield className="h-6 w-6" />;
-      case "Immune Support":
-        return <Shield className="h-6 w-6" />;
-      case "Cognitive Enhancement":
-        return <Brain className="h-6 w-6" />;
-      default:
-        return null;
-    }
+  const _getRandomCategoryColor = () => {
+    const colors = [
+      "bg-blue-50 text-blue-600 border-blue-200",
+      "bg-purple-50 text-purple-600 border-purple-200",
+      "bg-green-50 text-green-600 border-green-200",
+      "bg-red-50 text-red-600 border-red-200",
+      "bg-orange-50 text-orange-600 border-orange-200",
+      "bg-orange-50 text-orange-600 border-orange-200",
+      "bg-indigo-50 text-indigo-600 border-indigo-200",
+    ];
+    return colors[Math.floor(Math?.random() * colors?.length)];
   };
+
+  const categoryColor = useMemo(() => {
+    return _getRandomCategoryColor();
+  }, [category]);
 
   return (
     <Card
       key={category.id}
-      className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 ${category.color} hover:scale-105 theme-bg`}
-      onClick={() => _handleCategoryClick(category.name)}
+      className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 ${categoryColor} hover:scale-105 theme-bg`}
+      onClick={() => _handleCategoryClick(category?.name)}
     >
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div
-            className={`w-12 h-12 rounded-lg ${
-              category.color.split(" ")[0]
-            } flex items-center justify-center`}
+            className={`w-12 h-12 rounded-lg ${categoryColor} flex items-center justify-center`}
           >
-            {_getCategoryIcon(category?.name)}
+            <Image
+              src={"https://placehold.co/36x36/png"}
+              alt={category?.name}
+              width={36}
+              height={36}
+            />
           </div>
+
           <span className="text-sm theme-text-muted theme-bg-muted px-2 py-1 rounded-full">
-            {category.productCount} products
+            {category?.statistics?.productCount
+              ? category?.statistics?.productCount
+              : 0}{" "}
+            products
           </span>
         </div>
 
         <h3 className="text-xl font-semibold theme-text-primary mb-2">
-          {category.name}
+          {category?.name}
         </h3>
         <p className="theme-text-muted text-sm leading-relaxed">
-          {category.description}
+          {category?.description}
         </p>
 
         <div className="mt-4 pt-4 border-t theme-border">
