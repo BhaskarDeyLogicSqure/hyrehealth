@@ -18,6 +18,8 @@ import { DEFAULT_IMAGE_URL } from "@/configs";
 import { Category } from "@/types/categories";
 import useProducts from "@/hooks/useProducts";
 import { useRouter } from "next/navigation";
+import CustomPagination from "@/components/CustomPagination";
+import DataNotFound from "@/components/DataNotFound";
 
 const DefaultProductsPage = () => {
   const router = useRouter();
@@ -112,7 +114,7 @@ const DefaultProductsPage = () => {
         </div>
 
         {/* Results Summary */}
-        {filters?.category ? (
+        {filters?.category && products?.total ? (
           <div className="mb-6">
             <p className="theme-text-muted">
               Showing {products?.total} treatment
@@ -201,44 +203,25 @@ const DefaultProductsPage = () => {
               </Card>
             ))
           ) : (
-            <h2>No Products Found</h2>
+            <div className="col-span-full">
+              <DataNotFound type="products" />
+            </div>
           )}
         </div>
 
-        {/* Pagination */}
-        {products?.total > products?.data?.length && (
-          <div className="mt-8 flex justify-center items-center space-x-2">
-            <button
-              onClick={() => onPageChange(Math.max(1, filters?.page! - 1))}
-              disabled={filters?.page === 1}
-              className="px-4 py-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
-
-            <span className="px-4 py-2">
-              Page {filters?.page} of{" "}
-              {Math.ceil(products?.total / filters?.limit)}
-            </span>
-
-            <button
-              onClick={() =>
-                onPageChange(
-                  Math.min(
-                    Math.ceil(products?.total / filters?.limit),
-                    filters?.page! + 1
-                  )
-                )
-              }
-              disabled={
-                filters?.page === Math.ceil(products?.total / filters?.limit)
-              }
-              className="px-4 py-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
+        {/* Custom Pagination Component */}
+        {products?.total && filters?.page && filters?.limit ? (
+          <div className="mt-8">
+            <CustomPagination
+              currentPage={filters.page}
+              totalItems={products.total}
+              itemsPerPage={filters.limit}
+              onPageChange={onPageChange}
+              showInfo={true}
+              maxVisiblePages={5}
+            />
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
