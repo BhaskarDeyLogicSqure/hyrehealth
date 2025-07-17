@@ -5,7 +5,7 @@ import { CardContent } from "../ui/card";
 import { Card } from "../ui/card";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
+import { DEFAULT_IMAGE_URL } from "@/configs";
 const CategoriesCard = ({ category }: { category: any }) => {
   const router = useRouter();
 
@@ -43,7 +43,7 @@ const CategoriesCard = ({ category }: { category: any }) => {
             className={`w-12 h-12 rounded-lg ${categoryColor} flex items-center justify-center`}
           >
             <Image
-              src={"https://placehold.co/36x36/png"}
+              src={DEFAULT_IMAGE_URL}
               alt={category?.name}
               width={36}
               height={36}

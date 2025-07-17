@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 // Dynamic imports for theme components
 //  --------- Default Theme ---------
 const DefaultProductsPage = dynamic(
-  () => import("@/themes/default/ProductsPage"),
+  () => import("@/themes/default/Products/ServerPage"),
   {
     loading: () => (
       <div className="min-h-screen flex items-center justify-center">
@@ -31,7 +31,7 @@ const DefaultProductsPage = dynamic(
 
 // --------- Add more theme exports here ---------
 
-const ProductsPage = () => {
+const ProductsPage = ({ searchParams }: { searchParams: any }) => {
   // Get current theme from cookie store
   const cookieStore = cookies();
   const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
@@ -45,7 +45,7 @@ const ProductsPage = () => {
     ThemeComponents[theme as keyof typeof ThemeComponents] ||
     DefaultProductsPage;
 
-  return <SelectedComponent />;
+  return <SelectedComponent searchParams={searchParams} />;
 };
 
 export default ProductsPage;

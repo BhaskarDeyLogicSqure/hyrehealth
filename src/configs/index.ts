@@ -5,3 +5,5 @@ export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 export const STRIPE_KEY = process.env.NEXT_PUBLIC_STRIPE_KEY;
 
 export const NEXT_PUBLIC_APP_DESCRIPTION = "Hyre Health Customer";
+
+export const DEFAULT_IMAGE_URL = "https://placehold.co/36x36/png";

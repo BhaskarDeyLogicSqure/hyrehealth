@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 // Dynamic imports for theme components
 //  --------- Default Theme ---------
 const DefaultProductDetailsPage = dynamic(
-  () => import("@/themes/default/ProductDetailsPage"),
+  () => import("@/themes/default/Products/ProductDetailsPage"),
   {
     loading: () => (
       <div className="min-h-screen flex items-center justify-center">
