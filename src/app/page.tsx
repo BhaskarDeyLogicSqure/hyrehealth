@@ -3,13 +3,14 @@ import dynamic from "next/dynamic";
 import { cookies } from "next/headers";
 import { Theme } from "@/types/theme";
 import { DEFAULT_THEME } from "@/lib/theme-utils";
+import ThemeLoader from "@/components/ThemeLoader";
 
 // Dynamic imports for theme components
 //  --------- Default Theme ---------
 const DefaultHomePage = dynamic(() => import("@/themes/default/Home"), {
   loading: () => (
-    <div className="min-h-screen flex items-center justify-center">
-      Loading...
+    <div className="min-h-screen flex items-center justify-center theme-bg">
+      <ThemeLoader type="general" message="Loading homepage..." size="lg" />
     </div>
   ),
 });
@@ -17,8 +18,8 @@ const DefaultHomePage = dynamic(() => import("@/themes/default/Home"), {
 //  --------- Modern Theme ---------
 const ModernHomePage = dynamic(() => import("@/themes/modern/Home"), {
   loading: () => (
-    <div className="min-h-screen flex items-center justify-center">
-      Loading...
+    <div className="min-h-screen flex items-center justify-center theme-bg">
+      <ThemeLoader type="general" message="Loading homepage..." size="lg" />
     </div>
   ),
 });

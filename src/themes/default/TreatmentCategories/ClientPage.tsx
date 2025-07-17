@@ -3,6 +3,7 @@
 import CategoriesCard from "@/components/Categories/CategoriesCard";
 import CustomPagination from "@/components/CustomPagination";
 import DataNotFound from "@/components/DataNotFound";
+import ThemeLoader from "@/components/ThemeLoader";
 import useCategories from "@/hooks/useCategories";
 import { Category } from "@/types/categories";
 
@@ -32,8 +33,12 @@ const TreatmentCategoriesClient = () => {
               <CategoriesCard key={category?._id} category={category} />
             ))
           ) : isCategoriesLoading ? (
-            <div className="col-span-full text-center py-8">
-              <p className="text-2xl font-bold">Loading...</p>
+            <div className="col-span-full">
+              <ThemeLoader
+                type="categories"
+                variant="skeleton"
+                message="Loading treatment categories..."
+              />
             </div>
           ) : isCategoriesError ? (
             <div className="col-span-full text-center py-8">

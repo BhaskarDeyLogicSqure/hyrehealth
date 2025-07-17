@@ -11,9 +11,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useAuthApi } from "@/api/auth/useAuthApi";
+import ThemeLoader from "@/components/ThemeLoader";
 // import { useAuthApi } from "@/api/auth/useAuthApi";
 // import type { RootState } from "@/store";
 
@@ -95,7 +96,7 @@ export default function LoginPage() {
                 Demo Credentials:
               </p>
               <p className="theme-text-muted">
-                Email: pratik+1@logic-square.com
+                Email: customer1_bh0dwjc@example.com
               </p>
               <p className="theme-text-muted">Password: Qwerty@123</p>
             </div>
@@ -195,8 +196,13 @@ export default function LoginPage() {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing In...
+                  <ThemeLoader
+                    type="inline"
+                    variant="simple"
+                    size="sm"
+                    message="Signing In..."
+                    className="mr-2"
+                  />
                 </>
               ) : (
                 "Sign In"

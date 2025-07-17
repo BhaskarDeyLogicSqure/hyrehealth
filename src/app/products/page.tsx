@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { Theme } from "@/types/theme";
 import { DEFAULT_THEME } from "@/lib/theme-utils";
 import dynamic from "next/dynamic";
+import ThemeLoader from "@/components/ThemeLoader";
 
 // Dynamic imports for theme components
 //  --------- Default Theme ---------
@@ -9,8 +10,8 @@ const DefaultProductsPage = dynamic(
   () => import("@/themes/default/Products/ServerPage"),
   {
     loading: () => (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
+      <div className="min-h-screen flex items-center justify-center theme-bg">
+        <ThemeLoader type="products" message="Loading products..." size="lg" />
       </div>
     ),
   }
@@ -22,8 +23,12 @@ const DefaultProductsPage = dynamic(
 //   () => import("@/themes/modern/ModernProductsPage"),
 //   {
 //     loading: () => (
-//       <div className="min-h-screen flex items-center justify-center">
-//         Loading...
+//       <div className="min-h-screen flex items-center justify-center theme-bg">
+//         <ThemeLoader
+//           type="products"
+//           message="Loading products..."
+//           size="lg"
+//         />
 //       </div>
 //     ),
 //   }

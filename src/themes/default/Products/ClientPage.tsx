@@ -20,6 +20,7 @@ import useProducts from "@/hooks/useProducts";
 import { useRouter } from "next/navigation";
 import CustomPagination from "@/components/CustomPagination";
 import DataNotFound from "@/components/DataNotFound";
+import ThemeLoader from "@/components/ThemeLoader";
 
 const DefaultProductsPage = () => {
   const router = useRouter();
@@ -48,7 +49,13 @@ const DefaultProductsPage = () => {
             All Treatments{" "}
             {isProductsLoading ? (
               <span className="ml-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <ThemeLoader
+                  type="inline"
+                  variant="simple"
+                  size="sm"
+                  showIcon={true}
+                  className="ml-2"
+                />
               </span>
             ) : null}
           </h1>
@@ -202,6 +209,10 @@ const DefaultProductsPage = () => {
                 </CardContent>
               </Card>
             ))
+          ) : isProductsLoading ? (
+            <div className="col-span-full">
+              <ThemeLoader type="products" variant="skeleton" />
+            </div>
           ) : (
             <div className="col-span-full">
               <DataNotFound type="products" />
