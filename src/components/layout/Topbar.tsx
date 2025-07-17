@@ -62,14 +62,14 @@ const Topbar = () => {
   // Mock user name for display - in real app this would come from user data
   const userName = user?.firstName || "John";
 
-  // const [isAuthenticated, setIsAuthenticated] = useState(false);
-  // useEffect(() => {
-  //   // Check if user is authenticated from the cookie or the redux store
-  //   const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
-  //   setIsAuthenticated(isAuthenticated);
-  //   // console.log({ user, isAuthenticated });
-  // }, []);
-  const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  useEffect(() => {
+    // Check if user is authenticated from the cookie or the redux store
+    const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
+    setIsAuthenticated(isAuthenticated);
+    // console.log({ user, isAuthenticated });
+  }, []);
+  // const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
 
   return (
     <nav className="navbar-bg navbar-border border-b sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">

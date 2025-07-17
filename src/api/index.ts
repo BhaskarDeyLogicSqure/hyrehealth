@@ -60,13 +60,14 @@ const apiService = {
     endpoint: string,
     params?: object,
     config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> => {
+  ): Promise<T> => {
     try {
       const response = await axiosInstance.get<T>(endpoint, {
         ...config,
         params,
       });
-      return { data: response?.data, status: response?.status };
+      // return { data: response?.data, status: response?.status };
+      return response?.data;
     } catch (err) {
       handleError(err as AxiosError);
     }
