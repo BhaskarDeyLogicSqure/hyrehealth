@@ -11,13 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, Star, ArrowUpDown } from "lucide-react";
+import { Search, Filter, Star, ArrowUpDown, RotateCcw } from "lucide-react";
 import { Product } from "@/types/products";
 import Image from "next/image";
 import { DEFAULT_IMAGE_URL, PRODUCT_SORT_OPTIONS } from "@/configs";
 import { Category } from "@/types/categories";
 import useProducts from "@/hooks/useProducts";
-import { useRouter } from "next/navigation";
 import CustomPagination from "@/components/CustomPagination";
 import DataNotFound from "@/components/DataNotFound";
 import ThemeLoader from "@/components/ThemeLoader";
@@ -27,7 +26,6 @@ import {
 } from "@/hooks/useNavigationState";
 
 const DefaultProductsPage = () => {
-  const router = useRouter();
   const { navigateWithState } = useNavigationState();
 
   const {
@@ -36,9 +34,11 @@ const DefaultProductsPage = () => {
     search,
     categories,
     isProductsLoading,
+    hasActiveFilters,
     handleOnChangeFilters,
     getCategoryNameFromId,
     onPageChange,
+    handleResetFilters,
   } = useProducts();
 
   const _handleProductClick = (productId: string) => {
@@ -75,6 +75,23 @@ const DefaultProductsPage = () => {
 
         {/* Filters */}
         <div className="bg-white rounded-lg p-6 mb-8 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold theme-text-primary">
+              Filters
+            </h3>
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleResetFilters}
+                className="flex items-center gap-1 text-gray-500 hover:text-gray-700 h-8 px-2"
+                title="Reset all filters"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+
           <div className="grid md:grid-cols-3 gap-4">
             {/* Search */}
             <div className="relative">

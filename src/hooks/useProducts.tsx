@@ -1,5 +1,5 @@
 import { Category } from "@/types/categories";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import useProductApi from "@/api/products/useProductApi";
 import useCategoryApi from "@/api/categories/useCategoryApi";
 import { errorToast } from "@/utils/toasters";
@@ -14,6 +14,8 @@ const useProducts = () => {
     updateParam,
     setSearch: setUrlSearch,
     setPage: setUrlPage,
+    resetParams,
+    hasNonDefaultValue,
   } = useProductsUrlParams();
 
   const [search, setSearch] = useState<string>(filters.search || ""); // need a different state for search, as search is being debounced
@@ -22,6 +24,15 @@ const useProducts = () => {
     data: [],
     total: 0,
   });
+
+  // Check if any filters are active (non-default values)
+  const hasActiveFilters = useMemo(() => {
+    return (
+      hasNonDefaultValue("search") ||
+      hasNonDefaultValue("category") ||
+      hasNonDefaultValue("sort")
+    );
+  }, [hasNonDefaultValue]);
 
   const {
     products: productsResponse,
@@ -69,6 +80,11 @@ const useProducts = () => {
     setUrlPage(page);
   };
 
+  // Handle reset filters
+  const _handleResetFilters = () => {
+    resetParams();
+  };
+
   // Sync search state with URL when filters change
   useEffect(() => {
     if (filters.search !== search) {
@@ -91,9 +107,11 @@ const useProducts = () => {
     search,
     categories: categoriesResponse,
     isProductsLoading,
+    hasActiveFilters,
     handleOnChangeFilters: _handleOnChangeFilters,
     getCategoryNameFromId: _getCategoryNameFromId,
     onPageChange: _onPageChange,
+    handleResetFilters: _handleResetFilters,
   };
 };
 
