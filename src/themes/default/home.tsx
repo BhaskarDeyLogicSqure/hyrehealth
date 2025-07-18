@@ -79,9 +79,8 @@ const DefaultHomePage = () => {
     },
   ];
 
-  const handleCategoryClick = (categoryName: string) => {
-    const categorySlug = categoryName.toLowerCase().replace(" ", "-");
-    router.push(`/products?category=${categorySlug}`);
+  const handleCategoryClick = (categoryId: any) => {
+    router.push(`/products?category=${categoryId}`);
   };
 
   const handleProductClick = (productId: string) => {
@@ -125,7 +124,7 @@ const DefaultHomePage = () => {
               <Card
                 key={category.id}
                 className="cursor-pointer hover:shadow-lg transition-shadow duration-300"
-                onClick={() => handleCategoryClick(category.name)}
+                onClick={() => handleCategoryClick(category?.id)}
               >
                 <CardContent className="p-8 text-center">
                   <div
