@@ -46,6 +46,26 @@ export const categoryApi = {
     };
   },
 
+  getFeaturedCategories: async (): Promise<{
+    data: Category[];
+    total: number;
+  }> => {
+    const response = await apiService.get<{
+      data: {
+        categories: Category[];
+        total: number;
+      };
+      error: boolean;
+    }>(`${GET_CATEGORIES_ENDPOINT?.endpoint}`, {
+      isPopular: true,
+      limit: 3,
+    });
+    return {
+      data: response?.data?.categories,
+      total: response?.data?.total,
+    };
+  },
+
   // Get single category
   // getCategory: async (id: string): Promise<Category> => {
   //   const response = await apiService.get<Category>(

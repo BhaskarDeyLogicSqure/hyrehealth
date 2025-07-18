@@ -113,3 +113,26 @@ export const faqs = [
     category: "Billing",
   },
 ];
+
+export const howItWorks = [
+  {
+    step: 1,
+    title: "Choose Treatment",
+    description: "Browse our categories and select the right treatment for you",
+  },
+  {
+    step: 2,
+    title: "Complete Consultation",
+    description: "Answer health questions and speak with our medical team",
+  },
+  {
+    step: 3,
+    title: "Get Approved",
+    description: "Receive your personalized treatment plan and dosage",
+  },
+  {
+    step: 4,
+    title: "Start Treatment",
+    description: "Your medication is delivered monthly to your door",
+  },
+];
