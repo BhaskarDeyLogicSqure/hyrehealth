@@ -55,14 +55,16 @@ export const contactMethods = [
     icon: "Phone",
     action: "Call Now",
     primary: true,
+    contact: "123-456-7890",
   },
   {
     method: "Email Support",
     description: "Send us a detailed message",
     availability: "Response within 24 hours",
     icon: "Mail",
-    action: "support@healthportal.com",
+    action: "Email Now",
     primary: false,
+    contact: "support@healthportal.com",
   },
 ];
 

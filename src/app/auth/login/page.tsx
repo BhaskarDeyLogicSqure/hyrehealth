@@ -11,9 +11,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useAuthApi } from "@/api/auth/useAuthApi";
+import ThemeLoader from "@/components/ThemeLoader";
 // import { useAuthApi } from "@/api/auth/useAuthApi";
 // import type { RootState } from "@/store";
 
@@ -22,7 +23,7 @@ export default function LoginPage() {
   // const { isAuthenticated } = useSelector(
   //   (state: RootState) => state.authReducer
   // );
-  const { login, isLoading, error: loginError } = useAuthApi();
+  const { login, isLoading } = useAuthApi();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -95,19 +96,10 @@ export default function LoginPage() {
                 Demo Credentials:
               </p>
               <p className="theme-text-muted">
-                Email: pratik+1@logic-square.com
+                Email: customer1_bh0dwjc@example.com
               </p>
               <p className="theme-text-muted">Password: Qwerty@123</p>
             </div>
-
-            {/* Global Error */}
-            {loginError && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3 dark:bg-red-900/20 dark:border-red-800">
-                <p className="text-red-700 dark:text-red-400 text-sm">
-                  {loginError.message}
-                </p>
-              </div>
-            )}
 
             {/* Email Field */}
             <div className="space-y-2">
@@ -204,8 +196,13 @@ export default function LoginPage() {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing In...
+                  <ThemeLoader
+                    type="inline"
+                    variant="simple"
+                    size="sm"
+                    message="Signing In..."
+                    className="mr-2"
+                  />
                 </>
               ) : (
                 "Sign In"

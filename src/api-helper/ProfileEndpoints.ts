@@ -1,4 +1,4 @@
-import { httpType } from "@/services/http-services";
+import { httpType } from "@/api";
 import { EndpointConfigType } from "./AuthEndpoints";
 
 // Profile Endpoints

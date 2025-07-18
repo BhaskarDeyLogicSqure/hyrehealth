@@ -329,45 +329,6 @@ const ProfilePage = () => {
     </Dialog>
   );
 
-  const RescheduleModal = ({ subscription }: { subscription: any }) => (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          Reschedule
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Reschedule Delivery</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <p className="text-gray-600 mb-4">
-              Select a new date for your next {subscription.productName}{" "}
-              delivery:
-            </p>
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              disabled={(date) =>
-                date < new Date() ||
-                date > new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
-              }
-              className="rounded-md border"
-            />
-          </div>
-          <div className="flex gap-2 justify-end">
-            <Button variant="outline">Cancel</Button>
-            <Button className="bg-brand-dark-blue hover:bg-brand-dark-blue/90">
-              Confirm New Date
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-
   const PauseSubscriptionModal = ({ subscription }: { subscription: any }) => (
     <Dialog>
       <DialogTrigger asChild>
@@ -598,7 +559,6 @@ const ProfilePage = () => {
                   {subscription.status === "active" && (
                     <div className="flex flex-wrap gap-2 pt-4 border-t">
                       <SkipShipmentModal subscription={subscription} />
-                      <RescheduleModal subscription={subscription} />
                       <PauseSubscriptionModal subscription={subscription} />
                       <Button
                         variant="outline"
@@ -688,23 +648,13 @@ const ProfilePage = () => {
                         <TableCell>
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm">
-                              <Eye className="h-4 w-4 mr-1" />
-                              View
-                            </Button>
-                            <Button variant="outline" size="sm">
                               <Receipt className="h-4 w-4 mr-1" />
                               Invoice
                             </Button>
-                            {order.trackingNumber && (
+                            {order?.trackingNumber && (
                               <Button variant="outline" size="sm">
                                 <Truck className="h-4 w-4 mr-1" />
                                 Track
-                              </Button>
-                            )}
-                            {order.canReorder && (
-                              <Button variant="outline" size="sm">
-                                <RotateCcw className="h-4 w-4 mr-1" />
-                                Reorder
                               </Button>
                             )}
                           </div>

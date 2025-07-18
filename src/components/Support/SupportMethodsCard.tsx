@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -49,6 +50,13 @@ const SupportMethodsCard = () => {
               <Button
                 className="w-full"
                 variant={method?.primary ? "default" : "outline"}
+                onClick={() => {
+                  if (method?.action === "Call Now") {
+                    window.location.href = `tel:${method?.contact}`;
+                  } else if (method?.action === "Email Now") {
+                    window.location.href = `mailto:${method?.contact}`;
+                  }
+                }}
               >
                 {method?.action}
               </Button>
