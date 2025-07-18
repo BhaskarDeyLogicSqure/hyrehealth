@@ -6,12 +6,18 @@ import { Loader2, Package, Search, Grid, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ThemeLoaderProps {
-  type?: "categories" | "products" | "general" | "grid" | "inline";
+  type?:
+    | "categories"
+    | "products"
+    | "general"
+    | "grid"
+    | "inline"
+    | "product-details";
   message?: string;
   className?: string;
   showIcon?: boolean;
   size?: "sm" | "md" | "lg";
-  variant?: "card" | "simple" | "skeleton";
+  variant?: "card" | "simple" | "skeleton" | "product-details-skeleton";
 }
 
 const ThemeLoader: React.FC<ThemeLoaderProps> = ({
@@ -33,6 +39,11 @@ const ThemeLoader: React.FC<ThemeLoaderProps> = ({
       case "products":
         return {
           message: "Loading Products...",
+          icon: Search,
+        };
+      case "product-details":
+        return {
+          message: "Loading Product Details...",
           icon: Search,
         };
       case "grid":
@@ -94,6 +105,100 @@ const ThemeLoader: React.FC<ThemeLoaderProps> = ({
         <span className={cn("theme-text-muted", currentSize.textSize)}>
           {displayMessage}
         </span>
+      </div>
+    );
+  }
+
+  // Product details skeleton
+  if (variant === "product-details-skeleton") {
+    return (
+      <div className={cn("space-y-6", className)}>
+        {/* Back button skeleton */}
+        <div className="theme-bg-muted rounded h-10 w-32 animate-pulse" />
+
+        <div className="grid lg:grid-cols-2 gap-12">
+          {/* Left Column - Product Details */}
+          <div className="space-y-8">
+            {/* Product image section */}
+            <div className="theme-bg-muted rounded-2xl h-80 animate-pulse" />
+
+            {/* Product description card */}
+            <Card className="theme-border">
+              <CardContent className="p-6 space-y-4">
+                <div className="theme-bg-muted rounded h-6 w-1/3 animate-pulse" />
+                <div className="space-y-2">
+                  <div className="theme-bg-muted rounded h-4 w-full animate-pulse" />
+                  <div className="theme-bg-muted rounded h-4 w-3/4 animate-pulse" />
+                  <div className="theme-bg-muted rounded h-4 w-1/2 animate-pulse" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Benefits and side effects */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="theme-border">
+                <CardContent className="p-6 space-y-4">
+                  <div className="theme-bg-muted rounded h-6 w-1/2 animate-pulse" />
+                  <div className="space-y-2">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="theme-bg-muted rounded h-4 w-full animate-pulse"
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="theme-border">
+                <CardContent className="p-6 space-y-4">
+                  <div className="theme-bg-muted rounded h-6 w-1/2 animate-pulse" />
+                  <div className="space-y-2">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="theme-bg-muted rounded h-4 w-full animate-pulse"
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Right Column - Purchase Options */}
+          <div className="space-y-6">
+            <Card className="theme-border">
+              <CardContent className="p-6 space-y-6">
+                {/* Price section */}
+                <div className="space-y-2">
+                  <div className="theme-bg-muted rounded h-8 w-1/2 animate-pulse" />
+                  <div className="theme-bg-muted rounded h-4 w-1/3 animate-pulse" />
+                </div>
+
+                {/* Dosage selection */}
+                <div className="space-y-3">
+                  <div className="theme-bg-muted rounded h-5 w-1/4 animate-pulse" />
+                  <div className="theme-bg-muted rounded h-12 w-full animate-pulse" />
+                </div>
+
+                {/* Duration selection */}
+                <div className="space-y-3">
+                  <div className="theme-bg-muted rounded h-5 w-1/3 animate-pulse" />
+                  <div className="theme-bg-muted rounded h-12 w-full animate-pulse" />
+                </div>
+
+                {/* Total price */}
+                <div className="theme-bg-muted rounded h-16 w-full animate-pulse" />
+
+                {/* Buttons */}
+                <div className="space-y-3">
+                  <div className="theme-bg-muted rounded h-12 w-full animate-pulse" />
+                  <div className="theme-bg-muted rounded h-10 w-full animate-pulse" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   }

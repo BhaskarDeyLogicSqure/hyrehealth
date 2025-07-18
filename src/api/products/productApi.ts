@@ -50,10 +50,19 @@ export const productApi = {
 
   // Get single product
   getProductById: async (id: string): Promise<Product> => {
-    const response = await apiService.get<Product>(
-      `${BASE_URL}${GET_SINGLE_PRODUCT_ENDPOINT?.endpoint}/${id}`
-    );
-    return response;
+    const response = await apiService.get<{
+      data: {
+        product: Product;
+      };
+      error: boolean;
+      message?: string;
+    }>(`${BASE_URL}${GET_SINGLE_PRODUCT_ENDPOINT?.endpoint}/${id}`);
+
+    if (response?.error) {
+      throw new Error(response?.message);
+    }
+    // console.log("response", { response });
+    return response?.data?.product;
   },
 
   // Search categories (for autocomplete/search)
