@@ -20,7 +20,7 @@ export const awsApi = {
   fetchAwsCredentials: async (
     folderPrefix: string = ""
   ): Promise<ApiResponse<IAwsCredentials>> => {
-    const response = await apiService?.get(
+    const response = await apiService?.get<any>(
       `${BASE_URL}${GET_AWS_CREDENTIALS_ENDPOINT?.endpoint}?folderPrefix=${folderPrefix}`
     );
     console.log("response >>", response?.data);
