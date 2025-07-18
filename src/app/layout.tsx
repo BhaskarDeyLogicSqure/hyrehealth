@@ -4,12 +4,15 @@ import "./globals.css";
 import "../styles/themes.css";
 import { AppProviders } from "@/components/providers/AppProviders";
 import ToasterWrapper from "@/components/ui/ToasterWrapper";
+import GlobalErrorHandler from "@/components/GlobalErrorHandler";
 import { ThemeProvider } from "@/contexts/ThemeProvider";
 import { DEFAULT_THEME } from "@/lib/theme-utils";
 import Layout from "@/components/layout/Layout";
 import Topbar from "@/components/layout/Topbar";
 import { cookies } from "next/headers";
 import { Theme } from "@/types/theme";
+import { Suspense } from "react";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -35,6 +38,9 @@ export default async function RootLayout({
             <Topbar />
             <Layout>{children}</Layout>
             <ToasterWrapper />
+            <Suspense fallback={null}>
+              <GlobalErrorHandler />
+            </Suspense>
           </AppProviders>
         </ThemeProvider>
       </body>

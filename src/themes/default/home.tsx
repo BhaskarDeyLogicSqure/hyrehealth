@@ -12,52 +12,52 @@ const DefaultHomePage = () => {
 
   const categories = [
     {
-      id: 1,
-      name: "Weight Loss",
+      id: "68778edf7db6aef7c6e2beed",
+      name: "Supplements edited",
       icon: Scale,
-      description: "Effective weight management solutions",
+      description: "Description for Supplements",
       color: "bg-blue-50 text-blue-600",
     },
     {
-      id: 2,
-      name: "Peptides",
+      id: "68778edf7db6aef7c6e2bef9",
+      name: "Medications one",
       icon: Zap,
-      description: "Advanced peptide therapies",
+      description: "Prescription and over-the-counter medications",
       color: "bg-purple-50 text-purple-600",
     },
     {
-      id: 3,
-      name: "Wellness",
+      id: "6874c60a104d4af22a710d95",
+      name: "Supplements",
       icon: Heart,
-      description: "Comprehensive wellness support",
+      description: "Description for Supplements",
       color: "bg-green-50 text-green-600",
     },
   ];
 
   const topProducts = [
     {
-      id: 1,
-      name: "Semaglutide",
+      id: "6874c60b104d4af22a710ded",
+      name: "Health Tests Product 1",
       category: "Weight Loss",
       price: 299,
       rating: 4.8,
-      description: "Clinical-grade weight management",
+      description: "Detailed description for Health Tests Product 1",
     },
     {
-      id: 2,
-      name: "BPC-157",
+      id: "6874c60b104d4af22a710e1f",
+      name: "Health Tests Product 1",
       category: "Peptides",
       price: 199,
       rating: 4.9,
-      description: "Recovery and healing support",
+      description: "Detailed description for Health Tests Product 1",
     },
     {
-      id: 3,
-      name: "NAD+ Therapy",
+      id: "6874c60b104d4af22a710dd9",
+      name: "Medical Devices Product 1",
       category: "Wellness",
       price: 349,
       rating: 4.7,
-      description: "Cellular energy optimization",
+      description: "Detailed description for Medical Devices Product 1",
     },
   ];
 
@@ -79,13 +79,12 @@ const DefaultHomePage = () => {
     },
   ];
 
-  const handleCategoryClick = (categoryName: string) => {
-    const categorySlug = categoryName.toLowerCase().replace(" ", "-");
-    router.push(`/products?category=${categorySlug}`);
+  const handleCategoryClick = (categoryId: any) => {
+    router.push(`/products?category=${categoryId}`);
   };
 
-  const handleProductClick = (productId: number) => {
-    router.push(`/product/${productId}`);
+  const handleProductClick = (productId: string) => {
+    router.push(`/products/${productId}`);
   };
 
   const handleExploreClick = () => {
@@ -125,7 +124,7 @@ const DefaultHomePage = () => {
               <Card
                 key={category.id}
                 className="cursor-pointer hover:shadow-lg transition-shadow duration-300"
-                onClick={() => handleCategoryClick(category.name)}
+                onClick={() => handleCategoryClick(category?.id)}
               >
                 <CardContent className="p-8 text-center">
                   <div

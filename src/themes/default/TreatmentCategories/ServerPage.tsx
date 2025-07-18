@@ -7,14 +7,23 @@ import { QueryHydrate } from "@/components/QueryHydrate";
 export default async function Page({ searchParams }: { searchParams: any }) {
   const queryClient = getQueryClient();
 
-  //   const filters = {
-  //     page: parseInt(searchParams?.page || "1", 10),
-  //     limit: parseInt(searchParams?.limit || "10", 10),
-  //   };
+  // Extract filters from searchParams
+  const filters = {
+    // search: searchParams?.search || "",
+    page: parseInt(searchParams?.page || "1", 10),
+    limit: parseInt(searchParams?.limit || "6", 10),
+  };
 
+  // Remove empty values to keep the query clean
+  const cleanFilters = Object.fromEntries(
+    // Object.entries(filters).filter(([_, value]) => value !== "" && value !== 0)
+    Object.entries(filters).filter(([_, value]) => value !== 0)
+  );
+
+  // Prefetch categories with the filters from URL
   await queryClient.prefetchQuery({
-    queryKey: ["categories", {}], // empty filter for initial
-    queryFn: () => categoryApi.getCategories({}), // fetch initial categories
+    queryKey: ["Categories", cleanFilters], // Use the same key format as useCategoryApi
+    queryFn: () => categoryApi.getCategories(cleanFilters),
   });
 
   const dehydratedState = dehydrate(queryClient);

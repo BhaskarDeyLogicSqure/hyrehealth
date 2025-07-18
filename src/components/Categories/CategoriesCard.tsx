@@ -6,12 +6,21 @@ import { Card } from "../ui/card";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { DEFAULT_IMAGE_URL } from "@/configs";
+import {
+  useNavigationState,
+  NAVIGATION_KEYS,
+} from "@/hooks/useNavigationState";
+
 const CategoriesCard = ({ category }: { category: any }) => {
   const router = useRouter();
+  const { navigateWithState } = useNavigationState();
 
-  const _handleCategoryClick = (categoryName: string) => {
-    const categorySlug = categoryName.toLowerCase().replace(" ", "-");
-    router.push(`/products?category=${categorySlug}`);
+  const _handleCategoryClick = (categoryId: string) => {
+    // Use navigation utility to store current state and navigate
+    navigateWithState(
+      `/products?category=${categoryId}`,
+      NAVIGATION_KEYS.LAST_CATEGORIES_PAGE
+    );
   };
 
   const _getRandomCategoryColor = () => {
@@ -35,7 +44,7 @@ const CategoriesCard = ({ category }: { category: any }) => {
     <Card
       key={category.id}
       className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 ${categoryColor} hover:scale-105 theme-bg`}
-      onClick={() => _handleCategoryClick(category?.name)}
+      onClick={() => _handleCategoryClick(category?._id)}
     >
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">

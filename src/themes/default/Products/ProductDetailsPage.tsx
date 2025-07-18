@@ -1,6 +1,7 @@
 import ProductSection from "../Components/ProductSection";
 import { productApi } from "@/api/products/productApi";
-import { redirect } from "next/navigation";
+import { handleServerError } from "@/lib/error-handler";
+// import { notFound } from "next/navigation";
 interface ProductDetailsPageProps {
   params: {
     id: string;
@@ -11,12 +12,19 @@ const DefaultProductDetailsPage = async ({
   params,
 }: ProductDetailsPageProps) => {
   let product;
+
   try {
     product = await productApi.getProductById(params?.id);
-    // console.log({ product });
   } catch (err: any) {
-    console.log("Error fetching product: ", err);
-    redirect(`/products`);
+    // Use the global error handler
+    handleServerError(err, {
+      customMessage: "Failed to load product details",
+      redirectTo: "/products",
+      showToast: true,
+      logError: true,
+    });
+
+    // return notFound();
   }
 
   return (
