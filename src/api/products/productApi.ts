@@ -65,6 +65,27 @@ export const productApi = {
     return response?.data?.product;
   },
 
+  getFeaturedProducts: async (): Promise<{
+    data: Product[];
+    total: number;
+  }> => {
+    const response = await apiService.get<{
+      data: {
+        products: Product[];
+        total: number;
+      };
+      error: boolean;
+    }>(`${BASE_URL}${GET_PRODUCTS_ENDPOINT?.endpoint}`, {
+      // isPopular: true,
+      limit: 3,
+    });
+
+    return {
+      data: response?.data?.products,
+      total: response?.data?.total,
+    };
+  },
+
   // Search categories (for autocomplete/search)
   // searchCategories: async (query: string, limit = 10): Promise<Category[]> => {
   //   if (!query.trim()) return [];

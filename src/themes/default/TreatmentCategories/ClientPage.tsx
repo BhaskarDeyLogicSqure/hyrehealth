@@ -1,12 +1,11 @@
 "use client";
 
-import CategoriesCard from "@/components/Categories/CategoriesCard";
 import CustomPagination from "@/components/CustomPagination";
 import DataNotFound from "@/components/DataNotFound";
 import ThemeLoader from "@/components/ThemeLoader";
 import useCategories from "@/hooks/useCategories";
 import { Category } from "@/types/categories";
-
+import CategoriesCard from "../Components/CategoriesCard";
 const TreatmentCategoriesClient = () => {
   const {
     categories,
