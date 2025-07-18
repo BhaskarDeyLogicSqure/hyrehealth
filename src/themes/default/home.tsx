@@ -8,56 +8,23 @@ import { howItWorks } from "@/configs/constants";
 import { getHomePageData } from "@/utils/getHomePageData";
 
 const DefaultHomePage = async () => {
-  // const categories = [
-  //   {
-  //     id: "68778edf7db6aef7c6e2beed",
-  //     name: "Supplements edited",
-  //     icon: Scale,
-  //     description: "Description for Supplements",
-  //     color: "bg-blue-50 text-blue-600",
-  //   },
-  //   {
-  //     id: "68778edf7db6aef7c6e2bef9",
-  //     name: "Medications one",
-  //     icon: Zap,
-  //     description: "Prescription and over-the-counter medications",
-  //     color: "bg-purple-50 text-purple-600",
-  //   },
-  //   {
-  //     id: "6874c60a104d4af22a710d95",
-  //     name: "Supplements",
-  //     icon: Heart,
-  //     description: "Description for Supplements",
-  //     color: "bg-green-50 text-green-600",
-  //   },
-  // ];
-
-  // const topProducts = [
-  //   {
-  //     id: "6874c60b104d4af22a710ded",
-  //     name: "Health Tests Product 1",
-  //     category: "Weight Loss",
-  //     price: 299,
-  //     rating: 4.8,
-  //     description: "Detailed description for Health Tests Product 1",
-  //   },
-  //   {
-  //     id: "6874c60b104d4af22a710e1f",
-  //     name: "Health Tests Product 1",
-  //     category: "Peptides",
-  //     price: 199,
-  //     rating: 4.9,
-  //     description: "Detailed description for Health Tests Product 1",
-  //   },
-  //   {
-  //     id: "6874c60b104d4af22a710dd9",
-  //     name: "Medical Devices Product 1",
-  //     category: "Wellness",
-  //     price: 349,
-  //     rating: 4.7,
-  //     description: "Detailed description for Medical Devices Product 1",
-  //   },
-  // ];
+  const testimonials = [
+    {
+      rating: 5,
+      text: "I've been using this product for a month now and it's been amazing. I've seen a significant improvement in my skin.",
+      name: "John Doe",
+    },
+    {
+      rating: 5,
+      text: "I've been using this product for a month now and it's been amazing. I've seen a significant improvement in my skin.",
+      name: "John Doe",
+    },
+    {
+      rating: 5,
+      text: "I've been using this product for a month now and it's been amazing. I've seen a significant improvement in my skin.",
+      name: "John Doe",
+    },
+  ];
 
   const { featuredCategories, featuredProducts } = await getHomePageData();
 
@@ -91,7 +58,7 @@ const DefaultHomePage = async () => {
       </section>
 
       {/* Testimonials */}
-      {/* <section className="py-16 bg-white">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">
             What Our Patients Say
@@ -115,7 +82,7 @@ const DefaultHomePage = async () => {
             ))}
           </div>
         </div>
-      </section> */}
+      </section>
 
       {/* Trust Banner */}
       <section className="bg-blue-50 py-12">
