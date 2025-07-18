@@ -7,14 +7,24 @@ import { productApi } from "@/api/products/productApi";
 export default async function Page({ searchParams }: { searchParams: any }) {
   const queryClient = getQueryClient();
 
-  //   const filters = {
-  //     page: parseInt(searchParams?.page || "1", 10),
-  //     limit: parseInt(searchParams?.limit || "10", 10),
-  //   };
+  // Extract filters from searchParams
+  const filters = {
+    search: searchParams?.search || "",
+    category: searchParams?.category || "",
+    sort: searchParams?.sort || "",
+    page: parseInt(searchParams?.page || "1", 10),
+    limit: parseInt(searchParams?.limit || "6", 10),
+  };
 
+  // Remove empty values to keep the query clean
+  const cleanFilters = Object.fromEntries(
+    Object.entries(filters).filter(([_, value]) => value !== "" && value !== 0)
+  );
+
+  // Prefetch products with the filters from URL
   await queryClient.prefetchQuery({
-    queryKey: ["products", {}], // empty filter for initial
-    queryFn: () => productApi.getProducts({}), // fetch initial products
+    queryKey: ["Products", cleanFilters], // Use the same key format as useProductApi
+    queryFn: () => productApi.getProducts(cleanFilters),
   });
 
   const dehydratedState = dehydrate(queryClient);

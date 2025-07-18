@@ -1,11 +1,10 @@
 import useCategoryApi from "@/api/categories/useCategoryApi";
 import { useEffect, useState } from "react";
+import { useCategoriesUrlParams } from "./useUrlParams";
 
 const useCategories = () => {
-  const [dataPayload, setDataPayload] = useState<Record<string, any>>({
-    page: 1,
-    limit: 6,
-  });
+  // Use URL params hook for state management
+  const { params: dataPayload, setPage } = useCategoriesUrlParams();
 
   const [categories, setCategories] = useState<Record<string, any>>({
     data: [],
@@ -20,9 +19,7 @@ const useCategories = () => {
   } = useCategoryApi(dataPayload);
 
   const _onPageChange = (page: number) => {
-    const newDataPayload = { ...dataPayload };
-    newDataPayload.page = page;
-    setDataPayload(newDataPayload);
+    setPage(page);
   };
 
   useEffect(() => {

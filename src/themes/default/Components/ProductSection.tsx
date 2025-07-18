@@ -7,9 +7,14 @@ import { Product } from "@/types/products";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import {
+  useNavigationState,
+  NAVIGATION_KEYS,
+} from "@/hooks/useNavigationState";
 
 const ProductSection = ({ product }: { product: Product }) => {
   const router = useRouter();
+  const { navigateBack } = useNavigationState();
   const [selectedRelatedProducts, setSelectedRelatedProducts] = useState<
     string[]
   >([]);
@@ -75,7 +80,14 @@ const ProductSection = ({ product }: { product: Product }) => {
   };
 
   const _handleBackClick = () => {
-    router.back();
+    // Use the navigation utility to go back with preserved state
+    navigateBack(
+      [
+        NAVIGATION_KEYS.LAST_PRODUCTS_PAGE,
+        NAVIGATION_KEYS.LAST_CATEGORIES_PAGE,
+      ],
+      "/products"
+    );
   };
 
   useEffect(() => {

@@ -21,9 +21,14 @@ import { useRouter } from "next/navigation";
 import CustomPagination from "@/components/CustomPagination";
 import DataNotFound from "@/components/DataNotFound";
 import ThemeLoader from "@/components/ThemeLoader";
+import {
+  useNavigationState,
+  NAVIGATION_KEYS,
+} from "@/hooks/useNavigationState";
 
 const DefaultProductsPage = () => {
   const router = useRouter();
+  const { navigateWithState } = useNavigationState();
 
   const {
     products,
@@ -37,7 +42,11 @@ const DefaultProductsPage = () => {
   } = useProducts();
 
   const _handleProductClick = (productId: string) => {
-    router.push(`/products/${productId}`);
+    // Use navigation utility to store current state and navigate
+    navigateWithState(
+      `/products/${productId}`,
+      NAVIGATION_KEYS.LAST_PRODUCTS_PAGE
+    );
   };
 
   return (
