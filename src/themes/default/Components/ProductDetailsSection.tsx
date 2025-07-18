@@ -1,13 +1,12 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import React from "react";
-import { Star, CheckCircle, AlertCircle, Plus } from "lucide-react";
+import { Star, CheckCircle, AlertCircle } from "lucide-react";
 import { Product } from "@/types/products";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DEFAULT_IMAGE_URL } from "@/configs";
+import RelatedProductsSection from "./RelatedProductsSection";
 
 const ProductDetailsSection = ({
   product,
@@ -18,26 +17,6 @@ const ProductDetailsSection = ({
   selectedRelatedProducts: string[];
   handleRelatedProductToggle: (productId: string) => void;
 }) => {
-  // Mock related products data
-  const relatedProducts = [
-    {
-      id: 2,
-      name: "B12 Injection",
-      description: "Energy boost and metabolic support",
-      price: 99,
-      image: "💉",
-      requiresConsultation: false,
-    },
-    {
-      id: 3,
-      name: "Tirzepatide",
-      description: "Advanced dual-action weight loss treatment",
-      price: 399,
-      image: "💊",
-      requiresConsultation: true,
-    },
-  ];
-
   console.log({ product });
   return (
     <div>
@@ -138,62 +117,13 @@ const ProductDetailsSection = ({
       </div>
 
       {/* Related Products Section */}
-      <Card className="mb-8">
-        <CardContent className="p-6">
-          <h2 className="text-xl font-semibold theme-text-primary mb-6">
-            You Might Also Benefit From
-          </h2>
-
-          <div className="space-y-4">
-            {relatedProducts?.map((relatedProduct) => (
-              <div
-                key={relatedProduct.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="text-2xl">{relatedProduct.image}</div>
-                  <div>
-                    <h3 className="font-semibold theme-text-primary">
-                      {relatedProduct.name}
-                    </h3>
-                    <p className="text-sm theme-text-muted">
-                      {relatedProduct.description}
-                    </p>
-                    <p className="text-sm font-semibold text-blue-600">
-                      ${relatedProduct.price}/month
-                    </p>
-                    {relatedProduct.requiresConsultation && (
-                      <p className="text-xs text-orange-600">
-                        Additional consultation required
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={selectedRelatedProducts?.includes(
-                      relatedProduct.id.toString()
-                    )}
-                    onCheckedChange={() =>
-                      handleRelatedProductToggle(relatedProduct.id.toString())
-                    }
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      handleRelatedProductToggle(relatedProduct.id.toString())
-                    }
-                  >
-                    <Plus className="h-4 w-4" />
-                    Add
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {product?.similarProducts?.length ? (
+        <RelatedProductsSection
+          product={product}
+          selectedRelatedProducts={selectedRelatedProducts}
+          handleRelatedProductToggle={handleRelatedProductToggle}
+        />
+      ) : null}
     </div>
   );
 };
