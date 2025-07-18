@@ -1,4 +1,4 @@
-import CategoriesCard from "@/components/Categories/CategoriesCard";
+import CategoriesCard from "@/themes/default/Components/CategoriesCard";
 import { treatmentCategories } from "@/configs/constants";
 import React from "react";
 
