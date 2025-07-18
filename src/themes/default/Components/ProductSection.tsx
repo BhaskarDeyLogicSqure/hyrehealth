@@ -116,7 +116,8 @@ const ProductSection = ({ product }: { product: Product }) => {
           className="inline-flex items-center gap-2 theme-text-primary hover:theme-bg-muted transition-colors group"
         >
           <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
-          Back to Products
+          {/* Back to Products */}
+          Back
         </Button>
       </div>
 
