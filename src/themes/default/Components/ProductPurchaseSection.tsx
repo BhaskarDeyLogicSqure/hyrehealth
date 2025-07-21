@@ -1,10 +1,8 @@
 "use client";
 
-import { Alert } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { CardContent } from "@/components/ui/card";
-import { AlertDescription } from "@/components/ui/alert";
 import { Clock, Truck, Shield } from "lucide-react";
 import {
   Select,
@@ -17,49 +15,118 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Product } from "@/types/products";
 import ThemeLoader from "@/components/ThemeLoader";
+import router from "next/router";
 
 const ProductPurchaseSection = ({
   product,
   selectedRelatedProducts,
-  hasValidConsultation,
-  selectedDosage,
-  totalPrice,
-  subscriptionDuration,
-  selectedDosagePrice,
   relatedProductsTotal,
-  handleDosageChange,
-  setSubscriptionDuration,
-  handleProceedToCheckout,
-  isCheckoutLoading = false,
 }: {
   product: Product;
   selectedRelatedProducts: string[];
-  hasValidConsultation: boolean;
-  selectedDosage: string;
-  totalPrice: number;
-  subscriptionDuration: string;
-  selectedDosagePrice: number;
   relatedProductsTotal: number;
-  handleDosageChange: (value: string) => void;
-  setSubscriptionDuration: (value: string) => void;
-  handleProceedToCheckout: () => void;
-  isCheckoutLoading?: boolean;
 }) => {
+  const [selectedDosageId, setSelectedDosageId] = useState<string>("");
+  const [subscriptionDuration, setSubscriptionDuration] = useState<string>("");
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+
+  const _generateDosageOptions = useMemo(() => {
+    // Extract unique strength options from subscriptionOptions
+    const seenStrengths = new Set();
+    const dosageOptions = product?.pricing?.subscriptionOptions
+      // filter out options with the same strength
+      ?.filter((option) => {
+        if (!option?.strength || seenStrengths?.has(option?.strength))
+          return false;
+        seenStrengths?.add(option?.strength);
+        return true;
+      })
+      ?.sort((a, b) => a?.strength - b?.strength) // sort by strength in ascending order
+      ?.map((option) => ({
+        id: option?.id,
+        name: `${option?.strength}mg`,
+      }));
+
+    return dosageOptions;
+  }, [product]);
+
+  const _generateSubscriptionDurationOptions = useMemo(() => {
+    const selectedDosageOptionStrength =
+      product?.pricing?.subscriptionOptions?.find(
+        (option) => option?._id === selectedDosageId
+      )?.strength;
+
+    const durationOptions = product?.pricing?.subscriptionOptions
+      ?.filter((option) => option?.strength === selectedDosageOptionStrength)
+      ?.sort((a, b) => a?.duration?.value - b?.duration?.value);
+
+    return durationOptions;
+  }, [selectedDosageId, product]);
+
+  const selectedDosageWithDuration = useMemo(() => {
+    if (!selectedDosageId || !subscriptionDuration) return null;
+
+    // get the strength of the selected dosage as this is used to filter the duration options
+    const selectedDosageStrength = product?.pricing?.subscriptionOptions?.find(
+      (option) => option?._id === selectedDosageId
+    )?.strength;
+
+    // find the dosage that matches the selected dosage strength and duration
+    return product?.pricing?.subscriptionOptions?.find(
+      (option) =>
+        option?.strength === selectedDosageStrength &&
+        option?.duration?.value === Number(subscriptionDuration)
+    );
+  }, [selectedDosageId, subscriptionDuration, product]);
+
+  const _getTotalPrice = useMemo(() => {
+    // total price = price of selected dosage * duration + total price of related products
+    const totalPrice =
+      selectedDosageWithDuration?.price + relatedProductsTotal || 0;
+
+    return totalPrice;
+  }, [selectedDosageWithDuration, relatedProductsTotal]);
+
+  const _handleDosageAndSubscriptionDurationChange = (
+    type: "dosage" | "subscriptionDuration",
+    value: any
+  ) => {
+    if (type === "dosage") {
+      setSelectedDosageId(value);
+    } else if (type === "subscriptionDuration") {
+      setSubscriptionDuration(value);
+    }
+  };
+
+  const _handleProceedToCheckout = async () => {
+    if (!selectedDosageId || !subscriptionDuration) {
+      alert("Please select a dosage first");
+      return;
+    }
+
+    setIsCheckoutLoading(true);
+
+    // Simulate processing time for better UX
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Build URL with selected products
+    const relatedProductsParam =
+      selectedRelatedProducts.length > 0
+        ? `&relatedProducts=${selectedRelatedProducts.join(",")}`
+        : "";
+
+    router.push(
+      `/eligibility-questionnaire/?productId=${product?._id}&dosage=${selectedDosageWithDuration?.strength}&duration=${selectedDosageWithDuration?.duration?.value}${relatedProductsParam}`
+    );
+
+    // Note: setIsCheckoutLoading(false) is not needed here as we're navigating away
+  };
+
   return (
     <div>
       <Card className="sticky top-24">
         <CardContent className="p-8">
           {/* Consultation Status - only show if no valid consultation */}
-          {!hasValidConsultation && (
-            <Alert className="mb-6 border-blue-200 bg-blue-50">
-              <Clock className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-blue-800">
-                <strong>Consultation required before purchase</strong>
-                <br />
-                Complete our questionnaire and medical intake form to proceed
-              </AlertDescription>
-            </Alert>
-          )}
 
           {/* Price Header */}
           {/* <div className="text-center mb-6">
@@ -74,15 +141,21 @@ const ProductPurchaseSection = ({
             <label className="block text-sm font-medium theme-text-primary mb-2">
               Select Dosage*
             </label>
-            <Select value={selectedDosage} onValueChange={handleDosageChange}>
+            <Select
+              value={selectedDosageId}
+              onValueChange={(value) =>
+                _handleDosageAndSubscriptionDurationChange("dosage", value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Choose dosage" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="0.25mg">0.25mg - Starter Dose</SelectItem>
-                <SelectItem value="0.5mg">0.5mg - Standard Dose</SelectItem>
-                <SelectItem value="1mg">1mg - Maintenance Dose</SelectItem>
-                <SelectItem value="2.4mg">2.4mg - Maximum Dose</SelectItem>
+                {_generateDosageOptions?.map((option) => (
+                  <SelectItem key={option?.id} value={option?.id}>
+                    {`${option?.name}`}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -94,16 +167,26 @@ const ProductPurchaseSection = ({
             </label>
             <Select
               value={subscriptionDuration}
-              onValueChange={setSubscriptionDuration}
+              onValueChange={(value) =>
+                _handleDosageAndSubscriptionDurationChange(
+                  "subscriptionDuration",
+                  value
+                )
+              }
+              disabled={!selectedDosageId}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select duration" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">1 Month</SelectItem>
-                <SelectItem value="3">3 Months (5% discount)</SelectItem>
-                <SelectItem value="6">6 Months (10% discount)</SelectItem>
-                <SelectItem value="12">12 Months (15% discount)</SelectItem>
+                {_generateSubscriptionDurationOptions?.map((option) => (
+                  <SelectItem
+                    key={option?._id}
+                    value={option?.duration?.value.toString()}
+                  >
+                    {`${option?.duration?.value} ${option?.duration?.unit}`}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -114,8 +197,13 @@ const ProductPurchaseSection = ({
           <div className="space-y-3 mb-6">
             <div className="flex justify-between text-sm theme-text-muted">
               <span>Monthly price:</span>
-              <span>${selectedDosagePrice}</span>
+              <span>
+                {selectedDosageWithDuration?.price
+                  ? `$${selectedDosageWithDuration?.price}`
+                  : "-"}
+              </span>
             </div>
+
             {selectedRelatedProducts.length > 0 && (
               <div className="flex justify-between text-sm theme-text-muted">
                 <span>Related products:</span>
@@ -125,28 +213,28 @@ const ProductPurchaseSection = ({
             <div className="flex justify-between text-sm theme-text-muted">
               <span>Duration:</span>
               <span>
-                {subscriptionDuration} month
-                {subscriptionDuration !== "1" ? "s" : ""}
+                {subscriptionDuration
+                  ? `${subscriptionDuration} month${
+                      subscriptionDuration > "2" ? "s" : ""
+                    }`
+                  : "-"}
               </span>
             </div>
-            {!hasValidConsultation && (
-              <div className="flex justify-between text-sm theme-text-muted">
-                <span>Consultation fee:</span>
-                <span>$49</span>
-              </div>
-            )}
+
             <Separator />
             <div className="flex justify-between text-lg font-semibold theme-text-primary">
               <span>Total:</span>
-              <span>${totalPrice + (hasValidConsultation ? 0 : 49)}</span>
+              <span>${_getTotalPrice}</span>
             </div>
           </div>
 
           {/* CTA Button */}
           <Button
             className="w-full text-lg py-6"
-            onClick={handleProceedToCheckout}
-            disabled={!selectedDosage || isCheckoutLoading}
+            onClick={_handleProceedToCheckout}
+            disabled={
+              !selectedDosageId || !subscriptionDuration || isCheckoutLoading
+            }
           >
             {isCheckoutLoading ? (
               <ThemeLoader
