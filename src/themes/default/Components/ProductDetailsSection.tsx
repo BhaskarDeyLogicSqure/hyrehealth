@@ -2,11 +2,28 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import React from "react";
-import { Star, CheckCircle, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import React, { useState, useEffect } from "react";
+import {
+  Star,
+  CheckCircle,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Maximize2,
+  X,
+} from "lucide-react";
 import { Product } from "@/types/products";
 import { DEFAULT_IMAGE_URL } from "@/configs";
 import RelatedProductsSection from "./RelatedProductsSection";
+import ImageVideoViewFullScreenModal from "./ImageVideoViewFullScreenModal";
 
 const ProductDetailsSection = ({
   product,
@@ -17,28 +34,178 @@ const ProductDetailsSection = ({
   selectedRelatedProducts: string[];
   handleRelatedProductToggle: (productId: string) => void;
 }) => {
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+
+  // Combine images and videos for the carousel
+  const allMedia = [
+    ...(product?.media?.images || [])?.map((img, idx, arr) =>
+      idx === arr?.length - 1
+        ? {
+            ...img,
+            type: "video",
+            ...(product?.media?.videos?.[0] || {}),
+          }
+        : {
+            ...img,
+            type: "image",
+          }
+    ),
+    ...(product?.media?.videos || [])
+      .slice((product?.media?.images?.length || 0) > 0 ? 1 : 0)
+      .map((video) => ({
+        ...video,
+        type: "video",
+      })),
+  ];
+
+  console.log({ allMedia });
+
+  const nextMedia = () => {
+    setCurrentMediaIndex((prev) => (prev + 1) % allMedia.length);
+  };
+
+  const prevMedia = () => {
+    setCurrentMediaIndex(
+      (prev) => (prev - 1 + allMedia.length) % allMedia.length
+    );
+  };
+
+  const goToMedia = (index: number) => {
+    setCurrentMediaIndex(index);
+  };
+
   console.log({ product });
   return (
     <div>
-      <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-12 mb-8 text-center">
-        <div className="w-32 h-32 bg-white rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg">
-          {product?.media?.images?.[0]?.url ? (
-            <img
-              src={
-                product?.media?.images?.[0]?.url &&
-                !product?.media?.images?.[0]?.url.includes("example")
-                  ? product?.media?.images?.[0]?.url
-                  : DEFAULT_IMAGE_URL
-              }
-              alt={product?.name || "Product Image"}
-              className="w-28 h-28 object-cover rounded-full"
-            />
-          ) : (
-            <span className="text-4xl font-bold text-blue-600">
-              {product?.name?.charAt(0)}
-            </span>
-          )}
-        </div>
+      {/* Media Carousel */}
+      <Card className="mb-8 overflow-hidden">
+        <CardContent className="p-0">
+          <div className="relative bg-gradient-to-br from-blue-50 to-purple-50">
+            {/* Main Media Display */}
+            <div className="relative h-80 flex items-center justify-center p-4">
+              {allMedia.length > 0 ? (
+                <div className="relative w-full h-full flex items-center justify-center">
+                  {allMedia[currentMediaIndex]?.type === "image" ? (
+                    <img
+                      src={
+                        allMedia[currentMediaIndex]?.url &&
+                        !allMedia[currentMediaIndex]?.url.includes("example")
+                          ? allMedia[currentMediaIndex]?.url
+                          : DEFAULT_IMAGE_URL
+                      }
+                      alt={
+                        allMedia[currentMediaIndex]?.alt ||
+                        product?.name ||
+                        "Product Media"
+                      }
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="relative w-full h-full flex items-center justify-center">
+                      <video
+                        src={allMedia[currentMediaIndex]?.url}
+                        controls
+                        controlsList="nodownload"
+                        className="w-full h-full object-contain rounded-lg bg-black"
+                        style={{ maxHeight: "100%", maxWidth: "100%" }}
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  )}
+
+                  {/* Fullscreen Button */}
+                  <ImageVideoViewFullScreenModal
+                    isFullscreenOpen={isFullscreenOpen}
+                    currentMediaIndex={currentMediaIndex}
+                    allMedia={allMedia}
+                    product={product}
+                    nextMedia={nextMedia}
+                    prevMedia={prevMedia}
+                    setIsFullscreenOpen={setIsFullscreenOpen}
+                    setCurrentMediaIndex={setCurrentMediaIndex}
+                  />
+
+                  {/* Navigation Arrows */}
+                  {allMedia?.length > 1 && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white z-10"
+                        onClick={prevMedia}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white z-10"
+                        onClick={nextMedia}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-4xl font-bold text-blue-600">
+                    {product?.name?.charAt(0)}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Thumbnail Navigation */}
+            {allMedia?.length > 1 && (
+              <div className="flex justify-center space-x-2 p-3 bg-white/50">
+                {allMedia?.map((media, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToMedia(index)}
+                    className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                      index === currentMediaIndex
+                        ? "border-blue-500 scale-110"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    {media?.type === "image" ? (
+                      <img
+                        src={
+                          media?.url && !media?.url?.includes("example")
+                            ? media?.url
+                            : DEFAULT_IMAGE_URL
+                        }
+                        alt={`Media ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-black flex items-center justify-center relative">
+                        <video
+                          src={media?.url}
+                          className="w-full h-full object-cover"
+                          muted
+                          controls
+                          controlsList="nodownload"
+                          autoPlay={true}
+                        />
+                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                          <Play className="h-4 w-4 text-white" />
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Product Info Section - Below Carousel */}
+      <div className="text-center mb-8">
         <Badge className="mb-4">{product?.category?.[0]?.name}</Badge>
         <h1 className="text-3xl font-bold theme-text-primary mb-2">
           {product?.name}
@@ -115,6 +282,34 @@ const ProductDetailsSection = ({
           </CardContent>
         </Card>
       </div>
+
+      {/* Shipping and Return Policy */}
+      {product?.contentAndDescription?.shippingAndReturnPolicy && (
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-semibold theme-text-primary mb-4">
+              Shipping & Return Policy
+            </h2>
+            <div className="theme-text-muted whitespace-pre-line">
+              {product?.contentAndDescription?.shippingAndReturnPolicy}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* How to Use */}
+      {product?.contentAndDescription?.howToUse && (
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-semibold theme-text-primary mb-4">
+              How to Use
+            </h2>
+            <div className="theme-text-muted whitespace-pre-line">
+              {product?.contentAndDescription?.howToUse}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Related Products Section */}
       {product?.similarProducts?.length ? (

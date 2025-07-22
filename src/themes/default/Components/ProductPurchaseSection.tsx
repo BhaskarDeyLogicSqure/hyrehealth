@@ -93,6 +93,7 @@ const ProductPurchaseSection = ({
   ) => {
     if (type === "dosage") {
       setSelectedDosageId(value);
+      setSubscriptionDuration("");
     } else if (type === "subscriptionDuration") {
       setSubscriptionDuration(value);
     }

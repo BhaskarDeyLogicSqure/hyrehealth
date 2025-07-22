@@ -52,7 +52,7 @@ const RelatedProductsSection = ({
                       "N/A"}
                   </p>
                   <p className="text-sm font-semibold text-blue-600">
-                    ${relatedProduct?.pricing?.basePrice || "N/A"}/month
+                    ${relatedProduct?.pricing?.basePrice || "N/A"}
                   </p>
                   {relatedProduct?.requiresConsultation && (
                     <p className="text-xs text-orange-600">
