@@ -36,21 +36,13 @@ const ProductDetailsSection = ({
 
   // Combine images and videos for the carousel
   const allMedia = [
-    ...(product?.media?.images || [])?.map((img, idx, arr) =>
-      idx === arr?.length - 1
-        ? {
-            ...img,
-            type: "video",
-            ...(product?.media?.videos?.[0] || {}),
-          }
-        : {
-            ...img,
-            type: "image",
-          }
-    ),
+    ...(product?.media?.images || [])?.map((img) => ({
+      ...img,
+      type: "image",
+    })),
     ...(product?.media?.videos || [])
-      .slice((product?.media?.images?.length || 0) > 0 ? 1 : 0)
-      .map((video) => ({
+      ?.slice((product?.media?.images?.length || 0) > 0 ? 1 : 0)
+      ?.map((video) => ({
         ...video,
         type: "video",
       })),
