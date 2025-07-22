@@ -4,12 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogClose,
-} from "@/components/ui/dialog";
-import React, { useState, useEffect } from "react";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import React, { useState } from "react";
 import {
   Star,
   CheckCircle,
@@ -17,8 +16,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Play,
-  Maximize2,
-  X,
 } from "lucide-react";
 import { Product } from "@/types/products";
 import { DEFAULT_IMAGE_URL } from "@/configs";
@@ -236,6 +233,48 @@ const ProductDetailsSection = ({
         </CardContent>
       </Card>
 
+      {/* Ingredients & Composition */}
+      {product?.contentAndDescription?.ingredientsOrComposition &&
+      product?.contentAndDescription?.ingredientsOrComposition?.length > 0 ? (
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-semibold theme-text-primary mb-4">
+              Ingredients & Composition
+            </h2>
+
+            <div className="space-y-4">
+              {product?.contentAndDescription?.ingredientsOrComposition?.map(
+                (item: any, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between border-b last:border-b-0 py-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2 h-2 rounded-full bg-primary inline-block" />
+                      {item?.name && (
+                        <h3 className="text-base font-medium text-primary">
+                          {item?.name}
+                        </h3>
+                      )}
+                    </div>
+                    {item?.amount && item?.unit ? (
+                      <div className="flex items-baseline space-x-1">
+                        <span className="text-base font-semibold text-primary">
+                          {item?.amount}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {item?.unit}
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+                )
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
+
       {/* Benefits & Side Effects */}
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <Card>
@@ -310,6 +349,38 @@ const ProductDetailsSection = ({
           </CardContent>
         </Card>
       )}
+
+      {/* Frequently Asked Questions */}
+      {product?.contentAndDescription?.faqs &&
+        product?.contentAndDescription?.faqs?.length > 0 && (
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-semibold theme-text-primary mb-4">
+                Frequently Asked Questions
+              </h2>
+              <div className="space-y-2">
+                {product?.contentAndDescription?.faqs?.map(
+                  (faq: any, index: number) => (
+                    <Collapsible
+                      key={index}
+                      className="border border-gray-200 rounded-lg"
+                    >
+                      <CollapsibleTrigger className="flex w-full items-center justify-between p-4 text-left theme-text-primary hover:theme-bg-muted font-medium transition-colors">
+                        <span>{faq?.question}</span>
+                        <ChevronRight className="h-4 w-4 transition-transform duration-200 data-[state=open]:rotate-90" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="px-4 pb-4">
+                        <div className="theme-text-muted whitespace-pre-line border-t border-gray-100 pt-3">
+                          {faq?.answer}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  )
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
       {/* Related Products Section */}
       {product?.similarProducts?.length ? (
