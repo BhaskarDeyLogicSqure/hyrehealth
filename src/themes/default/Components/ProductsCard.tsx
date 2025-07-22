@@ -118,7 +118,7 @@ const ProductsCard = ({
             <span className="text-2xl font-bold theme-text-primary">
               ${product?.pricing?.basePrice}
             </span>
-            <span className="theme-text-muted text-sm">/month</span>
+            {/* <span className="theme-text-muted text-sm">/month</span> */}
           </div>
         </div>
 
