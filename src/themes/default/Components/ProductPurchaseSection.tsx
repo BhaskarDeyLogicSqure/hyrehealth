@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { CardContent } from "@/components/ui/card";
 import { Clock, Truck, Shield } from "lucide-react";
 import {
@@ -43,7 +43,7 @@ const ProductPurchaseSection = ({
       })
       ?.sort((a, b) => a?.strength - b?.strength) // sort by strength in ascending order
       ?.map((option) => ({
-        id: option?.id,
+        id: option?.id || option?._id,
         name: `${option?.strength}mg`,
       }));
 
@@ -122,6 +122,44 @@ const ProductPurchaseSection = ({
 
     // Note: setIsCheckoutLoading(false) is not needed here as we're navigating away
   };
+
+  // Auto-select default dosage when component mounts or product changes
+  useEffect(() => {
+    if (product?.pricing?.subscriptionOptions && !selectedDosageId) {
+      // Find the default dosage option
+      const defaultDosageOption = product?.pricing?.subscriptionOptions?.find(
+        (option) => option?.isDefault === true
+      );
+
+      if (defaultDosageOption) {
+        setSelectedDosageId(defaultDosageOption._id || defaultDosageOption.id);
+      }
+    }
+  }, [product, selectedDosageId]);
+
+  // Auto-select default duration when dosage is selected
+  useEffect(() => {
+    if (selectedDosageId && product?.pricing?.subscriptionOptions) {
+      const selectedDosageStrength =
+        product?.pricing?.subscriptionOptions?.find(
+          (option) =>
+            option?._id === selectedDosageId || option?.id === selectedDosageId
+        )?.strength;
+
+      // Find default duration option for the selected dosage strength
+      const defaultDurationOption = product?.pricing?.subscriptionOptions?.find(
+        (option) =>
+          option?.strength === selectedDosageStrength &&
+          option?.isDefault === true
+      );
+
+      if (defaultDurationOption && !subscriptionDuration) {
+        setSubscriptionDuration(
+          defaultDurationOption.duration?.value.toString()
+        );
+      }
+    }
+  }, [selectedDosageId, product, subscriptionDuration]);
 
   return (
     <div>
