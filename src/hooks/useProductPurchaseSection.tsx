@@ -165,7 +165,7 @@ const useProductPurchaseSection = ({
       // router.push(
       //   `/eligibility-questionnaire/?productId=${product?._id}&dosage=${selectedDosageWithDuration?.strength}&duration=${selectedDosageWithDuration?.duration?.value}${relatedProductsParam}`
       // );
-      router.push("/eligibility-questionnaire");
+      router.push(`/eligibility-questionnaire?productId=${product?._id}`);
     } catch (error) {
       console.error("Error preparing checkout data:", error);
       alert("An error occurred while preparing checkout. Please try again.");
