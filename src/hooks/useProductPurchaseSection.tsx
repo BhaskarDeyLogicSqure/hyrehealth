@@ -117,6 +117,9 @@ const useProductPurchaseSection = ({
       };
 
       // Prepare related products data for Redux store
+      // Note: The related products data with default dosage/duration is already
+      // prepared in ProductSection component, so we just need to convert the
+      // selectedRelatedProducts array to the format expected by Redux
       const relatedProductsData = selectedRelatedProducts
         ?.map((productId: any) => {
           const relatedProduct = product?.similarProducts?.find(
@@ -125,22 +128,52 @@ const useProductPurchaseSection = ({
 
           if (!relatedProduct) return null;
 
-          // For now, use base price and default options for related products
-          // This can be enhanced later to use specific selected dosage/duration
-          const defaultOption =
+          // Find default dosage and duration options
+          const defaultDosageOption =
             relatedProduct?.pricing?.subscriptionOptions?.find(
               (option: any) => option?.isDefault === true
+            );
+
+          if (!defaultDosageOption) {
+            // Fallback to first option or base price
+            const firstOption =
+              relatedProduct?.pricing?.subscriptionOptions?.[0];
+            return {
+              productId,
+              product: relatedProduct,
+              selectedOption: {
+                dosageId: firstOption?._id || firstOption?.id || "",
+                dosageStrength: firstOption?.strength || 0,
+                duration: firstOption?.duration?.value || 1,
+                price:
+                  firstOption?.price || relatedProduct.pricing?.basePrice || 0,
+              },
+            };
+          }
+
+          // Find default duration for the selected dosage
+          const defaultDurationOption =
+            relatedProduct?.pricing?.subscriptionOptions?.find(
+              (option: any) =>
+                option?.strength === defaultDosageOption.strength &&
+                option?.isDefault === true
             );
 
           return {
             productId,
             product: relatedProduct,
             selectedOption: {
-              dosageId: defaultOption?._id || defaultOption?.id || "",
-              dosageStrength: defaultOption?.strength || 0,
-              duration: defaultOption?.duration?.value || 1,
+              dosageId: defaultDosageOption._id || defaultDosageOption.id,
+              dosageStrength: defaultDosageOption.strength,
+              duration:
+                defaultDurationOption?.duration?.value ||
+                defaultDosageOption?.duration?.value ||
+                1,
               price:
-                defaultOption?.price || relatedProduct.pricing?.basePrice || 0,
+                defaultDurationOption?.price ||
+                defaultDosageOption?.price ||
+                relatedProduct.pricing?.basePrice ||
+                0,
             },
           };
         })
@@ -156,15 +189,7 @@ const useProductPurchaseSection = ({
       // Simulate processing time for better UX
       // await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Build URL with selected products
-      // const relatedProductsParam =
-      //   selectedRelatedProducts.length > 0
-      //     ? `&relatedProducts=${selectedRelatedProducts.join(",")}`
-      //     : "";
-
-      // router.push(
-      //   `/eligibility-questionnaire/?productId=${product?._id}&dosage=${selectedDosageWithDuration?.strength}&duration=${selectedDosageWithDuration?.duration?.value}${relatedProductsParam}`
-      // );
+      // Navigate to eligibility questionnaire
       router.push(`/eligibility-questionnaire?productId=${product?._id}`);
     } catch (error) {
       console.error("Error preparing checkout data:", error);
