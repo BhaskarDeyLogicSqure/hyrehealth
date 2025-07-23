@@ -33,7 +33,7 @@ const EligibilityQuestionnaire = ({ theme }: EligibilityQuestionnaireProps) => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const productId = searchParams.get("product") || "";
+  const productId = searchParams.get("productId") || "";
   const dosage = searchParams.get("dosage") || "";
   const duration = searchParams.get("duration") || "";
   const relatedProducts = searchParams.get("relatedProducts") || "";

@@ -1,7 +1,6 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import React, { useMemo, useState, useEffect } from "react";
 import { CardContent } from "@/components/ui/card";
 import { Clock, Truck, Shield } from "lucide-react";
 import {
@@ -15,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Product } from "@/types/products";
 import ThemeLoader from "@/components/ThemeLoader";
-import router from "next/router";
+import useProductPurchaseSection from "@/hooks/useProductPurchaseSection";
 
 const ProductPurchaseSection = ({
   product,
@@ -26,140 +25,21 @@ const ProductPurchaseSection = ({
   selectedRelatedProducts: string[];
   relatedProductsTotal: number;
 }) => {
-  const [selectedDosageId, setSelectedDosageId] = useState<string>("");
-  const [subscriptionDuration, setSubscriptionDuration] = useState<string>("");
-  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
-
-  const _generateDosageOptions = useMemo(() => {
-    // Extract unique strength options from subscriptionOptions
-    const seenStrengths = new Set();
-    const dosageOptions = product?.pricing?.subscriptionOptions
-      // filter out options with the same strength
-      ?.filter((option) => {
-        if (!option?.strength || seenStrengths?.has(option?.strength))
-          return false;
-        seenStrengths?.add(option?.strength);
-        return true;
-      })
-      ?.sort((a, b) => a?.strength - b?.strength) // sort by strength in ascending order
-      ?.map((option) => ({
-        id: option?.id || option?._id,
-        name: `${option?.strength}mg`,
-      }));
-
-    return dosageOptions;
-  }, [product]);
-
-  const _generateSubscriptionDurationOptions = useMemo(() => {
-    const selectedDosageOptionStrength =
-      product?.pricing?.subscriptionOptions?.find(
-        (option) => option?._id === selectedDosageId
-      )?.strength;
-
-    const durationOptions = product?.pricing?.subscriptionOptions
-      ?.filter((option) => option?.strength === selectedDosageOptionStrength)
-      ?.sort((a, b) => a?.duration?.value - b?.duration?.value);
-
-    return durationOptions;
-  }, [selectedDosageId, product]);
-
-  const selectedDosageWithDuration = useMemo(() => {
-    if (!selectedDosageId || !subscriptionDuration) return null;
-
-    // get the strength of the selected dosage as this is used to filter the duration options
-    const selectedDosageStrength = product?.pricing?.subscriptionOptions?.find(
-      (option) => option?._id === selectedDosageId
-    )?.strength;
-
-    // find the dosage that matches the selected dosage strength and duration
-    return product?.pricing?.subscriptionOptions?.find(
-      (option) =>
-        option?.strength === selectedDosageStrength &&
-        option?.duration?.value === Number(subscriptionDuration)
-    );
-  }, [selectedDosageId, subscriptionDuration, product]);
-
-  const _getTotalPrice = useMemo(() => {
-    // total price = price of selected dosage * duration + total price of related products
-    const totalPrice =
-      selectedDosageWithDuration?.price + relatedProductsTotal || 0;
-
-    return totalPrice;
-  }, [selectedDosageWithDuration, relatedProductsTotal]);
-
-  const _handleDosageAndSubscriptionDurationChange = (
-    type: "dosage" | "subscriptionDuration",
-    value: any
-  ) => {
-    if (type === "dosage") {
-      setSelectedDosageId(value);
-      setSubscriptionDuration("");
-    } else if (type === "subscriptionDuration") {
-      setSubscriptionDuration(value);
-    }
-  };
-
-  const _handleProceedToCheckout = async () => {
-    if (!selectedDosageId || !subscriptionDuration) {
-      alert("Please select a dosage first");
-      return;
-    }
-
-    setIsCheckoutLoading(true);
-
-    // Simulate processing time for better UX
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Build URL with selected products
-    const relatedProductsParam =
-      selectedRelatedProducts.length > 0
-        ? `&relatedProducts=${selectedRelatedProducts.join(",")}`
-        : "";
-
-    router.push(
-      `/eligibility-questionnaire/?productId=${product?._id}&dosage=${selectedDosageWithDuration?.strength}&duration=${selectedDosageWithDuration?.duration?.value}${relatedProductsParam}`
-    );
-
-    // Note: setIsCheckoutLoading(false) is not needed here as we're navigating away
-  };
-
-  // Auto-select default dosage when component mounts or product changes
-  useEffect(() => {
-    if (product?.pricing?.subscriptionOptions && !selectedDosageId) {
-      // Find the default dosage option
-      const defaultDosageOption = product?.pricing?.subscriptionOptions?.find(
-        (option) => option?.isDefault === true
-      );
-
-      if (defaultDosageOption) {
-        setSelectedDosageId(defaultDosageOption._id || defaultDosageOption.id);
-      }
-    }
-  }, [product, selectedDosageId]);
-
-  // Auto-select default duration when dosage is selected
-  useEffect(() => {
-    if (selectedDosageId && product?.pricing?.subscriptionOptions) {
-      const selectedDosageStrength =
-        product?.pricing?.subscriptionOptions?.find(
-          (option) =>
-            option?._id === selectedDosageId || option?.id === selectedDosageId
-        )?.strength;
-
-      // Find default duration option for the selected dosage strength
-      const defaultDurationOption = product?.pricing?.subscriptionOptions?.find(
-        (option) =>
-          option?.strength === selectedDosageStrength &&
-          option?.isDefault === true
-      );
-
-      if (defaultDurationOption && !subscriptionDuration) {
-        setSubscriptionDuration(
-          defaultDurationOption.duration?.value.toString()
-        );
-      }
-    }
-  }, [selectedDosageId, product, subscriptionDuration]);
+  const {
+    selectedDosageId,
+    subscriptionDuration,
+    selectedDosageWithDuration,
+    handleDosageAndSubscriptionDurationChange,
+    generateDosageOptions,
+    generateSubscriptionDurationOptions,
+    getTotalPrice,
+    handleProceedToCheckout,
+    isCheckoutLoading,
+  } = useProductPurchaseSection({
+    product,
+    selectedRelatedProducts,
+    relatedProductsTotal,
+  });
 
   return (
     <div>
@@ -183,14 +63,14 @@ const ProductPurchaseSection = ({
             <Select
               value={selectedDosageId}
               onValueChange={(value) =>
-                _handleDosageAndSubscriptionDurationChange("dosage", value)
+                handleDosageAndSubscriptionDurationChange("dosage", value)
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Choose dosage" />
               </SelectTrigger>
               <SelectContent>
-                {_generateDosageOptions?.map((option) => (
+                {generateDosageOptions?.map((option: any) => (
                   <SelectItem key={option?.id} value={option?.id}>
                     {`${option?.name}`}
                   </SelectItem>
@@ -207,7 +87,7 @@ const ProductPurchaseSection = ({
             <Select
               value={subscriptionDuration}
               onValueChange={(value) =>
-                _handleDosageAndSubscriptionDurationChange(
+                handleDosageAndSubscriptionDurationChange(
                   "subscriptionDuration",
                   value
                 )
@@ -218,7 +98,7 @@ const ProductPurchaseSection = ({
                 <SelectValue placeholder="Select duration" />
               </SelectTrigger>
               <SelectContent>
-                {_generateSubscriptionDurationOptions?.map((option) => (
+                {generateSubscriptionDurationOptions?.map((option: any) => (
                   <SelectItem
                     key={option?._id}
                     value={option?.duration?.value.toString()}
@@ -263,14 +143,14 @@ const ProductPurchaseSection = ({
             <Separator />
             <div className="flex justify-between text-lg font-semibold theme-text-primary">
               <span>Total:</span>
-              <span>${_getTotalPrice}</span>
+              <span>${getTotalPrice}</span>
             </div>
           </div>
 
           {/* CTA Button */}
           <Button
             className="w-full text-lg py-6"
-            onClick={_handleProceedToCheckout}
+            onClick={handleProceedToCheckout}
             disabled={
               !selectedDosageId || !subscriptionDuration || isCheckoutLoading
             }
