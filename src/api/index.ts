@@ -30,6 +30,7 @@ axiosInstance.interceptors.request.use((config) => {
 
 // ✅ Standard API response format
 export interface ApiResponse<T> {
+  error?: any;
   data: T;
   status: number;
 }

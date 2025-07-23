@@ -189,8 +189,14 @@ const useProductPurchaseSection = ({
       // Simulate processing time for better UX
       // await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Navigate to eligibility questionnaire
-      router.push(`/eligibility-questionnaire?productId=${product?._id}`);
+      // Navigate to eligibility questionnaire with productId and relatedProducts if any
+      router.push(
+        `/eligibility-questionnaire?productId=${product?._id}${
+          selectedRelatedProducts && selectedRelatedProducts?.length > 0
+            ? `&relatedProducts=${selectedRelatedProducts?.join(",")}`
+            : ""
+        }`
+      );
     } catch (error) {
       console.error("Error preparing checkout data:", error);
       alert("An error occurred while preparing checkout. Please try again.");
