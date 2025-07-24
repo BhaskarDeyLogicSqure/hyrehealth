@@ -43,6 +43,9 @@ interface QuestionCardProps {
   getCurrentQuestion: () => Question;
   getCurrentStepInfo: () => any;
   updateResponse: (value: any) => void;
+  handleContinueAfterIneligible?: () => void;
+  restartProduct?: (productIndex: number) => void;
+  restartGeneralQuestions?: () => void;
   // handleContinueAfterIneligible?: () => void;
 }
 
@@ -61,6 +64,9 @@ const QuestionCard = ({
   getCurrentQuestion,
   getCurrentStepInfo,
   updateResponse,
+  handleContinueAfterIneligible,
+  restartProduct,
+  restartGeneralQuestions,
 }: // handleContinueAfterIneligible,
 QuestionCardProps) => {
   const router = useRouter();
@@ -68,7 +74,7 @@ QuestionCardProps) => {
   console.log("currentStepInfo", currentStepInfo);
 
   // Helper function to get step information for UI
-  const getStepDisplayInfo = () => {
+  const _getStepDisplayInfo = () => {
     switch (currentStepInfo.type) {
       case "intro":
         return {
@@ -96,7 +102,7 @@ QuestionCardProps) => {
         };
 
       case "productIntro":
-        const productName = currentStepInfo.productName || "this product";
+        const productName = currentStepInfo?.productName || "this product";
         return {
           title: `${productName} Questions`,
           description: `Let's evaluate your eligibility for ${productName}. Please answer the following questions honestly.`,
@@ -106,31 +112,53 @@ QuestionCardProps) => {
 
       case "productQuestion":
         const currentProduct =
-          productSections[currentStepInfo.productIndex || 0];
+          productSections[currentStepInfo?.productIndex || 0];
         return {
           title: `${currentStepInfo.productName || "Product"} Questions`,
           description:
             "Please answer the following question to help us determine your eligibility for this product.",
           showProgress: true,
-          questionNumber: (currentStepInfo.questionIndex || 0) + 1,
+          questionNumber: (currentStepInfo?.questionIndex || 0) + 1,
           totalQuestions: currentProduct?.questions.length || 0,
-          productName: currentStepInfo.productName,
+          productName: currentStepInfo?.productName,
         };
 
       case "productResult":
         const resultProduct =
-          productSections[currentStepInfo.productIndex || 0];
+          productSections[currentStepInfo?.productIndex || 0];
         const isEligible = resultProduct?.isEligible;
         return {
           title: isEligible
-            ? `${currentStepInfo.productName} - Approved!`
-            : `${currentStepInfo.productName} - Not Recommended`,
+            ? `${currentStepInfo?.productName} - Approved!`
+            : `${currentStepInfo?.productName} - Not Recommended`,
           description: isEligible
-            ? `Great news! You're eligible for ${currentStepInfo.productName}.`
+            ? `Great news! You're eligible for ${currentStepInfo?.productName}.`
             : `Based on your responses, ${currentStepInfo.productName} is not recommended for you at this time.`,
           showProgress: false,
-          productName: currentStepInfo.productName,
+          productName: currentStepInfo?.productName,
           isEligible,
+        };
+
+      case "finalResults":
+        const eligibleProducts = productSections?.filter(
+          (section) => section.isEligible === true
+        );
+        const ineligibleProducts = productSections?.filter(
+          (section) => section.isEligible === false
+        );
+
+        return {
+          title:
+            eligibleProducts?.length > 0
+              ? "Eligibility Results"
+              : "Not Eligible",
+          description:
+            eligibleProducts?.length > 0
+              ? `You are eligible for ${eligibleProducts?.length} of ${productSections?.length} selected products.`
+              : "Unfortunately, based on your responses, you are not eligible to purchase the selected treatments at this time.",
+          showProgress: false,
+          eligibleProducts,
+          ineligibleProducts,
         };
 
       default:
@@ -142,7 +170,7 @@ QuestionCardProps) => {
     }
   };
 
-  const renderQuestion = () => {
+  const _renderQuestion = () => {
     const currentQuestion = getCurrentQuestion();
     if (!currentQuestion) return null;
 
@@ -180,11 +208,11 @@ QuestionCardProps) => {
               onValueChange={updateResponse}
               className="mt-2"
             >
-              {currentQuestion.options?.map((option: QuestionnaireOption) => {
+              {currentQuestion?.options?.map((option: QuestionnaireOption) => {
                 const optionValue =
-                  typeof option === "string" ? option : option.value;
+                  typeof option === "string" ? option : option?._id;
                 const optionLabel =
-                  typeof option === "string" ? option : option.label;
+                  typeof option === "string" ? option : option?.label;
 
                 return (
                   <div
@@ -209,11 +237,11 @@ QuestionCardProps) => {
               {currentQuestion?.questionText}
             </Label>
             <div className="mt-2 space-y-2">
-              {currentQuestion.options?.map((option: QuestionnaireOption) => {
+              {currentQuestion?.options?.map((option: QuestionnaireOption) => {
                 const optionValue =
-                  typeof option === "string" ? option : option.value;
+                  typeof option === "string" ? option : option?._id;
                 const optionLabel =
-                  typeof option === "string" ? option : option.label;
+                  typeof option === "string" ? option : option?.label;
 
                 return (
                   <div
@@ -260,18 +288,20 @@ QuestionCardProps) => {
                 <SelectValue placeholder="Select an option" />
               </SelectTrigger>
               <SelectContent>
-                {currentQuestion.options?.map((option: QuestionnaireOption) => {
-                  const optionValue =
-                    typeof option === "string" ? option : option.value;
-                  const optionLabel =
-                    typeof option === "string" ? option : option.label;
+                {currentQuestion?.options?.map(
+                  (option: QuestionnaireOption) => {
+                    const optionValue =
+                      typeof option === "string" ? option : option?._id;
+                    const optionLabel =
+                      typeof option === "string" ? option : option?.label;
 
-                  return (
-                    <SelectItem key={optionValue} value={optionValue}>
-                      {optionLabel}
-                    </SelectItem>
-                  );
-                })}
+                    return (
+                      <SelectItem key={optionValue} value={optionValue}>
+                        {optionLabel}
+                      </SelectItem>
+                    );
+                  }
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -312,7 +342,7 @@ QuestionCardProps) => {
                 {currentQuestion?.options?.map(
                   (option: QuestionnaireOption) => {
                     const optionValue =
-                      typeof option === "string" ? option : option?.value;
+                      typeof option === "string" ? option : option?._id;
                     const optionLabel =
                       typeof option === "string" ? option : option?.label;
                     return (
@@ -332,8 +362,43 @@ QuestionCardProps) => {
     }
   };
 
-  const renderStep = () => {
-    const stepInfo = getStepDisplayInfo();
+  const _renderStep = () => {
+    const stepInfo = _getStepDisplayInfo();
+
+    // General questions ineligible screen
+    if (currentStep === -2) {
+      return (
+        <div className="text-center space-y-6">
+          <AlertTriangle className="h-16 w-16 text-red-500 mx-auto" />
+          <div>
+            <h1 className="text-2xl font-bold mb-2 theme-text-primary">
+              {/* General Questions - Not Eligible */}
+              Not Eligible
+            </h1>
+            <p className="theme-text-muted">
+              Based on your answers, you are not eligible to proceed with
+              treatment at this time.
+            </p>
+            {/* <p className="text-sm theme-text-muted mt-2">
+              You can restart the general questions to provide different
+              answers, or explore other treatments.
+            </p> */}
+          </div>
+          <div className="space-y-3 flex gap-2 items-baseline justify-center">
+            <Button
+              onClick={restartGeneralQuestions}
+              variant="outline"
+              className="flex-1"
+            >
+              Restart General Questions
+            </Button>
+            <Button onClick={() => router.push("/")} className="flex-1">
+              Explore Other Treatment
+            </Button>
+          </div>
+        </div>
+      );
+    }
 
     // Overall ineligible screen
     if (currentStep === -1) {
@@ -342,11 +407,11 @@ QuestionCardProps) => {
           <AlertTriangle className="h-16 w-16 text-red-500 mx-auto" />
           <div>
             <h1 className="text-2xl font-bold mb-2 theme-text-primary">
-              Treatment Not Recommended
+              Not Eligible
             </h1>
             <p className="theme-text-muted">
-              Unfortunately, based on your responses, you're not eligible to
-              purchase this treatment at this time.
+              Unfortunately, based on your responses, you are not eligible to
+              purchase the selected treatments at this time.
             </p>
           </div>
           <div className="space-y-3">
@@ -468,22 +533,99 @@ QuestionCardProps) => {
               {stepInfo?.title}
             </h1>
             <p className="theme-text-muted">{stepInfo?.description}</p>
-            {!stepInfo?.isEligible && (
-              <p className="text-sm theme-text-muted mt-2">
-                Don't worry - we can still evaluate your other selected
-                products.
-              </p>
-            )}
           </div>
-          <div className="space-y-3">
-            {isLastProduct ? (
-              <Button onClick={handleNext} className="w-full">
-                Complete & Review Results
+
+          {/* Show buttons for ineligible products */}
+          {!stepInfo?.isEligible && (
+            <div className="space-y-3">
+              <Button
+                onClick={() =>
+                  restartProduct?.(currentStepInfo?.productIndex || 0)
+                }
+                variant="outline"
+                className="w-full"
+              >
+                Restart {stepInfo?.productName} Questions
               </Button>
-            ) : (
-              <Button onClick={handleNext} className="w-full">
-                Continue to Next Product
-              </Button>
+
+              {!isLastProduct && (
+                <Button
+                  onClick={handleContinueAfterIneligible || handleNext}
+                  className="w-full"
+                >
+                  Continue to Next Product
+                </Button>
+              )}
+
+              {isLastProduct && (
+                <Button onClick={handleNext} className="w-full">
+                  Complete & Review Results
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Final results summary
+    if (currentStepInfo?.type === "finalResults") {
+      const eligibleProducts = stepInfo?.eligibleProducts || [];
+      const ineligibleProducts = stepInfo?.ineligibleProducts || [];
+      const hasEligibleProducts = eligibleProducts.length > 0;
+
+      return (
+        <div className="text-center space-y-6">
+          {hasEligibleProducts ? (
+            <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+          ) : (
+            <AlertTriangle className="h-16 w-16 text-red-500 mx-auto" />
+          )}
+          <div>
+            <h1 className="text-2xl font-bold mb-2 theme-text-primary">
+              {stepInfo?.title}
+            </h1>
+            <p className="theme-text-muted">{stepInfo?.description}</p>
+          </div>
+
+          {/* Show eligible and ineligible products */}
+          <div className="space-y-4">
+            {eligibleProducts.length > 0 && (
+              <div className="bg-green-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-green-800 mb-2">
+                  Eligible Products:
+                </h3>
+                <div className="space-y-1">
+                  {eligibleProducts.map((product: any) => (
+                    <div
+                      key={product.productId}
+                      className="flex items-center gap-2 text-green-700"
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      <span>{product.productName}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {ineligibleProducts.length > 0 && (
+              <div className="bg-red-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-red-800 mb-2">
+                  Not Recommended:
+                </h3>
+                <div className="space-y-1">
+                  {ineligibleProducts.map((product: any) => (
+                    <div
+                      key={product.productId}
+                      className="flex items-center gap-2 text-red-700"
+                    >
+                      <XCircle className="h-4 w-4" />
+                      <span>{product.productName}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -513,14 +655,14 @@ QuestionCardProps) => {
             )}
         </div>
 
-        {renderQuestion()}
+        {_renderQuestion()}
       </div>
     );
   };
 
   return (
     <Card className="mb-8">
-      <CardContent className="p-8">{renderStep()}</CardContent>
+      <CardContent className="p-8">{_renderStep()}</CardContent>
     </Card>
   );
 };

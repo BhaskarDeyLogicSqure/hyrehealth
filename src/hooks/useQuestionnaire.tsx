@@ -1,4 +1,4 @@
-import { Question } from "@/types/questionnaire";
+import { Question, QuestionType } from "@/types/questionnaire";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { showToast, errorToast } from "@/utils/toasters";
@@ -58,7 +58,8 @@ const useQuestionnaire = (
   //    - Product intro/transition (1 step)
   //    - Product questions (n steps)
   //    - Product eligibility result (1 step)
-  // 5. Final completion (handled separately)
+  // 5. Final results summary (1 step)
+  // 6. Final completion (handled separately)
 
   const stepStructure = useMemo(() => {
     const structure: Array<{
@@ -68,7 +69,8 @@ const useQuestionnaire = (
         | "transition"
         | "productIntro"
         | "productQuestion"
-        | "productResult";
+        | "productResult"
+        | "finalResults";
       productIndex?: number;
       questionIndex?: number;
       productId?: string;
@@ -121,6 +123,11 @@ const useQuestionnaire = (
         productName: section?.productName,
       });
     });
+
+    // 5. Final results summary (if multiple products)
+    if (totalProductSections > 1) {
+      structure?.push({ type: "finalResults" });
+    }
 
     return structure;
   }, [totalGeneralQuestions, productSections, totalProductSections]);
@@ -222,37 +229,111 @@ const useQuestionnaire = (
 
   // Calculate eligibility for a specific product based on current responses
   const calculateProductEligibility = (productIndex: number) => {
-    // This is a placeholder - implement your actual eligibility logic here
-    // You might want to check specific responses for each product
+    const productSection = productSections[productIndex];
+    if (!productSection) return false;
 
-    // Example eligibility checks (customize based on your requirements)
-    const age = parseInt(responses.age);
-    if (age && (age < 18 || age > 80)) {
-      return false;
+    // Check all answered questions for this product
+    for (const question of productSection?.questions) {
+      if (question?.hasCorrectOption) {
+        const userResponse = responses[question?._id];
+
+        if (!userResponse) {
+          // Question not answered yet, assume eligible for now
+          continue;
+        }
+
+        // Check if user selected correct option(s)
+        const hasCorrectAnswer = checkIfAnswerIsCorrect(question, userResponse);
+        if (!hasCorrectAnswer) {
+          return false; // Ineligible for this product
+        }
+      }
     }
 
-    const medicalConditions = responses.medical_conditions || [];
+    return true; // Eligible for this product
+  };
+
+  // Helper function to check if an answer is correct
+  const checkIfAnswerIsCorrect = (question: any, userResponse: any) => {
+    console.log("question", question);
+    console.log("userResponse", userResponse);
+    if (!question?.hasCorrectOption) {
+      return true; // No validation needed
+    }
+
+    const options = question?.options || [];
+
     if (
-      medicalConditions.includes("Heart disease or cardiovascular issues") ||
-      medicalConditions.includes("Kidney disease")
+      question?.questionType === QuestionType.Radio ||
+      question?.questionType === QuestionType.Select ||
+      question?.questionType === QuestionType.Dropdown
     ) {
-      return false;
+      // For single-select questions, userResponse is the option _id
+      const selectedOption = options?.find(
+        (opt: any) => opt?._id === userResponse
+      );
+      console.log("selectedOption", selectedOption);
+      return selectedOption?.isCorrect === true;
     }
 
-    const giIssues = responses.gastrointestinal_issues || [];
-    if (giIssues.includes("Gastroparesis")) {
-      return false;
+    // For checkbox questions, userResponse is an array of option _ids
+    if (question?.questionType === QuestionType.Checkbox) {
+      if (Array.isArray(userResponse)) {
+        // All selected options must be correct
+        return userResponse?.every((responseId) => {
+          const selectedOption = options?.find(
+            (opt: any) => opt?._id === responseId
+          );
+          return selectedOption?.isCorrect === true;
+        });
+      } else {
+        // Single checkbox value
+        const selectedOption = options?.find(
+          (opt: any) => opt?._id === userResponse
+        );
+        return selectedOption?.isCorrect === true;
+      }
     }
 
-    // Add product-specific eligibility logic here
-    // You can check product-specific questions and responses
+    // For other question types, you might need additional logic
+    return true;
+  };
+
+  // Calculate general questions eligibility
+  const calculateGeneralEligibility = () => {
+    const generalQuestions = questionsList?.generalQuestions || [];
+
+    for (const question of generalQuestions) {
+      if (question?.hasCorrectOption) {
+        const userResponse = responses?.[question?._id];
+
+        if (!userResponse) {
+          continue; // Question not answered yet
+        }
+
+        const isAnswerCorrect = checkIfAnswerIsCorrect(question, userResponse);
+        if (!isAnswerCorrect) {
+          return false; // not correct answer, i.e ineligible - abort immediately in case of general questions
+        }
+      }
+    }
 
     return true;
   };
 
+  console.log({ responses });
   // Calculate overall eligibility based on current responses
   const calculateOverallEligibility = () => {
-    return calculateProductEligibility(0); // Use general eligibility for now
+    // First check general eligibility
+    const generalEligible = calculateGeneralEligibility();
+    if (!generalEligible) {
+      return false; // Immediately ineligible
+    }
+
+    // Check if at least one product is eligible
+    return productSections?.some((_, index) =>
+      calculateProductEligibility(index)
+    );
   };
 
   const showToastMessage = (
@@ -264,6 +345,28 @@ const useQuestionnaire = (
       errorToast(description);
     } else {
       showToast({ message: description, type: "success" });
+    }
+  };
+
+  // Add function to restart general questions
+  const restartGeneralQuestions = () => {
+    // Clear responses for all general questions
+    const generalQuestions = questionsList?.generalQuestions || [];
+    const updatedResponses = { ...responses };
+    generalQuestions?.forEach((question: Question) => {
+      delete updatedResponses[question?._id];
+    });
+    setResponses(updatedResponses);
+
+    // Navigate back to first general question
+    const firstGeneralStep = stepStructure?.findIndex(
+      (step) => step?.type === "general"
+    );
+    if (firstGeneralStep !== -1) {
+      setCurrentStep(firstGeneralStep);
+    } else {
+      // If no general questions found, go to intro
+      setCurrentStep(0);
     }
   };
 
@@ -288,22 +391,77 @@ const useQuestionnaire = (
         );
         return;
       }
+
+      // Check for wrong answers in general questions
+      if (
+        currentStepInfo?.type === "general" &&
+        currentQuestion?.hasCorrectOption
+      ) {
+        const isAnswerCorrect = checkIfAnswerIsCorrect(
+          currentQuestion,
+          currentValue
+        );
+
+        if (!isAnswerCorrect) {
+          // Set to general ineligible state instead of completely aborting
+          // showToastMessage(
+          //   "Not Eligible",
+          //   "Unfortunately, your answer makes you ineligible. You can restart the general questions to try again.",
+          //   "destructive"
+          // );
+          setCurrentStep(-2); // Set to general ineligible state (-2 to distinguish from overall ineligible -1)
+          return;
+        }
+      }
+
+      // Check for wrong answers in product questions - check after each question
+      if (
+        currentStepInfo?.type === "productQuestion" &&
+        currentQuestion?.hasCorrectOption
+      ) {
+        const isAnswerCorrect = checkIfAnswerIsCorrect(
+          currentQuestion,
+          currentValue
+        );
+
+        if (!isAnswerCorrect && currentStepInfo?.productIndex !== undefined) {
+          // Mark this product as ineligible immediately
+          productSections[currentStepInfo.productIndex].isEligible = false;
+
+          // Skip to the product result step for this product
+          const productResultStep = stepStructure?.findIndex(
+            (step) =>
+              step?.type === "productResult" &&
+              step?.productIndex === currentStepInfo.productIndex
+          );
+
+          if (productResultStep !== -1) {
+            setCurrentStep(productResultStep);
+            return;
+          }
+        }
+      }
     }
 
-    // Check if we're at the end of a product section to evaluate eligibility
-    if (currentStepInfo.type === "productQuestion") {
-      const nextStepInfo = stepStructure[currentStep + 1];
+    // Check if we're at the end of a product section to evaluate eligibility (for products that passed all questions)
+    if (currentStepInfo?.type === "productQuestion") {
+      const nextStepInfo = stepStructure?.[currentStep + 1];
       if (
         nextStepInfo?.type === "productResult" &&
         currentStepInfo.productIndex !== undefined
       ) {
-        // Calculate eligibility for this product
-        const isEligible = calculateProductEligibility(
-          currentStepInfo.productIndex
-        );
+        // Calculate eligibility for this product only if it hasn't been marked as ineligible yet
+        if (
+          productSections[currentStepInfo.productIndex].isEligible !== false
+        ) {
+          const isProductEligible = calculateProductEligibility(
+            currentStepInfo?.productIndex
+          );
 
-        // Update product eligibility status
-        productSections[currentStepInfo.productIndex].isEligible = isEligible;
+          // Update product eligibility status for the product
+          productSections[currentStepInfo?.productIndex].isEligible =
+            isProductEligible;
+        }
       }
     }
 
@@ -325,22 +483,55 @@ const useQuestionnaire = (
 
   const handleComplete = () => {
     // Calculate final eligibility based on all responses
-    const finalEligibility = calculateOverallEligibility();
+    const generalEligible = calculateGeneralEligibility();
 
-    if (!finalEligibility) {
-      // Show ineligible screen
+    if (!generalEligible) {
+      // Show general ineligible screen
+      setCurrentStep(-2);
+      return;
+    }
+
+    // Check which products are eligible
+    const eligibleProducts = productSections.filter((section, index) => {
+      // If already marked as ineligible, keep that status
+      if (section.isEligible === false) {
+        return false;
+      }
+      // Otherwise, calculate eligibility
+      const isEligible = calculateProductEligibility(index);
+      section.isEligible = isEligible;
+      return isEligible;
+    });
+
+    console.log("Eligible products:", eligibleProducts);
+
+    if (eligibleProducts.length === 0) {
+      // No products are eligible - show final ineligible screen
       setCurrentStep(-1);
       return;
     }
 
-    // Save consultation status and proceed to checkout
+    // At least one product is eligible - proceed to checkout with eligible products only
     localStorage.setItem("lastConsultation", new Date().toISOString());
 
+    // Create checkout params with only eligible products
     const checkoutParams = new URLSearchParams({
       product: productId,
       dosage,
       duration,
     });
+
+    // Add eligible related products if any (excluding the main product)
+    const eligibleRelatedProducts = eligibleProducts
+      ?.map((section) => section?.productId?.split("_")[0]) // Extract actual product ID
+      ?.filter((id) => id !== productId); // Exclude main product
+
+    if (eligibleRelatedProducts?.length > 0) {
+      checkoutParams?.set(
+        "relatedProducts",
+        eligibleRelatedProducts?.join(",")
+      );
+    }
 
     router.push(`/checkout?${checkoutParams.toString()}`);
   };
@@ -355,28 +546,61 @@ const useQuestionnaire = (
     }
   };
 
+  // Handle navigating back to a specific product (restart from beginning)
+  const restartProduct = (productIndex: number) => {
+    // Clear responses for this product
+    const productSection = productSections[productIndex];
+    if (productSection) {
+      const updatedResponses = { ...responses };
+      productSection.questions.forEach((question) => {
+        delete updatedResponses[question._id];
+      });
+      setResponses(updatedResponses);
+
+      // Reset product eligibility
+      productSections[productIndex].isEligible = null;
+
+      // Navigate to product intro
+      const productIntroStep = stepStructure?.findIndex(
+        (step) =>
+          step?.type === "productIntro" && step?.productIndex === productIndex
+      );
+      if (productIntroStep !== -1) {
+        setCurrentStep(productIntroStep);
+      }
+    }
+  };
+
   // Handle continuing past an ineligible product
   const handleContinueAfterIneligible = () => {
     const currentStepInfo = getCurrentStepInfo();
     if (
-      currentStepInfo.type === "productResult" &&
-      currentStepInfo.productIndex !== undefined
+      currentStepInfo?.type === "productResult" &&
+      currentStepInfo?.productIndex !== undefined
     ) {
-      // Find next product intro or completion
-      const nextProductIndex = currentStepInfo.productIndex + 1;
+      // Find next product intro or go to final results
+      const nextProductIndex = currentStepInfo?.productIndex + 1;
       if (nextProductIndex < productSections.length) {
         // Go to next product intro
-        const nextProductIntroStep = stepStructure.findIndex(
+        const nextProductIntroStep = stepStructure?.findIndex(
           (step) =>
-            step.type === "productIntro" &&
-            step.productIndex === nextProductIndex
+            step?.type === "productIntro" &&
+            step?.productIndex === nextProductIndex
         );
         if (nextProductIntroStep !== -1) {
           setCurrentStep(nextProductIntroStep);
         }
       } else {
-        // No more products, complete the questionnaire
-        handleComplete();
+        // No more products, go to final results or complete
+        const finalResultsStep = stepStructure?.findIndex(
+          (step) => step?.type === "finalResults"
+        );
+        if (finalResultsStep !== -1) {
+          setCurrentStep(finalResultsStep);
+        } else {
+          // No final results step, complete the questionnaire
+          handleComplete();
+        }
       }
     }
   };
@@ -392,15 +616,9 @@ const useQuestionnaire = (
   return {
     currentStep,
     responses,
-    // questionsList,
-    // currentQuestionIndex,
     totalSteps,
     progress,
     totalGeneralQuestions,
-    // totalProductQuestions: productSections.reduce(
-    //   (sum, section) => sum + section.questions.length,
-    //   0
-    // ),
     totalActualQuestions,
     productSections,
     getCurrentQuestion,
@@ -409,8 +627,12 @@ const useQuestionnaire = (
     updateResponse,
     handleNext,
     handleBack,
-    // handleContinueAfterIneligible,
+    handleContinueAfterIneligible,
     calculateProductEligibility,
+    calculateGeneralEligibility,
+    restartProduct,
+    restartGeneralQuestions, // Add this new function to the return
+    checkIfAnswerIsCorrect,
   };
 };
 

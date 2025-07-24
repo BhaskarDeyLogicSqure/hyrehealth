@@ -44,36 +44,136 @@ const QuestionForm = ({
     updateResponse,
     handleNext,
     handleBack,
+    handleContinueAfterIneligible,
+    restartProduct,
+    restartGeneralQuestions,
     // handleContinueAfterIneligible,
   } = useQuestionnaire(questions, productId, dosage, duration);
 
-  const getStepTitle = () => {
+  const _getStepTitle = () => {
     const stepInfo = getCurrentStepInfo();
 
-    switch (stepInfo.type) {
+    switch (stepInfo?.type) {
       case "intro":
         return "Introduction";
 
       case "general":
-        return `General Question ${(stepInfo.questionIndex || 0) + 1}`;
+        return `General Question ${(stepInfo?.questionIndex || 0) + 1}`;
 
       case "transition":
         return "Transition to Products";
 
       case "productIntro":
-        return `${stepInfo.productName} - Introduction`;
+        return `${stepInfo?.productName} - Introduction`;
 
       case "productQuestion":
-        return `${stepInfo.productName} - Question ${
-          (stepInfo.questionIndex || 0) + 1
+        return `${stepInfo?.productName} - Question ${
+          (stepInfo?.questionIndex || 0) + 1
         }`;
 
       case "productResult":
-        return `${stepInfo.productName} - Result`;
+        return `${stepInfo?.productName} - Result`;
+
+      case "finalResults":
+        return "Final Results";
 
       default:
         return "Questionnaire";
     }
+  };
+
+  const _handleNextBtn = (currentStepInfo: any) => {
+    // Handle product result screens - only for eligible products now
+    if (currentStepInfo?.type === "productResult") {
+      const isLastProduct =
+        (currentStepInfo?.productIndex || 0) === productSections?.length - 1;
+
+      // If eligible, continue normally
+      if (isLastProduct) {
+        handleNext(); // Go to final results or complete
+      } else {
+        if (handleContinueAfterIneligible) {
+          handleContinueAfterIneligible();
+        } else {
+          handleNext();
+        }
+      }
+      return;
+    }
+
+    // Handle final results screen
+    if (currentStepInfo?.type === "finalResults") {
+      const eligibleProducts = productSections?.filter(
+        (section) => section?.isEligible === true
+      );
+
+      if (eligibleProducts?.length > 0) {
+        handleNext(); // Proceed to checkout
+      } else {
+        // No eligible products - user should review or explore other treatments
+        setCurrentStep(0); // Go back to start for review
+      }
+      return;
+    }
+
+    // Default behavior for other steps
+    handleNext();
+  };
+
+  const _getNextBtnText = (currentStepInfo: any) => {
+    // Product result button text - only for eligible products
+    if (currentStepInfo?.type === "productResult") {
+      const isLastProduct =
+        (currentStepInfo?.productIndex || 0) === productSections?.length - 1;
+
+      return isLastProduct ? (
+        <>
+          Complete & Review Results
+          <ArrowRight className="h-4 w-4 ml-2" />
+        </>
+      ) : (
+        <>
+          Continue to Next Product
+          <ArrowRight className="h-4 w-4 ml-2" />
+        </>
+      );
+    }
+
+    // Final results button text
+    if (currentStepInfo?.type === "finalResults") {
+      const eligibleProducts = productSections?.filter(
+        (section) => section?.isEligible === true
+      );
+
+      if (eligibleProducts?.length > 0) {
+        return (
+          <>
+            Proceed to Checkout with Eligible Products
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </>
+        );
+      } else {
+        return (
+          <>
+            Review Responses
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </>
+        );
+      }
+    }
+
+    // Default button text
+    return currentStep === totalSteps - 1 ? (
+      <>
+        Complete & Proceed to Checkout
+        <ArrowRight className="h-4 w-4 ml-2" />
+      </>
+    ) : (
+      <>
+        Next
+        <ArrowRight className="h-4 w-4 ml-2" />
+      </>
+    );
   };
 
   return (
@@ -83,15 +183,15 @@ const QuestionForm = ({
         {currentStep >= 0 && (
           <div className="mb-8">
             <div className="flex justify-between text-sm theme-text-muted mb-2">
-              <span>{getStepTitle()}</span>
+              <span>{_getStepTitle()}</span>
               <span>{Math.round(progress)}% Complete</span>
             </div>
             <Progress value={progress} className="h-2" />
 
             {/* Additional progress info for multi-product flow */}
-            {productSections.length > 1 && (
+            {productSections?.length > 1 && (
               <div className="mt-2 text-xs theme-text-muted">
-                {productSections.length} products selected •{" "}
+                {productSections?.length} products selected •{" "}
                 {totalActualQuestions} total questions
               </div>
             )}
@@ -113,6 +213,9 @@ const QuestionForm = ({
           getCurrentQuestion={getCurrentQuestion}
           getCurrentStepInfo={getCurrentStepInfo}
           updateResponse={updateResponse}
+          handleContinueAfterIneligible={handleContinueAfterIneligible}
+          restartProduct={restartProduct}
+          restartGeneralQuestions={restartGeneralQuestions}
           // handleBack={handleBack}
           // handleContinueAfterIneligible={handleContinueAfterIneligible}
         />
@@ -120,30 +223,51 @@ const QuestionForm = ({
         {/* Navigation */}
         {currentStep >= 0 && (
           <div className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
+            {(() => {
+              const currentStepInfo = getCurrentStepInfo();
 
-            {currentStep > 0 && (
-              <Button onClick={handleNext}>
-                {currentStep === totalSteps - 1 ? (
-                  <>
-                    Complete & Proceed to Checkout
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </>
-                ) : (
-                  <>
-                    Next
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </>
-                )}
-              </Button>
-            )}
+              // Hide back button for ineligible product results
+              if (currentStepInfo?.type === "productResult") {
+                const stepInfo =
+                  productSections?.[currentStepInfo?.productIndex || 0];
+                if (stepInfo?.isEligible === false) {
+                  return <div></div>; // Empty div to maintain flex layout
+                }
+              }
+
+              // Show back button for all other cases
+              return (
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </Button>
+              );
+            })()}
+
+            {currentStep > 0 &&
+              (() => {
+                const currentStepInfo = getCurrentStepInfo();
+
+                // Don't show main button for ineligible product results (buttons are in card)
+                if (currentStepInfo?.type === "productResult") {
+                  const stepInfo =
+                    productSections?.[currentStepInfo?.productIndex || 0];
+                  if (stepInfo?.isEligible === false) {
+                    return null; // No main button for ineligible products
+                  }
+                }
+
+                // Show main button for all other cases
+                return (
+                  <Button onClick={() => _handleNextBtn(currentStepInfo)}>
+                    {_getNextBtnText(currentStepInfo)}
+                  </Button>
+                );
+              })()}
           </div>
         )}
       </div>
