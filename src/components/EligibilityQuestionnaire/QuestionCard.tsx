@@ -1,6 +1,14 @@
 import React from "react";
 import { Card, CardContent } from "../ui/card";
-import { AlertTriangle, CheckCircle, XCircle, Package } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Package,
+  Calendar as CalendarIcon,
+  Upload,
+  File,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { Select } from "../ui/select";
@@ -15,6 +23,8 @@ import { Input } from "../ui/input";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Checkbox } from "../ui/checkbox";
 import { Textarea } from "../ui/textarea";
+import { Calendar } from "../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   Question,
   QuestionnaireOption,
@@ -354,6 +364,205 @@ QuestionCardProps) => {
                 )}
               </SelectContent>
             </Select>
+          </div>
+        );
+
+      case QuestionType.Date:
+        return (
+          <div>
+            <Label className="theme-text-primary">
+              {currentQuestion?.questionText}
+            </Label>
+            <div className="mt-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {currentValue ? (
+                      new Date(currentValue).toLocaleDateString()
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {currentQuestion?.helpText || "Pick a date"}
+                      </span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    captionLayout="dropdown"
+                    selected={currentValue ? new Date(currentValue) : undefined}
+                    onSelect={(date) => {
+                      if (date) {
+                        updateResponse(date.toISOString());
+                      } else {
+                        updateResponse(null);
+                      }
+                    }}
+                    initialFocus
+                    fromYear={1900}
+                    toYear={new Date().getFullYear() + 10}
+                    disabled={(date) => {
+                      // Smart date validation based on question context
+                      const questionText =
+                        currentQuestion?.questionText?.toLowerCase() || "";
+
+                      // For DOB questions, disable future dates
+                      if (
+                        questionText?.includes("birth") ||
+                        questionText?.includes("born") ||
+                        questionText?.includes("dob")
+                      ) {
+                        return date > new Date();
+                      }
+
+                      // For appointment/future event questions, disable past dates
+                      if (
+                        questionText?.includes("appointment") ||
+                        questionText?.includes("schedule") ||
+                        questionText?.includes("visit")
+                      ) {
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        return date < yesterday;
+                      }
+
+                      // Allow all dates by default
+                      return false;
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+              {currentValue && (
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-sm text-gray-600">
+                    Selected: {new Date(currentValue)?.toLocaleDateString()}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => updateResponse(null)}
+                    className="text-red-500 hover:text-red-700 h-6 px-2"
+                  >
+                    Clear
+                  </Button>
+                </div>
+              )}
+              {currentQuestion?.helpText && (
+                <p className="text-xs text-gray-500 mt-1">
+                  {currentQuestion?.helpText}
+                </p>
+              )}
+            </div>
+          </div>
+        );
+
+      case QuestionType.File:
+        return (
+          <div>
+            <Label className="theme-text-primary">
+              {currentQuestion?.questionText}
+            </Label>
+            <div className="mt-2">
+              <div
+                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors"
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.add(
+                    "border-blue-400",
+                    "bg-blue-50"
+                  );
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove(
+                    "border-blue-400",
+                    "bg-blue-50"
+                  );
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove(
+                    "border-blue-400",
+                    "bg-blue-50"
+                  );
+                  const files = e.dataTransfer.files;
+                  if (files?.length > 0) {
+                    const file = files[0];
+                    const fileInfo = {
+                      name: file?.name,
+                      size: file?.size,
+                      type: file?.type,
+                      lastModified: file?.lastModified,
+                    };
+                    updateResponse(fileInfo);
+                  }
+                }}
+              >
+                <div className="space-y-2">
+                  <Upload className="mx-auto h-8 w-8 text-gray-400" />
+                  <div className="text-sm text-gray-600">
+                    <label
+                      htmlFor={currentQuestion?._id}
+                      className="cursor-pointer text-blue-600 hover:text-blue-500"
+                    >
+                      Choose file
+                    </label>
+                    <span className="text-gray-500"> or drag and drop</span>
+                  </div>
+                  {currentQuestion?.helpText && (
+                    <p className="text-xs text-gray-500">
+                      {currentQuestion?.helpText}
+                    </p>
+                  )}
+                </div>
+                <Input
+                  id={currentQuestion?._id}
+                  type="file"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // For now, store file name and basic info
+                      // In a real implementation, you'd upload to a file storage service
+                      const fileInfo = {
+                        name: file?.name,
+                        size: file?.size,
+                        type: file?.type,
+                        lastModified: file?.lastModified,
+                      };
+                      updateResponse(fileInfo);
+                    }
+                  }}
+                />
+              </div>
+              {currentValue && (
+                <div className="mt-2 flex items-center space-x-2 text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">
+                  <File className="h-4 w-4 text-blue-600" />
+                  <span className="flex-1">
+                    {currentValue?.name || currentValue}
+                  </span>
+                  {currentValue?.size && (
+                    <span className="text-xs text-gray-400">
+                      ({(currentValue?.size / 1024)?.toFixed(1)} KB)
+                    </span>
+                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => updateResponse(null)}
+                    className="text-red-500 hover:text-red-700 h-6 w-6 p-0"
+                  >
+                    ×
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         );
 
