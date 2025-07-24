@@ -1,3 +1,16 @@
+export enum QuestionType {
+  Text = "text",
+  Textarea = "textarea",
+  Radio = "radio",
+  Checkbox = "checkbox",
+  Select = "select",
+  Date = "date",
+  Number = "number",
+  Boolean = "boolean",
+  Dropdown = "dropdown",
+  File = "file",
+}
+
 export type QuestionnaireOption = {
   value: string;
   label: string;
@@ -10,7 +23,7 @@ export type QuestionnaireOption = {
 export type Question = {
   _id: string;
   questionText: string;
-  questionType: string;
+  questionType: QuestionType;
   isRequired: boolean;
   order: number;
   options: QuestionnaireOption[];
@@ -21,6 +34,7 @@ export type Question = {
   businessType: string;
   isActive: boolean;
   merchantSpecific: boolean;
+  hasCorrectOption: boolean;
   __v: number;
   validationRules: Record<string, any>;
 };

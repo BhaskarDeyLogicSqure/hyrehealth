@@ -1,6 +1,8 @@
 import apiService from "..";
 import { GET_QUESTIONNAIRE_ENDPOINT } from "@/api-helper/QuestionnaireEndpoint";
 import { BASE_URL } from "@/configs";
+import { handleServerError } from "@/lib/error-handler";
+import { redirect } from "next/navigation";
 
 export const questionnaireApi = {
   getQuestionnaire: async (
@@ -17,7 +19,7 @@ export const questionnaireApi = {
     });
 
     if (response?.error) {
-      throw new Error("Error fetching questions");
+      throw new Error(response?.error || "Failed to load questionnaire");
     }
 
     let total = 0;
