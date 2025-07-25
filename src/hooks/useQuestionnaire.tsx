@@ -2,6 +2,17 @@ import { Question, QuestionType } from "@/types/questionnaire";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { showToast, errorToast } from "@/utils/toasters";
+import { useDispatch } from "react-redux";
+import {
+  setQuestionnaireData,
+  setGeneralEligibility,
+  setProductResponses,
+  addProductResponses,
+  setProductEligibility,
+  completeQuestionnaire,
+  QuestionnaireResponse,
+  ProductEligibility,
+} from "@/store/slices/checkoutSlice";
 
 interface ProductSection {
   productId: string;
@@ -17,6 +28,7 @@ const useQuestionnaire = (
   duration: string
 ) => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [questionsList, setQuestionsList] = useState<Record<string, any>>({});
@@ -449,11 +461,11 @@ const useQuestionnaire = (
       const nextStepInfo = stepStructure?.[currentStep + 1];
       if (
         nextStepInfo?.type === "productResult" &&
-        currentStepInfo.productIndex !== undefined
+        currentStepInfo?.productIndex !== undefined
       ) {
         // Calculate eligibility for this product only if it hasn't been marked as ineligible yet
         if (
-          productSections[currentStepInfo.productIndex].isEligible !== false
+          productSections[currentStepInfo?.productIndex]?.isEligible !== false
         ) {
           const isProductEligible = calculateProductEligibility(
             currentStepInfo?.productIndex
@@ -482,9 +494,51 @@ const useQuestionnaire = (
     }
   };
 
+  // Helper function to convert responses to QuestionnaireResponse format
+  const convertResponsesToQuestionnaireFormat = (
+    questionsArray: Question[],
+    responses: Record<string, any>,
+    productId?: string
+  ): QuestionnaireResponse[] => {
+    return questionsArray
+      .map((question) => {
+        const answer = responses?.[question?._id];
+        const isCorrect = question?.hasCorrectOption
+          ? checkIfAnswerIsCorrect(question, answer)
+          : undefined;
+
+        return {
+          questionId: question?._id,
+          questionText: question?.questionText || "",
+          questionType: question?.questionType,
+          answer,
+          isCorrect,
+          productId, // Include product ID for product-specific questions
+        };
+      })
+      .filter(
+        (response) => response.answer !== undefined && response.answer !== null
+      );
+  };
+
   const handleComplete = () => {
     // Calculate final eligibility based on all responses
     const generalEligible = calculateGeneralEligibility();
+
+    // Prepare general responses for Redux
+    const generalQuestions = questionsList?.generalQuestions || [];
+    const generalResponses = convertResponsesToQuestionnaireFormat(
+      generalQuestions,
+      responses
+    );
+
+    // Dispatch general eligibility to Redux
+    dispatch(
+      setGeneralEligibility({
+        isEligible: generalEligible,
+        responses: generalResponses,
+      })
+    );
 
     if (!generalEligible) {
       // Show general ineligible screen
@@ -492,16 +546,44 @@ const useQuestionnaire = (
       return;
     }
 
-    // Check which products are eligible
-    const eligibleProducts = productSections.filter((section, index) => {
+    // Check which products are eligible and prepare data for Redux
+    const eligibleProducts = productSections?.filter((section, index) => {
       // If already marked as ineligible, keep that status
-      if (section.isEligible === false) {
+      if (section?.isEligible === false) {
         return false;
       }
       // Otherwise, calculate eligibility
       const isEligible = calculateProductEligibility(index);
       section.isEligible = isEligible;
       return isEligible;
+    });
+
+    // Dispatch product eligibilities to Redux
+    productSections?.forEach((section, index) => {
+      const productResponses = convertResponsesToQuestionnaireFormat(
+        section?.questions,
+        responses,
+        section?.productId?.split("_")?.[0] // Pass the actual product ID
+      );
+      const actualProductId = section.productId.split("_")[0]; // Extract actual product ID
+
+      // Dispatch product responses to the top-level array
+      if (productResponses.length > 0) {
+        dispatch(addProductResponses(productResponses));
+      }
+
+      const productEligibilityData: ProductEligibility = {
+        productId: actualProductId,
+        productName: section.productName,
+        isEligible: section.isEligible,
+        responses: productResponses, // Keep responses in ProductEligibility for backward compatibility
+        ineligibilityReason:
+          section.isEligible === false
+            ? "Failed questionnaire requirements"
+            : undefined,
+      };
+
+      dispatch(setProductEligibility(productEligibilityData));
     });
 
     console.log("Eligible products:", eligibleProducts);
@@ -511,6 +593,23 @@ const useQuestionnaire = (
       setCurrentStep(-1);
       return;
     }
+
+    // Complete questionnaire and prepare for checkout
+    const totalQuestions =
+      totalGeneralQuestions +
+      productSections.reduce(
+        (sum, section) => sum + section.questions.length,
+        0
+      );
+    const totalAnswered = Object.keys(responses).length;
+
+    dispatch(
+      completeQuestionnaire({
+        completedAt: new Date().toISOString(),
+        totalQuestions,
+        totalAnswered,
+      })
+    );
 
     // At least one product is eligible - proceed to checkout with eligible products only
     setIsNavigatingToCheckout(true);
@@ -641,7 +740,7 @@ const useQuestionnaire = (
     calculateProductEligibility,
     calculateGeneralEligibility,
     restartProduct,
-    restartGeneralQuestions, // Add this new function to the return
+    restartGeneralQuestions,
     checkIfAnswerIsCorrect,
     isNavigatingToCheckout,
   };

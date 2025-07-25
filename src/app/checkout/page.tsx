@@ -17,7 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Shield, CreditCard, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
+import QuestionnaireReview from "@/components/checkout/QuestionnaireReview";
 const CheckoutPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -524,6 +524,8 @@ const CheckoutPage = () => {
             </div>
           </div>
         </form>
+
+        <QuestionnaireReview />
       </div>
     </div>
   );
