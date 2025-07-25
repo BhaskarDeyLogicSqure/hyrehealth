@@ -19,7 +19,6 @@ const CheckoutPage = () => {
     relatedProductsData,
     selectedRelatedProducts,
     totalPrice,
-    consultationFee,
     duration,
     handleSubmit,
     handleOnChange,
@@ -106,7 +105,6 @@ const CheckoutPage = () => {
               selectedRelatedProducts={selectedRelatedProducts}
               relatedProductsData={relatedProductsData}
               totalPrice={totalPrice}
-              consultationFee={consultationFee}
               formFields={formFields}
               handleRemoveRelatedProduct={handleRemoveRelatedProduct}
             />

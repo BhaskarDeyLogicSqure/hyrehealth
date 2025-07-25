@@ -8,6 +8,8 @@ export const NEXT_PUBLIC_APP_DESCRIPTION = "Hyre Health Customer";
 
 export const DEFAULT_IMAGE_URL = "https://placehold.co/36x36/png";
 
+export const CONSULTATION_FEE = 49;
+
 export const PRODUCT_SORT_OPTIONS = [
   {
     label: "Name: A to Z",

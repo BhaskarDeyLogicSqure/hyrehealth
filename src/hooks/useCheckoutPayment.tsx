@@ -10,7 +10,7 @@ import {
   isValidPhone,
   isValidPassword,
 } from "@/lib/utils";
-
+import { CONSULTATION_FEE } from "@/configs";
 const initialFormFields = {
   firstName: "",
   lastName: "",
@@ -99,7 +99,6 @@ const useCheckoutPayment = () => {
   );
   const totalPrice =
     (selectedDosagePrice + relatedProductsTotal) * parseInt(duration);
-  const consultationFee = 49;
 
   const _handleOnChange = (field: string, value: string | boolean) => {
     const newFormFields = { ...formFields };
@@ -284,7 +283,7 @@ const useCheckoutPayment = () => {
         ? `&relatedProducts=${selectedRelatedProducts.join(",")}`
         : "";
     router.push(
-      `/thank-you?total=${totalPrice + consultationFee}${relatedProductsParam}`
+      `/thank-you?total=${totalPrice + CONSULTATION_FEE}${relatedProductsParam}`
     );
   };
 
@@ -297,7 +296,6 @@ const useCheckoutPayment = () => {
     selectedDosagePrice,
     relatedProductsTotal,
     totalPrice,
-    consultationFee,
     product,
     relatedProductsData,
     selectedRelatedProducts,
