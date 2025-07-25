@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { Theme } from "@/types/theme";
 import { DEFAULT_THEME } from "@/lib/theme-utils";
 import dynamic from "next/dynamic";
+import ThemeLoader from "@/components/ThemeLoader";
 
 interface PageProps {
   searchParams: {
@@ -17,9 +18,7 @@ const EligibilityQuestionnaire = dynamic(
   () => import("@/components/EligibilityQuestionnaire/index"),
   {
     loading: () => (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
-      </div>
+      <ThemeLoader type="full-page" message="Loading questionnaire..." />
     ),
   }
 );

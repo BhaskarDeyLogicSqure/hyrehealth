@@ -4,6 +4,7 @@ import { Theme } from "@/types/theme";
 import { questionnaireApi } from "@/api/questionnaire/questionnaireApi";
 import { handleServerError } from "@/lib/error-handler";
 import { QuestionType } from "@/types/questionnaire";
+import ThemeLoader from "@/components/ThemeLoader";
 
 interface EligibilityQuestionnaireProps {
   theme: Theme;
@@ -15,6 +16,16 @@ interface EligibilityQuestionnaireProps {
   };
 }
 
+interface QuestionField {
+  name: string;
+  label: string;
+  type: QuestionType;
+  required?: boolean;
+  placeholder?: string;
+  options?: { value: string; label: string }[] | string[];
+  validation?: (value: any) => string | null;
+}
+
 // Define question types
 export interface Question {
   id: string;
@@ -24,27 +35,6 @@ export interface Question {
   placeholder?: string;
   options?: { value: string; label: string }[] | string[];
   validation?: (value: any) => string | null;
-}
-
-// Loading component
-function QuestionnairesLoading() {
-  return (
-    <div className="min-h-screen theme-bg">
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <div className="mb-8">
-          <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
-          <div className="h-2 bg-gray-200 rounded animate-pulse"></div>
-        </div>
-        <div className="bg-white rounded-lg p-8 shadow">
-          <div className="space-y-4">
-            <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
-            <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-            <div className="h-12 bg-gray-200 rounded animate-pulse"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 // Server Component
@@ -84,17 +74,23 @@ const EligibilityQuestionnaire = async ({
 
   // console.log("questionsList", questionsList, totalQuestions);
   return (
-    <Suspense fallback={<QuestionnairesLoading />}>
-      <QuestionForm
-        theme={theme}
-        questions={questionsList}
-        productId={productId}
-        dosage={dosage}
-        duration={duration}
-        totalQuestions={totalQuestions}
-        // relatedProducts={relatedProducts}
-      />
-    </Suspense>
+    <div className="theme-bg min-h-screen">
+      <Suspense
+        fallback={
+          <ThemeLoader type="full-page" message="Loading questionnaire..." />
+        }
+      >
+        <QuestionForm
+          theme={theme}
+          questions={questionsList}
+          productId={productId}
+          dosage={dosage}
+          duration={duration}
+          totalQuestions={totalQuestions}
+          // relatedProducts={relatedProducts}
+        />
+      </Suspense>
+    </div>
   );
 };
 

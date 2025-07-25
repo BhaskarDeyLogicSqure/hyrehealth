@@ -36,14 +36,19 @@ const DefaultProductsPage = dynamic(
 
 // --------- Add more theme exports here ---------
 
-const ProductsPage = ({ searchParams }: { searchParams: any }) => {
+interface ProductsPageProps {
+  searchParams: any;
+}
+
+const ProductsPage = ({ searchParams }: ProductsPageProps) => {
   // Get current theme from cookie store
-  const cookieStore = cookies();
+  const cookieStore = cookies(); // get the cookie store
   const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
 
+  // Component mapping based on theme
   const ThemeComponents = {
     default: DefaultProductsPage,
-    // modern: ModernProductsPage, // TODO: Uncomment when ModernProductsPage is implemented
+    // modern: ModernProductsPage,
   } as const;
 
   const SelectedComponent =
