@@ -3,13 +3,13 @@ import { cookies } from "next/headers";
 import { Theme } from "@/types/theme";
 import { DEFAULT_THEME } from "@/lib/theme-utils";
 import dynamic from "next/dynamic";
-import FullPageLoading from "@/components/FullPageLoading";
+import ThemeLoader from "@/components/ThemeLoader";
 
 // Dynamic import for the shared renewal component
 const ConsultationRenewalComponent = dynamic(
   () => import("@/components/ConsultationRenewal"),
   {
-    loading: () => <FullPageLoading />,
+    loading: () => <ThemeLoader variant="full-page" message="Loading..." />,
   }
 );
 
