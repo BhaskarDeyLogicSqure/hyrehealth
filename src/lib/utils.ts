@@ -17,3 +17,7 @@ export const isValidPhone = (phone: string) => {
 export const isValidDate = (date: string) => {
   return REGEX_CONFIG?.isoDate?.test(date);
 };
+
+export const isValidPassword = (password: string) => {
+  return REGEX_CONFIG?.password?.test(password);
+};

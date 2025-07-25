@@ -26,7 +26,7 @@ const CheckoutPage = () => {
     handleRemoveRelatedProduct,
   } = useCheckoutPayment();
 
-  const isLoggedIn = true; // TODO: change this to actual implementation from redux store
+  const isLoggedIn = false; // TODO: change this to actual implementation from redux store
 
   return (
     <div className="min-h-screen bg-gray-50">

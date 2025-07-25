@@ -4,7 +4,12 @@ import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useToast } from "./use-toast";
 import { useState } from "react";
-import { isValidDate, isValidEmail, isValidPhone } from "@/lib/utils";
+import {
+  isValidDate,
+  isValidEmail,
+  isValidPhone,
+  isValidPassword,
+} from "@/lib/utils";
 
 const initialFormFields = {
   firstName: "",
@@ -122,6 +127,7 @@ const useCheckoutPayment = () => {
     Object.keys(newFormFields).forEach((key) => {
       if (newIsDirty?.[key]) {
         switch (key) {
+          // basic info form validation
           case "firstName":
           case "lastName": {
             if (!newFormFields?.[key]?.trim()?.length) {
@@ -168,6 +174,60 @@ const useCheckoutPayment = () => {
               isFormValid = false;
             } else if (!isValidDate(newFormFields?.[key])) {
               newErrors[key] = "*Invalid date of birth";
+              isFormValid = false;
+            } else {
+              newErrors[key] = null;
+              newIsDirty[key] = false;
+            }
+            break;
+          }
+
+          // billing address form validation
+          case "streetAddress":
+          case "city":
+          case "state":
+          case "zipCode":
+          case "country": {
+            if (!newFormFields?.[key]?.trim()?.length) {
+              newErrors[key] = `*Required`;
+              isFormValid = false;
+            } else {
+              newErrors[key] = null;
+              newIsDirty[key] = false;
+            }
+            break;
+          }
+
+          // payment info form validation
+          case "cardNumber":
+          case "expiryDate":
+          case "cvv":
+          case "cardholderName": {
+            if (!newFormFields?.[key]?.trim()?.length) {
+              newErrors[key] = `*Required`;
+              isFormValid = false;
+            } else {
+              newErrors[key] = null;
+              newIsDirty[key] = false;
+            }
+            break;
+          }
+
+          // account creation form validation
+          case "password":
+          case "confirmPassword": {
+            if (!newFormFields?.[key]?.trim()?.length) {
+              newErrors[key] = `*Required`;
+              isFormValid = false;
+            } else if (!isValidPassword(newFormFields?.[key])) {
+              newErrors[key] =
+                "*Password must be at least 8 characters, include a letter, a number, and a special character";
+              isFormValid = false;
+            } else if (
+              key === "confirmPassword" &&
+              newFormFields?.[key] !== newFormFields?.["password"]
+            ) {
+              newErrors[key] = "*Passwords do not match";
               isFormValid = false;
             } else {
               newErrors[key] = null;
