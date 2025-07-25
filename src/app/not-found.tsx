@@ -10,7 +10,7 @@ import ThemeLoader from "@/components/ThemeLoader";
 const DefaultNotFoundPage = dynamic(
   () => import("@/themes/default/NotFoundPage"),
   {
-    loading: () => <ThemeLoader type="full-page" message="Loading..." />,
+    loading: () => <ThemeLoader variant="full-page" message="Loading..." />,
   }
 );
 

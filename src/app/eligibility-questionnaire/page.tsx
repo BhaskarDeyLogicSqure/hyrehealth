@@ -18,7 +18,7 @@ const EligibilityQuestionnaire = dynamic(
   () => import("@/components/EligibilityQuestionnaire/index"),
   {
     loading: () => (
-      <ThemeLoader type="full-page" message="Loading questionnaire..." />
+      <ThemeLoader variant="full-page" message="Loading questionnaire..." />
     ),
   }
 );

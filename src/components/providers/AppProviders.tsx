@@ -8,13 +8,14 @@ import { store, persistor } from "@/store";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { getQueryClient } from "@/utils/getQueryClientUtil";
 import ThemeLoader from "../ThemeLoader";
+
 interface AppProvidersProps {
   children: React.ReactNode;
 }
 
 // Loading component for PersistGate
 const PersistLoading = () => (
-  <ThemeLoader type="full-page" message="Loading..." />
+  <ThemeLoader variant="full-page" message="Loading..." />
 );
 
 export function AppProviders({ children }: AppProvidersProps) {

@@ -77,7 +77,7 @@ const EligibilityQuestionnaire = async ({
     <div className="theme-bg min-h-screen">
       <Suspense
         fallback={
-          <ThemeLoader type="full-page" message="Loading questionnaire..." />
+          <ThemeLoader variant="full-page" message="Loading questionnaire..." />
         }
       >
         <QuestionForm
