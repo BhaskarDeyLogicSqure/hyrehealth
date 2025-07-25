@@ -80,8 +80,8 @@ export class GlobalErrorHandler {
       errorParams.set("error_type", errorType);
     }
 
-    const finalUrl = errorParams.toString()
-      ? `${redirectUrl}?${errorParams.toString()}`
+    const finalUrl = errorParams?.toString()
+      ? `${redirectUrl}?${errorParams?.toString()}`
       : redirectUrl;
 
     // Redirect with error information

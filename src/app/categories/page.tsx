@@ -39,21 +39,24 @@ const ModernCategoriesPage = dynamic(
 
 // --------- Add more theme exports here ---------
 
-const CategoriesPage = ({
-  searchParams,
-}: {
+interface CategoriesPageProps {
   searchParams: { [key: string]: string | string[] | undefined };
-}) => {
+}
+
+const CategoriesPage = ({ searchParams }: CategoriesPageProps) => {
   // Get current theme from cookie store
-  const cookieStore = cookies();
+  const cookieStore = cookies(); // get the cookie store
   const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
 
+  // Component mapping based on theme
   const ThemeComponents = {
     default: DefaultCategoriesPage,
     modern: ModernCategoriesPage,
   };
 
-  const SelectedComponent = ThemeComponents[theme] || DefaultCategoriesPage;
+  const SelectedComponent =
+    ThemeComponents[theme as keyof typeof ThemeComponents] ||
+    DefaultCategoriesPage;
 
   return <SelectedComponent searchParams={searchParams} />;
 };
