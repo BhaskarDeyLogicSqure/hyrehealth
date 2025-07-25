@@ -10,6 +10,7 @@ import {
   useNavigationState,
   NAVIGATION_KEYS,
 } from "@/hooks/useNavigationState";
+import ThemeLoader from "@/components/ThemeLoader";
 
 // Define interface for related product selections with default dosage/duration
 interface RelatedProductSelection {
@@ -24,7 +25,7 @@ interface RelatedProductSelection {
 }
 
 const ProductSection = ({ product }: { product: Product }) => {
-  const { navigateBack } = useNavigationState();
+  const { navigateBack, isNavigating } = useNavigationState();
   const [selectedRelatedProducts, setSelectedRelatedProducts] = useState<
     RelatedProductSelection[]
   >([]);
@@ -145,10 +146,22 @@ const ProductSection = ({ product }: { product: Product }) => {
           variant="ghost"
           onClick={_handleBackClick}
           className="inline-flex items-center gap-2 theme-text-primary hover:theme-bg-muted transition-colors group"
+          disabled={isNavigating}
         >
-          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
-          {/* Back to Products */}
-          Back
+          {isNavigating ? (
+            <ThemeLoader
+              type="inline"
+              variant="simple"
+              size="sm"
+              message="Going back..."
+              className="gap-2"
+            />
+          ) : (
+            <>
+              <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+              Back
+            </>
+          )}
         </Button>
       </div>
 

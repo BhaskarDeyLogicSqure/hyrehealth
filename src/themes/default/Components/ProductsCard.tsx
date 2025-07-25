@@ -11,6 +11,7 @@ import {
   useNavigationState,
   NAVIGATION_KEYS,
 } from "@/hooks/useNavigationState";
+import ThemeLoader from "@/components/ThemeLoader";
 
 const ProductsCard = ({
   product,
@@ -19,7 +20,7 @@ const ProductsCard = ({
   product: any;
   isFeatured?: boolean;
 }) => {
-  const { navigateWithState } = useNavigationState();
+  const { navigateWithState, isNavigatingTo } = useNavigationState();
 
   const _handleProductClick = (productId: string) => {
     // Use navigation utility to store current state and navigate
@@ -28,6 +29,9 @@ const ProductsCard = ({
       NAVIGATION_KEYS.LAST_PRODUCTS_PAGE
     );
   };
+
+  const productUrl = `/products/${product?._id}`;
+  const isLoading = isNavigatingTo(productUrl);
 
   return isFeatured ? (
     <Card
@@ -52,8 +56,21 @@ const ProductsCard = ({
           <span className="text-2xl font-bold text-blue-600">
             ${product?.pricing?.basePrice}/mo
           </span>
-          <Button onClick={() => _handleProductClick(product?._id)}>
-            Learn More
+          <Button
+            onClick={() => _handleProductClick(product?._id)}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ThemeLoader
+                type="inline"
+                variant="simple"
+                size="sm"
+                message="Loading..."
+                className="gap-2"
+              />
+            ) : (
+              "Learn More"
+            )}
           </Button>
         </div>
       </CardContent>
@@ -126,8 +143,19 @@ const ProductsCard = ({
         <Button
           className="w-full mt-auto"
           onClick={() => _handleProductClick(product?._id)}
+          disabled={isLoading}
         >
-          Learn More
+          {isLoading ? (
+            <ThemeLoader
+              type="inline"
+              variant="simple"
+              size="sm"
+              message="Loading..."
+              className="gap-2"
+            />
+          ) : (
+            "Learn More"
+          )}
         </Button>
       </CardContent>
     </Card>

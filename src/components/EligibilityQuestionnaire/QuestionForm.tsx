@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Theme } from "@/types/theme";
 import useQuestionnaire from "@/hooks/useQuestionnaire";
 import QuestionCard from "./QuestionCard";
+import ThemeLoader from "@/components/ThemeLoader";
 
 interface QuestionFormProps {
   theme: Theme;
@@ -47,6 +48,7 @@ const QuestionForm = ({
     handleContinueAfterIneligible,
     restartProduct,
     restartGeneralQuestions,
+    isNavigatingToCheckout,
     // handleContinueAfterIneligible,
   } = useQuestionnaire(questions, productId, dosage, duration);
 
@@ -164,10 +166,20 @@ const QuestionForm = ({
 
     // Default button text
     return currentStep === totalSteps - 1 ? (
-      <>
-        Complete & Proceed to Checkout
-        <ArrowRight className="h-4 w-4 ml-2" />
-      </>
+      isNavigatingToCheckout ? (
+        <ThemeLoader
+          type="inline"
+          variant="simple"
+          size="sm"
+          message="Proceeding to checkout..."
+          className="gap-2"
+        />
+      ) : (
+        <>
+          Complete & Proceed to Checkout
+          <ArrowRight className="h-4 w-4 ml-2" />
+        </>
+      )
     ) : (
       <>
         Next
@@ -263,7 +275,10 @@ const QuestionForm = ({
 
                 // Show main button for all other cases
                 return (
-                  <Button onClick={() => _handleNextBtn(currentStepInfo)}>
+                  <Button
+                    onClick={() => _handleNextBtn(currentStepInfo)}
+                    disabled={isNavigatingToCheckout}
+                  >
                     {_getNextBtnText(currentStepInfo)}
                   </Button>
                 );

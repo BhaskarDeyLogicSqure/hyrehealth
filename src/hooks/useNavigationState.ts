@@ -1,11 +1,13 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 export const useNavigationState = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [navigationTarget, setNavigationTarget] = useState<string | null>(null);
 
   // Store current page state before navigation
   const storeCurrentState = useCallback((key: string) => {
@@ -13,18 +15,50 @@ export const useNavigationState = () => {
     localStorage.setItem(key, currentUrl);
   }, []);
 
-  // Navigate to a page and store current state
+  // Navigate to a page and store current state with loading indicator
   const navigateWithState = useCallback(
     (targetUrl: string, stateKey: string) => {
+      setIsNavigating(true);
+      setNavigationTarget(targetUrl);
       storeCurrentState(stateKey);
-      router.push(targetUrl);
+
+      // Add a small delay to show loading state
+      setTimeout(() => {
+        router.push(targetUrl);
+        // Reset loading state after navigation starts
+        setTimeout(() => {
+          setIsNavigating(false);
+          setNavigationTarget(null);
+        }, 100);
+      }, 300);
     },
     [router, storeCurrentState]
+  );
+
+  // Navigate with loading state (for simple navigation without state storage)
+  const navigateWithLoading = useCallback(
+    (targetUrl: string) => {
+      setIsNavigating(true);
+      setNavigationTarget(targetUrl);
+
+      // Add a small delay to show loading state
+      setTimeout(() => {
+        router.push(targetUrl);
+        // Reset loading state after navigation starts
+        setTimeout(() => {
+          setIsNavigating(false);
+          setNavigationTarget(null);
+        }, 100);
+      }, 300);
+    },
+    [router]
   );
 
   // Go back to a stored state or fallback URL
   const navigateBack = useCallback(
     (stateKeys: string[], fallbackUrl: string) => {
+      setIsNavigating(true);
+
       // First try to use document.referrer if it's from the same origin
       if (
         document.referrer &&
@@ -37,12 +71,18 @@ export const useNavigationState = () => {
           const expectedPaths = ["/products", "/categories"];
           if (expectedPaths.includes(referrerUrl.pathname)) {
             const queryString = referrerUrl.search;
-            router.push(`${referrerUrl.pathname}${queryString}`);
+            setTimeout(() => {
+              router.push(`${referrerUrl.pathname}${queryString}`);
+              setTimeout(() => setIsNavigating(false), 100);
+            }, 300);
             return;
           }
 
           // If referrer is from within app but not expected page, use browser back
-          router.back();
+          setTimeout(() => {
+            router.back();
+            setTimeout(() => setIsNavigating(false), 100);
+          }, 300);
           return;
         } catch (error) {
           // Continue to localStorage fallback
@@ -54,13 +94,19 @@ export const useNavigationState = () => {
         const storedUrl = localStorage.getItem(key);
         if (storedUrl) {
           localStorage.removeItem(key); // Clean up after use
-          router.push(storedUrl);
+          setTimeout(() => {
+            router.push(storedUrl);
+            setTimeout(() => setIsNavigating(false), 100);
+          }, 300);
           return;
         }
       }
 
       // Final fallback
-      router.push(fallbackUrl);
+      setTimeout(() => {
+        router.push(fallbackUrl);
+        setTimeout(() => setIsNavigating(false), 100);
+      }, 300);
     },
     [router]
   );
@@ -75,12 +121,24 @@ export const useNavigationState = () => {
     return localStorage.getItem(key);
   }, []);
 
+  // Check if currently navigating to a specific URL
+  const isNavigatingTo = useCallback(
+    (url: string) => {
+      return isNavigating && navigationTarget === url;
+    },
+    [isNavigating, navigationTarget]
+  );
+
   return {
     storeCurrentState,
     navigateWithState,
+    navigateWithLoading,
     navigateBack,
     clearNavigationState,
     getNavigationState,
+    isNavigating,
+    navigationTarget,
+    isNavigatingTo,
   };
 };
 

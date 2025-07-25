@@ -201,7 +201,8 @@ const useProductPurchaseSection = ({
       console.error("Error preparing checkout data:", error);
       alert("An error occurred while preparing checkout. Please try again.");
     } finally {
-      setIsCheckoutLoading(false);
+      // no need to set isCheckoutLoading to false as we are navigating to the next page, so it will be reset on page change
+      // setIsCheckoutLoading(false);
     }
   };
 
