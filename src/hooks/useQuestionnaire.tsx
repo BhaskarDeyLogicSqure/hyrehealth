@@ -617,32 +617,30 @@ const useQuestionnaire = (
     localStorage.setItem("lastConsultation", new Date().toISOString());
 
     // Create checkout params with only eligible products
-    const checkoutParams = new URLSearchParams({
-      product: productId,
-      dosage,
-      duration,
-    });
+    // const checkoutParams = new URLSearchParams({
+    //   product: productId,
+    //   dosage,
+    //   duration,
+    // });
 
-    // Add eligible related products if any (excluding the main product)
-    const eligibleRelatedProducts = eligibleProducts
-      ?.map((section) => section?.productId?.split("_")[0]) // Extract actual product ID
-      ?.filter((id) => id !== productId); // Exclude main product
+    // // Add eligible related products if any (excluding the main product)
+    // const eligibleRelatedProducts = eligibleProducts
+    //   ?.map((section) => section?.productId?.split("_")[0]) // Extract actual product ID
+    //   ?.filter((id) => id !== productId); // Exclude main product
 
-    if (eligibleRelatedProducts?.length > 0) {
-      checkoutParams?.set(
-        "relatedProducts",
-        eligibleRelatedProducts?.join(",")
-      );
-    }
+    // if (eligibleRelatedProducts?.length > 0) {
+    //   checkoutParams?.set(
+    //     "relatedProducts",
+    //     eligibleRelatedProducts?.join(",")
+    //   );
+    // }
 
-    // Add delay to show loading state
-    setTimeout(() => {
-      router.push(`/checkout?${checkoutParams.toString()}`);
-      // Reset loading state after navigation
-      setTimeout(() => {
-        setIsNavigatingToCheckout(false);
-      }, 100);
-    }, 300);
+    router.push(`/checkout`);
+    // Reset loading state after navigation
+    // setTimeout(() => {
+    //   setIsNavigatingToCheckout(false);
+    // }, 100);
+    setIsNavigatingToCheckout(false);
   };
 
   const updateResponse = (value: any) => {
