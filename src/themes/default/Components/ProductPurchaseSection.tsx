@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { Product } from "@/types/products";
 import ThemeLoader from "@/components/ThemeLoader";
 import useProductPurchaseSection from "@/hooks/useProductPurchaseSection";
-
+import { useNavigationState } from "@/hooks/useNavigationState";
 const ProductPurchaseSection = ({
   product,
   selectedRelatedProducts,
@@ -40,6 +40,11 @@ const ProductPurchaseSection = ({
     selectedRelatedProducts,
     relatedProductsTotal,
   });
+  const { isNavigatingTo } = useNavigationState();
+
+  const isLoading = isCheckoutLoading || isNavigatingTo("/checkout");
+
+  console.log({ isLoading, isCheckoutLoading });
 
   return (
     <div>
@@ -151,11 +156,9 @@ const ProductPurchaseSection = ({
           <Button
             className="w-full text-lg py-6"
             onClick={handleProceedToCheckout}
-            disabled={
-              !selectedDosageId || !subscriptionDuration || isCheckoutLoading
-            }
+            disabled={!selectedDosageId || !subscriptionDuration || isLoading}
           >
-            {isCheckoutLoading ? (
+            {isLoading ? (
               <ThemeLoader
                 type="inline"
                 variant="simple"

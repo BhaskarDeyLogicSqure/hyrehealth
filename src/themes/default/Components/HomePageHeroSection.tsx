@@ -1,14 +1,17 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigationState } from "@/hooks/useNavigationState";
+import ThemeLoader from "@/components/ThemeLoader";
 
 const HomePageHeroSection = () => {
-  const router = useRouter();
+  const { navigateWithLoading, isNavigatingTo } = useNavigationState();
 
   const _handleExploreClick = () => {
-    router.push("/categories");
+    navigateWithLoading("/categories");
   };
+
+  const isLoading = isNavigatingTo("/categories");
 
   return (
     <section className="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-16">
@@ -23,9 +26,22 @@ const HomePageHeroSection = () => {
           size="lg"
           className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4"
           onClick={_handleExploreClick}
+          disabled={isLoading}
         >
-          Explore Treatments
-          <ArrowRight className="ml-2 h-5 w-5" />
+          {isLoading ? (
+            <ThemeLoader
+              type="inline"
+              variant="simple"
+              size="sm"
+              message="Loading..."
+              className="gap-2"
+            />
+          ) : (
+            <>
+              Explore Treatments
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </>
+          )}
         </Button>
       </div>
     </section>

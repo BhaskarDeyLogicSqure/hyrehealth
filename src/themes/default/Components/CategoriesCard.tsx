@@ -9,6 +9,7 @@ import {
   NAVIGATION_KEYS,
 } from "@/hooks/useNavigationState";
 import { Card, CardContent } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
 const CategoriesCard = ({
   category,
@@ -18,7 +19,7 @@ const CategoriesCard = ({
   featuredCard?: boolean;
 }) => {
   const router = useRouter();
-  const { navigateWithState } = useNavigationState();
+  const { navigateWithState, isNavigatingTo } = useNavigationState();
 
   const _handleCategoryClick = (categoryId: string) => {
     // Use navigation utility to store current state and navigate
@@ -45,20 +46,30 @@ const CategoriesCard = ({
     return _getRandomCategoryColor();
   }, [category]);
 
+  const categoryUrl = `/products?category=${category?._id}`;
+  const isLoading = isNavigatingTo(categoryUrl);
+
   return (
     <>
       {featuredCard ? (
         <Card
           key={category?._id}
-          className={`cursor-pointer hover:shadow-lg transition-shadow duration-300`}
+          className={`cursor-pointer hover:shadow-lg transition-shadow duration-300 ${
+            isLoading ? "opacity-75 pointer-events-none" : ""
+          }`}
           onClick={() => _handleCategoryClick(category?._id)}
         >
           <CardContent className="p-8 text-center">
             <div
               className={`w-16 h-16 rounded-full 
                 ${category?.name} 
-                flex items-center justify-center mx-auto mb-4`}
+                flex items-center justify-center mx-auto mb-4 relative`}
             >
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-full">
+                  <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                </div>
+              )}
               <div
                 className={`w-12 h-12 rounded-lg ${categoryColor} flex items-center justify-center`}
               >
@@ -79,14 +90,21 @@ const CategoriesCard = ({
       ) : (
         <Card
           key={category.id}
-          className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 ${categoryColor} hover:scale-105 theme-bg`}
+          className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 ${categoryColor} hover:scale-105 theme-bg ${
+            isLoading ? "opacity-75 pointer-events-none scale-100" : ""
+          }`}
           onClick={() => _handleCategoryClick(category?._id)}
         >
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div
-                className={`w-12 h-12 rounded-lg ${categoryColor} flex items-center justify-center`}
+                className={`w-12 h-12 rounded-lg ${categoryColor} flex items-center justify-center relative`}
               >
+                {isLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                  </div>
+                )}
                 <Image
                   src={DEFAULT_IMAGE_URL}
                   alt={category?.name}
@@ -111,8 +129,15 @@ const CategoriesCard = ({
             </p>
 
             <div className="mt-4 pt-4 border-t theme-border">
-              <span className="text-sm font-medium theme-text-primary">
-                Explore treatments →
+              <span className="text-sm font-medium theme-text-primary flex items-center gap-2">
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading treatments...
+                  </>
+                ) : (
+                  "Explore treatments →"
+                )}
               </span>
             </div>
           </CardContent>

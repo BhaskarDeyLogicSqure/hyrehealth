@@ -21,6 +21,7 @@ const useQuestionnaire = (
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [questionsList, setQuestionsList] = useState<Record<string, any>>({});
   // const [currentProductIndex, setCurrentProductIndex] = useState(0);
+  const [isNavigatingToCheckout, setIsNavigatingToCheckout] = useState(false);
 
   // Parse product sections from questionsList
   const productSections: ProductSection[] = useMemo(() => {
@@ -512,6 +513,8 @@ const useQuestionnaire = (
     }
 
     // At least one product is eligible - proceed to checkout with eligible products only
+    setIsNavigatingToCheckout(true);
+
     localStorage.setItem("lastConsultation", new Date().toISOString());
 
     // Create checkout params with only eligible products
@@ -533,7 +536,14 @@ const useQuestionnaire = (
       );
     }
 
-    router.push(`/checkout?${checkoutParams.toString()}`);
+    // Add delay to show loading state
+    setTimeout(() => {
+      router.push(`/checkout?${checkoutParams.toString()}`);
+      // Reset loading state after navigation
+      setTimeout(() => {
+        setIsNavigatingToCheckout(false);
+      }, 100);
+    }, 300);
   };
 
   const updateResponse = (value: any) => {
@@ -633,6 +643,7 @@ const useQuestionnaire = (
     restartProduct,
     restartGeneralQuestions, // Add this new function to the return
     checkIfAnswerIsCorrect,
+    isNavigatingToCheckout,
   };
 };
 

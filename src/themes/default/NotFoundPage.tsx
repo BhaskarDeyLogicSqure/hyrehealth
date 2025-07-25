@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useNavigationState } from "@/hooks/useNavigationState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -11,21 +11,26 @@ import {
   Heart,
   Shield,
 } from "lucide-react";
+import ThemeLoader from "@/components/ThemeLoader";
 
 const DefaultNotFoundPage = () => {
-  const router = useRouter();
+  const { navigateWithLoading, navigateBack, isNavigatingTo } =
+    useNavigationState();
 
   const handleGoHome = () => {
-    router.push("/");
+    navigateWithLoading("/");
   };
 
   const handleGoBack = () => {
-    router.back();
+    navigateBack([], "/");
   };
 
   const handleBrowseProducts = () => {
-    router.push("/products");
+    navigateWithLoading("/products");
   };
+
+  const isLoadingHome = isNavigatingTo("/");
+  const isLoadingProducts = isNavigatingTo("/products");
 
   return (
     <div className="min-h-screen theme-bg flex items-center justify-center px-4">
@@ -64,7 +69,9 @@ const DefaultNotFoundPage = () => {
         {/* Action Cards */}
         <div className="grid md:grid-cols-3 gap-4 mb-8">
           <Card
-            className="hover:shadow-md transition-shadow cursor-pointer"
+            className={`hover:shadow-md transition-shadow cursor-pointer ${
+              isLoadingHome ? "opacity-75 pointer-events-none" : ""
+            }`}
             onClick={handleGoHome}
           >
             <CardContent className="p-6 text-center">
@@ -79,7 +86,9 @@ const DefaultNotFoundPage = () => {
           </Card>
 
           <Card
-            className="hover:shadow-md transition-shadow cursor-pointer"
+            className={`hover:shadow-md transition-shadow cursor-pointer ${
+              isLoadingProducts ? "opacity-75 pointer-events-none" : ""
+            }`}
             onClick={handleBrowseProducts}
           >
             <CardContent className="p-6 text-center">
@@ -116,18 +125,44 @@ const DefaultNotFoundPage = () => {
           <Button
             onClick={handleGoHome}
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
+            disabled={isLoadingHome}
           >
-            <Home className="h-4 w-4 mr-2" />
-            Take Me Home
+            {isLoadingHome ? (
+              <ThemeLoader
+                type="inline"
+                variant="simple"
+                size="sm"
+                message="Loading..."
+                className="gap-2"
+              />
+            ) : (
+              <>
+                <Home className="h-4 w-4 mr-2" />
+                Take Me Home
+              </>
+            )}
           </Button>
 
           <Button
             variant="outline"
             onClick={handleBrowseProducts}
             className="px-8 py-3"
+            disabled={isLoadingProducts}
           >
-            <Search className="h-4 w-4 mr-2" />
-            Browse Treatments
+            {isLoadingProducts ? (
+              <ThemeLoader
+                type="inline"
+                variant="simple"
+                size="sm"
+                message="Loading..."
+                className="gap-2"
+              />
+            ) : (
+              <>
+                <Search className="h-4 w-4 mr-2" />
+                Browse Treatments
+              </>
+            )}
           </Button>
         </div>
 
