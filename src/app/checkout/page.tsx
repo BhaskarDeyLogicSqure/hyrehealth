@@ -11,19 +11,8 @@ import OrderSummarySection from "@/components/checkout/OrderSummarySection";
 import PaymentInfoCard from "@/components/checkout/PaymentInfoCard";
 import AccountCreationCard from "@/components/checkout/AccountCreationCard";
 const CheckoutPage = () => {
-  const {
-    formFields,
-    errors,
-    selectedDosagePrice,
-    product,
-    relatedProductsData,
-    selectedRelatedProducts,
-    totalPrice,
-    duration,
-    handleSubmit,
-    handleOnChange,
-    handleRemoveRelatedProduct,
-  } = useCheckoutPayment();
+  const { formFields, errors, handleSubmit, handleOnChange } =
+    useCheckoutPayment();
 
   const isLoggedIn = false; // TODO: change this to actual implementation from redux store
 
@@ -98,20 +87,15 @@ const CheckoutPage = () => {
             </div>
 
             {/* Right Column - Order Summary */}
-            <OrderSummarySection
-              product={product}
-              duration={duration}
-              selectedDosagePrice={selectedDosagePrice}
-              selectedRelatedProducts={selectedRelatedProducts}
-              relatedProductsData={relatedProductsData}
-              totalPrice={totalPrice}
-              formFields={formFields}
-              handleRemoveRelatedProduct={handleRemoveRelatedProduct}
-            />
+            <OrderSummarySection formFields={formFields} />
           </div>
         </form>
 
-        <QuestionnaireReview />
+        {/* <br />
+        <br />
+        <br />
+        <br />
+        <QuestionnaireReview /> */}
       </div>
     </div>
   );

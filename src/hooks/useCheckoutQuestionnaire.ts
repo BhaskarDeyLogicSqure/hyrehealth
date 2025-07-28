@@ -120,6 +120,21 @@ export const useCheckoutQuestionnaire = () => {
     questionnaire?.productEligibilities,
   ]);
 
+  const selectedRelatedProducts = useMemo(() => {
+    return eligibleProducts
+      ?.filter((product) => product?.type === "related")
+      ?.map((product) => product?.product?._id);
+  }, [eligibleProducts]);
+
+  const relatedProductsTotalCost = useMemo(() => {
+    return selectedRelatedProducts?.reduce((acc, productId) => {
+      const product = eligibleProducts?.find(
+        (p) => p?.product?._id === productId
+      );
+      return acc + (product?.selectedOption?.price || 0);
+    }, 0);
+  }, [selectedRelatedProducts, eligibleProducts]);
+
   // Helper functions
   const getProductEligibility = (productId: string) => {
     return questionnaire?.productEligibilities?.find(
@@ -217,6 +232,8 @@ export const useCheckoutQuestionnaire = () => {
     ineligibleProductsTotal,
     eligibleProducts,
     ineligibleProducts,
+    selectedRelatedProducts,
+    relatedProductsTotalCost,
 
     // Computed values
     getProductEligibility,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,28 +12,39 @@ import {
 import { X, Shield, Tag } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { CONSULTATION_FEE } from "@/configs";
-
-const OrderSummarySection = ({
-  product,
-  duration,
-  selectedDosagePrice,
-  selectedRelatedProducts,
-  relatedProductsData,
-  totalPrice,
-  formFields,
-  handleRemoveRelatedProduct,
-}: {
-  product: any;
-  duration: string;
-  selectedDosagePrice: number;
-  selectedRelatedProducts: string[];
-  relatedProductsData: any[];
-  totalPrice: number;
-  formFields: any;
-  handleRemoveRelatedProduct: (productId: string) => void;
-}) => {
+import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
+import { Product } from "@/types/products";
+import useProductPurchaseSection from "@/hooks/useProductPurchaseSection";
+const OrderSummarySection = ({ formFields }: { formFields: any }) => {
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
+
+  const {
+    eligibleProducts,
+    isFromQuestionnaire,
+    selectedRelatedProducts,
+    relatedProductsTotalCost,
+  } = useCheckoutQuestionnaire();
+
+  console.log({ eligibleProducts });
+
+  const {
+    selectedDosageId,
+    subscriptionDuration,
+    selectedDosageWithDuration,
+    handleDosageAndSubscriptionDurationChange,
+    generateDosageOptions,
+    generateSubscriptionDurationOptions,
+    getTotalPrice,
+    handleProceedToCheckout,
+    isCheckoutLoading,
+  } = useProductPurchaseSection({
+    product: eligibleProducts?.[0]?.product,
+    selectedRelatedProducts,
+    relatedProductsTotal: relatedProductsTotalCost,
+  });
+
+  const totalPrice = getTotalPrice;
 
   const handleApplyCoupon = () => {
     if (couponCode.trim()) {
@@ -42,36 +53,33 @@ const OrderSummarySection = ({
     }
   };
 
-  const allProducts = [
-    {
-      id: product?._id || "",
-      name: product?.name || "",
-      type: "Primary Product",
-      price: selectedDosagePrice,
-      dosage: "0.25mg",
-      duration: duration,
-    },
-    ...selectedRelatedProducts
-      .map((productId) => {
-        const relatedProduct = relatedProductsData.find(
-          (p) => p.id === productId
-        );
-        return relatedProduct
-          ? {
-              id: productId,
-              name: relatedProduct.name,
-              type: "Add-on Product",
-              price: relatedProduct.price,
-              dosage: "0.25mg", // Default dosage for related products
-              duration: duration,
-            }
-          : null;
-      })
-      .filter(Boolean),
-  ];
+  // If not from questionnaire, show empty state or redirect
+  if (
+    !isFromQuestionnaire ||
+    !eligibleProducts ||
+    eligibleProducts.length === 0
+  ) {
+    return (
+      <div>
+        <Card className="sticky top-24 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-bold">Order Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center py-8 text-gray-500">
+              <p>No eligible products found.</p>
+              <p className="text-sm mt-2">
+                Please complete the questionnaire first.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  const subtotal = allProducts.reduce(
-    (sum, product) => sum + product?.price * parseInt(product?.duration || "1"),
+  const subtotal = eligibleProducts?.reduce(
+    (sum, product) => sum + (product?.selectedOption?.price || 0),
     0
   );
 
@@ -83,25 +91,31 @@ const OrderSummarySection = ({
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Product Details Section */}
-          {allProducts.map((productItem, index) => (
-            <Card key={productItem?.id} className="border border-gray-200">
+          {eligibleProducts?.map((productItem) => (
+            <Card
+              key={productItem?.product?._id}
+              className="border border-gray-200"
+            >
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-bold text-lg text-gray-900">
-                      {productItem?.name}
+                      {productItem?.product?.name}
                     </h3>
-                    <p className="text-sm text-gray-600">{productItem?.type}</p>
+                    <p className="text-sm text-gray-600">
+                      {productItem?.type === "main"
+                        ? "Primary Product"
+                        : "Add-on Product"}
+                    </p>
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-lg">
-                      $
-                      {(productItem?.price || 0) *
-                        parseInt(productItem?.duration || "1")}
+                      ${productItem?.selectedOption?.price || 0}
                     </p>
                     <p className="text-sm text-gray-600">
-                      ${productItem?.price} x {productItem?.duration} month
-                      {productItem?.duration !== "1" ? "s" : ""}
+                      ${productItem?.selectedOption?.price} x{" "}
+                      {productItem?.selectedOption?.duration} month
+                      {productItem?.selectedOption?.duration !== 1 ? "s" : ""}
                     </p>
                   </div>
                 </div>
@@ -111,14 +125,24 @@ const OrderSummarySection = ({
                     <label className="text-sm font-medium text-gray-700 mb-1 block">
                       Dosage
                     </label>
-                    <Select defaultValue={productItem?.dosage}>
+                    <Select
+                      value={selectedDosageId}
+                      onValueChange={(value) =>
+                        handleDosageAndSubscriptionDurationChange(
+                          "dosage",
+                          value
+                        )
+                      }
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="0.25mg">0.25mg</SelectItem>
-                        <SelectItem value="0.5mg">0.5mg</SelectItem>
-                        <SelectItem value="1mg">1mg</SelectItem>
+                        {generateDosageOptions?.map((option: any) => (
+                          <SelectItem key={option?.id} value={option?.id}>
+                            {`${option?.name}`}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -127,28 +151,48 @@ const OrderSummarySection = ({
                     <label className="text-sm font-medium text-gray-700 mb-1 block">
                       Subscription Plan
                     </label>
-                    <Select defaultValue={productItem?.duration}>
+                    <Select
+                      defaultValue={subscriptionDuration}
+                      onValueChange={(value) =>
+                        handleDosageAndSubscriptionDurationChange(
+                          "subscriptionDuration",
+                          value
+                        )
+                      }
+                      disabled={!selectedDosageId}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">1 month</SelectItem>
-                        <SelectItem value="3">3 months</SelectItem>
-                        <SelectItem value="6">6 months</SelectItem>
+                        {generateSubscriptionDurationOptions?.map(
+                          (option: any) => (
+                            <SelectItem
+                              key={option?._id}
+                              value={option?.duration?.value.toString()}
+                            >
+                              {`${option?.duration?.value} ${option?.duration?.unit}`}
+                            </SelectItem>
+                          )
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
-                {/* Remove button for related products */}
-                {productItem?.type === "Add-on Product" && (
+                {/* Remove button for add-on products */}
+                {productItem?.type === "related" && (
                   <div className="mt-3 flex justify-end">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() =>
-                        handleRemoveRelatedProduct(productItem?.id || "")
-                      }
+                      onClick={() => {
+                        // TODO: Implement remove functionality for related products
+                        console.log(
+                          "Remove product:",
+                          productItem?.product?._id
+                        );
+                      }}
                       className="text-red-600 hover:text-red-800 p-1"
                       type="button"
                     >
@@ -209,7 +253,7 @@ const OrderSummarySection = ({
 
             <div className="flex justify-between text-lg font-bold">
               <span>Total:</span>
-              <span>${(subtotal + CONSULTATION_FEE).toFixed(2)}</span>
+              <span>${totalPrice?.toFixed(2)}</span>
             </div>
           </div>
 
