@@ -73,13 +73,13 @@ const Topbar = () => {
 
   return (
     <nav className="navbar-bg navbar-border border-b sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Brand */}
           <div className="flex items-center space-x-2">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 navbar-logo-bg rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">H</span>
+              <div className="w-10 h-10 navbar-logo-bg rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">H</span>
               </div>
               <span className="text-xl font-bold navbar-logo-text">
                 HealthPortal
@@ -88,13 +88,13 @@ const Topbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center">
             {navigationItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`
-                  px-3 py-2 text-sm font-medium transition-colors navbar-nav-text
+                  px-3 py-2 text-md font-medium transition-colors navbar-nav-text
                   ${pathname === item.href ? "navbar-nav-text-active" : ""}
                 `}
               >
@@ -104,13 +104,13 @@ const Topbar = () => {
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={handleMySubscriptions} // Navigate to profile page with subscriptions tab
+                  className="text-sm"
                 >
                   <User className="h-4 w-4 mr-2" />
                   My Account
@@ -120,9 +120,9 @@ const Topbar = () => {
                   onClick={handleLogout}
                   variant="outline"
                   size="sm"
-                  className="text-red-600 cursor-pointer hover:text-white hover:bg-red-600"
+                  className="text-red-600 text-sm cursor-pointer hover:text-white hover:bg-red-600"
                 >
-                  <LogOut className="h-4 w- mr-2" />
+                  <LogOut className="h-4 w- mr-" />
                   Logout
                 </Button>
                 {/* Authenticated User Dropdown */}
@@ -188,7 +188,7 @@ const Topbar = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <Button
               variant="ghost"
               size="sm"
@@ -206,7 +206,7 @@ const Topbar = () => {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t navbar-border">
+          <div className="lg:hidden py-4 border-t navbar-border">
             <div className="flex flex-col space-y-4">
               {/* Mobile Navigation Items */}
               {navigationItems.map((item) => (

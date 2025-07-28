@@ -90,7 +90,7 @@ const CategoriesCard = ({
       ) : (
         <Card
           key={category.id}
-          className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 ${categoryColor} hover:scale-105 theme-bg ${
+          className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 ${categoryColor} hover:scale-105  ${
             isLoading ? "opacity-75 pointer-events-none scale-100" : ""
           }`}
           onClick={() => _handleCategoryClick(category?._id)}
@@ -113,7 +113,7 @@ const CategoriesCard = ({
                 />
               </div>
 
-              <span className="text-sm theme-text-muted theme-bg-muted px-2 py-1 rounded-full">
+              <span className="text-sm theme-text-muted bg-white px-2 py-1 rounded-full shadow-sm">
                 {category?.statistics?.productCount
                   ? category?.statistics?.productCount
                   : 0}{" "}
@@ -121,7 +121,7 @@ const CategoriesCard = ({
               </span>
             </div>
 
-            <h3 className="text-xl font-semibold theme-text-primary mb-2">
+            <h3 className="text-xl font-semibold text-black mb-2 break-words">
               {category?.name}
             </h3>
             <p className="theme-text-muted text-sm leading-relaxed">

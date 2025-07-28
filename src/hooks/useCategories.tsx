@@ -16,6 +16,7 @@ const useCategories = () => {
     total: totalResponse,
     isCategoriesLoading,
     isCategoriesError,
+    refetchCategories,
   } = useCategoryApi(dataPayload);
 
   const _onPageChange = (page: number) => {
@@ -37,6 +38,7 @@ const useCategories = () => {
     isCategoriesLoading,
     isCategoriesError,
     onPageChange: _onPageChange,
+    refetch: refetchCategories,
   };
 };
 
