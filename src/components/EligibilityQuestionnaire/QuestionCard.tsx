@@ -23,8 +23,7 @@ import { Input } from "../ui/input";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Checkbox } from "../ui/checkbox";
 import { Textarea } from "../ui/textarea";
-import { Calendar } from "../ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { DatePicker } from "../ui/DatePicker";
 import {
   Question,
   QuestionnaireOption,
@@ -373,91 +372,39 @@ QuestionCardProps) => {
             <Label className="theme-text-primary">
               {currentQuestion?.questionText}
             </Label>
-            <div className="mt-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {currentValue ? (
-                      new Date(currentValue).toLocaleDateString()
-                    ) : (
-                      <span className="text-muted-foreground">
-                        {currentQuestion?.helpText || "Pick a date"}
-                      </span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    captionLayout="dropdown"
-                    selected={currentValue ? new Date(currentValue) : undefined}
-                    onSelect={(date) => {
-                      if (date) {
-                        updateResponse(date.toISOString());
-                      } else {
-                        updateResponse(null);
-                      }
-                    }}
-                    initialFocus
-                    fromYear={1900}
-                    toYear={new Date().getFullYear() + 10}
-                    disabled={(date) => {
-                      // Smart date validation based on question context
-                      const questionText =
-                        currentQuestion?.questionText?.toLowerCase() || "";
-
-                      // For DOB questions, disable future dates
-                      if (
-                        questionText?.includes("birth") ||
-                        questionText?.includes("born") ||
-                        questionText?.includes("dob")
-                      ) {
-                        return date > new Date();
-                      }
-
-                      // For appointment/future event questions, disable past dates
-                      if (
-                        questionText?.includes("appointment") ||
-                        questionText?.includes("schedule") ||
-                        questionText?.includes("visit")
-                      ) {
-                        const yesterday = new Date();
-                        yesterday.setDate(yesterday.getDate() - 1);
-                        return date < yesterday;
-                      }
-
-                      // Allow all dates by default
-                      return false;
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-              {currentValue && (
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-sm text-gray-600">
-                    Selected: {new Date(currentValue)?.toLocaleDateString()}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => updateResponse(null)}
-                    className="text-red-500 hover:text-red-700 h-6 px-2"
-                  >
-                    Clear
-                  </Button>
-                </div>
-              )}
-              {currentQuestion?.helpText && (
-                <p className="text-xs text-gray-500 mt-1">
-                  {currentQuestion?.helpText}
-                </p>
-              )}
-            </div>
+            <DatePicker
+              date={currentValue ? new Date(currentValue) : undefined}
+              onDateChange={(date) => {
+                if (date) {
+                  updateResponse(date?.toISOString());
+                } else {
+                  updateResponse(null);
+                }
+              }}
+              placeholder={currentQuestion?.helpText || "Pick a date"}
+              className="mt-2"
+            />
+            {currentValue && (
+              <div className="mt-2 flex items-center justify-between">
+                <span className="text-sm text-gray-600">
+                  Selected: {new Date(currentValue)?.toLocaleDateString()}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => updateResponse(null)}
+                  className="text-red-500 hover:text-red-700 h-6 px-2"
+                >
+                  Clear
+                </Button>
+              </div>
+            )}
+            {currentQuestion?.helpText && (
+              <p className="text-xs text-gray-500 mt-1">
+                {currentQuestion?.helpText}
+              </p>
+            )}
           </div>
         );
 
