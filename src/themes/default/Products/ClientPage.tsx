@@ -18,8 +18,11 @@ import DataNotFound from "@/components/DataNotFound";
 import ThemeLoader from "@/components/ThemeLoader";
 import ProductsCard from "../Components/ProductsCard";
 import { PRODUCT_SORT_OPTIONS } from "@/configs";
+import { useState } from "react";
 
 const DefaultProductsPage = () => {
+  const [showFilters, setShowFilters] = useState(false);
+
   const {
     products,
     filters,
@@ -34,11 +37,11 @@ const DefaultProductsPage = () => {
   } = useProducts();
 
   return (
-    <div className="min-h-screen theme-bg">
+    <div className="theme-bg">
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold theme-text-primary mb-2 flex items-center">
+          <h1 className="text-3xl font-bold text-black mb-2 flex items-center">
             All Treatments{" "}
             {isProductsLoading ? (
               <span className="ml-2">
@@ -60,73 +63,88 @@ const DefaultProductsPage = () => {
         {/* Filters */}
         <div className="bg-white rounded-lg p-6 mb-8 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold theme-text-primary">
-              Filters
-            </h3>
-            {hasActiveFilters && (
+            <h3 className="text-lg  font-semibold text-black">Filters</h3>
+            <div className="flex items-center gap-2">
+              {/* Filter Toggle Button - Shows below 767px */}
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={handleResetFilters}
-                className="flex items-center gap-1 text-gray-500 hover:text-gray-700 h-8 px-2"
-                title="Reset all filters"
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-1 h-8 px-2 md:hidden"
+                title="Toggle filters"
               >
-                <RotateCcw className="h-4 w-4" />
+                <Filter className="h-4 w-4" />
+                {showFilters ? "Hide" : "Show"} Filters
               </Button>
-            )}
+
+              {hasActiveFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleResetFilters}
+                  className="flex items-center gap-1 text-gray-500 hover:text-gray-700 h-8 px-2"
+                  title="Reset all filters"
+                >
+                  <RotateCcw className="h-4 w-4" /> Reset Filters
+                </Button>
+              )}
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search treatments..."
-                value={search}
-                onChange={(e) =>
-                  handleOnChangeFilters("search", e.target.value)
+          {/* Filters Content - Hidden on mobile when showFilters is false */}
+          <div className={`md:block ${showFilters ? "block" : "hidden"}`}>
+            <div className="grid md:grid-cols-3 gap-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search treatments..."
+                  value={search}
+                  onChange={(e) =>
+                    handleOnChangeFilters("search", e.target.value)
+                  }
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Category Filter */}
+              <Select
+                value={filters?.category}
+                onValueChange={(value) =>
+                  handleOnChangeFilters("category", value)
                 }
-                className="pl-10"
-              />
+              >
+                <SelectTrigger className="relative">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories?.map((category: Category) => (
+                    <SelectItem key={category?._id} value={category?._id}>
+                      {category?.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Sort */}
+              <Select
+                value={filters?.sort}
+                onValueChange={(value) => handleOnChangeFilters("sort", value)}
+              >
+                <SelectTrigger>
+                  <ArrowUpDown className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRODUCT_SORT_OPTIONS.map((option: any) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-
-            {/* Category Filter */}
-            <Select
-              value={filters?.category}
-              onValueChange={(value) =>
-                handleOnChangeFilters("category", value)
-              }
-            >
-              <SelectTrigger className="relative">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories?.map((category: Category) => (
-                  <SelectItem key={category?._id} value={category?._id}>
-                    {category?.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Sort */}
-            <Select
-              value={filters?.sort}
-              onValueChange={(value) => handleOnChangeFilters("sort", value)}
-            >
-              <SelectTrigger>
-                <ArrowUpDown className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                {PRODUCT_SORT_OPTIONS.map((option: any) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
 

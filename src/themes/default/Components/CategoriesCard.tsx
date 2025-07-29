@@ -4,6 +4,8 @@ import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { DEFAULT_IMAGE_URL } from "@/configs";
+const imageUrl =
+  "https://upstatemdweightloss.com/wp-content/uploads/2025/05/ED73BFCA-F7BA-47F7-8002-35C933682505-200x300.png";
 import {
   useNavigationState,
   NAVIGATION_KEYS,
@@ -61,8 +63,8 @@ const CategoriesCard = ({
         >
           <CardContent className="p-8 text-center">
             <div
-              className={`w-16 h-16 rounded-full 
-                ${category?.name} 
+              className={`w-14 h-14 rounded-full  bg-stone-100 overflow-hidden
+               
                 flex items-center justify-center mx-auto mb-4 relative`}
             >
               {isLoading && (
@@ -71,13 +73,13 @@ const CategoriesCard = ({
                 </div>
               )}
               <div
-                className={`w-12 h-12 rounded-lg ${categoryColor} flex items-center justify-center`}
+                className={`w-full h-full rounded-lg  rounded-full flex items-center justify-center`}
               >
                 <Image
                   src={DEFAULT_IMAGE_URL}
                   alt={category?.name}
-                  width={36}
-                  height={36}
+                  fill
+                  className="rounded-full object-cover"
                 />
               </div>
             </div>
@@ -98,19 +100,23 @@ const CategoriesCard = ({
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div
-                className={`w-12 h-12 rounded-lg ${categoryColor} flex items-center justify-center relative`}
+                className={`w-14 h-14 rounded-full bg-stone-100 flex items-center justify-center relative overflow-hidden`}
               >
                 {isLoading && (
                   <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
                     <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                   </div>
                 )}
-                <Image
-                  src={DEFAULT_IMAGE_URL}
-                  alt={category?.name}
-                  width={36}
-                  height={36}
-                />
+                <div
+                  className={`w-full h-full rounded-lg  rounded-full flex items-center justify-center`}
+                >
+                  <Image
+                    src={imageUrl}
+                    alt={category?.name}
+                    fill
+                    className="rounded-lg object-cover"
+                  />
+                </div>
               </div>
 
               <span className="text-sm theme-text-muted bg-white px-2 py-1 rounded-full shadow-sm">
@@ -121,7 +127,7 @@ const CategoriesCard = ({
               </span>
             </div>
 
-            <h3 className="text-xl font-semibold text-black mb-2 break-words">
+            <h3 className="text-xl font-semibold text-black mb-2 break-words line-clamp-2 h-15">
               {category?.name}
             </h3>
             <p className="theme-text-muted text-sm leading-relaxed">

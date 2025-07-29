@@ -73,11 +73,11 @@ const Topbar = () => {
 
   return (
     <nav className="navbar-bg navbar-border border-b sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
-      <div className="container px-4 sm:px-6 lg:px-8">
+      <div className="container px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Brand */}
           <div className="flex items-center space-x-2">
-            <Link href="/" className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-3">
               <div className="w-10 h-10 navbar-logo-bg rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">H</span>
               </div>
@@ -179,7 +179,7 @@ const Topbar = () => {
                 onClick={handleLogin}
                 variant="outline"
                 size="sm"
-                className="navbar-nav-text"
+                className="navbar-nav-text text-sm"
               >
                 <User className="h-4 w-4 mr-2" />
                 Sign In
