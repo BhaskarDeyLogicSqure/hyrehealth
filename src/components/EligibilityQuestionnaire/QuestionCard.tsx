@@ -229,7 +229,10 @@ QuestionCardProps) => {
                     className="flex items-center space-x-2"
                   >
                     <RadioGroupItem value={optionValue} id={optionValue} />
-                    <Label htmlFor={optionValue} className="theme-text-primary">
+                    <Label
+                      htmlFor={optionValue}
+                      className="theme-text-primary cursor-pointer"
+                    >
                       {optionLabel}
                     </Label>
                   </div>

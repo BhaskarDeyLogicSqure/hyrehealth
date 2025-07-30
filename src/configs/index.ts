@@ -6,7 +6,7 @@ export const STRIPE_KEY = process.env.NEXT_PUBLIC_STRIPE_KEY;
 
 export const NEXT_PUBLIC_APP_DESCRIPTION = "Hyre Health Customer";
 
-export const DEFAULT_IMAGE_URL = "https://placehold.co/36x36/png";
+export const DEFAULT_IMAGE_URL = "https://placehold.co/250x250/png";
 
 export const CONSULTATION_FEE = 49;
 
