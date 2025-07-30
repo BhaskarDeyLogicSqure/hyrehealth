@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-
+import { CATEGORIES_PER_PAGE } from "@/configs";
 interface UrlParamsOptions {
   debounceMs?: number;
   preserveParams?: string[]; // Params to preserve when updating others
@@ -210,7 +210,7 @@ export const useCategoriesUrlParams = () => {
     {
       search: "",
       page: 1,
-      limit: 6,
+      limit: CATEGORIES_PER_PAGE,
     },
     {
       debounceMs: 500,
