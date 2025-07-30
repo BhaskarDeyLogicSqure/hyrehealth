@@ -76,7 +76,7 @@ const CategoriesCard = ({
                 className={`w-full h-full rounded-full flex items-center justify-center`}
               >
                 <Image
-                  src={DEFAULT_IMAGE_URL}
+                  src={category?.image || imageUrl}
                   alt={category?.name}
                   fill
                   className="rounded-full object-cover"
@@ -111,7 +111,7 @@ const CategoriesCard = ({
                   className={`w-full h-full rounded-full flex items-center justify-center`}
                 >
                   <Image
-                    src={imageUrl}
+                    src={category?.image || imageUrl}
                     alt={category?.name}
                     fill
                     className="rounded-lg object-cover"
