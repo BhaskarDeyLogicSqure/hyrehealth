@@ -91,6 +91,7 @@ const ProductsCard = ({
               width={48}
               height={48}
               className="rounded-xl"
+              onClick={() => _handleProductClick(product?._id)}
             />
           ) : (
             <div className="w-16 h-16 bg-white rounded-full mx-auto flex items-center justify-center shadow-sm">
@@ -109,7 +110,10 @@ const ProductsCard = ({
         ) : null}
 
         {/* Product Info */}
-        <h3 className="text-xl font-semibold theme-text-primary mb-2">
+        <h3
+          className="text-xl font-semibold theme-text-primary mb-2"
+          onClick={() => _handleProductClick(product?._id)}
+        >
           {product?.name}
         </h3>
         {product?.contentAndDescription?.shortDescription ? (
