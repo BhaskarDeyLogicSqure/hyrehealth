@@ -1,10 +1,10 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { isValidEmail, isValidPhone, isValidPassword } from "@/lib/utils";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
 import { formatDate } from "@/lib/dayjs";
+
 const initialFormFields = {
   firstName: "",
   lastName: "",
@@ -44,53 +44,11 @@ const initialIsDirty = {
 };
 
 const useCheckoutDetails = () => {
-  const searchParams = useSearchParams();
-
   const [formFields, setFormFields] =
     useState<Record<string, any>>(initialFormFields);
   const [isDirty, setIsDirty] =
     useState<Record<string, boolean>>(initialIsDirty);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
-
-  const productId = searchParams?.get("product");
-  const dosage = searchParams?.get("dosage");
-  const duration = searchParams?.get("duration") || "1";
-  const relatedProductIds =
-    searchParams?.get("relatedProducts")?.split(",").filter(Boolean) || [];
-
-  const [selectedRelatedProducts, setSelectedRelatedProducts] =
-    useState<string[]>(relatedProductIds);
-  const [isLoggedIn] = useState(false); // Mock login state
-
-  // Mock product data
-  const product = {
-    name: "Semaglutide",
-    dosages: [
-      { value: "0.25mg", label: "0.25mg (Starting dose)", price: 299 },
-      { value: "0.5mg", label: "0.5mg (Maintenance)", price: 349 },
-      { value: "1.0mg", label: "1.0mg (Maximum)", price: 399 },
-    ],
-  };
-
-  // Mock related products data
-  const relatedProductsData = [
-    { id: "2", name: "B12 Injection", price: 99 },
-    { id: "3", name: "Tirzepatide", price: 399 },
-  ];
-
-  const selectedDosagePrice =
-    product?.dosages?.find((d) => d?.value === dosage)?.price || 299;
-  const relatedProductsTotal = selectedRelatedProducts?.reduce(
-    (total, productId) => {
-      const relatedProduct = relatedProductsData?.find(
-        (p) => p?.id === productId
-      );
-      return total + (relatedProduct?.price || 0);
-    },
-    0
-  );
-  const totalPrice =
-    (selectedDosagePrice + relatedProductsTotal) * parseInt(duration);
 
   const _handleOnChange = (field: string, value: string | boolean) => {
     const newFormFields = { ...formFields };
@@ -240,12 +198,6 @@ const useCheckoutDetails = () => {
     });
   };
 
-  const _handleRemoveRelatedProduct = (productId: string) => {
-    setSelectedRelatedProducts((prev) =>
-      prev?.filter((id) => id !== productId)
-    );
-  };
-
   const _markAllIsDirty = () => {
     const newIsDirty = { ...isDirty };
     Object.keys(newIsDirty)?.forEach((key) => {
@@ -258,11 +210,6 @@ const useCheckoutDetails = () => {
   const _handleGetPayload = async (e: React.FormEvent) => {
     return new Promise(async (resolve, reject) => {
       if (e) e.preventDefault();
-
-      // if (!isLoggedIn && formFields?.password !== formFields?.confirmPassword) {
-      //   showErrorToast("Passwords do not match");
-      //   return;
-      // }
 
       const newFormFields = { ...formFields };
       const newIsDirty = _markAllIsDirty();
@@ -282,40 +229,41 @@ const useCheckoutDetails = () => {
       }
 
       const payload = {
-        firstName: newFormFields?.firstName,
-        lastName: newFormFields?.lastName,
-        email: newFormFields?.email,
-        phone: newFormFields?.phone,
+        // basic info
+        firstName: newFormFields?.firstName || undefined,
+        lastName: newFormFields?.lastName || undefined,
+        email: newFormFields?.email || undefined,
+        phone: newFormFields?.phone || undefined,
         dob: newFormFields?.dob
           ? formatDate(newFormFields.dob, "YYYY-MM-DD")
           : undefined,
-        streetAddress: newFormFields?.streetAddress,
 
-        productId,
-        dosage,
-        duration,
-        relatedProducts: selectedRelatedProducts,
+        // billing address
+        billingAddress: {
+          street: newFormFields?.streetAddress || undefined,
+          city: newFormFields?.city || undefined,
+          state: newFormFields?.state || undefined,
+          zipCode: newFormFields?.zipCode || undefined,
+          country: newFormFields?.country || undefined,
+        },
+
+        // password
+        password: newFormFields?.password || undefined,
+
+        // payment info
+        paymentInfo: {
+          // product related info
+          products: [], // will be populated on useOrderCheckout hook at the time of checkout
+          // payment and card related info
+          finalAmount: 0, // will be populated on useOrderCheckout hook at the time of checkout
+          couponCode: "", // will be populated on useOrderCheckout hook at the time of checkout
+          paymentMethod: "newFormFields?.paymentMethod", // TODO: add payment method field when work on payment gateway
+          cardLast4: "newFormFields?.cardLast4", // TODO: add card last 4 digits when work on payment gateway
+          cardBrand: "newFormFields?.cardBrand", // TODO: add card brand when work on payment gateway
+        },
       };
 
       console.log("payload", payload);
-
-      // Mock successful checkout
-      // console.log("Checkout submitted:", formFields);
-
-      // toast({
-      //   title: "Order Placed Successfully",
-      //   description: "Your order is being processed.",
-      // });
-
-      // // Navigate to thank you page
-      // const relatedProductsParam =
-      //   selectedRelatedProducts.length > 0
-      //     ? `&relatedProducts=${selectedRelatedProducts.join(",")}`
-      //     : "";
-      // router.push(
-      //   `/thank-you?total=${totalPrice + CONSULTATION_FEE}${relatedProductsParam}`
-      // );
-
       resolve(payload || {});
     });
   };
@@ -323,15 +271,7 @@ const useCheckoutDetails = () => {
   return {
     formFields,
     errors,
-    selectedDosagePrice,
-    relatedProductsTotal,
-    totalPrice,
-    product,
-    relatedProductsData,
-    selectedRelatedProducts,
-    duration,
     handleOnChange: _handleOnChange,
-    handleRemoveRelatedProduct: _handleRemoveRelatedProduct,
     handleGetPayload: _handleGetPayload,
   };
 };

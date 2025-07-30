@@ -8,7 +8,7 @@ import BillingAddressCard from "@/components/checkout/BillingAddressCard";
 import OrderSummarySection from "@/components/checkout/OrderSummarySection";
 import PaymentInfoCard from "@/components/checkout/PaymentInfoCard";
 import AccountCreationCard from "@/components/checkout/AccountCreationCard";
-import useCheckoutDetails from "@/hooks/useCheckoutPayment";
+import useCheckoutDetails from "@/hooks/useCheckoutDetails";
 
 const CheckoutPage = () => {
   const { formFields, errors, handleOnChange, handleGetPayload } =

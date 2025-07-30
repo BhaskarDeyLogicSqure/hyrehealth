@@ -15,12 +15,16 @@ import { Shield, Tag, Trash2, X, Ticket } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import useOrderCheckout from "@/hooks/useOrderCheckout";
+import { showSuccessToast } from "../GlobalErrorHandler";
+import { useRouter } from "next/navigation";
 
 const OrderSummarySection = ({
   handleGetPayload,
 }: {
   handleGetPayload: (e: React.FormEvent) => Promise<any>;
 }) => {
+  const router = useRouter();
+
   const { eligibleProducts, isFromQuestionnaire, selectedRelatedProducts } =
     useCheckoutQuestionnaire();
 
@@ -43,6 +47,7 @@ const OrderSummarySection = ({
     handleClearCoupon,
     handleCouponCodeChange,
     handleDeleteProductAlert,
+    setIsCheckoutLoading,
   } = useOrderCheckout({
     product: eligibleProducts?.[0]?.product,
     selectedRelatedProducts,
@@ -51,15 +56,28 @@ const OrderSummarySection = ({
   const _handleSubmit = async (e: React.FormEvent) => {
     try {
       if (e) e.preventDefault();
+      setIsCheckoutLoading(true);
 
       // get payload for payment details
       const payload = await handleGetPayload(e);
-      console.log("final payload", { payload });
 
       // return if no payload present
       if (!payload) return;
+      console.log("final payload", { payload });
+
+      // Mock successful checkout
+      console.log("Checkout submitted:", payload);
+
+      showSuccessToast("Order Placed Successfully");
+
+      // Navigate to thank you page after successful checkout
+      router.push(`/thank-you`);
     } catch (error) {
       console.error(error);
+      setIsCheckoutLoading(false); // need to set isCheckoutLoading to false as we are not moving to a new route from here after unsuccessful checkout
+    } finally {
+      //  no need to set isCheckoutLoading to false as we are moving to a new route from here after successful checkout
+      // setIsCheckoutLoading(false);
     }
   };
 

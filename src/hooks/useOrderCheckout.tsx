@@ -67,30 +67,31 @@ const useOrderCheckout = ({
   // Auto-select default duration when dosage is selected
   useEffect(() => {
     setProductConfigurations((prev) =>
-      prev.map((config) => {
-        if (config.dosageId && !config.subscriptionDuration) {
+      prev?.map((config) => {
+        if (config?.dosageId && !config?.subscriptionDuration) {
           const prod = allEligibleProducts.find(
-            (p) => p._id === config.productId
+            (p) => p?._id === config?.productId
           );
           if (prod?.pricing?.subscriptionOptions) {
             const selectedDosageStrength =
-              prod.pricing.subscriptionOptions.find(
+              prod?.pricing?.subscriptionOptions?.find(
                 (option) =>
-                  option?._id === config.dosageId ||
-                  option?.id === config.dosageId
+                  option?._id === config?.dosageId ||
+                  option?.id === config?.dosageId
               )?.strength;
 
-            const defaultDurationOption = prod.pricing.subscriptionOptions.find(
-              (option) =>
-                option?.strength === selectedDosageStrength &&
-                option?.isDefault === true
-            );
+            const defaultDurationOption =
+              prod?.pricing?.subscriptionOptions?.find(
+                (option) =>
+                  option?.strength === selectedDosageStrength &&
+                  option?.isDefault === true
+              );
 
             if (defaultDurationOption) {
               return {
                 ...config,
                 subscriptionDuration:
-                  defaultDurationOption.duration?.value.toString() || "",
+                  defaultDurationOption?.duration?.value?.toString() || "",
               };
             }
           }
@@ -385,6 +386,7 @@ const useOrderCheckout = ({
     totalPrice: _getTotalPrice,
     couponCode,
     appliedCoupon,
+    setIsCheckoutLoading,
     generateDosageOptions: _generateDosageOptions,
     generateSubscriptionDurationOptions: _generateSubscriptionDurationOptions,
     getSelectedDosageWithDuration: _getSelectedDosageWithDuration,
