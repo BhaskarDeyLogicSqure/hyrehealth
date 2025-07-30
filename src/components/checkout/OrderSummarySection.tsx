@@ -16,7 +16,11 @@ import { Separator } from "@/components/ui/separator";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import useOrderCheckout from "@/hooks/useOrderCheckout";
 
-const OrderSummarySection = ({ formFields }: { formFields: any }) => {
+const OrderSummarySection = ({
+  handleGetPayload,
+}: {
+  handleGetPayload: (e: React.FormEvent) => Promise<any>;
+}) => {
   const { eligibleProducts, isFromQuestionnaire, selectedRelatedProducts } =
     useCheckoutQuestionnaire();
 
@@ -43,6 +47,21 @@ const OrderSummarySection = ({ formFields }: { formFields: any }) => {
     product: eligibleProducts?.[0]?.product,
     selectedRelatedProducts,
   });
+
+  const _handleSubmit = async (e: React.FormEvent) => {
+    try {
+      if (e) e.preventDefault();
+
+      // get payload for payment details
+      const payload = await handleGetPayload(e);
+      console.log("final payload", { payload });
+
+      // return if no payload present
+      if (!payload) return;
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // If not from questionnaire, show empty state or redirect
   if (
@@ -262,9 +281,9 @@ const OrderSummarySection = ({ formFields }: { formFields: any }) => {
 
           {/* Complete Purchase Button */}
           <Button
-            onClick={handleProceedToCheckout}
+            onClick={_handleSubmit}
             className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 text-lg font-medium"
-            disabled={!formFields?.acceptTerms || isCheckoutLoading}
+            disabled={isCheckoutLoading}
           >
             {isCheckoutLoading ? "Processing..." : "Complete Purchase"}
           </Button>

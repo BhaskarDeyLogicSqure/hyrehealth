@@ -3,17 +3,16 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import QuestionnaireReview from "@/components/checkout/QuestionnaireReview";
 import BasicInfoCard from "@/components/checkout/BasicInfoCard";
 import BillingAddressCard from "@/components/checkout/BillingAddressCard";
-import useCheckoutPayment from "@/hooks/useCheckoutPayment";
 import OrderSummarySection from "@/components/checkout/OrderSummarySection";
 import PaymentInfoCard from "@/components/checkout/PaymentInfoCard";
 import AccountCreationCard from "@/components/checkout/AccountCreationCard";
+import useCheckoutDetails from "@/hooks/useCheckoutPayment";
 
 const CheckoutPage = () => {
-  const { formFields, errors, handleSubmit, handleOnChange } =
-    useCheckoutPayment();
+  const { formFields, errors, handleOnChange, handleGetPayload } =
+    useCheckoutDetails();
 
   const isLoggedIn = false; // TODO: change this to actual implementation from redux store
 
@@ -27,70 +26,68 @@ const CheckoutPage = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Left Column - Forms */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Basic Information */}
-              <BasicInfoCard
-                formFields={formFields}
-                errors={errors}
-                handleInputChange={handleOnChange}
-              />
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column - Forms */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Basic Information */}
+            <BasicInfoCard
+              formFields={formFields}
+              errors={errors}
+              handleInputChange={handleOnChange}
+            />
 
-              {/* Billing Address */}
-              <BillingAddressCard
+            {/* Billing Address */}
+            <BillingAddressCard
+              formFields={formFields}
+              errors={errors}
+              handleOnChange={handleOnChange}
+            />
+
+            {/* Payment Information */}
+            <PaymentInfoCard
+              formFields={formFields}
+              errors={errors}
+              handleOnChange={handleOnChange}
+            />
+
+            {/* Account Creation (if not logged in) */}
+            {!isLoggedIn && (
+              <AccountCreationCard
                 formFields={formFields}
                 errors={errors}
                 handleOnChange={handleOnChange}
               />
+            )}
 
-              {/* Payment Information */}
-              <PaymentInfoCard
-                formFields={formFields}
-                errors={errors}
-                handleOnChange={handleOnChange}
-              />
-
-              {/* Account Creation (if not logged in) */}
-              {!isLoggedIn && (
-                <AccountCreationCard
-                  formFields={formFields}
-                  errors={errors}
-                  handleOnChange={handleOnChange}
-                />
-              )}
-
-              {/* Terms and Conditions */}
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="space-y-4">
-                    <div className="flex items-start space-x-2">
-                      <Checkbox
-                        id="acceptTerms"
-                        checked={formFields?.acceptTerms}
-                        onCheckedChange={(checked) =>
-                          handleOnChange("acceptTerms", !!checked)
-                        }
-                      />
-                      <Label
-                        htmlFor="acceptTerms"
-                        className="text-sm leading-relaxed"
-                      >
-                        I accept the Terms of Service, Privacy Policy, and HIPAA
-                        Consent. I understand this medication requires a valid
-                        prescription from a licensed physician.
-                      </Label>
-                    </div>
+            {/* Terms and Conditions */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="acceptTerms"
+                      checked={formFields?.acceptTerms}
+                      onCheckedChange={(checked) =>
+                        handleOnChange("acceptTerms", !!checked)
+                      }
+                    />
+                    <Label
+                      htmlFor="acceptTerms"
+                      className="text-sm leading-relaxed"
+                    >
+                      I accept the Terms of Service, Privacy Policy, and HIPAA
+                      Consent. I understand this medication requires a valid
+                      prescription from a licensed physician.
+                    </Label>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Right Column - Order Summary */}
-            <OrderSummarySection formFields={formFields} />
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </form>
+
+          {/* Right Column - Order Summary */}
+          <OrderSummarySection handleGetPayload={handleGetPayload} />
+        </div>
 
         {/* <br />
         <br />

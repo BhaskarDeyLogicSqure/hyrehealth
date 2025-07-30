@@ -1,8 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { useToast } from "./use-toast";
 import { useState } from "react";
 import {
   isValidDate,
@@ -10,7 +8,8 @@ import {
   isValidPhone,
   isValidPassword,
 } from "@/lib/utils";
-import { CONSULTATION_FEE } from "@/configs";
+import { showErrorToast } from "@/components/GlobalErrorHandler";
+
 const initialFormFields = {
   firstName: "",
   lastName: "",
@@ -49,10 +48,8 @@ const initialIsDirty = {
   acceptTerms: false,
 };
 
-const useCheckoutPayment = () => {
-  const router = useRouter();
+const useCheckoutDetails = () => {
   const searchParams = useSearchParams();
-  const { toast } = useToast();
 
   const [formFields, setFormFields] =
     useState<Record<string, any>>(initialFormFields);
@@ -60,11 +57,11 @@ const useCheckoutPayment = () => {
     useState<Record<string, boolean>>(initialIsDirty);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
 
-  const productId = searchParams.get("product");
-  const dosage = searchParams.get("dosage");
-  const duration = searchParams.get("duration") || "1";
+  const productId = searchParams?.get("product");
+  const dosage = searchParams?.get("dosage");
+  const duration = searchParams?.get("duration") || "1";
   const relatedProductIds =
-    searchParams.get("relatedProducts")?.split(",").filter(Boolean) || [];
+    searchParams?.get("relatedProducts")?.split(",").filter(Boolean) || [];
 
   const [selectedRelatedProducts, setSelectedRelatedProducts] =
     useState<string[]>(relatedProductIds);
@@ -87,11 +84,11 @@ const useCheckoutPayment = () => {
   ];
 
   const selectedDosagePrice =
-    product.dosages.find((d) => d.value === dosage)?.price || 299;
-  const relatedProductsTotal = selectedRelatedProducts.reduce(
+    product?.dosages?.find((d) => d?.value === dosage)?.price || 299;
+  const relatedProductsTotal = selectedRelatedProducts?.reduce(
     (total, productId) => {
-      const relatedProduct = relatedProductsData.find(
-        (p) => p.id === productId
+      const relatedProduct = relatedProductsData?.find(
+        (p) => p?.id === productId
       );
       return total + (relatedProduct?.price || 0);
     },
@@ -120,176 +117,206 @@ const useCheckoutPayment = () => {
     newFormFields: Record<string, any>;
     newIsDirty: Record<string, boolean>;
   }) => {
-    const newErrors: Record<string, string | null> = { ...errors };
-    let isFormValid = true;
+    return new Promise(async (resolve, reject) => {
+      try {
+        const newErrors: Record<string, string | null> = { ...errors };
+        let isFormValid = true;
 
-    Object.keys(newFormFields).forEach((key) => {
-      if (newIsDirty?.[key]) {
-        switch (key) {
-          // basic info form validation
-          case "firstName":
-          case "lastName": {
-            if (!newFormFields?.[key]?.trim()?.length) {
-              newErrors[key] = "*First name is required";
-              isFormValid = false;
-            } else {
-              newErrors[key] = null;
-              newIsDirty[key] = false;
-            }
-            break;
-          }
+        Object.keys(newFormFields)?.forEach((key) => {
+          if (newIsDirty?.[key]) {
+            switch (key) {
+              // basic info form validation
+              case "firstName":
+              case "lastName": {
+                if (!newFormFields?.[key]?.trim()?.length) {
+                  newErrors[key] = "*First name is required";
+                  isFormValid = false;
+                } else {
+                  newErrors[key] = null;
+                  newIsDirty[key] = false;
+                }
+                break;
+              }
 
-          case "email": {
-            if (!newFormFields?.[key]?.trim()?.length) {
-              newErrors[key] = "*Email is required";
-              isFormValid = false;
-            } else if (!isValidEmail(newFormFields?.[key])) {
-              newErrors[key] = "*Invalid email address";
-              isFormValid = false;
-            } else {
-              newErrors[key] = null;
-              newIsDirty[key] = false;
-            }
-            break;
-          }
+              case "email": {
+                if (!newFormFields?.[key]?.trim()?.length) {
+                  newErrors[key] = "*Email is required";
+                  isFormValid = false;
+                } else if (!isValidEmail(newFormFields?.[key])) {
+                  newErrors[key] = "*Invalid email address";
+                  isFormValid = false;
+                } else {
+                  newErrors[key] = null;
+                  newIsDirty[key] = false;
+                }
+                break;
+              }
 
-          case "phone": {
-            if (!newFormFields?.[key]?.trim()?.length) {
-              newErrors[key] = "*Phone is required";
-              isFormValid = false;
-            } else if (!isValidPhone(newFormFields?.[key])) {
-              newErrors[key] = "*Invalid phone number";
-              isFormValid = false;
-            } else {
-              newErrors[key] = null;
-              newIsDirty[key] = false;
-            }
-            break;
-          }
+              case "phone": {
+                if (!newFormFields?.[key]?.trim()?.length) {
+                  newErrors[key] = "*Phone is required";
+                  isFormValid = false;
+                } else if (!isValidPhone(newFormFields?.[key])) {
+                  newErrors[key] = "*Invalid phone number";
+                  isFormValid = false;
+                } else {
+                  newErrors[key] = null;
+                  newIsDirty[key] = false;
+                }
+                break;
+              }
 
-          case "dob": {
-            if (!newFormFields?.[key]?.trim()?.length) {
-              newErrors[key] = "*Date of birth is required";
-              isFormValid = false;
-            } else if (!isValidDate(newFormFields?.[key])) {
-              newErrors[key] = "*Invalid date of birth";
-              isFormValid = false;
-            } else {
-              newErrors[key] = null;
-              newIsDirty[key] = false;
-            }
-            break;
-          }
+              case "dob": {
+                if (!newFormFields?.[key]?.trim()?.length) {
+                  newErrors[key] = "*Date of birth is required";
+                  isFormValid = false;
+                } else {
+                  newErrors[key] = null;
+                  newIsDirty[key] = false;
+                }
+                break;
+              }
 
-          // billing address form validation
-          case "streetAddress":
-          case "city":
-          case "state":
-          case "zipCode":
-          case "country": {
-            if (!newFormFields?.[key]?.trim()?.length) {
-              newErrors[key] = `*Required`;
-              isFormValid = false;
-            } else {
-              newErrors[key] = null;
-              newIsDirty[key] = false;
-            }
-            break;
-          }
+              // billing address form validation
+              case "streetAddress":
+              case "city":
+              case "state":
+              case "zipCode":
+              case "country": {
+                if (!newFormFields?.[key]?.trim()?.length) {
+                  newErrors[key] = `*Required`;
+                  isFormValid = false;
+                } else {
+                  newErrors[key] = null;
+                  newIsDirty[key] = false;
+                }
+                break;
+              }
 
-          // payment info form validation
-          case "cardNumber":
-          case "expiryDate":
-          case "cvv":
-          case "cardholderName": {
-            if (!newFormFields?.[key]?.trim()?.length) {
-              newErrors[key] = `*Required`;
-              isFormValid = false;
-            } else {
-              newErrors[key] = null;
-              newIsDirty[key] = false;
-            }
-            break;
-          }
+              // payment info form validation
+              case "cardNumber":
+              case "expiryDate":
+              case "cvv":
+              case "cardholderName": {
+                if (!newFormFields?.[key]?.trim()?.length) {
+                  newErrors[key] = `*Required`;
+                  isFormValid = false;
+                } else {
+                  newErrors[key] = null;
+                  newIsDirty[key] = false;
+                }
+                break;
+              }
 
-          // account creation form validation
-          case "password":
-          case "confirmPassword": {
-            if (!newFormFields?.[key]?.trim()?.length) {
-              newErrors[key] = `*Required`;
-              isFormValid = false;
-            } else if (!isValidPassword(newFormFields?.[key])) {
-              newErrors[key] =
-                "*Password must be at least 8 characters, include a letter, a number, and a special character";
-              isFormValid = false;
-            } else if (
-              key === "confirmPassword" &&
-              newFormFields?.[key] !== newFormFields?.["password"]
-            ) {
-              newErrors[key] = "*Passwords do not match";
-              isFormValid = false;
-            } else {
-              newErrors[key] = null;
-              newIsDirty[key] = false;
+              // account creation form validation
+              case "password":
+              case "confirmPassword": {
+                if (!newFormFields?.[key]?.trim()?.length) {
+                  newErrors[key] = `*Required`;
+                  isFormValid = false;
+                } else if (!isValidPassword(newFormFields?.[key])) {
+                  newErrors[key] =
+                    "*Password must be at least 8 characters, include a letter, a number, and a special character";
+                  isFormValid = false;
+                } else if (
+                  key === "confirmPassword" &&
+                  newFormFields?.[key] !== newFormFields?.["password"]
+                ) {
+                  newErrors[key] = "*Passwords do not match";
+                  isFormValid = false;
+                } else {
+                  newErrors[key] = null;
+                  newIsDirty[key] = false;
+                }
+                break;
+              }
             }
-            break;
           }
-        }
+        });
+
+        setErrors(newErrors);
+        setIsDirty(newIsDirty);
+
+        resolve(isFormValid);
+      } catch (error) {
+        console.error(error);
+        reject(error);
       }
     });
-
-    setErrors(newErrors);
-    setIsDirty(newIsDirty);
-
-    return isFormValid;
   };
 
-  const handleRemoveRelatedProduct = (productId: string) => {
-    setSelectedRelatedProducts((prev) => prev.filter((id) => id !== productId));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formFields?.acceptTerms) {
-      toast({
-        title: "Terms Required",
-        description: "Please accept the terms and conditions",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!isLoggedIn && formFields?.password !== formFields?.confirmPassword) {
-      toast({
-        title: "Password Mismatch",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Mock successful checkout
-    console.log("Checkout submitted:", formFields);
-
-    toast({
-      title: "Order Placed Successfully",
-      description: "Your order is being processed.",
-    });
-
-    // Navigate to thank you page
-    const relatedProductsParam =
-      selectedRelatedProducts.length > 0
-        ? `&relatedProducts=${selectedRelatedProducts.join(",")}`
-        : "";
-    router.push(
-      `/thank-you?total=${totalPrice + CONSULTATION_FEE}${relatedProductsParam}`
+  const _handleRemoveRelatedProduct = (productId: string) => {
+    setSelectedRelatedProducts((prev) =>
+      prev?.filter((id) => id !== productId)
     );
   };
 
-  console.log("formFields", formFields);
-  console.log("isDirty", isDirty);
-  console.log("errors", errors);
+  const _markAllIsDirty = () => {
+    const newIsDirty = { ...isDirty };
+    Object.keys(newIsDirty)?.forEach((key) => {
+      newIsDirty[key] = true;
+    });
+    setIsDirty(newIsDirty);
+    return newIsDirty;
+  };
+
+  const _handleGetPayload = async (e: React.FormEvent) => {
+    return new Promise(async (resolve, reject) => {
+      if (e) e.preventDefault();
+
+      if (!formFields?.acceptTerms) {
+        showErrorToast("Please accept the terms and conditions");
+        // return;
+      }
+
+      // if (!isLoggedIn && formFields?.password !== formFields?.confirmPassword) {
+      //   showErrorToast("Passwords do not match");
+      //   return;
+      // }
+
+      const newFormFields = { ...formFields };
+      const newIsDirty = _markAllIsDirty();
+
+      const isFormValid = await _validateForm({ newFormFields, newIsDirty });
+      console.log("isFormValid", isFormValid);
+
+      // return if form is not valid
+      if (!isFormValid) {
+        reject(new Error("Form is not valid"));
+        return;
+      }
+
+      const payload = {
+        ...newFormFields,
+        productId,
+        dosage,
+        duration,
+        relatedProducts: selectedRelatedProducts,
+      };
+
+      console.log("payload", payload);
+
+      // Mock successful checkout
+      // console.log("Checkout submitted:", formFields);
+
+      // toast({
+      //   title: "Order Placed Successfully",
+      //   description: "Your order is being processed.",
+      // });
+
+      // // Navigate to thank you page
+      // const relatedProductsParam =
+      //   selectedRelatedProducts.length > 0
+      //     ? `&relatedProducts=${selectedRelatedProducts.join(",")}`
+      //     : "";
+      // router.push(
+      //   `/thank-you?total=${totalPrice + CONSULTATION_FEE}${relatedProductsParam}`
+      // );
+
+      resolve(payload || {});
+    });
+  };
+
   return {
     formFields,
     errors,
@@ -300,10 +327,10 @@ const useCheckoutPayment = () => {
     relatedProductsData,
     selectedRelatedProducts,
     duration,
-    handleSubmit,
     handleOnChange: _handleOnChange,
-    handleRemoveRelatedProduct,
+    handleRemoveRelatedProduct: _handleRemoveRelatedProduct,
+    handleGetPayload: _handleGetPayload,
   };
 };
 
-export default useCheckoutPayment;
+export default useCheckoutDetails;

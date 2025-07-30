@@ -95,8 +95,8 @@ const BasicInfoCard = ({
               required
               className={errors?.dob ? "border-red-500" : ""}
             />
+            <RenderFormError errors={errors} field="dob" />
           </div>
-          <RenderFormError errors={errors} field="dob" />
         </div>
       </CardContent>
     </Card>
