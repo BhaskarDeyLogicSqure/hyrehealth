@@ -46,9 +46,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import { formatDate } from "@/lib/dayjs";
 
 const ProfilePage = () => {
   const user = useSelector((state: RootState) => state?.authReducer?.user);
@@ -449,8 +449,8 @@ const ProfilePage = () => {
                           </h4>
                           <p className="text-red-700 text-sm mt-1">
                             Your consultation expired on{" "}
-                            {subscription.consultationExpiry.toLocaleDateString()}
-                            . Complete a new consultation to resume your
+                            {formatDate(subscription?.consultationExpiry)}.
+                            Complete a new consultation to resume your
                             subscription.
                           </p>
                           <Button
@@ -476,8 +476,8 @@ const ProfilePage = () => {
                             </h4>
                             <p className="text-orange-700 text-sm mt-1">
                               Your consultation expires on{" "}
-                              {subscription.consultationExpiry.toLocaleDateString()}
-                              . Schedule a renewal to avoid interruption.
+                              {formatDate(subscription?.consultationExpiry)}.
+                              Schedule a renewal to avoid interruption.
                             </p>
                             <Button
                               size="sm"
@@ -505,13 +505,13 @@ const ProfilePage = () => {
                               Next shipment:
                             </span>
                             <span className="font-medium">
-                              {subscription.nextShipment.toLocaleDateString()}
+                              {formatDate(subscription.nextShipment)}
                             </span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600">Next billing:</span>
                             <span className="font-medium">
-                              {subscription.nextBilling?.toLocaleDateString()}
+                              {formatDate(subscription?.nextBilling)}
                             </span>
                           </div>
                           <div className="flex justify-between text-sm">
@@ -519,7 +519,7 @@ const ProfilePage = () => {
                               Consultation valid until:
                             </span>
                             <span className="font-medium">
-                              {subscription.consultationExpiry.toLocaleDateString()}
+                              {formatDate(subscription?.consultationExpiry)}
                             </span>
                           </div>
                         </div>
@@ -541,7 +541,7 @@ const ProfilePage = () => {
                               className="flex justify-between items-center text-sm"
                             >
                               <span className="text-gray-600">
-                                {shipment.date.toLocaleDateString()}
+                                {formatDate(shipment?.date)}
                               </span>
                               <div className="flex items-center">
                                 <CheckCircle className="h-4 w-4 text-green-600 mr-1" />
@@ -640,7 +640,7 @@ const ProfilePage = () => {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>{order.date.toLocaleDateString()}</TableCell>
+                        <TableCell>{formatDate(order?.date)}</TableCell>
                         <TableCell>${order.total.toFixed(2)}</TableCell>
                         <TableCell>
                           {getOrderStatusBadge(order.status)}
@@ -676,7 +676,7 @@ const ProfilePage = () => {
                     <div>
                       <CardTitle className="text-lg">{order.id}</CardTitle>
                       <p className="text-sm text-gray-600">
-                        {order.date.toLocaleDateString()}
+                        {formatDate(order?.date)}
                       </p>
                     </div>
                     {getOrderStatusBadge(order.status)}

@@ -2,14 +2,9 @@
 
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import {
-  isValidDate,
-  isValidEmail,
-  isValidPhone,
-  isValidPassword,
-} from "@/lib/utils";
+import { isValidEmail, isValidPhone, isValidPassword } from "@/lib/utils";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
-
+import { formatDate } from "@/lib/dayjs";
 const initialFormFields = {
   firstName: "",
   lastName: "",
@@ -292,7 +287,7 @@ const useCheckoutDetails = () => {
         email: newFormFields?.email,
         phone: newFormFields?.phone,
         dob: newFormFields?.dob
-          ? moment(newFormFields.dob).format("YYYY-MM-DD")
+          ? formatDate(newFormFields.dob, "YYYY-MM-DD")
           : undefined,
         streetAddress: newFormFields?.streetAddress,
 
