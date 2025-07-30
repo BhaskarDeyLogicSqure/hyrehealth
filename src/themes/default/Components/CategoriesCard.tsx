@@ -73,7 +73,7 @@ const CategoriesCard = ({
                 </div>
               )}
               <div
-                className={`w-full h-full rounded-lg  rounded-full flex items-center justify-center`}
+                className={`w-full h-full rounded-full flex items-center justify-center`}
               >
                 <Image
                   src={DEFAULT_IMAGE_URL}
@@ -108,7 +108,7 @@ const CategoriesCard = ({
                   </div>
                 )}
                 <div
-                  className={`w-full h-full rounded-lg  rounded-full flex items-center justify-center`}
+                  className={`w-full h-full rounded-full flex items-center justify-center`}
                 >
                   <Image
                     src={imageUrl}
