@@ -65,15 +65,16 @@ const CheckoutPage = () => {
                 <div className="space-y-4">
                   <div className="flex items-start space-x-2">
                     <Checkbox
+                      className="h-5 w-5 border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-colors"
                       id="acceptTerms"
                       checked={formFields?.acceptTerms}
-                      onCheckedChange={(checked) =>
+                      onCheckedChange={(checked: boolean) =>
                         handleOnChange("acceptTerms", !!checked)
                       }
                     />
                     <Label
                       htmlFor="acceptTerms"
-                      className="text-sm leading-relaxed"
+                      className="text-sm leading-relaxed text-gray-600 cursor-pointer"
                     >
                       I accept the Terms of Service, Privacy Policy, and HIPAA
                       Consent. I understand this medication requires a valid

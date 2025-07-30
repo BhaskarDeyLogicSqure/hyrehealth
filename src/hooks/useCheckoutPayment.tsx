@@ -264,11 +264,6 @@ const useCheckoutDetails = () => {
     return new Promise(async (resolve, reject) => {
       if (e) e.preventDefault();
 
-      if (!formFields?.acceptTerms) {
-        showErrorToast("Please accept the terms and conditions");
-        // return;
-      }
-
       // if (!isLoggedIn && formFields?.password !== formFields?.confirmPassword) {
       //   showErrorToast("Passwords do not match");
       //   return;
@@ -286,8 +281,21 @@ const useCheckoutDetails = () => {
         return;
       }
 
+      if (!formFields?.acceptTerms) {
+        showErrorToast("Please accept the terms and conditions");
+        return;
+      }
+
       const payload = {
-        ...newFormFields,
+        firstName: newFormFields?.firstName,
+        lastName: newFormFields?.lastName,
+        email: newFormFields?.email,
+        phone: newFormFields?.phone,
+        dob: newFormFields?.dob
+          ? moment(newFormFields.dob).format("YYYY-MM-DD")
+          : undefined,
+        streetAddress: newFormFields?.streetAddress,
+
         productId,
         dosage,
         duration,
