@@ -10,6 +10,7 @@ import useCheckoutPayment from "@/hooks/useCheckoutPayment";
 import OrderSummarySection from "@/components/checkout/OrderSummarySection";
 import PaymentInfoCard from "@/components/checkout/PaymentInfoCard";
 import AccountCreationCard from "@/components/checkout/AccountCreationCard";
+
 const CheckoutPage = () => {
   const { formFields, errors, handleSubmit, handleOnChange } =
     useCheckoutPayment();

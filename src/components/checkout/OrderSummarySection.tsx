@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from "react";
+"use client";
+
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,49 +11,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Shield, Tag } from "lucide-react";
+import { Shield, Tag, Trash2, X, Ticket } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { CONSULTATION_FEE } from "@/configs";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
-import { Product } from "@/types/products";
-import useProductPurchaseSection from "@/hooks/useProductPurchaseSection";
-const OrderSummarySection = ({ formFields }: { formFields: any }) => {
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState("");
+import useOrderCheckout from "@/hooks/useOrderCheckout";
 
-  const {
-    eligibleProducts,
-    isFromQuestionnaire,
-    selectedRelatedProducts,
-    relatedProductsTotalCost,
-  } = useCheckoutQuestionnaire();
+const OrderSummarySection = ({ formFields }: { formFields: any }) => {
+  const { eligibleProducts, isFromQuestionnaire, selectedRelatedProducts } =
+    useCheckoutQuestionnaire();
 
   console.log({ eligibleProducts });
 
   const {
-    selectedDosageId,
-    subscriptionDuration,
-    selectedDosageWithDuration,
+    productConfigurations,
+    selectedProducts,
+    isCheckoutLoading,
+    totalPrice,
+    couponCode,
+    appliedCoupon,
     handleDosageAndSubscriptionDurationChange,
     generateDosageOptions,
     generateSubscriptionDurationOptions,
-    getTotalPrice,
+    getSelectedDosageWithDuration,
+    // handleProductSelectionChange,
     handleProceedToCheckout,
-    isCheckoutLoading,
-  } = useProductPurchaseSection({
+    handleApplyCoupon,
+    handleClearCoupon,
+    handleCouponCodeChange,
+    handleDeleteProductAlert,
+  } = useOrderCheckout({
     product: eligibleProducts?.[0]?.product,
     selectedRelatedProducts,
-    relatedProductsTotal: relatedProductsTotalCost,
   });
-
-  const totalPrice = getTotalPrice;
-
-  const handleApplyCoupon = () => {
-    if (couponCode.trim()) {
-      setAppliedCoupon(couponCode);
-      setCouponCode("");
-    }
-  };
 
   // If not from questionnaire, show empty state or redirect
   if (
@@ -78,11 +69,6 @@ const OrderSummarySection = ({ formFields }: { formFields: any }) => {
     );
   }
 
-  const subtotal = eligibleProducts?.reduce(
-    (sum, product) => sum + (product?.selectedOption?.price || 0),
-    0
-  );
-
   return (
     <div>
       <Card className="sticky top-24 shadow-lg">
@@ -91,118 +77,125 @@ const OrderSummarySection = ({ formFields }: { formFields: any }) => {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Product Details Section */}
-          {eligibleProducts?.map((productItem) => (
-            <Card
-              key={productItem?.product?._id}
-              className="border border-gray-200"
-            >
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="font-bold text-lg text-gray-900">
-                      {productItem?.product?.name}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {productItem?.type === "main"
-                        ? "Primary Product"
-                        : "Add-on Product"}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-lg">
-                      ${productItem?.selectedOption?.price || 0}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      ${productItem?.selectedOption?.price} x{" "}
-                      {productItem?.selectedOption?.duration} month
-                      {productItem?.selectedOption?.duration !== 1 ? "s" : ""}
-                    </p>
-                  </div>
-                </div>
+          {productConfigurations?.map((config) => {
+            const product = eligibleProducts?.find(
+              (item) => item?.product?._id === config.productId
+            )?.product;
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">
-                      Dosage
-                    </label>
-                    <Select
-                      value={selectedDosageId}
-                      onValueChange={(value) =>
-                        handleDosageAndSubscriptionDurationChange(
-                          "dosage",
-                          value
-                        )
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {generateDosageOptions?.map((option: any) => (
-                          <SelectItem key={option?.id} value={option?.id}>
-                            {`${option?.name}`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+            if (!product) return null;
+
+            const selectedOption = getSelectedDosageWithDuration(
+              config.productId
+            );
+            const isMainProduct =
+              product._id === eligibleProducts?.[0]?.product?._id;
+
+            // Only render selected products
+            if (!config?.isSelected) return null;
+
+            return (
+              <Card key={config.productId} className="border border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-gray-900">
+                        {product?.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {isMainProduct ? "Primary Product" : "Add-on Product"}
+                      </p>
+                    </div>
+                    <div className="text-right ml-4 flex items-center gap-2">
+                      <p className="font-bold text-lg">
+                        ${selectedOption?.price || 0}
+                      </p>
+                      {selectedProducts.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            handleDeleteProductAlert(
+                              config.productId,
+                              product?.name
+                            )
+                          }
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 h-8 w-8 rounded-full"
+                          type="button"
+                          title="Remove product"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">
-                      Subscription Plan
-                    </label>
-                    <Select
-                      defaultValue={subscriptionDuration}
-                      onValueChange={(value) =>
-                        handleDosageAndSubscriptionDurationChange(
-                          "subscriptionDuration",
-                          value
-                        )
-                      }
-                      disabled={!selectedDosageId}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {generateSubscriptionDurationOptions?.map(
-                          (option: any) => (
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-1 block">
+                        Dosage
+                      </label>
+                      <Select
+                        value={config?.dosageId}
+                        onValueChange={(value) =>
+                          handleDosageAndSubscriptionDurationChange(
+                            config?.productId,
+                            "dosage",
+                            value
+                          )
+                        }
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {generateDosageOptions(config?.productId)?.map(
+                            (option: any) => (
+                              <SelectItem key={option?.id} value={option?.id}>
+                                {`${option?.name}`}
+                              </SelectItem>
+                            )
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-1 block">
+                        Subscription Plan
+                      </label>
+                      <Select
+                        value={config?.subscriptionDuration}
+                        onValueChange={(value) =>
+                          handleDosageAndSubscriptionDurationChange(
+                            config?.productId,
+                            "subscriptionDuration",
+                            value
+                          )
+                        }
+                        disabled={!config?.dosageId}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {generateSubscriptionDurationOptions(
+                            config?.productId
+                          )?.map((option: any) => (
                             <SelectItem
                               key={option?._id}
                               value={option?.duration?.value.toString()}
                             >
                               {`${option?.duration?.value} ${option?.duration?.unit}`}
                             </SelectItem>
-                          )
-                        )}
-                      </SelectContent>
-                    </Select>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                </div>
-
-                {/* Remove button for add-on products */}
-                {productItem?.type === "related" && (
-                  <div className="mt-3 flex justify-end">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        // TODO: Implement remove functionality for related products
-                        console.log(
-                          "Remove product:",
-                          productItem?.product?._id
-                        );
-                      }}
-                      className="text-red-600 hover:text-red-800 p-1"
-                      type="button"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
 
           {/* Coupon Code Section */}
           <Card className="border border-gray-200">
@@ -215,7 +208,7 @@ const OrderSummarySection = ({ formFields }: { formFields: any }) => {
                 <Input
                   placeholder="Enter coupon code"
                   value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
+                  onChange={(e) => handleCouponCodeChange(e)}
                   className="flex-1"
                 />
                 <Button
@@ -227,8 +220,18 @@ const OrderSummarySection = ({ formFields }: { formFields: any }) => {
                 </Button>
               </div>
               {appliedCoupon && (
-                <div className="mt-2 text-sm text-green-600">
-                  Coupon "{appliedCoupon}" applied
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium border border-green-200">
+                    <Ticket className="h-3 w-3" />
+                    <span>{appliedCoupon}</span>
+                    <button
+                      onClick={handleClearCoupon}
+                      className="ml-1 hover:bg-white rounded-full p-0.5 transition-colors"
+                      title="Remove coupon"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -238,16 +241,16 @@ const OrderSummarySection = ({ formFields }: { formFields: any }) => {
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
               <span>Subtotal:</span>
-              <span>${subtotal}</span>
+              <span>${totalPrice?.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span>Treatment cost:</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>${totalPrice?.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-sm">
+            {/* <div className="flex justify-between text-sm">
               <span>Consultation fee:</span>
               <span>${CONSULTATION_FEE}</span>
-            </div>
+            </div> */}
 
             <Separator />
 
@@ -259,11 +262,11 @@ const OrderSummarySection = ({ formFields }: { formFields: any }) => {
 
           {/* Complete Purchase Button */}
           <Button
-            type="submit"
+            onClick={handleProceedToCheckout}
             className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 text-lg font-medium"
-            disabled={!formFields?.acceptTerms}
+            disabled={!formFields?.acceptTerms || isCheckoutLoading}
           >
-            Complete Purchase
+            {isCheckoutLoading ? "Processing..." : "Complete Purchase"}
           </Button>
 
           {/* Security Information */}
