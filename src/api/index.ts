@@ -33,6 +33,7 @@ export interface ApiResponse<T> {
   error?: any;
   data: T;
   status: number;
+  message?: string;
 }
 
 // ✅ Standard API error format
@@ -40,6 +41,8 @@ export interface ApiError {
   message: string;
   success?: boolean;
   status?: number;
+  error?: any;
+  reason?: string;
 }
 
 // ✅ Centralized error handling

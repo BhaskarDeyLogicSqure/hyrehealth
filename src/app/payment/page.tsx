@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import PaymentPage from "../../components/payments/PaymentPage";
 import { PaymentDetails, PaymentResult } from "../../types/payment";
 import { toast } from "sonner";
-import { successToast } from "@/utils/toasters";
 
 // Mock user token - in real app this would come from auth context
 const MOCK_USER_TOKEN = "mock-user-token-12345";

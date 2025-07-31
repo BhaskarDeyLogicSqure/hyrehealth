@@ -1,18 +1,19 @@
 import { Question, QuestionType } from "@/types/questionnaire";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { showToast, errorToast } from "@/utils/toasters";
 import { useDispatch } from "react-redux";
 import {
-  setQuestionnaireData,
   setGeneralEligibility,
-  setProductResponses,
   addProductResponses,
   setProductEligibility,
   completeQuestionnaire,
   QuestionnaireResponse,
   ProductEligibility,
 } from "@/store/slices/checkoutSlice";
+import {
+  showSuccessToast,
+  showErrorToast,
+} from "@/components/GlobalErrorHandler";
 
 interface ProductSection {
   productId: string;
@@ -58,7 +59,7 @@ const useQuestionnaire = (
     return sections;
   }, [questionsList]);
 
-  console.log("productSections", productSections);
+  // console.log("productSections", productSections);
 
   const totalGeneralQuestions = questionsList?.generalQuestions?.length || 0;
   const totalProductSections = productSections.length;
@@ -334,30 +335,29 @@ const useQuestionnaire = (
     return true;
   };
 
-  console.log({ responses });
+  // console.log({ responses });
   // Calculate overall eligibility based on current responses
-  const calculateOverallEligibility = () => {
-    // First check general eligibility
-    const generalEligible = calculateGeneralEligibility();
-    if (!generalEligible) {
-      return false; // Immediately ineligible
-    }
+  // const calculateOverallEligibility = () => {
+  //   // First check general eligibility
+  //   const generalEligible = calculateGeneralEligibility();
+  //   if (!generalEligible) {
+  //     return false; // Immediately ineligible
+  //   }
 
-    // Check if at least one product is eligible
-    return productSections?.some((_, index) =>
-      calculateProductEligibility(index)
-    );
-  };
+  //   // Check if at least one product is eligible
+  //   return productSections?.some((_, index) =>
+  //     calculateProductEligibility(index)
+  //   );
+  // };
 
   const showToastMessage = (
-    title: string,
     description: string,
     variant: "default" | "destructive" = "default"
   ) => {
     if (variant === "destructive") {
-      errorToast(description);
+      showErrorToast(description);
     } else {
-      showToast({ message: description, type: "success" });
+      showSuccessToast(description);
     }
   };
 
@@ -398,7 +398,6 @@ const useQuestionnaire = (
           (Array.isArray(currentValue) && currentValue?.length === 0))
       ) {
         showToastMessage(
-          "Required Field",
           "Please answer this question before continuing.",
           "destructive"
         );
@@ -418,7 +417,6 @@ const useQuestionnaire = (
         if (!isAnswerCorrect) {
           // Set to general ineligible state instead of completely aborting
           // showToastMessage(
-          //   "Not Eligible",
           //   "Unfortunately, your answer makes you ineligible. You can restart the general questions to try again.",
           //   "destructive"
           // );
@@ -718,7 +716,7 @@ const useQuestionnaire = (
     }
   }, [questions]);
 
-  console.log("2323", { questionsList, stepStructure, currentStep });
+  // console.log("2323", { questionsList, stepStructure, currentStep });
 
   return {
     currentStep,

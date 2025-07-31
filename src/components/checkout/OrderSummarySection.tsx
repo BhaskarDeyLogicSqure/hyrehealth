@@ -19,6 +19,7 @@ import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import useOrderCheckout from "@/hooks/useOrderCheckout";
 import { useCheckout } from "@/hooks/useCheckout";
 import { DIGITS_AFTER_DECIMALS } from "@/configs";
+import useChekoutApi from "@/api/checkout/useChekoutApi";
 
 const OrderSummarySection = ({
   handleGetPayload,
@@ -27,11 +28,16 @@ const OrderSummarySection = ({
 }) => {
   const router = useRouter();
   const { clearCheckout } = useCheckout();
+  const { signUpWithPayment } = useChekoutApi();
 
-  const { eligibleProducts, isFromQuestionnaire, selectedRelatedProducts } =
-    useCheckoutQuestionnaire();
+  const {
+    eligibleProducts,
+    isFromQuestionnaire,
+    selectedRelatedProducts,
+    questionnaire,
+  } = useCheckoutQuestionnaire();
 
-  console.log({ eligibleProducts });
+  console.log({ eligibleProducts, questionnaire });
 
   const {
     productConfigurations,
@@ -63,8 +69,8 @@ const OrderSummarySection = ({
       // get payload for payment details
       const payload = await handleGetPayload(e);
 
-      // return if no payload present
-      if (!payload) return;
+      // return if no payload present or no questionnaire responses are present
+      if (!payload || !questionnaire?.generalResponses?.length) return;
 
       const invalidProducts = productConfigurations?.filter(
         (config) => !config?.dosageId || !config?.subscriptionDuration
@@ -75,6 +81,14 @@ const OrderSummarySection = ({
           "Please select valid dosage and duration for all selected products"
         );
         return;
+      }
+
+      // add the price info to the payload
+      payload["paymentInfo"]["finalAmount"] = totalPrice; // this will be the final amount after applying the coupon
+
+      // add the coupon info to the payload
+      if (appliedCoupon) {
+        payload["paymentInfo"]["couponCode"] = appliedCoupon;
       }
 
       //  now update the payload with product configurations
@@ -90,12 +104,31 @@ const OrderSummarySection = ({
         );
       }
 
+      // now update the payload with questionnaire responses
+      if (questionnaire?.generalResponses?.length > 0) {
+        const newQuestionnaireResponses = [
+          ...questionnaire?.generalResponses,
+          ...questionnaire?.productResponses,
+        ];
+
+        payload["questionnaireResponses"] = newQuestionnaireResponses?.map(
+          (response) => {
+            return {
+              _question: response?.questionId || undefined,
+              answer: response?.answer || undefined,
+            };
+          }
+        );
+      }
       console.log("final payload", { payload });
 
       console.log({ productConfigurations });
 
       // Mock successful checkout
       console.log("Checkout submitted:", payload);
+
+      // call the checkout api
+      const response = await signUpWithPayment(payload);
 
       showSuccessToast("Order Placed Successfully");
 

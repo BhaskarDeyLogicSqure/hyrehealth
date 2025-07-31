@@ -261,6 +261,9 @@ const useCheckoutDetails = () => {
           cardLast4: "newFormFields?.cardLast4", // TODO: add card last 4 digits when work on payment gateway
           cardBrand: "newFormFields?.cardBrand", // TODO: add card brand when work on payment gateway
         },
+
+        // questionnaire responses
+        questionnaireResponses: [], // will be populated on useOrderCheckout hook at the time of checkout
       };
 
       console.log("payload", payload);

@@ -4,7 +4,11 @@ import { useCookies } from "@/hooks/useCookies";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/actions/authAction";
 import { useRouter } from "next/navigation";
-import { successToast, errorToast } from "@/utils/toasters";
+import {
+  showSuccessToast,
+  showErrorToast,
+} from "@/components/GlobalErrorHandler";
+
 export const useAuthApi = () => {
   const { setCookie } = useCookies();
   const router = useRouter();
@@ -15,7 +19,7 @@ export const useAuthApi = () => {
     onSuccess: (response) => {
       // Set token in cookie
       setCookie("token", response.data.token);
-      successToast("Login successful");
+      showSuccessToast("Login successful");
       // Update Redux store
       dispatch(setUser(response.data.user));
       // Redirect to dashboard
@@ -23,7 +27,7 @@ export const useAuthApi = () => {
     },
     onError: (error) => {
       // console.error("Login failed:", error);
-      errorToast(error);
+      showErrorToast(error?.message);
     },
   });
 
