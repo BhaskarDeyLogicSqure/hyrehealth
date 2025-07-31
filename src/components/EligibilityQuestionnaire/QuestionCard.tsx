@@ -30,6 +30,7 @@ import {
   QuestionType,
 } from "@/types/questionnaire";
 import { formatDate } from "@/lib/dayjs";
+import { getFileSize } from "@/lib/utils";
 
 interface ProductSection {
   productId: string;
@@ -56,6 +57,7 @@ interface QuestionCardProps {
   handleContinueAfterIneligible?: () => void;
   restartProduct?: (productIndex: number) => void;
   restartGeneralQuestions?: () => void;
+  isUploadingFile?: boolean;
   // handleContinueAfterIneligible?: () => void;
 }
 
@@ -77,6 +79,7 @@ const QuestionCard = ({
   handleContinueAfterIneligible,
   restartProduct,
   restartGeneralQuestions,
+  isUploadingFile = false,
 }: // handleContinueAfterIneligible,
 QuestionCardProps) => {
   const router = useRouter();
@@ -276,10 +279,11 @@ QuestionCardProps) => {
                           );
                         }
                       }}
+                      className="cursor-pointer"
                     />
                     <Label
                       htmlFor={optionValue}
-                      className="text-sm theme-text-primary"
+                      className="text-sm theme-text-primary cursor-pointer"
                     >
                       {optionLabel}
                     </Label>
@@ -441,16 +445,10 @@ QuestionCardProps) => {
                     "border-blue-400",
                     "bg-blue-50"
                   );
-                  const files = e.dataTransfer.files;
+                  const files = e?.dataTransfer?.files;
                   if (files?.length > 0) {
-                    const file = files[0];
-                    const fileInfo = {
-                      name: file?.name,
-                      size: file?.size,
-                      type: file?.type,
-                      lastModified: file?.lastModified,
-                    };
-                    updateResponse(fileInfo);
+                    const file = files?.[0];
+                    updateResponse(file);
                   }
                 }}
               >
@@ -470,6 +468,9 @@ QuestionCardProps) => {
                       {currentQuestion?.helpText}
                     </p>
                   )}
+                  {isUploadingFile && (
+                    <p className="text-xs text-blue-600">Uploading file...</p>
+                  )}
                 </div>
 
                 <Input
@@ -479,17 +480,10 @@ QuestionCardProps) => {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      // For now, store file name and basic info
-                      // In a real implementation, you'd upload to a file storage service
-                      const fileInfo = {
-                        name: file?.name,
-                        size: file?.size,
-                        type: file?.type,
-                        lastModified: file?.lastModified,
-                      };
-                      updateResponse(fileInfo);
+                      updateResponse(file);
                     }
                   }}
+                  accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain,application/zip,application/x-zip-compressed,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/json,application/xml,application/csv"
                 />
               </div>
 
@@ -497,12 +491,17 @@ QuestionCardProps) => {
                 <div className="mt-2 flex items-center space-x-2 text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">
                   <File className="h-4 w-4 text-blue-600" />
                   <span className="flex-1">
-                    {currentValue?.name || currentValue}
+                    {currentValue?.name ||
+                      currentValue?.originalFile?.name ||
+                      currentValue}
                   </span>
                   {currentValue?.size && (
                     <span className="text-xs text-gray-400">
-                      ({(currentValue?.size / 1024)?.toFixed(1)} KB)
+                      ({getFileSize(currentValue?.size)})
                     </span>
+                  )}
+                  {currentValue?.uploadedUrl && (
+                    <span className="text-xs text-green-600">✓ Uploaded</span>
                   )}
                   <Button
                     type="button"
@@ -510,6 +509,7 @@ QuestionCardProps) => {
                     size="sm"
                     onClick={() => updateResponse(null)}
                     className="text-red-500 hover:text-red-700 h-6 w-6 p-0"
+                    disabled={isUploadingFile}
                   >
                     ×
                   </Button>

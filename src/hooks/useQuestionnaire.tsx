@@ -14,6 +14,7 @@ import {
   showSuccessToast,
   showErrorToast,
 } from "@/components/GlobalErrorHandler";
+import useUploadService from "./useUploadService";
 
 interface ProductSection {
   productId: string;
@@ -28,11 +29,19 @@ const useQuestionnaire = (
 ) => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { uploadImage } = useUploadService();
+
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [questionsList, setQuestionsList] = useState<Record<string, any>>({});
   // const [currentProductIndex, setCurrentProductIndex] = useState(0);
   const [isNavigatingToCheckout, setIsNavigatingToCheckout] = useState(false);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadFileName, setUploadFileName] = useState<string>("");
+  const [showUploadPopup, setShowUploadPopup] = useState(false);
+  const [uploadError, setUploadError] = useState<string>("");
+  const [uploadComplete, setUploadComplete] = useState(false);
 
   // Parse product sections from questionsList
   const productSections: ProductSection[] = useMemo(() => {
@@ -382,7 +391,7 @@ const useQuestionnaire = (
     }
   };
 
-  const _handleNext = () => {
+  const _handleNext = async () => {
     const currentQuestion = _getCurrentQuestion();
     const currentStepInfo = _getCurrentStepInfo();
 
@@ -396,10 +405,7 @@ const useQuestionnaire = (
         (!currentValue ||
           (Array.isArray(currentValue) && currentValue?.length === 0))
       ) {
-        _showToastMessage(
-          "Please answer this question before continuing.",
-          "destructive"
-        );
+        showErrorToast("Please answer this question before continuing.");
         return;
       }
 
@@ -449,6 +455,83 @@ const useQuestionnaire = (
             setCurrentStep(productResultStep);
             return;
           }
+        }
+      }
+
+      // Handle file upload for QuestionType.File
+      if (currentQuestion?.questionType === QuestionType.File) {
+        const file = currentValue;
+        if (file && file instanceof File) {
+          try {
+            setIsUploadingFile(true);
+            setUploadProgress(0);
+            setUploadFileName(file.name);
+            setShowUploadPopup(true);
+            setUploadError("");
+            setUploadComplete(false);
+
+            // Create folder prefix based on question type and id for better organization
+            const questionType = currentQuestion?.questionType;
+            const questionId = currentQuestion?._id;
+            const folderPrefix = `questionnaire/${questionType}/${questionId}/`;
+
+            // Upload file to AWS S3
+            const uploadResult = await uploadImage(
+              file,
+              folderPrefix,
+              (progress) => {
+                console.log(`Upload progress: ${progress}%`);
+                setUploadProgress(progress);
+              }
+            );
+
+            if (uploadResult) {
+              // Update response with the uploaded file information
+              const fileResponse = {
+                originalFile: file,
+                uploadedUrl: uploadResult?.url,
+                filename: uploadResult?.filename,
+                contentType: uploadResult?.contentType,
+                uploadedAt: new Date().toISOString(),
+              };
+
+              setResponses((prev) => ({
+                ...prev,
+                [currentQuestion?._id]: fileResponse,
+              }));
+
+              setUploadComplete(true);
+              setUploadProgress(100);
+
+              // Show success toast and keep popup visible for a moment
+              showSuccessToast("File uploaded successfully!");
+
+              // Auto-hide popup after 3 seconds
+              setTimeout(() => {
+                setShowUploadPopup(false);
+                setUploadComplete(false);
+                setUploadProgress(0);
+                setUploadFileName("");
+              }, 3000);
+            } else {
+              setUploadError("Failed to upload file. Please try again.");
+              showErrorToast("Failed to upload file. Please try again.");
+              return;
+            }
+          } catch (error) {
+            console.error("File upload error:", error);
+            setUploadError("Failed to upload file. Please try again.");
+            showErrorToast("Failed to upload file. Please try again.");
+            return;
+          } finally {
+            setIsUploadingFile(false);
+          }
+        } else if (file && typeof file === "object" && file?.uploadedUrl) {
+          // File was already uploaded, continue
+          console.log("File already uploaded:", file);
+        } else if (!file && currentQuestion?.isRequired) {
+          showErrorToast("Please select a file to upload.");
+          return;
         }
       }
     }
@@ -709,6 +792,14 @@ const useQuestionnaire = (
     }
   };
 
+  const _closeUploadPopup = () => {
+    setShowUploadPopup(false);
+    setUploadComplete(false);
+    setUploadProgress(0);
+    setUploadFileName("");
+    setUploadError("");
+  };
+
   useEffect(() => {
     if (questions) {
       _getAllQuestions();
@@ -738,6 +829,13 @@ const useQuestionnaire = (
     restartGeneralQuestions: _restartGeneralQuestions,
     checkIfAnswerIsCorrect: _checkIfAnswerIsCorrect,
     isNavigatingToCheckout,
+    isUploadingFile,
+    uploadProgress,
+    uploadFileName,
+    showUploadPopup,
+    uploadError,
+    uploadComplete,
+    closeUploadPopup: _closeUploadPopup,
   };
 };
 
