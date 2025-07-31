@@ -2,7 +2,7 @@ import { Category } from "@/types/categories";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import useProductApi from "@/api/products/useProductApi";
 import useCategoryApi from "@/api/categories/useCategoryApi";
-import { errorToast } from "@/utils/toasters";
+import { showErrorToast } from "@/components/GlobalErrorHandler";
 import { useProductsUrlParams } from "./useUrlParams";
 
 const useProducts = () => {
@@ -44,7 +44,7 @@ const useProducts = () => {
 
   // display error toast if there is an error
   if (isProductsError) {
-    errorToast(productsError?.message);
+    showErrorToast(productsError?.message || "Something went wrong");
   }
 
   const { categories: categoriesResponse } = useCategoryApi();

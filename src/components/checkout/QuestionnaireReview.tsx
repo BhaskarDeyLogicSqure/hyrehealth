@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, AlertCircle, Clock } from "lucide-react";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import { QuestionType } from "@/types/questionnaire";
+import { formatDate } from "@/lib/dayjs";
 
 const QuestionnaireReview = () => {
   const {
@@ -33,7 +34,7 @@ const QuestionnaireReview = () => {
       case QuestionType.Boolean:
         return answer ? "Yes" : "No";
       case QuestionType.Date:
-        return new Date(answer).toLocaleDateString();
+        return formatDate(answer, "MMMM D, YYYY");
       default:
         return String(answer);
     }
@@ -108,10 +109,10 @@ const QuestionnaireReview = () => {
             >
               {getStatusText(eligibilityStatus)}
             </Badge>
-            {questionnaire.completedAt && (
+            {questionnaire?.completedAt && (
               <span className="text-sm text-gray-500">
                 Completed on{" "}
-                {new Date(questionnaire.completedAt).toLocaleDateString()}
+                {formatDate(questionnaire?.completedAt, "MMMM D, YYYY")}
               </span>
             )}
           </div>

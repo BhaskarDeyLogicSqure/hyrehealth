@@ -10,7 +10,7 @@ import {
   PaymentResult,
 } from "../../types/payment";
 import { CreditCard, Building2, Clock, ArrowLeft } from "lucide-react";
-
+import { DIGITS_AFTER_DECIMALS } from "@/configs";
 interface PaymentPageProps {
   userToken: string;
   paymentDetails: PaymentDetails;
@@ -149,7 +149,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({
         <div className="text-center">
           <div className="text-sm opacity-90 mb-2">Total Amount</div>
           <div className="text-4xl font-bold mb-2">
-            ${paymentDetails.amount.toFixed(2)}
+            ${paymentDetails.amount.toFixed(DIGITS_AFTER_DECIMALS)}
           </div>
           <div className="text-sm opacity-90">
             {paymentDetails.currency.toUpperCase()}

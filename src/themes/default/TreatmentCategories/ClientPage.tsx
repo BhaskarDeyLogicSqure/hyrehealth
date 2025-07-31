@@ -32,8 +32,12 @@ const TreatmentCategoriesClient = () => {
         {/* Categories Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.isArray(categories?.data) && categories?.data?.length > 0 ? (
-            categories?.data?.map((category: Category) => (
-              <CategoriesCard key={category?._id} category={category} />
+            categories?.data?.map((category: Category, index: number) => (
+              <CategoriesCard
+                key={category?._id}
+                category={category}
+                index={index}
+              />
             ))
           ) : isCategoriesLoading ? (
             <div className="col-span-full">

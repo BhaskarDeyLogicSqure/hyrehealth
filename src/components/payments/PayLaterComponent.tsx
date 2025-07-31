@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { payLaterService } from "../../services/pay-later-service";
 import { PaymentDetails, PaymentResult } from "../../types/payment";
 import { Calendar, Clock, DollarSign } from "lucide-react";
-
+import { DIGITS_AFTER_DECIMALS } from "@/configs";
 type PayLaterStep = "details" | "processing" | "success" | "error";
 
 interface PayLaterComponentProps {
@@ -131,7 +131,7 @@ const PayLaterComponent: React.FC<PayLaterComponentProps> = ({
                     <span className="text-gray-700">Amount to defer:</span>
                   </div>
                   <span className="text-xl font-bold text-brand-dark-blue">
-                    ${paymentDetails.amount.toFixed(2)}{" "}
+                    ${paymentDetails.amount.toFixed(DIGITS_AFTER_DECIMALS)}{" "}
                     {paymentDetails.currency.toUpperCase()}
                   </span>
                 </div>
@@ -295,7 +295,8 @@ const PayLaterComponent: React.FC<PayLaterComponentProps> = ({
                   <strong>Request ID:</strong> {paymentId}
                 </p>
                 <p className="text-gray-700">
-                  <strong>Amount:</strong> ${paymentDetails.amount.toFixed(2)}{" "}
+                  <strong>Amount:</strong> $
+                  {paymentDetails.amount.toFixed(DIGITS_AFTER_DECIMALS)}{" "}
                   {paymentDetails.currency.toUpperCase()}
                 </p>
                 <p className="text-gray-700">

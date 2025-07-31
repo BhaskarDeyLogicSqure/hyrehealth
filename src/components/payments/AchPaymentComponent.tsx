@@ -18,6 +18,7 @@ import {
   PaymentDetails,
   PaymentResult,
 } from "../../types/payment";
+import { DIGITS_AFTER_DECIMALS } from "@/configs";
 
 type AchPaymentStep =
   | "account-selection"
@@ -292,7 +293,7 @@ const AchPaymentComponent: React.FC<AchPaymentComponentProps> = ({
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">Amount to be charged:</span>
                   <span className="text-xl font-bold text-brand-dark-blue">
-                    ${paymentDetails.amount.toFixed(2)}{" "}
+                    ${paymentDetails.amount.toFixed(DIGITS_AFTER_DECIMALS)}{" "}
                     {paymentDetails.currency.toUpperCase()}
                   </span>
                 </div>
@@ -628,7 +629,8 @@ const AchPaymentComponent: React.FC<AchPaymentComponentProps> = ({
                   <strong>Payment ID:</strong> {paymentId}
                 </p>
                 <p className="text-gray-700">
-                  <strong>Amount:</strong> ${paymentDetails.amount.toFixed(2)}{" "}
+                  <strong>Amount:</strong> $
+                  {paymentDetails.amount.toFixed(DIGITS_AFTER_DECIMALS)}{" "}
                   {paymentDetails.currency.toUpperCase()}
                 </p>
                 <p className="text-gray-700">

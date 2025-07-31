@@ -11,7 +11,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Send, Phone } from "lucide-react";
-import { showToast } from "@/utils";
+import { showSuccessToast } from "@/components/GlobalErrorHandler";
 
 const SupportContactUsForm = () => {
   const [contactForm, setContactForm] = useState({
@@ -23,9 +23,8 @@ const SupportContactUsForm = () => {
   });
 
   const _handleContactSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // console.log("Contact form submitted:", contactForm);
-    showToast(
+    if (e) e.preventDefault();
+    showSuccessToast(
       "Your message has been sent! We'll get back to you within 24 hours."
     );
 
