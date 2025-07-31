@@ -49,6 +49,7 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { formatDate } from "@/lib/dayjs";
+import { DIGITS_AFTER_DECIMALS } from "@/configs";
 
 const ProfilePage = () => {
   const user = useSelector((state: RootState) => state?.authReducer?.user);
@@ -641,7 +642,9 @@ const ProfilePage = () => {
                           </div>
                         </TableCell>
                         <TableCell>{formatDate(order?.date)}</TableCell>
-                        <TableCell>${order.total.toFixed(2)}</TableCell>
+                        <TableCell>
+                          ${order.total.toFixed(DIGITS_AFTER_DECIMALS)}
+                        </TableCell>
                         <TableCell>
                           {getOrderStatusBadge(order.status)}
                         </TableCell>
@@ -695,7 +698,7 @@ const ProfilePage = () => {
                         {order.dosage}
                       </div>
                       <div className="text-lg font-semibold">
-                        ${order.total.toFixed(2)}
+                        ${order.total.toFixed(DIGITS_AFTER_DECIMALS)}
                       </div>
                     </div>
                   </div>

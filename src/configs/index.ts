@@ -39,6 +39,7 @@ export const PRODUCT_SORT_OPTIONS = [
 
 export const FEATURED_CATEGORIES_LIMIT = 3;
 export const CATEGORIES_PER_PAGE = 6;
+export const DIGITS_AFTER_DECIMALS = 2;
 
 export const DEFAULT_THEME_CATEGORIES_COLORS = [
   "bg-blue-50 text-blue-600 border-blue-200",

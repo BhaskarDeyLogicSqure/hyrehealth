@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,11 +12,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Shield, Tag, Trash2, X, Ticket } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { showSuccessToast } from "../GlobalErrorHandler";
 import { Separator } from "@/components/ui/separator";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import useOrderCheckout from "@/hooks/useOrderCheckout";
-import { showSuccessToast } from "../GlobalErrorHandler";
-import { useRouter } from "next/navigation";
+import { useCheckout } from "@/hooks/useCheckout";
+import { DIGITS_AFTER_DECIMALS } from "@/configs";
 
 const OrderSummarySection = ({
   handleGetPayload,
@@ -24,6 +26,7 @@ const OrderSummarySection = ({
   handleGetPayload: (e: React.FormEvent) => Promise<any>;
 }) => {
   const router = useRouter();
+  const { clearCheckout } = useCheckout();
 
   const { eligibleProducts, isFromQuestionnaire, selectedRelatedProducts } =
     useCheckoutQuestionnaire();
@@ -41,16 +44,15 @@ const OrderSummarySection = ({
     generateDosageOptions,
     generateSubscriptionDurationOptions,
     getSelectedDosageWithDuration,
-    // handleProductSelectionChange,
-    handleProceedToCheckout,
     handleApplyCoupon,
     handleClearCoupon,
     handleCouponCodeChange,
     handleDeleteProductAlert,
     setIsCheckoutLoading,
   } = useOrderCheckout({
-    product: eligibleProducts?.[0]?.product,
-    selectedRelatedProducts,
+    product: eligibleProducts?.[0]?.product, // it is the main product
+    initialMainProductSelectedOption: eligibleProducts?.[0]?.selectedOption, // it is the initial selected option for the main product, can be changed later on user interaction
+    selectedRelatedProducts, // it is the list of all related products (if any)
   });
 
   const _handleSubmit = async (e: React.FormEvent) => {
@@ -63,7 +65,34 @@ const OrderSummarySection = ({
 
       // return if no payload present
       if (!payload) return;
+
+      const invalidProducts = productConfigurations?.filter(
+        (config) => !config?.dosageId || !config?.subscriptionDuration
+      );
+
+      if (invalidProducts?.length > 0) {
+        alert(
+          "Please select valid dosage and duration for all selected products"
+        );
+        return;
+      }
+
+      //  now update the payload with product configurations
+      if (productConfigurations?.length > 0) {
+        payload["paymentInfo"]["products"] = productConfigurations?.map(
+          (config) => {
+            return {
+              productId: config?.productId || undefined,
+              strength: config?.strength || undefined,
+              subscriptionOptionId: config?.dosageId || undefined,
+            };
+          }
+        );
+      }
+
       console.log("final payload", { payload });
+
+      console.log({ productConfigurations });
 
       // Mock successful checkout
       console.log("Checkout submitted:", payload);
@@ -71,7 +100,9 @@ const OrderSummarySection = ({
       showSuccessToast("Order Placed Successfully");
 
       // Navigate to thank you page after successful checkout
-      router.push(`/thank-you`);
+      // router.push(`/thank-you`);
+      setIsCheckoutLoading(false);
+      // clearCheckout(); // clear the checkout data after successful checkout
     } catch (error) {
       console.error(error);
       setIsCheckoutLoading(false); // need to set isCheckoutLoading to false as we are not moving to a new route from here after unsuccessful checkout
@@ -85,8 +116,22 @@ const OrderSummarySection = ({
   if (
     !isFromQuestionnaire ||
     !eligibleProducts ||
-    eligibleProducts.length === 0
+    eligibleProducts?.length === 0
   ) {
+    // redirect to products page after 5 seconds
+    const [seconds, setSeconds] = useState(5);
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        if (seconds === 0) {
+          router.push("/products");
+        } else {
+          setSeconds(seconds - 1);
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
+    }, [seconds]);
+
     return (
       <div>
         <Card className="sticky top-24 shadow-lg">
@@ -97,8 +142,22 @@ const OrderSummarySection = ({
             <div className="text-center py-8 text-gray-500">
               <p>No eligible products found.</p>
               <p className="text-sm mt-2">
-                Please complete the questionnaire first.
+                Please add products to your cart first.
               </p>
+
+              <Button
+                variant="outline"
+                className="mt-4 theme-btn bg-brand-dark-blue text-white"
+                onClick={() => router.push("/products")}
+              >
+                Explore Products
+              </Button>
+
+              <div className="mt-4">
+                Redirecting to products page in{" "}
+                <span className="font-bold">{seconds}</span> seconds...
+                <span className="ml-2"></span>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -122,16 +181,14 @@ const OrderSummarySection = ({
             if (!product) return null;
 
             const selectedOption = getSelectedDosageWithDuration(
-              config.productId
+              config?.productId
             );
-            const isMainProduct =
-              product._id === eligibleProducts?.[0]?.product?._id;
 
-            // Only render selected products
-            if (!config?.isSelected) return null;
+            const isMainProduct =
+              product?._id === eligibleProducts?.[0]?.product?._id;
 
             return (
-              <Card key={config.productId} className="border border-gray-200">
+              <Card key={config?.productId} className="border border-gray-200">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
@@ -144,15 +201,18 @@ const OrderSummarySection = ({
                     </div>
                     <div className="text-right ml-4 flex items-center gap-2">
                       <p className="font-bold text-lg">
-                        ${selectedOption?.price || 0}
+                        $
+                        {selectedOption?.price?.toFixed(
+                          DIGITS_AFTER_DECIMALS
+                        ) || 0}
                       </p>
-                      {selectedProducts.length > 1 && (
+                      {selectedProducts?.length > 1 && (
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() =>
                             handleDeleteProductAlert(
-                              config.productId,
+                              config?.productId,
                               product?.name
                             )
                           }
@@ -220,7 +280,7 @@ const OrderSummarySection = ({
                           )?.map((option: any) => (
                             <SelectItem
                               key={option?._id}
-                              value={option?.duration?.value.toString()}
+                              value={option?.duration?.value?.toString()}
                             >
                               {`${option?.duration?.value} ${option?.duration?.unit}`}
                             </SelectItem>
@@ -278,12 +338,12 @@ const OrderSummarySection = ({
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
               <span>Subtotal:</span>
-              <span>${totalPrice?.toFixed(2)}</span>
+              <span>${totalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}</span>
             </div>
-            <div className="flex justify-between text-sm">
+            {/* <div className="flex justify-between text-sm">
               <span>Treatment cost:</span>
               <span>${totalPrice?.toFixed(2)}</span>
-            </div>
+            </div> */}
             {/* <div className="flex justify-between text-sm">
               <span>Consultation fee:</span>
               <span>${CONSULTATION_FEE}</span>
@@ -293,7 +353,7 @@ const OrderSummarySection = ({
 
             <div className="flex justify-between text-lg font-bold">
               <span>Total:</span>
-              <span>${totalPrice?.toFixed(2)}</span>
+              <span>${totalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}</span>
             </div>
           </div>
 

@@ -10,21 +10,22 @@ import {
 
 interface ProductConfiguration {
   productId: string;
-  dosageId: string;
+  dosageId: string; // this is the subscription option id
   subscriptionDuration: string;
-  isSelected: boolean;
+  strength: number;
 }
 
 const useOrderCheckout = ({
   product,
+  initialMainProductSelectedOption,
   selectedRelatedProducts,
 }: {
   product: Product;
+  initialMainProductSelectedOption: any;
   selectedRelatedProducts: string[];
 }) => {
   const router = useRouter();
 
-  const { clearCheckout } = useCheckout();
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
@@ -38,68 +39,97 @@ const useOrderCheckout = ({
   const allEligibleProducts = useMemo(() => {
     const products = [product];
     if (product?.similarProducts) {
-      products.push(...product.similarProducts);
+      products?.push(...product?.similarProducts);
     }
     return products;
   }, [product]);
 
   // Initialize product configurations
   useEffect(() => {
-    const initialConfigurations: ProductConfiguration[] =
-      allEligibleProducts.map((prod) => {
-        const defaultDosageOption = prod?.pricing?.subscriptionOptions?.find(
-          (option) => option?.isDefault === true
-        );
+    const initialConfigurations: ProductConfiguration[] = [];
 
-        return {
-          productId: prod._id,
-          dosageId: defaultDosageOption?._id || defaultDosageOption?.id || "",
-          subscriptionDuration: "",
-          isSelected:
-            prod._id === product._id ||
-            selectedRelatedProducts.includes(prod._id),
-        };
+    // Add main product
+    const mainProduct = allEligibleProducts?.find(
+      (p) => p?._id === product?._id
+    );
+
+    if (mainProduct) {
+      initialConfigurations?.push({
+        productId: mainProduct?._id,
+        dosageId:
+          initialMainProductSelectedOption?.dosageId ||
+          initialMainProductSelectedOption?.id ||
+          "",
+        subscriptionDuration:
+          initialMainProductSelectedOption?.duration?.toString() || "",
+        strength: initialMainProductSelectedOption?.dosageStrength || 0,
       });
+    }
+
+    // Add selected related products
+    selectedRelatedProducts?.forEach((productId) => {
+      const relatedProduct = allEligibleProducts?.find(
+        (p) => p?._id === productId
+      );
+      if (relatedProduct) {
+        // in case of related products, we need to get the default dosage option as from product details page, we are sending the product with default dosage option only
+        const defaultDosageOption =
+          relatedProduct?.pricing?.subscriptionOptions?.find(
+            (option) => option?.isDefault === true
+          );
+
+        initialConfigurations?.push({
+          productId: relatedProduct?._id,
+          dosageId: defaultDosageOption?._id || defaultDosageOption?.id || "",
+          subscriptionDuration:
+            defaultDosageOption?.duration?.value?.toString() || "",
+          strength: defaultDosageOption?.strength || 0,
+        });
+      }
+    });
 
     setProductConfigurations(initialConfigurations);
-  }, [allEligibleProducts, product._id, selectedRelatedProducts]);
+  }, [allEligibleProducts, product?._id, selectedRelatedProducts]);
 
   // Auto-select default duration when dosage is selected
-  useEffect(() => {
-    setProductConfigurations((prev) =>
-      prev?.map((config) => {
-        if (config?.dosageId && !config?.subscriptionDuration) {
-          const prod = allEligibleProducts.find(
-            (p) => p?._id === config?.productId
-          );
-          if (prod?.pricing?.subscriptionOptions) {
-            const selectedDosageStrength =
-              prod?.pricing?.subscriptionOptions?.find(
-                (option) =>
-                  option?._id === config?.dosageId ||
-                  option?.id === config?.dosageId
-              )?.strength;
+  //   useEffect(() => {
+  //     const updatedProductConfigurations = [...productConfigurations];
 
-            const defaultDurationOption =
-              prod?.pricing?.subscriptionOptions?.find(
-                (option) =>
-                  option?.strength === selectedDosageStrength &&
-                  option?.isDefault === true
-              );
+  //     updatedProductConfigurations?.forEach((config) => {
+  //       if (config?.dosageId && !config?.subscriptionDuration) {
+  //         const prod = allEligibleProducts?.find(
+  //           (p) => p?._id === config?.productId
+  //         );
 
-            if (defaultDurationOption) {
-              return {
-                ...config,
-                subscriptionDuration:
-                  defaultDurationOption?.duration?.value?.toString() || "",
-              };
-            }
-          }
-        }
-        return config;
-      })
-    );
-  }, [allEligibleProducts]);
+  //         if (prod?.pricing?.subscriptionOptions) {
+  //           const selectedDosageStrength =
+  //             prod?.pricing?.subscriptionOptions?.find(
+  //               (option) =>
+  //                 option?._id === config?.dosageId ||
+  //                 option?.id === config?.dosageId
+  //             )?.strength;
+
+  //           const defaultDurationOption =
+  //             prod?.pricing?.subscriptionOptions?.find(
+  //               (option) =>
+  //                 option?.strength === selectedDosageStrength &&
+  //                 option?.isDefault === true
+  //             );
+
+  //           if (defaultDurationOption) {
+  //             return {
+  //               ...config,
+  //               subscriptionDuration:
+  //                 defaultDurationOption?.duration?.value?.toString() || "",
+  //               strength: selectedDosageStrength || config?.strength,
+  //             };
+  //           }
+  //         }
+  //       }
+  //     });
+
+  //     setProductConfigurations(updatedProductConfigurations);
+  //   }, [allEligibleProducts]);
 
   const _generateDosageOptions = useMemo(() => {
     return (productId: string) => {
@@ -130,23 +160,23 @@ const useOrderCheckout = ({
 
   const _generateSubscriptionDurationOptions = useMemo(() => {
     return (productId: string) => {
-      const config = productConfigurations.find(
-        (c) => c.productId === productId
+      const config = productConfigurations?.find(
+        (c) => c?.productId === productId
       );
       if (!config?.dosageId) return [];
 
-      const targetProduct = allEligibleProducts.find(
-        (p) => p._id === productId
+      const targetProduct = allEligibleProducts?.find(
+        (p) => p?._id === productId
       );
       if (!targetProduct?.pricing?.subscriptionOptions) return [];
 
       const selectedDosageOptionStrength =
-        targetProduct.pricing.subscriptionOptions.find(
+        targetProduct?.pricing?.subscriptionOptions?.find(
           (option) =>
-            option?._id === config.dosageId || option?.id === config.dosageId
+            option?._id === config?.dosageId || option?.id === config?.dosageId
         )?.strength;
 
-      const durationOptions = targetProduct.pricing.subscriptionOptions
+      const durationOptions = targetProduct?.pricing?.subscriptionOptions
         ?.filter((option) => option?.strength === selectedDosageOptionStrength)
         ?.sort((a, b) => a?.duration?.value - b?.duration?.value);
 
@@ -156,39 +186,38 @@ const useOrderCheckout = ({
 
   const _getSelectedDosageWithDuration = useMemo(() => {
     return (productId: string) => {
-      const config = productConfigurations.find(
-        (c) => c.productId === productId
+      const config = productConfigurations?.find(
+        (c) => c?.productId === productId
       );
       if (!config?.dosageId || !config?.subscriptionDuration) return null;
 
-      const targetProduct = allEligibleProducts.find(
-        (p) => p._id === productId
+      // first find the product from the allEligibleProducts array using the productId provided
+      const targetProduct = allEligibleProducts?.find(
+        (p) => p?._id === productId
       );
+
+      // if product pricing is not present, return null
       if (!targetProduct?.pricing?.subscriptionOptions) return null;
 
       // get the strength of the selected dosage as this is used to filter the duration options
       const selectedDosageStrength =
-        targetProduct.pricing.subscriptionOptions.find(
+        targetProduct?.pricing?.subscriptionOptions?.find(
           (option) =>
-            option?._id === config.dosageId || option?.id === config.dosageId
+            option?._id === config?.dosageId || option?.id === config?.dosageId
         )?.strength;
 
-      // find the dosage that matches the selected dosage strength and duration
-      return targetProduct.pricing.subscriptionOptions.find(
+      // find and return the dosage that matches the selected dosage strength and duration
+      return targetProduct?.pricing?.subscriptionOptions?.find(
         (option) =>
           option?.strength === selectedDosageStrength &&
-          option?.duration?.value === Number(config.subscriptionDuration)
+          option?.duration?.value === Number(config?.subscriptionDuration)
       );
     };
   }, [productConfigurations, allEligibleProducts]);
 
   const _getTotalPrice = useMemo(() => {
-    const selectedProducts = productConfigurations.filter(
-      (config) => config.isSelected
-    );
-
-    const totalPrice = selectedProducts.reduce((total, config) => {
-      const selectedOption = _getSelectedDosageWithDuration(config.productId);
+    const totalPrice = productConfigurations?.reduce((total, config) => {
+      const selectedOption = _getSelectedDosageWithDuration(config?.productId);
       return total + (selectedOption?.price || 0);
     }, 0);
 
@@ -200,14 +229,30 @@ const useOrderCheckout = ({
     type: "dosage" | "subscriptionDuration",
     value: any
   ) => {
-    setProductConfigurations((prev) =>
-      prev.map((config) => {
-        if (config.productId === productId) {
+    const newProductConfigurations = [...productConfigurations];
+
+    const updatedProductConfigurations = newProductConfigurations?.map(
+      (config) => {
+        if (config?.productId === productId) {
           if (type === "dosage") {
+            // Find the strength for the selected dosage
+
+            // first find the product from the allEligibleProducts array using the productId provided
+            const targetProduct = allEligibleProducts?.find(
+              (p) => p?._id === productId
+            );
+
+            // find the dosage option that matches the selected dosage strength
+            const selectedOption =
+              targetProduct?.pricing?.subscriptionOptions?.find(
+                (option) => option?._id === value || option?.id === value
+              );
+
             return {
               ...config,
               dosageId: value,
-              subscriptionDuration: "", // Reset duration when dosage changes
+              // subscriptionDuration: "", // Reset duration when dosage changes
+              strength: selectedOption?.strength || config?.strength,
             };
           } else if (type === "subscriptionDuration") {
             return {
@@ -217,101 +262,92 @@ const useOrderCheckout = ({
           }
         }
         return config;
-      })
+      }
     );
+
+    setProductConfigurations(updatedProductConfigurations);
   };
 
-  const _handleProductSelectionChange = (
-    productId: string,
-    isSelected: boolean
-  ) => {
-    // Ensure at least one product remains selected
-    const currentlySelected = productConfigurations.filter(
-      (config) => config.isSelected
+  const _handleRemoveProduct = (productId: string) => {
+    // Ensure at least one product remains (main product should always be there)
+    const remainingProducts = productConfigurations?.filter(
+      (config) => config?.productId !== productId
     );
-    if (currentlySelected.length === 1 && !isSelected) {
+
+    if (remainingProducts?.length === 0) {
       alert("At least one product must remain selected");
       return;
     }
 
-    setProductConfigurations((prev) =>
-      prev.map((config) =>
-        config.productId === productId ? { ...config, isSelected } : config
-      )
-    );
+    setProductConfigurations(remainingProducts);
   };
 
   const _handleProceedToCheckout = async () => {
-    const selectedProducts = productConfigurations.filter(
-      (config) => config.isSelected
-    );
-
-    if (selectedProducts.length === 0) {
+    if (productConfigurations?.length === 0) {
       alert("Please select at least one product");
       return;
     }
 
-    // Validate all selected products have valid dosage and duration
-    const invalidProducts = selectedProducts.filter(
-      (config) =>
-        !config.dosageId ||
-        !config.subscriptionDuration ||
-        !_getSelectedDosageWithDuration(config.productId)
-    );
+    // Validate all products have valid dosage and duration
+    // const invalidProducts = productConfigurations?.filter(
+    //   (config) =>
+    //     !config?.dosageId ||
+    //     !config?.subscriptionDuration ||
+    //     !_getSelectedDosageWithDuration(config?.productId)
+    // );
 
-    if (invalidProducts.length > 0) {
-      alert(
-        "Please select valid dosage and duration for all selected products"
-      );
-      return;
-    }
+    // if (invalidProducts.length > 0) {
+    //   alert(
+    //     "Please select valid dosage and duration for all selected products"
+    //   );
+    //   return;
+    // }
 
     setIsCheckoutLoading(true);
 
     try {
-      // Prepare main product data (first selected product)
-      const mainProductConfig =
-        selectedProducts.find((config) => config.productId === product._id) ||
-        selectedProducts[0];
-      const mainProduct = allEligibleProducts.find(
-        (p) => p._id === mainProductConfig.productId
-      );
-      const mainProductSelectedOption = _getSelectedDosageWithDuration(
-        mainProductConfig.productId
-      );
+      // Prepare main product data (first product in array)
+      const mainProductConfig = productConfigurations?.[0];
+      //   const mainProduct = allEligibleProducts?.find(
+      //     (p) => p?._id === mainProductConfig?.productId
+      //   );
+      //   const mainProductSelectedOption = _getSelectedDosageWithDuration(
+      //     mainProductConfig?.productId
+      //   );
 
-      const mainProductData = {
-        product: mainProduct,
-        selectedOption: {
-          dosageId: mainProductConfig.dosageId,
-          dosageStrength: mainProductSelectedOption?.strength || 0,
-          duration: mainProductSelectedOption?.duration?.value || 0,
-          price: mainProductSelectedOption?.price || 0,
-        },
-      };
+      //   const mainProductData = {
+      //     product: mainProduct,
+      //     selectedOption: {
+      //       dosageId: mainProductConfig.dosageId,
+      //       dosageStrength:
+      //         mainProductSelectedOption?.strength || mainProductConfig.strength,
+      //       duration: mainProductSelectedOption?.duration?.value || 0,
+      //       price: mainProductSelectedOption?.price || 0,
+      //     },
+      //   };
 
       // Prepare related products data
-      const relatedProductsData = selectedProducts
-        .filter((config) => config.productId !== mainProductConfig.productId)
-        .map((config) => {
-          const relatedProduct = allEligibleProducts.find(
-            (p) => p._id === config.productId
-          );
-          const selectedOption = _getSelectedDosageWithDuration(
-            config.productId
-          );
+      //   const relatedProductsData = productConfigurations
+      //     ?.slice(1) // Skip the first product (main product)
+      //     ?.map((config) => {
+      //       const relatedProduct = allEligibleProducts?.find(
+      //         (p) => p?._id === config?.productId
+      //       );
+      //       const selectedOption = _getSelectedDosageWithDuration(
+      //         config.productId
+      //       );
 
-          return {
-            productId: config.productId,
-            product: relatedProduct,
-            selectedOption: {
-              dosageId: config.dosageId,
-              dosageStrength: selectedOption?.strength || 0,
-              duration: selectedOption?.duration?.value || 1,
-              price: selectedOption?.price || 0,
-            },
-          };
-        });
+      //       return {
+      //         productId: config.productId,
+      //         product: relatedProduct,
+      //         selectedOption: {
+      //           dosageId: config.dosageId,
+      //           dosageStrength: selectedOption?.strength || config?.strength,
+      //           duration: selectedOption?.duration?.value || 1,
+      //           price: selectedOption?.price || 0,
+      //         },
+      //       };
+      //     });
 
       // Dispatch data to Redux store
       //   setMainProduct(mainProductData);
@@ -321,7 +357,7 @@ const useOrderCheckout = ({
       // Navigate to the next page
       router.push(`/pre-consultation?productId=${product?._id}`);
       // Clear any existing checkout data
-      clearCheckout();
+      //   clearCheckout();
     } catch (error) {
       console.error("Error preparing checkout data:", error);
       alert("An error occurred while preparing checkout. Please try again.");
@@ -329,11 +365,6 @@ const useOrderCheckout = ({
       // no need to set isCheckoutLoading to false as we are navigating to the next page
     }
   };
-
-  // Get selected products
-  const selectedProducts = productConfigurations.filter(
-    (config) => config.isSelected
-  );
 
   //   coupon code handling
   const _handleApplyCoupon = () => {
@@ -373,15 +404,15 @@ const useOrderCheckout = ({
       cancelButtonText: "Cancel",
     });
 
-    if (result.isConfirmed) {
-      _handleProductSelectionChange(productId, false);
+    if (result?.isConfirmed) {
+      _handleRemoveProduct(productId);
       showSuccessToast(`"${productName}" has been removed from your order`);
     }
   };
 
   return {
     productConfigurations,
-    selectedProducts,
+    selectedProducts: productConfigurations, // Now all configurations are selected products
     isCheckoutLoading,
     totalPrice: _getTotalPrice,
     couponCode,
@@ -392,7 +423,7 @@ const useOrderCheckout = ({
     getSelectedDosageWithDuration: _getSelectedDosageWithDuration,
     handleDosageAndSubscriptionDurationChange:
       _handleDosageAndSubscriptionDurationChange,
-    handleProductSelectionChange: _handleProductSelectionChange,
+    handleRemoveProduct: _handleRemoveProduct,
     handleProceedToCheckout: _handleProceedToCheckout,
     handleApplyCoupon: _handleApplyCoupon,
     handleClearCoupon: _handleClearCoupon,

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { cardPaymentService } from "../../services/card-payment-service";
 import StripeCardElement from "./StripeCardElement";
 import { Card, PaymentDetails, PaymentResult } from "../../types/payment";
-
+import { DIGITS_AFTER_DECIMALS } from "@/configs";
 const STRIPE_KEY = process.env.NEXT_PUBLIC_STRIPE_KEY;
 
 // Initialize Stripe
@@ -301,7 +301,7 @@ const CardPaymentFlow: React.FC<CardPaymentComponentProps> = ({
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">Amount to be charged:</span>
                   <span className="text-xl font-bold text-brand-dark-blue">
-                    ${paymentDetails.amount.toFixed(2)}{" "}
+                    ${paymentDetails.amount.toFixed(DIGITS_AFTER_DECIMALS)}{" "}
                     {paymentDetails.currency.toUpperCase()}
                   </span>
                 </div>
@@ -405,7 +405,9 @@ const CardPaymentFlow: React.FC<CardPaymentComponentProps> = ({
               >
                 {loading
                   ? "Processing..."
-                  : `Pay $${paymentDetails.amount.toFixed(2)}`}
+                  : `Pay $${paymentDetails.amount.toFixed(
+                      DIGITS_AFTER_DECIMALS
+                    )}`}
               </Button>
               <Button variant="outline" onClick={onCancel}>
                 Cancel
@@ -480,7 +482,8 @@ const CardPaymentFlow: React.FC<CardPaymentComponentProps> = ({
                   <strong>Payment ID:</strong> {paymentId}
                 </p>
                 <p className="text-gray-700">
-                  <strong>Amount:</strong> ${paymentDetails.amount.toFixed(2)}{" "}
+                  <strong>Amount:</strong> $
+                  {paymentDetails.amount.toFixed(DIGITS_AFTER_DECIMALS)}{" "}
                   {paymentDetails.currency.toUpperCase()}
                 </p>
               </div>
