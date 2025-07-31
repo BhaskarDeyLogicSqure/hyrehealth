@@ -81,8 +81,21 @@ const useCheckoutDetails = () => {
               // basic info form validation
               case "firstName":
               case "lastName": {
-                if (!newFormFields?.[key]?.trim()?.length) {
+                if (
+                  key === "firstName" &&
+                  !newFormFields?.[key]?.trim()?.length
+                ) {
                   newErrors[key] = "*First name is required";
+                  isFormValid = false;
+                } else if (
+                  // validate firatName for length constraints, and lastName for length constraints only if lastName value is present
+                  (key === "firstName" ||
+                    (key === "lastName" &&
+                      newFormFields?.[key]?.trim()?.length)) &&
+                  (newFormFields?.[key]?.trim()?.length < 2 ||
+                    newFormFields?.[key]?.trim()?.length > 100)
+                ) {
+                  newErrors[key] = "*Must be between 2-100 characters";
                   isFormValid = false;
                 } else {
                   newErrors[key] = null;
@@ -139,6 +152,12 @@ const useCheckoutDetails = () => {
                 if (!newFormFields?.[key]?.trim()?.length) {
                   newErrors[key] = `*Required`;
                   isFormValid = false;
+                } else if (
+                  key === "zipCode" &&
+                  newFormFields?.[key]?.trim()?.length !== 5
+                ) {
+                  newErrors[key] = "*Invalid zip code";
+                  isFormValid = false;
                 } else {
                   newErrors[key] = null;
                   newIsDirty[key] = false;
@@ -169,7 +188,7 @@ const useCheckoutDetails = () => {
                   isFormValid = false;
                 } else if (!isValidPassword(newFormFields?.[key])) {
                   newErrors[key] =
-                    "*Password must be at least 8 characters, include a letter, a number, and a special character";
+                    "*Password must be 8–20 characters with a letter, number, and special character.";
                   isFormValid = false;
                 } else if (
                   key === "confirmPassword" &&

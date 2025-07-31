@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import RenderFormError from "../RenderFormError";
+import { preventNonNumericInput } from "@/lib/utils";
 
 const BasicInfoCard = ({
   formFields,
@@ -29,21 +30,17 @@ const BasicInfoCard = ({
               id="firstName"
               value={formFields?.firstName}
               onChange={(e) => handleInputChange("firstName", e.target.value)}
-              required
               className={errors?.firstName ? "border-red-500" : ""}
             />
             <RenderFormError errors={errors} field="firstName" />
           </div>
 
           <div>
-            <Label htmlFor="lastName">
-              Last Name <span className="text-red-600">*</span>
-            </Label>
+            <Label htmlFor="lastName">Last Name</Label>
             <Input
               id="lastName"
               value={formFields?.lastName}
               onChange={(e) => handleInputChange("lastName", e.target.value)}
-              required
               className={errors?.lastName ? "border-red-500" : ""}
             />
             <RenderFormError errors={errors} field="lastName" />
@@ -60,7 +57,6 @@ const BasicInfoCard = ({
               type="email"
               value={formFields?.email}
               onChange={(e) => handleInputChange("email", e.target.value)}
-              required
               className={errors?.email ? "border-red-500" : ""}
             />
             <RenderFormError errors={errors} field="email" />
@@ -74,9 +70,9 @@ const BasicInfoCard = ({
               id="phone"
               type="tel"
               value={formFields?.phone}
-              onChange={(e) => handleInputChange("phone", e.target.value)}
-              required
               className={errors?.phone ? "border-red-500" : ""}
+              onChange={(e) => handleInputChange("phone", e.target.value)}
+              onKeyDown={preventNonNumericInput}
             />
             <RenderFormError errors={errors} field="phone" />
           </div>
@@ -92,7 +88,6 @@ const BasicInfoCard = ({
               type="date"
               value={formFields?.dob}
               onChange={(e) => handleInputChange("dob", e.target.value)}
-              required
               className={errors?.dob ? "border-red-500" : ""}
             />
             <RenderFormError errors={errors} field="dob" />

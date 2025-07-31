@@ -10,6 +10,9 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import RenderFormError from "../RenderFormError";
+import { statesConfig } from "@/configs/constants";
+import { preventNonNumericInput } from "@/lib/utils";
+
 const BillingAddressCard = ({
   formFields,
   errors,
@@ -69,12 +72,14 @@ const BillingAddressCard = ({
                 <SelectValue placeholder="Select state" />
               </SelectTrigger>
               <SelectContent className={errors?.state ? "border-red-500" : ""}>
-                <SelectItem value="CA">California</SelectItem>
-                <SelectItem value="NY">New York</SelectItem>
-                <SelectItem value="TX">Texas</SelectItem>
-                <SelectItem value="FL">Florida</SelectItem>
-                <SelectItem value="WA">Washington</SelectItem>
-                <SelectItem value="CO">Colorado</SelectItem>
+                {statesConfig?.map((state) => (
+                  <SelectItem
+                    key={state?.abbreviation}
+                    value={state?.abbreviation}
+                  >
+                    {state?.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <RenderFormError errors={errors} field="state" />
@@ -88,14 +93,15 @@ const BillingAddressCard = ({
               id="zipCode"
               value={formFields?.zipCode}
               onChange={(e) => handleOnChange("zipCode", e.target.value)}
-              required
               className={errors?.zipCode ? "border-red-500" : ""}
+              required
+              onKeyDown={preventNonNumericInput}
             />
             <RenderFormError errors={errors} field="zipCode" />
           </div>
         </div>
 
-        <div>
+        {/* <div>
           <Label htmlFor="country">
             Country <span className="text-red-600">*</span>
           </Label>
@@ -112,7 +118,7 @@ const BillingAddressCard = ({
             </SelectContent>
           </Select>
           <RenderFormError errors={errors} field="country" />
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   );

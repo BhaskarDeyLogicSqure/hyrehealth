@@ -22,3 +22,13 @@ export const isValidDate = (date: string) => {
 export const isValidPassword = (password: string) => {
   return REGEX_CONFIG?.password?.test(password);
 };
+
+// prevent non-numeric characters in zipCode
+export const preventNonNumericInput = (
+  e: React.KeyboardEvent<HTMLInputElement>
+) => {
+  const allowedKeys = ["Backspace", "Tab", "ArrowLeft", "ArrowRight"];
+  if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
+    e.preventDefault();
+  }
+};

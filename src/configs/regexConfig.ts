@@ -2,7 +2,6 @@ export type RegexConfigType = {
   splitName: RegExp;
   phone: RegExp;
   email: RegExp;
-  phoneOrEmail: RegExp;
   url: RegExp;
   digitOnly: RegExp;
   ipAddress: RegExp;
@@ -25,11 +24,9 @@ export type RegexConfigType = {
 export const REGEX_CONFIG: RegexConfigType = {
   // name: /^[A-Za-z][\w!@#$%^&*()_+{}[\]:;"'<>,.?/|`~\s-]*$/, //for variables name type convention
   splitName: /^[a-zA-Z]+$/,
-  phone: /^[6789]\d{9}$/,
+  phone: /^(\+1\s?)?(\()?(\d{3})(\))?[-.\s]?(\d{3})[-.\s]?(\d{4})$/,
   email:
     /^(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-  phoneOrEmail:
-    /^([6789]\d{9}|(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,})))$/,
   url: /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\\.-]+)+[\w\-\\._~:/?#[\]@!\\$&'\\(\\)\\*\\+,;=.]+$/,
   digitOnly: /^[0-9]*$/,
   ipAddress:
@@ -39,7 +36,7 @@ export const REGEX_CONFIG: RegexConfigType = {
   isoDate: /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+/,
   panNumber: /(^([a-zA-Z]{5})([0-9]{4})([a-zA-Z]{1})$)/,
   aadhaarNumber: /^\d{12}$/,
-  password: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+  password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,20}$/,
   username: /^[a-z0-9_-]{3,16}$/,
   aadharCard: /^[2-9]{1}[0-9]{3}\s[0-9]{4}\s[0-9]{4}$/,
   panCard: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
