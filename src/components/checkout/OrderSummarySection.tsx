@@ -120,12 +120,9 @@ const OrderSummarySection = ({
           }
         );
       }
-      console.log("final payload", { payload });
-
-      console.log({ productConfigurations });
 
       // Mock successful checkout
-      console.log("Checkout submitted:", payload);
+      console.log("Final payload:", payload);
 
       // call the checkout api
       const response = await signUpWithPayment(payload);
@@ -133,7 +130,7 @@ const OrderSummarySection = ({
       showSuccessToast("Order Placed Successfully");
 
       // Navigate to thank you page after successful checkout
-      // router.push(`/thank-you`);
+      // router.push(`/thank-you?order=${response?.data?.orderId}`);
       // clearCheckout(); // clear the checkout data after successful checkout
     } catch (error) {
       console.error(error);

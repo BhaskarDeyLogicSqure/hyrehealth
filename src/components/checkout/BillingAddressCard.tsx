@@ -31,18 +31,30 @@ const BillingAddressCard = ({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div>
-          <Label htmlFor="streetAddress">
-            Street Address <span className="text-red-600">*</span>
-          </Label>
-          <Input
-            id="streetAddress"
-            value={formFields?.streetAddress}
-            onChange={(e) => handleOnChange("streetAddress", e.target.value)}
-            required
-            className={errors?.streetAddress ? "border-red-500" : ""}
-          />
-          <RenderFormError errors={errors} field="streetAddress" />
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="streetAddress">
+              Street Address <span className="text-red-600">*</span>
+            </Label>
+            <Input
+              id="streetAddress"
+              value={formFields?.streetAddress}
+              onChange={(e) => handleOnChange("streetAddress", e.target.value)}
+              className={errors?.streetAddress ? "border-red-500" : ""}
+            />
+            <RenderFormError errors={errors} field="streetAddress" />
+          </div>
+
+          <div>
+            <Label htmlFor="addressLine2">Address Line 2</Label>
+            <Input
+              id="addressLine2"
+              value={formFields?.addressLine2}
+              onChange={(e) => handleOnChange("addressLine2", e.target.value)}
+              className={errors?.addressLine2 ? "border-red-500" : ""}
+            />
+            <RenderFormError errors={errors} field="addressLine2" />
+          </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-4">
@@ -54,7 +66,6 @@ const BillingAddressCard = ({
               id="city"
               value={formFields?.city}
               onChange={(e) => handleOnChange("city", e.target.value)}
-              required
               className={errors?.city ? "border-red-500" : ""}
             />
             <RenderFormError errors={errors} field="city" />
@@ -94,7 +105,6 @@ const BillingAddressCard = ({
               value={formFields?.zipCode}
               onChange={(e) => handleOnChange("zipCode", e.target.value)}
               className={errors?.zipCode ? "border-red-500" : ""}
-              required
               onKeyDown={preventNonNumericInput}
             />
             <RenderFormError errors={errors} field="zipCode" />

@@ -11,6 +11,7 @@ const initialFormFields = {
   email: "",
   phone: "",
   streetAddress: "",
+  addressLine2: "",
   city: "",
   state: "",
   zipCode: "",
@@ -30,6 +31,7 @@ const initialIsDirty = {
   email: false,
   phone: false,
   streetAddress: false,
+  addressLine2: false,
   city: false,
   state: false,
   zipCode: false,
@@ -145,12 +147,32 @@ const useCheckoutDetails = () => {
 
               // billing address form validation
               case "streetAddress":
+              case "addressLine2":
               case "city":
               case "state":
               case "zipCode":
               case "country": {
-                if (!newFormFields?.[key]?.trim()?.length) {
+                if (
+                  key !== "addressLine2" &&
+                  !newFormFields?.[key]?.trim()?.length
+                ) {
                   newErrors[key] = `*Required`;
+                  isFormValid = false;
+                } else if (
+                  (key === "streetAddress" ||
+                    (key === "addressLine2" &&
+                      newFormFields?.[key]?.trim()?.length)) &&
+                  (newFormFields?.[key]?.trim()?.length < 2 ||
+                    newFormFields?.[key]?.trim()?.length > 100)
+                ) {
+                  newErrors[key] = "*Must be between 2-100 characters";
+                  isFormValid = false;
+                } else if (
+                  (key === "city" &&
+                    newFormFields?.[key]?.trim()?.length < 2) ||
+                  newFormFields?.[key]?.trim()?.length > 50
+                ) {
+                  newErrors[key] = "*Must be between 2-50 characters";
                   isFormValid = false;
                 } else if (
                   key === "zipCode" &&
@@ -269,6 +291,7 @@ const useCheckoutDetails = () => {
         // billing address
         billingAddress: {
           street: newFormFields?.streetAddress || undefined,
+          addressLine2: newFormFields?.addressLine2 || undefined,
           city: newFormFields?.city || undefined,
           state: newFormFields?.state || undefined,
           zipCode: newFormFields?.zipCode || undefined,
