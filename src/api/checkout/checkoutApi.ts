@@ -1,0 +1,40 @@
+import apiService, { ApiResponse } from "..";
+import { SIGN_UP_WITH_PAYMENT_ENDPOINT } from "@/api-helper/ChekoutEndpoints";
+import { BASE_URL } from "@/configs";
+
+// Define proper types for checkout
+interface CheckoutPayload {
+  // Add specific fields based on your checkout requirements
+  [key: string]: any;
+}
+
+interface CheckoutResponse {
+  // Add specific fields based on your API response
+  [key: string]: any;
+}
+
+export const checkoutApi = {
+  signUpWithPayment: async (
+    payload: CheckoutPayload
+  ): Promise<ApiResponse<CheckoutResponse>> => {
+    try {
+      if (!payload) {
+        throw new Error("Checkout payload is required");
+      }
+
+      const response = await apiService.post<CheckoutResponse>(
+        `${BASE_URL}${SIGN_UP_WITH_PAYMENT_ENDPOINT?.endpoint}`,
+        payload
+      );
+
+      if (response?.error) {
+        throw new Error(response?.message || "Checkout failed");
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Checkout API error:", error);
+      throw error;
+    }
+  },
+};

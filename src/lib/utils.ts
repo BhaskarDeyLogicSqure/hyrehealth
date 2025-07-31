@@ -1,6 +1,7 @@
 import { REGEX_CONFIG } from "@/configs/regexConfig";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { isValidDate as isValidDateWithDayjs } from "@/lib/dayjs";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15,7 +16,7 @@ export const isValidPhone = (phone: string) => {
 };
 
 export const isValidDate = (date: string) => {
-  return REGEX_CONFIG?.isoDate?.test(date);
+  return isValidDateWithDayjs(date);
 };
 
 export const isValidPassword = (password: string) => {

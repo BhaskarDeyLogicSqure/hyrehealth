@@ -122,7 +122,7 @@ export const showSuccessToast = (
   toast.success(message, {
     duration,
     style: {
-      background: "#2E6141",
+      background: "#22c55e",
       color: "#fff",
       fontSize: "16px",
       padding: "16px",

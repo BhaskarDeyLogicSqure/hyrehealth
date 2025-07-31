@@ -1,7 +1,7 @@
 import { GET_CATEGORIES_ENDPOINT } from "@/api-helper/CategoryEndpoints";
 import apiService from "..";
 import { Category } from "@/types/categories";
-import { BASE_URL } from "@/configs";
+import { BASE_URL, FEATURED_CATEGORIES_LIMIT } from "@/configs";
 
 export interface CategoryFilters {
   search?: string;
@@ -58,7 +58,7 @@ export const categoryApi = {
       error: boolean;
     }>(`${GET_CATEGORIES_ENDPOINT?.endpoint}`, {
       isPopular: true,
-      limit: 3,
+      limit: FEATURED_CATEGORIES_LIMIT,
     });
     return {
       data: response?.data?.categories,

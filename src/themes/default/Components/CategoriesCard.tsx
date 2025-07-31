@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { DEFAULT_IMAGE_URL } from "@/configs";
+
 const imageUrl =
   "https://upstatemdweightloss.com/wp-content/uploads/2025/05/ED73BFCA-F7BA-47F7-8002-35C933682505-200x300.png";
 import {
@@ -12,13 +12,16 @@ import {
 } from "@/hooks/useNavigationState";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { DEFAULT_THEME_CATEGORIES_COLORS } from "@/configs";
 
 const CategoriesCard = ({
   category,
   featuredCard = false,
+  index,
 }: {
   category: any;
   featuredCard?: boolean;
+  index: number;
 }) => {
   const router = useRouter();
   const { navigateWithState, isNavigatingTo } = useNavigationState();
@@ -31,22 +34,14 @@ const CategoriesCard = ({
     );
   };
 
-  const _getRandomCategoryColor = () => {
-    const colors = [
-      "bg-blue-50 text-blue-600 border-blue-200",
-      "bg-purple-50 text-purple-600 border-purple-200",
-      "bg-green-50 text-green-600 border-green-200",
-      "bg-red-50 text-red-600 border-red-200",
-      "bg-orange-50 text-orange-600 border-orange-200",
-      "bg-orange-50 text-orange-600 border-orange-200",
-      "bg-indigo-50 text-indigo-600 border-indigo-200",
-    ];
-    return colors[Math.floor(Math?.random() * colors?.length)];
+  const _getRandomCategoryColor = (index: number) => {
+    const colors = DEFAULT_THEME_CATEGORIES_COLORS;
+    return colors[index % colors?.length]; // Use modulo to cycle through colors
   };
 
   const categoryColor = useMemo(() => {
-    return _getRandomCategoryColor();
-  }, [category]);
+    return _getRandomCategoryColor(index);
+  }, [category, index]);
 
   const categoryUrl = `/products?category=${category?._id}`;
   const isLoading = isNavigatingTo(categoryUrl);
@@ -76,7 +71,7 @@ const CategoriesCard = ({
                 className={`w-full h-full rounded-full flex items-center justify-center`}
               >
                 <Image
-                  src={DEFAULT_IMAGE_URL}
+                  src={category?.image || imageUrl}
                   alt={category?.name}
                   fill
                   className="rounded-full object-cover"
@@ -111,7 +106,7 @@ const CategoriesCard = ({
                   className={`w-full h-full rounded-full flex items-center justify-center`}
                 >
                   <Image
-                    src={imageUrl}
+                    src={category?.image || imageUrl}
                     alt={category?.name}
                     fill
                     className="rounded-lg object-cover"

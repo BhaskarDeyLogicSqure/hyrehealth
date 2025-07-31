@@ -29,6 +29,7 @@ import {
   QuestionnaireOption,
   QuestionType,
 } from "@/types/questionnaire";
+import { formatDate } from "@/lib/dayjs";
 
 interface ProductSection {
   productId: string;
@@ -390,7 +391,7 @@ QuestionCardProps) => {
             {currentValue && (
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-sm text-gray-600">
-                  Selected: {new Date(currentValue)?.toLocaleDateString()}
+                  Selected: {formatDate(currentValue, "MM/DD/YYYY")}
                 </span>
                 <Button
                   type="button"

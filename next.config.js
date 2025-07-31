@@ -22,6 +22,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "upstatemdweightloss.com",
       },
+      {
+        protocol: "https",
+        hostname: "hyrhealth-dev.s3.us-east-1.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "hyrhealth-dev.s3.amazonaws.com",
+      },
     ],
   },
 };

@@ -128,12 +128,6 @@ const ProductPurchaseSection = ({
               </span>
             </div>
 
-            {selectedRelatedProducts.length > 0 && (
-              <div className="flex justify-between text-sm theme-text-muted">
-                <span>Related products:</span>
-                <span>${relatedProductsTotal}</span>
-              </div>
-            )}
             <div className="flex justify-between text-sm theme-text-muted">
               <span>Duration:</span>
               <span>
@@ -144,6 +138,14 @@ const ProductPurchaseSection = ({
                   : "-"}
               </span>
             </div>
+
+            {selectedRelatedProducts?.length > 0 &&
+            (relatedProductsTotal || relatedProductsTotal === 0) ? (
+              <div className="flex justify-between text-sm theme-text-muted">
+                <span>Related products:</span>
+                <span>${relatedProductsTotal}</span>
+              </div>
+            ) : null}
 
             <Separator />
             <div className="flex justify-between text-lg font-semibold theme-text-primary">
