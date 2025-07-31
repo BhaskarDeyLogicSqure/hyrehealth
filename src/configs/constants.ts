@@ -1,3 +1,5 @@
+import { SUPPORT_EMAIL, SUPPORT_PHONE_NUMBER } from "@/configs";
+
 export const MAX_FILE_SIZE_MB = 5;
 
 export const treatmentCategories = [
@@ -55,7 +57,7 @@ export const contactMethods = [
     icon: "Phone",
     action: "Call Now",
     primary: true,
-    contact: "123-456-7890",
+    contact: SUPPORT_PHONE_NUMBER,
   },
   {
     method: "Email Support",
@@ -64,7 +66,7 @@ export const contactMethods = [
     icon: "Mail",
     action: "Email Now",
     primary: false,
-    contact: "support@healthportal.com",
+    contact: SUPPORT_EMAIL,
   },
 ];
 

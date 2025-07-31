@@ -308,9 +308,12 @@ const useCheckoutDetails = () => {
           // payment and card related info
           finalAmount: 0, // will be populated on useOrderCheckout hook at the time of checkout
           couponCode: "", // will be populated on useOrderCheckout hook at the time of checkout
-          paymentMethod: "newFormFields?.paymentMethod", // TODO: add payment method field when work on payment gateway
-          cardLast4: "newFormFields?.cardLast4", // TODO: add card last 4 digits when work on payment gateway
-          cardBrand: "newFormFields?.cardBrand", // TODO: add card brand when work on payment gateway
+          paymentMethod: "",
+          cardLast4: "",
+          cardBrand: "",
+          // paymentMethod: "newFormFields?.paymentMethod", // TODO: add payment method field when work on payment gateway
+          // cardLast4: "newFormFields?.cardLast4", // TODO: add card last 4 digits when work on payment gateway
+          // cardBrand: "newFormFields?.cardBrand", // TODO: add card brand when work on payment gateway
         },
 
         // questionnaire responses

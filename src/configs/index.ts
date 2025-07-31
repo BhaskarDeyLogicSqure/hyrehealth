@@ -41,6 +41,9 @@ export const FEATURED_CATEGORIES_LIMIT = 3;
 export const CATEGORIES_PER_PAGE = 6;
 export const DIGITS_AFTER_DECIMALS = 2;
 
+export const SUPPORT_EMAIL = "support@hyrehealth.com";
+export const SUPPORT_PHONE_NUMBER = "+1 1234567890";
+
 export const DEFAULT_THEME_CATEGORIES_COLORS = [
   "bg-blue-50 text-blue-600 border-blue-200",
   "bg-purple-50 text-purple-600 border-purple-200",

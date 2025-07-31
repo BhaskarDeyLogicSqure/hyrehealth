@@ -175,7 +175,7 @@ const DefaultNotFoundPage = () => {
           <p className="text-sm theme-text-muted">
             If you believe this is an error, please{" "}
             <a
-              href="/contact"
+              href="/support"
               className="text-blue-600 hover:text-blue-700 font-medium underline"
             >
               contact our support team
