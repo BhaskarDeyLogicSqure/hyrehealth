@@ -89,6 +89,15 @@ const BasicInfoCard = ({
               value={formFields?.dob}
               onChange={(e) => handleInputChange("dob", e.target.value)}
               className={errors?.dob ? "border-red-500" : ""}
+              max={(() => {
+                const today = new Date();
+                const maxDate = new Date(
+                  today.getFullYear() - 18,
+                  today.getMonth(),
+                  today.getDate()
+                );
+                return maxDate.toISOString().split("T")[0];
+              })()}
             />
             <RenderFormError errors={errors} field="dob" />
           </div>

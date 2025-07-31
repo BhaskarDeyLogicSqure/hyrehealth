@@ -238,12 +238,21 @@ const useCheckoutDetails = () => {
 
       // return if form is not valid
       if (!isFormValid) {
-        reject(new Error("Form is not valid"));
+        // reject(new Error("Form is not valid"));
+        // return;
+        resolve({
+          error: true,
+          payload: {},
+        });
         return;
       }
 
       if (!formFields?.acceptTerms) {
         showErrorToast("Please accept the terms and conditions");
+        resolve({
+          error: true,
+          payload: {},
+        });
         return;
       }
 
@@ -286,7 +295,10 @@ const useCheckoutDetails = () => {
       };
 
       console.log("payload", payload);
-      resolve(payload || {});
+      resolve({
+        error: false,
+        payload: payload || {},
+      });
     });
   };
 

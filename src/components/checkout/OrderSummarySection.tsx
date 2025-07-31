@@ -67,10 +67,10 @@ const OrderSummarySection = ({
       setIsCheckoutLoading(true);
 
       // get payload for payment details
-      const payload = await handleGetPayload(e);
+      const { error, payload } = await handleGetPayload(e);
 
       // return if no payload present or no questionnaire responses are present
-      if (!payload || !questionnaire?.generalResponses?.length) return;
+      if (error || !payload || !questionnaire?.generalResponses?.length) return;
 
       const invalidProducts = productConfigurations?.filter(
         (config) => !config?.dosageId || !config?.subscriptionDuration
@@ -134,14 +134,12 @@ const OrderSummarySection = ({
 
       // Navigate to thank you page after successful checkout
       // router.push(`/thank-you`);
-      setIsCheckoutLoading(false);
       // clearCheckout(); // clear the checkout data after successful checkout
     } catch (error) {
       console.error(error);
-      setIsCheckoutLoading(false); // need to set isCheckoutLoading to false as we are not moving to a new route from here after unsuccessful checkout
     } finally {
       //  no need to set isCheckoutLoading to false as we are moving to a new route from here after successful checkout
-      // setIsCheckoutLoading(false);
+      setIsCheckoutLoading(false);
     }
   };
 
