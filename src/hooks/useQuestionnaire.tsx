@@ -24,9 +24,7 @@ interface ProductSection {
 
 const useQuestionnaire = (
   questions: Record<string, any>,
-  productId: string,
-  dosage: string,
-  duration: string
+  productId: string
 ) => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -58,8 +56,6 @@ const useQuestionnaire = (
 
     return sections;
   }, [questionsList]);
-
-  // console.log("productSections", productSections);
 
   const totalGeneralQuestions = questionsList?.generalQuestions?.length || 0;
   const totalProductSections = productSections.length;
@@ -212,7 +208,7 @@ const useQuestionnaire = (
     setQuestionsList(allQuestions);
   };
 
-  const getCurrentQuestion = () => {
+  const _getCurrentQuestion = () => {
     const currentStepInfo = stepStructure[currentStep];
     if (!currentStepInfo) return null;
 
@@ -237,12 +233,12 @@ const useQuestionnaire = (
   };
 
   // Get current step info for UI rendering
-  const getCurrentStepInfo = () => {
+  const _getCurrentStepInfo = () => {
     return stepStructure[currentStep] || { type: "intro" };
   };
 
   // Calculate eligibility for a specific product based on current responses
-  const calculateProductEligibility = (productIndex: number) => {
+  const _calculateProductEligibility = (productIndex: number) => {
     const productSection = productSections[productIndex];
     if (!productSection) return false;
 
@@ -257,7 +253,10 @@ const useQuestionnaire = (
         }
 
         // Check if user selected correct option(s)
-        const hasCorrectAnswer = checkIfAnswerIsCorrect(question, userResponse);
+        const hasCorrectAnswer = _checkIfAnswerIsCorrect(
+          question,
+          userResponse
+        );
         if (!hasCorrectAnswer) {
           return false; // Ineligible for this product
         }
@@ -268,7 +267,7 @@ const useQuestionnaire = (
   };
 
   // Helper function to check if an answer is correct
-  const checkIfAnswerIsCorrect = (question: any, userResponse: any) => {
+  const _checkIfAnswerIsCorrect = (question: any, userResponse: any) => {
     console.log("question", question);
     console.log("userResponse", userResponse);
     if (!question?.hasCorrectOption) {
@@ -314,7 +313,7 @@ const useQuestionnaire = (
   };
 
   // Calculate general questions eligibility
-  const calculateGeneralEligibility = () => {
+  const _calculateGeneralEligibility = () => {
     const generalQuestions = questionsList?.generalQuestions || [];
 
     for (const question of generalQuestions) {
@@ -325,7 +324,7 @@ const useQuestionnaire = (
           continue; // Question not answered yet
         }
 
-        const isAnswerCorrect = checkIfAnswerIsCorrect(question, userResponse);
+        const isAnswerCorrect = _checkIfAnswerIsCorrect(question, userResponse);
         if (!isAnswerCorrect) {
           return false; // not correct answer, i.e ineligible - abort immediately in case of general questions
         }
@@ -350,7 +349,7 @@ const useQuestionnaire = (
   //   );
   // };
 
-  const showToastMessage = (
+  const _showToastMessage = (
     description: string,
     variant: "default" | "destructive" = "default"
   ) => {
@@ -362,7 +361,7 @@ const useQuestionnaire = (
   };
 
   // Add function to restart general questions
-  const restartGeneralQuestions = () => {
+  const _restartGeneralQuestions = () => {
     // Clear responses for all general questions
     const generalQuestions = questionsList?.generalQuestions || [];
     const updatedResponses = { ...responses };
@@ -383,9 +382,9 @@ const useQuestionnaire = (
     }
   };
 
-  const handleNext = () => {
-    const currentQuestion = getCurrentQuestion();
-    const currentStepInfo = getCurrentStepInfo();
+  const _handleNext = () => {
+    const currentQuestion = _getCurrentQuestion();
+    const currentStepInfo = _getCurrentStepInfo();
 
     // Validate current question if it exists
     if (currentQuestion) {
@@ -397,7 +396,7 @@ const useQuestionnaire = (
         (!currentValue ||
           (Array.isArray(currentValue) && currentValue?.length === 0))
       ) {
-        showToastMessage(
+        _showToastMessage(
           "Please answer this question before continuing.",
           "destructive"
         );
@@ -409,14 +408,14 @@ const useQuestionnaire = (
         currentStepInfo?.type === "general" &&
         currentQuestion?.hasCorrectOption
       ) {
-        const isAnswerCorrect = checkIfAnswerIsCorrect(
+        const isAnswerCorrect = _checkIfAnswerIsCorrect(
           currentQuestion,
           currentValue
         );
 
         if (!isAnswerCorrect) {
           // Set to general ineligible state instead of completely aborting
-          // showToastMessage(
+          // _showToastMessage(
           //   "Unfortunately, your answer makes you ineligible. You can restart the general questions to try again.",
           //   "destructive"
           // );
@@ -430,7 +429,7 @@ const useQuestionnaire = (
         currentStepInfo?.type === "productQuestion" &&
         currentQuestion?.hasCorrectOption
       ) {
-        const isAnswerCorrect = checkIfAnswerIsCorrect(
+        const isAnswerCorrect = _checkIfAnswerIsCorrect(
           currentQuestion,
           currentValue
         );
@@ -465,7 +464,7 @@ const useQuestionnaire = (
         if (
           productSections[currentStepInfo?.productIndex]?.isEligible !== false
         ) {
-          const isProductEligible = calculateProductEligibility(
+          const isProductEligible = _calculateProductEligibility(
             currentStepInfo?.productIndex
           );
 
@@ -480,11 +479,11 @@ const useQuestionnaire = (
       setCurrentStep(currentStep + 1);
     } else {
       // Complete questionnaire
-      handleComplete();
+      _handleComplete();
     }
   };
 
-  const handleBack = () => {
+  const _handleBack = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     } else {
@@ -493,7 +492,7 @@ const useQuestionnaire = (
   };
 
   // Helper function to convert responses to QuestionnaireResponse format
-  const convertResponsesToQuestionnaireFormat = (
+  const _convertResponsesToQuestionnaireFormat = (
     questionsArray: Question[],
     responses: Record<string, any>,
     productId?: string
@@ -502,7 +501,7 @@ const useQuestionnaire = (
       .map((question) => {
         const answer = responses?.[question?._id];
         const isCorrect = question?.hasCorrectOption
-          ? checkIfAnswerIsCorrect(question, answer)
+          ? _checkIfAnswerIsCorrect(question, answer)
           : undefined;
 
         return {
@@ -519,13 +518,13 @@ const useQuestionnaire = (
       );
   };
 
-  const handleComplete = () => {
+  const _handleComplete = () => {
     // Calculate final eligibility based on all responses
-    const generalEligible = calculateGeneralEligibility();
+    const generalEligible = _calculateGeneralEligibility();
 
     // Prepare general responses for Redux
     const generalQuestions = questionsList?.generalQuestions || [];
-    const generalResponses = convertResponsesToQuestionnaireFormat(
+    const generalResponses = _convertResponsesToQuestionnaireFormat(
       generalQuestions,
       responses
     );
@@ -551,14 +550,14 @@ const useQuestionnaire = (
         return false;
       }
       // Otherwise, calculate eligibility
-      const isEligible = calculateProductEligibility(index);
+      const isEligible = _calculateProductEligibility(index);
       section.isEligible = isEligible;
       return isEligible;
     });
 
     // Dispatch product eligibilities to Redux
     productSections?.forEach((section, index) => {
-      const productResponses = convertResponsesToQuestionnaireFormat(
+      const productResponses = _convertResponsesToQuestionnaireFormat(
         section?.questions,
         responses,
         section?.productId?.split("_")?.[0] // Pass the actual product ID
@@ -641,8 +640,8 @@ const useQuestionnaire = (
     setIsNavigatingToCheckout(false);
   };
 
-  const updateResponse = (value: any) => {
-    const currentQuestion = getCurrentQuestion();
+  const _updateResponse = (value: any) => {
+    const currentQuestion = _getCurrentQuestion();
     if (currentQuestion) {
       setResponses((prev) => ({
         ...prev,
@@ -652,7 +651,7 @@ const useQuestionnaire = (
   };
 
   // Handle navigating back to a specific product (restart from beginning)
-  const restartProduct = (productIndex: number) => {
+  const _restartProduct = (productIndex: number) => {
     // Clear responses for this product
     const productSection = productSections[productIndex];
     if (productSection) {
@@ -677,8 +676,8 @@ const useQuestionnaire = (
   };
 
   // Handle continuing past an ineligible product
-  const handleContinueAfterIneligible = () => {
-    const currentStepInfo = getCurrentStepInfo();
+  const _handleContinueAfterIneligible = () => {
+    const currentStepInfo = _getCurrentStepInfo();
     if (
       currentStepInfo?.type === "productResult" &&
       currentStepInfo?.productIndex !== undefined
@@ -704,7 +703,7 @@ const useQuestionnaire = (
           setCurrentStep(finalResultsStep);
         } else {
           // No final results step, complete the questionnaire
-          handleComplete();
+          _handleComplete();
         }
       }
     }
@@ -726,18 +725,18 @@ const useQuestionnaire = (
     totalGeneralQuestions,
     totalActualQuestions,
     productSections,
-    getCurrentQuestion,
-    getCurrentStepInfo,
+    getCurrentQuestion: _getCurrentQuestion,
+    getCurrentStepInfo: _getCurrentStepInfo,
     setCurrentStep,
-    updateResponse,
-    handleNext,
-    handleBack,
-    handleContinueAfterIneligible,
-    calculateProductEligibility,
-    calculateGeneralEligibility,
-    restartProduct,
-    restartGeneralQuestions,
-    checkIfAnswerIsCorrect,
+    updateResponse: _updateResponse,
+    handleNext: _handleNext,
+    handleBack: _handleBack,
+    handleContinueAfterIneligible: _handleContinueAfterIneligible,
+    calculateProductEligibility: _calculateProductEligibility,
+    calculateGeneralEligibility: _calculateGeneralEligibility,
+    restartProduct: _restartProduct,
+    restartGeneralQuestions: _restartGeneralQuestions,
+    checkIfAnswerIsCorrect: _checkIfAnswerIsCorrect,
     isNavigatingToCheckout,
   };
 };

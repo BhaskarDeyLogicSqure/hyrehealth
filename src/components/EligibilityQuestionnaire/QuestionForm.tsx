@@ -4,13 +4,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { Theme } from "@/types/theme";
 import useQuestionnaire from "@/hooks/useQuestionnaire";
 import QuestionCard from "./QuestionCard";
 import ThemeLoader from "@/components/ThemeLoader";
 
 interface QuestionFormProps {
-  theme: Theme;
   questions: any;
   productId: string;
   dosage: string;
@@ -19,7 +17,6 @@ interface QuestionFormProps {
 }
 
 const QuestionForm = ({
-  theme,
   questions,
   productId,
   dosage,
@@ -50,7 +47,7 @@ const QuestionForm = ({
     restartGeneralQuestions,
     isNavigatingToCheckout,
     // handleContinueAfterIneligible,
-  } = useQuestionnaire(questions, productId, dosage, duration);
+  } = useQuestionnaire(questions, productId);
 
   const _getStepTitle = () => {
     const stepInfo = getCurrentStepInfo();

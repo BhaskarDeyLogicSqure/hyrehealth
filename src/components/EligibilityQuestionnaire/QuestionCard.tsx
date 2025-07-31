@@ -471,6 +471,7 @@ QuestionCardProps) => {
                     </p>
                   )}
                 </div>
+
                 <Input
                   id={currentQuestion?._id}
                   type="file"
@@ -491,6 +492,7 @@ QuestionCardProps) => {
                   }}
                 />
               </div>
+
               {currentValue && (
                 <div className="mt-2 flex items-center space-x-2 text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">
                   <File className="h-4 w-4 text-blue-600" />

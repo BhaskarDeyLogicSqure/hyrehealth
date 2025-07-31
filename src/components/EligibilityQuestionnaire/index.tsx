@@ -1,13 +1,11 @@
 import { Suspense } from "react";
 import QuestionForm from "./QuestionForm";
-import { Theme } from "@/types/theme";
 import { questionnaireApi } from "@/api/questionnaire/questionnaireApi";
 import { handleServerError } from "@/lib/error-handler";
 import { QuestionType } from "@/types/questionnaire";
 import ThemeLoader from "@/components/ThemeLoader";
 
 interface EligibilityQuestionnaireProps {
-  theme: Theme;
   searchParams?: {
     productId?: string;
     dosage?: string;
@@ -39,7 +37,6 @@ export interface Question {
 
 // Server Component
 const EligibilityQuestionnaire = async ({
-  theme,
   searchParams = {},
 }: EligibilityQuestionnaireProps) => {
   const productId = searchParams.productId || "";
@@ -81,7 +78,6 @@ const EligibilityQuestionnaire = async ({
         }
       >
         <QuestionForm
-          theme={theme}
           questions={questionsList}
           productId={productId}
           dosage={dosage}
