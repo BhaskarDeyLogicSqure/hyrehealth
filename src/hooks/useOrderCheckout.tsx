@@ -31,9 +31,11 @@ const useOrderCheckout = ({
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string;
     discount: number;
+    type: "percentage" | "fixed_amount" | "";
   }>({
     code: "",
     discount: 0,
+    type: "",
   });
 
   // State for managing all products (main + related) configurations
@@ -192,10 +194,21 @@ const useOrderCheckout = ({
 
   const _getDiscountedTotalPrice = useMemo(() => {
     const totalPrice = _getTotalPrice;
-    const discount = appliedCoupon?.discount || 0;
-    const discountedPrice = totalPrice - (totalPrice * discount) / 100;
 
-    return discountedPrice;
+    // if coupon type is percentage, apply percentage discount
+    if (appliedCoupon?.type === "percentage") {
+      const discount = appliedCoupon?.discount || 0;
+      const discountedPrice = totalPrice - (totalPrice * discount) / 100;
+      return discountedPrice; // return the discounted price
+    } else if (appliedCoupon?.type === "fixed_amount") {
+      // if coupon type is fixed amount, apply fixed amount discount
+      const discount = appliedCoupon?.discount || 0;
+      const discountedPrice = totalPrice - discount;
+      return discountedPrice; // return the discounted price
+    }
+
+    // if coupon type is not set, return the total price
+    return totalPrice;
   }, [_getTotalPrice, appliedCoupon]);
 
   const _handleDosageAndSubscriptionDurationChange = (
@@ -275,6 +288,7 @@ const useOrderCheckout = ({
           setAppliedCoupon({
             code: coupon,
             discount: response?.data?.coupon?.value || 0,
+            type: response?.data?.coupon?.type || "",
           });
           setCouponCode("");
           showSuccessToast(`Coupon code "${coupon}" applied successfully!`);
@@ -294,6 +308,7 @@ const useOrderCheckout = ({
       setAppliedCoupon({
         code: "",
         discount: 0,
+        type: "",
       });
       showSuccessToast(`Coupon code "${removedCoupon}" has been removed`);
     }

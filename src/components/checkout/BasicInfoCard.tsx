@@ -32,6 +32,7 @@ const BasicInfoCard = ({
               value={formFields?.firstName}
               onChange={(e) => handleInputChange("firstName", e.target.value)}
               className={errors?.firstName ? "border-red-500" : ""}
+              placeholder="Enter your first name"
             />
             <RenderFormError errors={errors} field="firstName" />
           </div>
@@ -43,6 +44,7 @@ const BasicInfoCard = ({
               value={formFields?.lastName}
               onChange={(e) => handleInputChange("lastName", e.target.value)}
               className={errors?.lastName ? "border-red-500" : ""}
+              placeholder="Enter your last name"
             />
             <RenderFormError errors={errors} field="lastName" />
           </div>
@@ -59,6 +61,7 @@ const BasicInfoCard = ({
               value={formFields?.email}
               onChange={(e) => handleInputChange("email", e.target.value)}
               className={errors?.email ? "border-red-500" : ""}
+              placeholder="Enter your email address"
             />
             <RenderFormError errors={errors} field="email" />
           </div>
@@ -74,6 +77,7 @@ const BasicInfoCard = ({
               className={errors?.phone ? "border-red-500" : ""}
               onChange={(e) => handleInputChange("phone", e.target.value)}
               onKeyDown={preventNonNumericInput}
+              placeholder="Enter your phone number"
             />
             <RenderFormError errors={errors} field="phone" />
           </div>

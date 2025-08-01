@@ -41,6 +41,7 @@ const BillingAddressCard = ({
               value={formFields?.streetAddress}
               onChange={(e) => handleOnChange("streetAddress", e.target.value)}
               className={errors?.streetAddress ? "border-red-500" : ""}
+              placeholder="Enter your street address"
             />
             <RenderFormError errors={errors} field="streetAddress" />
           </div>
@@ -52,6 +53,7 @@ const BillingAddressCard = ({
               value={formFields?.addressLine2}
               onChange={(e) => handleOnChange("addressLine2", e.target.value)}
               className={errors?.addressLine2 ? "border-red-500" : ""}
+              placeholder="Enter your address line 2"
             />
             <RenderFormError errors={errors} field="addressLine2" />
           </div>
@@ -67,6 +69,7 @@ const BillingAddressCard = ({
               value={formFields?.city}
               onChange={(e) => handleOnChange("city", e.target.value)}
               className={errors?.city ? "border-red-500" : ""}
+              placeholder="Enter your city"
             />
             <RenderFormError errors={errors} field="city" />
           </div>
@@ -106,6 +109,7 @@ const BillingAddressCard = ({
               onChange={(e) => handleOnChange("zipCode", e.target.value)}
               className={errors?.zipCode ? "border-red-500" : ""}
               onKeyDown={preventNonNumericInput}
+              placeholder="Enter your zip code"
             />
             <RenderFormError errors={errors} field="zipCode" />
           </div>
