@@ -1,5 +1,8 @@
 import apiService, { ApiResponse } from "..";
-import { SIGN_UP_WITH_PAYMENT_ENDPOINT } from "@/api-helper/ChekoutEndpoints";
+import {
+  SIGN_UP_WITH_PAYMENT_ENDPOINT,
+  VALIDATE_COUPON_ENDPOINT,
+} from "@/api-helper/ChekoutEndpoints";
 import { BASE_URL } from "@/configs";
 
 // Define proper types for checkout
@@ -36,5 +39,18 @@ export const checkoutApi = {
       console.error("Checkout API error:", error);
       throw error;
     }
+  },
+
+  validateCoupon: async (
+    couponCode: string
+  ): Promise<ApiResponse<CheckoutResponse>> => {
+    const response = await apiService.post<CheckoutResponse>(
+      `${BASE_URL}${VALIDATE_COUPON_ENDPOINT?.endpoint}`,
+      {
+        couponCode,
+      }
+    );
+
+    return response;
   },
 };

@@ -20,6 +20,7 @@ import useOrderCheckout from "@/hooks/useOrderCheckout";
 import { useCheckout } from "@/hooks/useCheckout";
 import { DIGITS_AFTER_DECIMALS } from "@/configs";
 import useChekoutApi from "@/api/checkout/useChekoutApi";
+import ThemeLoader from "../ThemeLoader";
 
 const OrderSummarySection = ({
   handleGetPayload,
@@ -44,8 +45,10 @@ const OrderSummarySection = ({
     selectedProducts,
     isCheckoutLoading,
     totalPrice,
+    discountedTotalPrice,
     couponCode,
     appliedCoupon,
+    isValidateCouponLoading,
     handleDosageAndSubscriptionDurationChange,
     generateDosageOptions,
     generateSubscriptionDurationOptions,
@@ -87,8 +90,8 @@ const OrderSummarySection = ({
       payload["paymentInfo"]["finalAmount"] = totalPrice; // this will be the final amount after applying the coupon
 
       // add the coupon info to the payload
-      if (appliedCoupon) {
-        payload["paymentInfo"]["couponCode"] = appliedCoupon;
+      if (appliedCoupon?.code) {
+        payload["paymentInfo"]["couponCode"] = appliedCoupon?.code;
       }
 
       //  now update the payload with product configurations
@@ -130,8 +133,8 @@ const OrderSummarySection = ({
       showSuccessToast("Order Placed Successfully");
 
       // Navigate to thank you page after successful checkout
-      // router.push(`/thank-you?order=${response?.data?.orderId}`);
-      // clearCheckout(); // clear the checkout data after successful checkout
+      router.push(`/thank-you?order=${response?.data?.orderId}`);
+      clearCheckout(); // clear the checkout data after successful checkout
     } catch (error) {
       console.error(error);
     } finally {
@@ -335,20 +338,34 @@ const OrderSummarySection = ({
                   value={couponCode}
                   onChange={(e) => handleCouponCodeChange(e)}
                   className="flex-1"
+                  disabled={isValidateCouponLoading}
+                  onKeyDown={(e) => {
+                    console.log({ e });
+                    if (e.key === "Enter") {
+                      handleApplyCoupon();
+                    }
+                  }}
                 />
                 <Button
                   variant="outline"
                   onClick={handleApplyCoupon}
                   className="px-4"
+                  disabled={isValidateCouponLoading}
                 >
-                  Apply
+                  {isValidateCouponLoading ? (
+                    <>
+                      Applying <ThemeLoader type="inline" variant="simple" />
+                    </>
+                  ) : (
+                    "Apply"
+                  )}
                 </Button>
               </div>
-              {appliedCoupon && (
+              {appliedCoupon?.code && (
                 <div className="mt-3 flex items-center gap-2">
                   <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium border border-green-200">
                     <Ticket className="h-3 w-3" />
-                    <span>{appliedCoupon}</span>
+                    <span>{appliedCoupon?.code}</span>
                     <button
                       onClick={handleClearCoupon}
                       className="ml-1 hover:bg-white rounded-full p-0.5 transition-colors"
@@ -368,10 +385,14 @@ const OrderSummarySection = ({
               <span>Subtotal:</span>
               <span>${totalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}</span>
             </div>
-            {/* <div className="flex justify-between text-sm">
-              <span>Treatment cost:</span>
-              <span>${totalPrice?.toFixed(2)}</span>
-            </div> */}
+            {appliedCoupon?.code ? (
+              <div className="flex justify-between text-sm">
+                <span>Discount:</span>
+                <span>
+                  ${appliedCoupon?.discount?.toFixed(DIGITS_AFTER_DECIMALS)}
+                </span>
+              </div>
+            ) : null}
             {/* <div className="flex justify-between text-sm">
               <span>Consultation fee:</span>
               <span>${CONSULTATION_FEE}</span>
@@ -381,7 +402,11 @@ const OrderSummarySection = ({
 
             <div className="flex justify-between text-lg font-bold">
               <span>Total:</span>
-              <span>${totalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}</span>
+              <span>
+                $
+                {discountedTotalPrice?.toFixed(DIGITS_AFTER_DECIMALS) ||
+                  totalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}
+              </span>
             </div>
           </div>
 
