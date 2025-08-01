@@ -149,7 +149,7 @@ const OrderSummarySection = ({
       }
 
       // Navigate to thank you page after successful checkout
-      router.push(`/thank-you?order=${response?.data?.invoice?.invoiceNumber}`);
+      router.push(`/thank-you/${response?.data?.invoice?.invoiceNumber}`);
       // clearCheckout(); // clear the checkout data after successful checkout
     } catch (error) {
       console.error(error);

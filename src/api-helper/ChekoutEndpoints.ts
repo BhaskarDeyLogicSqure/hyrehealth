@@ -9,3 +9,8 @@ export const VALIDATE_COUPON_ENDPOINT = {
   endpoint: "/coupons/validate",
   httpType: httpType.POST,
 };
+
+export const ORDER_CONFIRMATION_DETAILS_ENDPOINT = {
+  endpoint: "/invoice",
+  httpType: httpType.GET,
+};
