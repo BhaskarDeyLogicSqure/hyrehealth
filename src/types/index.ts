@@ -70,8 +70,10 @@ export interface Address {
 
 // AWS Credentials Response Type
 export interface IAwsCredentials {
-  region: string;
-  bucket: string;
+  region?: string;
+  S3Region?: string;
+  bucket?: string;
+  S3BucketName?: string;
   AccessKeyId: string;
   SecretAccessKey: string;
   SessionToken: string;
@@ -83,6 +85,7 @@ export interface IAwsCredentials {
 export interface ApiResponse<T> {
   data: T;
   success: boolean;
+  error?: string;
 }
 
 export type PaginationType = {

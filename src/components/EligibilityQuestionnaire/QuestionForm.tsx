@@ -4,13 +4,12 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { Theme } from "@/types/theme";
 import useQuestionnaire from "@/hooks/useQuestionnaire";
 import QuestionCard from "./QuestionCard";
 import ThemeLoader from "@/components/ThemeLoader";
+import UploadProgressPopup from "@/components/ui/UploadProgressPopup";
 
 interface QuestionFormProps {
-  theme: Theme;
   questions: any;
   productId: string;
   dosage: string;
@@ -19,7 +18,6 @@ interface QuestionFormProps {
 }
 
 const QuestionForm = ({
-  theme,
   questions,
   productId,
   dosage,
@@ -49,8 +47,15 @@ const QuestionForm = ({
     restartProduct,
     restartGeneralQuestions,
     isNavigatingToCheckout,
+    isUploadingFile,
+    uploadProgress,
+    uploadFileName,
+    showUploadPopup,
+    uploadError,
+    uploadComplete,
+    closeUploadPopup,
     // handleContinueAfterIneligible,
-  } = useQuestionnaire(questions, productId, dosage, duration);
+  } = useQuestionnaire(questions, productId);
 
   const _getStepTitle = () => {
     const stepInfo = getCurrentStepInfo();
@@ -228,6 +233,7 @@ const QuestionForm = ({
           handleContinueAfterIneligible={handleContinueAfterIneligible}
           restartProduct={restartProduct}
           restartGeneralQuestions={restartGeneralQuestions}
+          isUploadingFile={isUploadingFile}
           // handleBack={handleBack}
           // handleContinueAfterIneligible={handleContinueAfterIneligible}
         />
@@ -286,6 +292,16 @@ const QuestionForm = ({
           </div>
         )}
       </div>
+
+      {/* Upload Progress Popup */}
+      <UploadProgressPopup
+        isVisible={showUploadPopup}
+        progress={uploadProgress}
+        fileName={uploadFileName}
+        onClose={closeUploadPopup}
+        isComplete={uploadComplete}
+        error={uploadError}
+      />
     </div>
   );
 };

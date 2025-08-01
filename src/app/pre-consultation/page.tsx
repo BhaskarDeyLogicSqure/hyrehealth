@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, Video, Clock, FileText } from "lucide-react";
-
+import { SUPPORT_EMAIL } from "@/configs";
 const PreConsultation = () => {
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -138,10 +138,10 @@ const PreConsultation = () => {
           <p className="text-sm text-gray-500">
             Need help? Contact our support team at{" "}
             <a
-              href="mailto:support@hyrehealth.com"
+              href={`mailto:${SUPPORT_EMAIL}`}
               className="text-blue-600 hover:underline"
             >
-              support@hyrehealth.com
+              {SUPPORT_EMAIL}
             </a>
           </p>
         </div>

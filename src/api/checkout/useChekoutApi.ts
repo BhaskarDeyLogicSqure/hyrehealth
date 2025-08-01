@@ -26,7 +26,6 @@ const useChekoutApi = () => {
     mutationFn: (payload: CheckoutPayload) =>
       checkoutApi.signUpWithPayment(payload),
     onSuccess: (data) => {
-      console.log({ data });
       if (data?.status === 200) {
         return data?.data;
       }
@@ -34,6 +33,34 @@ const useChekoutApi = () => {
     onError: (error) => {
       console.log({ error });
       showErrorToast(error?.message);
+    },
+  });
+
+  const {
+    data: validateCouponData,
+    error: validateCouponError,
+    isPending: isValidateCouponLoading,
+    isError: isValidateCouponError,
+    mutateAsync: validateCoupon,
+  } = useMutation<ApiResponse<CheckoutResponse>, Error, string>({
+    mutationFn: (couponCode: string) => checkoutApi.validateCoupon(couponCode),
+    onSuccess: (data) => {
+      if (data?.status === 200) {
+        return {
+          error: false,
+          message: data?.message,
+          data: data?.data,
+        };
+      }
+    },
+    onError: (error) => {
+      console.log({ error });
+      showErrorToast(error?.message);
+      return {
+        error: true,
+        message: error?.message,
+        data: null,
+      };
     },
   });
 
@@ -47,6 +74,15 @@ const useChekoutApi = () => {
     // Actions
     signUpWithPayment,
     resetCheckout,
+
+    // Validate coupon data and state
+    validateCouponData: validateCouponData?.data,
+    isValidateCouponLoading,
+    isValidateCouponError,
+    validateCouponError,
+
+    // Actions
+    validateCoupon,
   };
 };
 

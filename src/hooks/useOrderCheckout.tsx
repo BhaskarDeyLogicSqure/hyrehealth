@@ -1,12 +1,11 @@
 import { useMemo, useState, useEffect } from "react";
-import { useCheckout } from "./useCheckout";
 import { Product } from "@/types/products";
-import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import {
   showSuccessToast,
   showErrorToast,
 } from "@/components/GlobalErrorHandler";
+import useChekoutApi from "@/api/checkout/useChekoutApi";
 
 interface ProductConfiguration {
   productId: string;
@@ -24,11 +23,20 @@ const useOrderCheckout = ({
   initialMainProductSelectedOption: any;
   selectedRelatedProducts: string[];
 }) => {
-  const router = useRouter();
+  const { validateCoupon, isValidateCouponLoading, isValidateCouponError } =
+    useChekoutApi();
 
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discount: number;
+    type: "percentage" | "fixed_amount" | "";
+  }>({
+    code: "",
+    discount: 0,
+    type: "",
+  });
 
   // State for managing all products (main + related) configurations
   const [productConfigurations, setProductConfigurations] = useState<
@@ -90,46 +98,6 @@ const useOrderCheckout = ({
 
     setProductConfigurations(initialConfigurations);
   }, [allEligibleProducts, product?._id, selectedRelatedProducts]);
-
-  // Auto-select default duration when dosage is selected
-  //   useEffect(() => {
-  //     const updatedProductConfigurations = [...productConfigurations];
-
-  //     updatedProductConfigurations?.forEach((config) => {
-  //       if (config?.dosageId && !config?.subscriptionDuration) {
-  //         const prod = allEligibleProducts?.find(
-  //           (p) => p?._id === config?.productId
-  //         );
-
-  //         if (prod?.pricing?.subscriptionOptions) {
-  //           const selectedDosageStrength =
-  //             prod?.pricing?.subscriptionOptions?.find(
-  //               (option) =>
-  //                 option?._id === config?.dosageId ||
-  //                 option?.id === config?.dosageId
-  //             )?.strength;
-
-  //           const defaultDurationOption =
-  //             prod?.pricing?.subscriptionOptions?.find(
-  //               (option) =>
-  //                 option?.strength === selectedDosageStrength &&
-  //                 option?.isDefault === true
-  //             );
-
-  //           if (defaultDurationOption) {
-  //             return {
-  //               ...config,
-  //               subscriptionDuration:
-  //                 defaultDurationOption?.duration?.value?.toString() || "",
-  //               strength: selectedDosageStrength || config?.strength,
-  //             };
-  //           }
-  //         }
-  //       }
-  //     });
-
-  //     setProductConfigurations(updatedProductConfigurations);
-  //   }, [allEligibleProducts]);
 
   const _generateDosageOptions = useMemo(() => {
     return (productId: string) => {
@@ -224,6 +192,25 @@ const useOrderCheckout = ({
     return totalPrice;
   }, [productConfigurations, _getSelectedDosageWithDuration]);
 
+  const _getDiscountedTotalPrice = useMemo(() => {
+    const totalPrice = _getTotalPrice;
+
+    // if coupon type is percentage, apply percentage discount
+    if (appliedCoupon?.type === "percentage") {
+      const discount = appliedCoupon?.discount || 0;
+      const discountedPrice = totalPrice - (totalPrice * discount) / 100;
+      return discountedPrice; // return the discounted price
+    } else if (appliedCoupon?.type === "fixed_amount") {
+      // if coupon type is fixed amount, apply fixed amount discount
+      const discount = appliedCoupon?.discount || 0;
+      const discountedPrice = totalPrice - discount;
+      return discountedPrice; // return the discounted price
+    }
+
+    // if coupon type is not set, return the total price
+    return totalPrice;
+  }, [_getTotalPrice, appliedCoupon]);
+
   const _handleDosageAndSubscriptionDurationChange = (
     productId: string,
     type: "dosage" | "subscriptionDuration",
@@ -282,105 +269,47 @@ const useOrderCheckout = ({
     setProductConfigurations(remainingProducts);
   };
 
-  const _handleProceedToCheckout = async () => {
-    if (productConfigurations?.length === 0) {
-      alert("Please select at least one product");
-      return;
-    }
-
-    // Validate all products have valid dosage and duration
-    // const invalidProducts = productConfigurations?.filter(
-    //   (config) =>
-    //     !config?.dosageId ||
-    //     !config?.subscriptionDuration ||
-    //     !_getSelectedDosageWithDuration(config?.productId)
-    // );
-
-    // if (invalidProducts.length > 0) {
-    //   alert(
-    //     "Please select valid dosage and duration for all selected products"
-    //   );
-    //   return;
-    // }
-
-    setIsCheckoutLoading(true);
-
+  const _handleApplyCoupon = async () => {
     try {
-      // Prepare main product data (first product in array)
-      const mainProductConfig = productConfigurations?.[0];
-      //   const mainProduct = allEligibleProducts?.find(
-      //     (p) => p?._id === mainProductConfig?.productId
-      //   );
-      //   const mainProductSelectedOption = _getSelectedDosageWithDuration(
-      //     mainProductConfig?.productId
-      //   );
+      const coupon = couponCode?.trim();
 
-      //   const mainProductData = {
-      //     product: mainProduct,
-      //     selectedOption: {
-      //       dosageId: mainProductConfig.dosageId,
-      //       dosageStrength:
-      //         mainProductSelectedOption?.strength || mainProductConfig.strength,
-      //       duration: mainProductSelectedOption?.duration?.value || 0,
-      //       price: mainProductSelectedOption?.price || 0,
-      //     },
-      //   };
+      if (coupon) {
+        // check for valid coupon code
+        const isValidCouponCode = !coupon?.includes(" "); // we are not allowing spaces in the coupon code, can add more checks if needed
 
-      // Prepare related products data
-      //   const relatedProductsData = productConfigurations
-      //     ?.slice(1) // Skip the first product (main product)
-      //     ?.map((config) => {
-      //       const relatedProduct = allEligibleProducts?.find(
-      //         (p) => p?._id === config?.productId
-      //       );
-      //       const selectedOption = _getSelectedDosageWithDuration(
-      //         config.productId
-      //       );
+        if (!isValidCouponCode) {
+          showErrorToast("Please enter a valid coupon code");
+          return;
+        }
 
-      //       return {
-      //         productId: config.productId,
-      //         product: relatedProduct,
-      //         selectedOption: {
-      //           dosageId: config.dosageId,
-      //           dosageStrength: selectedOption?.strength || config?.strength,
-      //           duration: selectedOption?.duration?.value || 1,
-      //           price: selectedOption?.price || 0,
-      //         },
-      //       };
-      //     });
+        const response = await validateCoupon(coupon);
 
-      // Dispatch data to Redux store
-      //   setMainProduct(mainProductData);
-      //   setRelatedProducts(relatedProductsData);
-      //   calculateTotal();
-
-      // Navigate to the next page
-      router.push(`/pre-consultation?productId=${product?._id}`);
-      // Clear any existing checkout data
-      //   clearCheckout();
+        if (!isValidateCouponError) {
+          setAppliedCoupon({
+            code: coupon,
+            discount: response?.data?.coupon?.value || 0,
+            type: response?.data?.coupon?.type || "",
+          });
+          setCouponCode("");
+          showSuccessToast(`Coupon code "${coupon}" applied successfully!`);
+        }
+      } else {
+        showErrorToast("Please enter a valid coupon code");
+      }
     } catch (error) {
-      console.error("Error preparing checkout data:", error);
-      alert("An error occurred while preparing checkout. Please try again.");
-    } finally {
-      // no need to set isCheckoutLoading to false as we are navigating to the next page
-    }
-  };
-
-  //   coupon code handling
-  const _handleApplyCoupon = () => {
-    if (couponCode?.trim()) {
-      setAppliedCoupon(couponCode);
+      console.error("Error applying coupon:", error);
       setCouponCode("");
-      showSuccessToast(`Coupon code "${couponCode}" applied successfully!`);
-    } else {
-      showErrorToast("Please enter a valid coupon code");
     }
   };
 
   const _handleClearCoupon = () => {
     if (appliedCoupon) {
       const removedCoupon = appliedCoupon;
-      setAppliedCoupon("");
+      setAppliedCoupon({
+        code: "",
+        discount: 0,
+        type: "",
+      });
       showSuccessToast(`Coupon code "${removedCoupon}" has been removed`);
     }
   };
@@ -414,7 +343,9 @@ const useOrderCheckout = ({
     productConfigurations,
     selectedProducts: productConfigurations, // Now all configurations are selected products
     isCheckoutLoading,
+    isValidateCouponLoading,
     totalPrice: _getTotalPrice,
+    discountedTotalPrice: _getDiscountedTotalPrice,
     couponCode,
     appliedCoupon,
     setIsCheckoutLoading,
@@ -424,7 +355,6 @@ const useOrderCheckout = ({
     handleDosageAndSubscriptionDurationChange:
       _handleDosageAndSubscriptionDurationChange,
     handleRemoveProduct: _handleRemoveProduct,
-    handleProceedToCheckout: _handleProceedToCheckout,
     handleApplyCoupon: _handleApplyCoupon,
     handleClearCoupon: _handleClearCoupon,
     handleCouponCodeChange: _handleCouponCodeChange,

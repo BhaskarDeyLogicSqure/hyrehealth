@@ -23,7 +23,7 @@ export const awsApi = {
     const response = await apiService?.get<any>(
       `${BASE_URL}${GET_AWS_CREDENTIALS_ENDPOINT?.endpoint}?folderPrefix=${folderPrefix}`
     );
-    console.log("response >>", response?.data);
-    return response?.data;
+    console.log("response >>", response);
+    return response;
   },
 };
