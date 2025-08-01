@@ -21,6 +21,9 @@ import { useCheckout } from "@/hooks/useCheckout";
 import { DIGITS_AFTER_DECIMALS } from "@/configs";
 import useChekoutApi from "@/api/checkout/useChekoutApi";
 import ThemeLoader from "../ThemeLoader";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/store/actions/authAction";
+import { useCookies } from "@/hooks/useCookies";
 
 const OrderSummarySection = ({
   handleGetPayload,
@@ -28,6 +31,8 @@ const OrderSummarySection = ({
   handleGetPayload: (e: React.FormEvent) => Promise<any>;
 }) => {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const { setCookie } = useCookies();
   const { clearCheckout } = useCheckout();
   const { signUpWithPayment } = useChekoutApi();
 
@@ -130,11 +135,22 @@ const OrderSummarySection = ({
       // call the checkout api
       const response = await signUpWithPayment(payload);
 
-      showSuccessToast("Order Placed Successfully");
+      // Handle successful checkout - store token and user details
+      if (response?.data?.token && response?.data?.customer) {
+        // Store token in cookie
+        setCookie("token", response?.data?.token);
+
+        // Update Redux store with user details (initiating login)
+        dispatch(setUser(response?.data?.customer));
+
+        showSuccessToast("Order Placed Successfully! Welcome to HyreHealth!");
+      } else {
+        showSuccessToast("Order Placed Successfully");
+      }
 
       // Navigate to thank you page after successful checkout
-      router.push(`/thank-you?order=${response?.data?.orderId}`);
-      clearCheckout(); // clear the checkout data after successful checkout
+      router.push(`/thank-you/${response?.data?.invoice?.invoiceNumber}`);
+      // clearCheckout(); // clear the checkout data after successful checkout
     } catch (error) {
       console.error(error);
     } finally {
@@ -150,18 +166,18 @@ const OrderSummarySection = ({
     eligibleProducts?.length === 0
   ) {
     // redirect to products page after 5 seconds
-    const [seconds, setSeconds] = useState(5);
+    // const [seconds, setSeconds] = useState(5);
 
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        if (seconds === 0) {
-          router.push("/products");
-        } else {
-          setSeconds(seconds - 1);
-        }
-      }, 1000);
-      return () => clearTimeout(timer);
-    }, [seconds]);
+    // useEffect(() => {
+    //   const timer = setTimeout(() => {
+    //     if (seconds === 0) {
+    //       router.push("/products");
+    //     } else {
+    //       setSeconds(seconds - 1);
+    //     }
+    //   }, 1000);
+    //   return () => clearTimeout(timer);
+    // }, [seconds]);
 
     return (
       <div>
@@ -184,11 +200,11 @@ const OrderSummarySection = ({
                 Explore Products
               </Button>
 
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 Redirecting to products page in{" "}
                 <span className="font-bold">{seconds}</span> seconds...
                 <span className="ml-2"></span>
-              </div>
+              </div> */}
             </div>
           </CardContent>
         </Card>

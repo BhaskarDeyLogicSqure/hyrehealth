@@ -22,13 +22,11 @@ const useChekoutApi = () => {
     isError: isCheckoutError,
     mutateAsync: signUpWithPayment,
     reset: resetCheckout,
-  } = useMutation<ApiResponse<CheckoutResponse>, Error, CheckoutPayload>({
+  } = useMutation<CheckoutResponse, Error, CheckoutPayload>({
     mutationFn: (payload: CheckoutPayload) =>
       checkoutApi.signUpWithPayment(payload),
     onSuccess: (data) => {
-      if (data?.status === 200) {
-        return data?.data;
-      }
+      return data;
     },
     onError: (error) => {
       console.log({ error });

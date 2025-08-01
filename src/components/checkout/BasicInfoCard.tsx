@@ -107,6 +107,16 @@ const BasicInfoCard = ({
                   today.getDate()
                 );
               })()}
+              dateValidation={{
+                customValidator: (date) => {
+                  // Calculate minimum age (18 years ago from today)
+                  const minAgeDate = new Date();
+                  minAgeDate.setFullYear(minAgeDate.getFullYear() - 18);
+
+                  // Date should be on or before the minimum age date
+                  return date <= minAgeDate;
+                },
+              }}
             />
           </div>
         </div>

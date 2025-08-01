@@ -18,8 +18,12 @@ const ModernAboutPage = () => {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {treatmentCategories?.map((category) => (
-                <CategoriesCard key={category?.id} category={category} />
+              {treatmentCategories?.map((category, index) => (
+                <CategoriesCard
+                  key={category?.id}
+                  category={category}
+                  index={index}
+                />
               ))}
             </div>
           </div>

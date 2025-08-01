@@ -71,8 +71,8 @@ const ThemeLoader: React.FC<ThemeLoaderProps> = ({
   };
 
   const defaultContent = getDefaultContent();
-  const displayMessage = message || defaultContent.message;
-  const IconComponent = defaultContent.icon;
+  const displayMessage = message || defaultContent?.message;
+  const IconComponent = defaultContent?.icon;
 
   // Size configurations
   const sizeConfig = {
@@ -105,10 +105,10 @@ const ThemeLoader: React.FC<ThemeLoaderProps> = ({
         <Loader2
           className={cn(
             "animate-spin theme-text-primary",
-            currentSize.iconSize
+            currentSize?.iconSize
           )}
         />
-        <span className={cn("theme-text-muted", currentSize.textSize)}>
+        <span className={cn("theme-text-muted", currentSize?.textSize)}>
           {displayMessage}
         </span>
       </div>
@@ -259,7 +259,7 @@ const ThemeLoader: React.FC<ThemeLoaderProps> = ({
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p className="text-sm text-muted-foreground">{message}</p>
+          <p className="text-sm text-muted-foreground">{displayMessage}</p>
         </div>
       </div>
     );
@@ -271,7 +271,7 @@ const ThemeLoader: React.FC<ThemeLoaderProps> = ({
       <CardContent
         className={cn(
           "flex flex-col items-center justify-center text-center",
-          currentSize.padding
+          currentSize?.padding
         )}
       >
         {/* Animated Icon */}
@@ -279,20 +279,20 @@ const ThemeLoader: React.FC<ThemeLoaderProps> = ({
           <div
             className={cn(
               "theme-bg-muted rounded-full mb-4",
-              currentSize.iconPadding
+              currentSize?.iconPadding
             )}
           >
             {type === "inline" ? (
               <Loader2
                 className={cn(
                   "animate-spin theme-text-primary",
-                  currentSize.iconSize
+                  currentSize?.iconSize
                 )}
               />
             ) : (
               <div className="relative">
                 <IconComponent
-                  className={cn("theme-text-muted", currentSize.iconSize)}
+                  className={cn("theme-text-muted", currentSize?.iconSize)}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Loader2
@@ -308,7 +308,7 @@ const ThemeLoader: React.FC<ThemeLoaderProps> = ({
         <p
           className={cn(
             "theme-text-primary font-medium mb-2",
-            currentSize.textSize
+            currentSize?.textSize
           )}
         >
           {displayMessage}

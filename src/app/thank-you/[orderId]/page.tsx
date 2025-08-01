@@ -1,48 +1,47 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  CheckCircle,
-  Package,
-  Video,
-  Clock,
-  Truck,
-  Mail,
-  Box,
-} from "lucide-react";
-import Link from "next/link";
+import { CheckCircle, Video, Clock, Truck, Mail, Box } from "lucide-react";
 import { SUPPORT_EMAIL } from "@/configs";
+import { useOrderConfirmation } from "@/api/order-confirmation/useOrderConfirmation";
+import { showErrorToast } from "@/components/GlobalErrorHandler";
+import ThemeLoader from "@/components/ThemeLoader";
+
 const ThankYouPage = ({ params }: { params: { orderId: string } }) => {
-  const searchParams = useSearchParams();
   const router = useRouter();
 
   const orderId = params?.orderId;
 
-  const orderNumber =
-    searchParams.get("order") ||
-    Math.random().toString(36).substr(2, 9).toUpperCase();
-  const totalAmount = searchParams.get("total") || "348";
-  const relatedProductIds =
-    searchParams.get("relatedProducts")?.split(",").filter(Boolean) || [];
+  // Use the order confirmation hook to fetch real data
+  const {
+    orderConfirmation,
+    isOrderConfirmationLoading,
+    isOrderConfirmationError,
+    orderConfirmationError,
+  } = useOrderConfirmation(orderId);
 
-  // Mock related products data
-  const relatedProductsData = [
-    { id: "2", name: "B12 Injection", deliveryTime: "2-3 business days" },
-    { id: "3", name: "Tirzepatide", deliveryTime: "1-3 business days" },
-  ];
-
-  const selectedRelatedProducts = relatedProductsData.filter((p) =>
-    relatedProductIds.includes(p.id)
-  );
+  const orderStatus = "Awaiting Consultation"; // Default status since it's not in the API response
+  const products = orderConfirmation?.products || [];
 
   useEffect(() => {
-    console.log("Thank you page loaded successfully");
+    // Show error toast if there's an error
+    if (isOrderConfirmationError) {
+      const errorMessage =
+        orderConfirmationError?.message || "Failed to load order details";
+      showErrorToast(errorMessage);
 
-    console.log("orderId", orderId);
-  }, []);
+      // redirect to home page
+      router.push("/");
+    }
+  }, [orderId, isOrderConfirmationError, orderConfirmationError]);
+
+  // Show loading state
+  if (isOrderConfirmationLoading) {
+    return <ThemeLoader type="general" variant="full-page" />;
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -68,51 +67,73 @@ const ThankYouPage = ({ params }: { params: { orderId: string } }) => {
               Order Details
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Order Number:</span>
-              <span className="font-bold text-gray-900">#{orderNumber}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Total Amount:</span>
-              <span className="font-bold text-gray-900">${totalAmount}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Status:</span>
-              <span className="font-bold text-green-600">
-                Awaiting Consultation
-              </span>
-            </div>
-
-            {/* Products & Delivery Timeline */}
-            <div className="pt-4 border-t border-gray-100">
+          <CardContent className="space-y-6">
+            {/* Products List */}
+            <div>
               <h3 className="font-semibold text-gray-900 mb-3">
-                Your Products & Delivery Timeline:
+                Products in Your Order
               </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Semaglutide</span>
-                  <span className="text-sm text-gray-600">
-                    1-3 business days
-                  </span>
-                </div>
-                {selectedRelatedProducts.map((product) => (
+              <div className="space-y-4">
+                {products?.map((product: any, index: number) => (
                   <div
-                    key={product.id}
-                    className="flex justify-between items-center"
+                    key={index}
+                    className="flex flex-col md:flex-row md:items-center md:justify-between rounded-lg border border-muted px-4 py-3 bg-muted/50"
                   >
-                    <span className="text-gray-700">{product.name}</span>
-                    <span className="text-sm text-gray-600">
-                      {product.deliveryTime}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span className="font-medium text-gray-900">
+                        {product?.name}
+                      </span>
+                      {product?.description ? (
+                        <span className="text-sm text-gray-600">
+                          Description: {product?.description}
+                        </span>
+                      ) : null}
+                      {/* {product?.dosage && (
+                        <span className="text-sm text-gray-600">
+                          Dosage: {product?.dosage}
+                        </span>
+                      )} */}
+                    </div>
+                    {product?.totalPrice ? (
+                      <div className="mt-2 md:mt-0 text-right">
+                        <span className="font-semibold text-gray-900">
+                          ${product?.totalPrice}
+                        </span>
+                      </div>
+                    ) : null}
                   </div>
                 ))}
               </div>
             </div>
 
+            {/* Order Summary */}
+            <div className="pt-4 border-t border-gray-100 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Order Number:</span>
+                <span className="font-bold text-gray-900">
+                  #{orderConfirmation?.invoiceNumber}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Total Amount:</span>
+                <span className="font-bold text-gray-900">
+                  ${orderConfirmation?.pricing?.total}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Status:</span>
+                <span className="font-bold text-green-600">{orderStatus}</span>
+              </div>
+            </div>
+
             {/* Start Consultation Button */}
             <div className="pt-6 text-center">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg">
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+                onClick={() => {
+                  router.push(`/intake-form?orderId=${orderId}`);
+                }}
+              >
                 <Video className="h-5 w-5 mr-2" />
                 Start Consultation
               </Button>
