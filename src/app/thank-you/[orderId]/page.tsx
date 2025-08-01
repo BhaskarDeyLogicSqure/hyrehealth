@@ -128,7 +128,12 @@ const ThankYouPage = ({ params }: { params: { orderId: string } }) => {
 
             {/* Start Consultation Button */}
             <div className="pt-6 text-center">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg">
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+                onClick={() => {
+                  router.push(`/intake-form?orderId=${orderId}`);
+                }}
+              >
                 <Video className="h-5 w-5 mr-2" />
                 Start Consultation
               </Button>

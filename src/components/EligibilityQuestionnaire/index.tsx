@@ -14,16 +14,6 @@ interface EligibilityQuestionnaireProps {
   };
 }
 
-interface QuestionField {
-  name: string;
-  label: string;
-  type: QuestionType;
-  required?: boolean;
-  placeholder?: string;
-  options?: { value: string; label: string }[] | string[];
-  validation?: (value: any) => string | null;
-}
-
 // Define question types
 export interface Question {
   id: string;
@@ -57,9 +47,6 @@ const EligibilityQuestionnaire = async ({
     questionsList = questionsResponse?.data;
     totalQuestions = questionsResponse?.total;
   } catch (error: any) {
-    // console.error("Error fetching questions:", error);
-    // questionsList = [];
-    console.log("error", error);
     handleServerError(error, {
       customMessage: "Failed to load questionnaire",
       redirectTo: "/products",
@@ -69,7 +56,6 @@ const EligibilityQuestionnaire = async ({
     });
   }
 
-  // console.log("questionsList", questionsList, totalQuestions);
   return (
     <div className="theme-bg min-h-screen">
       <Suspense
@@ -83,7 +69,6 @@ const EligibilityQuestionnaire = async ({
           dosage={dosage}
           duration={duration}
           totalQuestions={totalQuestions}
-          // relatedProducts={relatedProducts}
         />
       </Suspense>
     </div>

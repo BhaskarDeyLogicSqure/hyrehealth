@@ -16,11 +16,12 @@ const HomePageFeaturedTreatment = ({
         </h2>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {featuredCategories?.map((category: any) => (
+          {featuredCategories?.map((category: any, index: number) => (
             <CategoriesCard
               key={category?._id}
               category={category}
               featuredCard={true}
+              index={index}
             />
           ))}
         </div>
