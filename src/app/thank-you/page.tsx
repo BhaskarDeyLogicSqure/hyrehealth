@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Video, Clock, Truck, Mail, Box } from "lucide-react";
@@ -10,10 +10,10 @@ import { useOrderConfirmation } from "@/api/order-confirmation/useOrderConfirmat
 import { showErrorToast } from "@/components/GlobalErrorHandler";
 import ThemeLoader from "@/components/ThemeLoader";
 
-const ThankYouPage = ({ params }: { params: { orderId: string } }) => {
+const ThankYouPage = () => {
   const router = useRouter();
 
-  const orderId = params?.orderId;
+  const orderId = useSearchParams()?.get("orderId") || "";
 
   // Use the order confirmation hook to fetch real data
   const {
