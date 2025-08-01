@@ -133,7 +133,7 @@ const OrderSummarySection = ({
       showSuccessToast("Order Placed Successfully");
 
       // Navigate to thank you page after successful checkout
-      router.push(`/thank-you?order=${response?.data?.orderId}`);
+      router.push(`/thank-you?order=${response?.data?.invoice?.invoiceNumber}`);
       clearCheckout(); // clear the checkout data after successful checkout
     } catch (error) {
       console.error(error);
