@@ -19,7 +19,7 @@ interface CheckoutResponse {
 export const checkoutApi = {
   signUpWithPayment: async (
     payload: CheckoutPayload
-  ): Promise<ApiResponse<CheckoutResponse>> => {
+  ): Promise<CheckoutResponse> => {
     try {
       if (!payload) {
         throw new Error("Checkout payload is required");
@@ -34,7 +34,7 @@ export const checkoutApi = {
         throw new Error(response?.message || "Checkout failed");
       }
 
-      return response;
+      return response?.data;
     } catch (error) {
       console.error("Checkout API error:", error);
       throw error;

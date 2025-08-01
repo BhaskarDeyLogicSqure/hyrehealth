@@ -15,14 +15,8 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useAuthApi } from "@/api/auth/useAuthApi";
 import ThemeLoader from "@/components/ThemeLoader";
-// import { useAuthApi } from "@/api/auth/useAuthApi";
-// import type { RootState } from "@/store";
 
 export default function LoginPage() {
-  // const router = useRouter();
-  // const { isAuthenticated } = useSelector(
-  //   (state: RootState) => state.authReducer
-  // );
   const { login, isLoading } = useAuthApi();
 
   const [email, setEmail] = useState("");
@@ -33,25 +27,18 @@ export default function LoginPage() {
     password?: string;
   }>({});
 
-  // Redirect if already authenticated
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     router.push("/profile");
-  //   }
-  // }, [isAuthenticated, router]);
-
-  const validateForm = () => {
+  const _validateForm = () => {
     const errors: { email?: string; password?: string } = {};
 
-    if (!email.trim()) {
+    if (!email?.trim()) {
       errors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       errors.email = "Please enter a valid email address";
     }
 
-    if (!password.trim()) {
+    if (!password?.trim()) {
       errors.password = "Password is required";
-    } else if (password.length < 6) {
+    } else if (password?.length < 6) {
       errors.password = "Password must be at least 6 characters";
     }
 
@@ -59,10 +46,10 @@ export default function LoginPage() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const _handleSubmit = async (e: React.FormEvent) => {
+    if (e) e.preventDefault();
 
-    if (!validateForm()) {
+    if (!_validateForm()) {
       return;
     }
 
@@ -89,18 +76,7 @@ export default function LoginPage() {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Demo Credentials */}
-            <div className="theme-bg-muted p-3 rounded-lg text-sm theme-border border">
-              <p className="font-medium theme-text-primary mb-1">
-                Demo Credentials:
-              </p>
-              <p className="theme-text-muted">
-                Email: customer1_bh0dwjc@example.com
-              </p>
-              <p className="theme-text-muted">Password: Qwerty@123</p>
-            </div>
-
+          <form onSubmit={_handleSubmit} className="space-y-4">
             {/* Email Field */}
             <div className="space-y-2">
               <Label htmlFor="email" className="theme-text-primary font-medium">
@@ -115,7 +91,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    if (validationErrors.email) {
+                    if (validationErrors?.email) {
                       setValidationErrors((prev) => ({
                         ...prev,
                         email: undefined,
@@ -123,16 +99,16 @@ export default function LoginPage() {
                     }
                   }}
                   className={`pl-10 theme-bg theme-border theme-text-primary placeholder:theme-text-muted ${
-                    validationErrors.email
+                    validationErrors?.email
                       ? "border-red-500 dark:border-red-400"
                       : ""
                   }`}
                   disabled={isLoading}
                 />
               </div>
-              {validationErrors.email && (
+              {validationErrors?.email && (
                 <p className="text-red-600 dark:text-red-400 text-sm">
-                  {validationErrors.email}
+                  {validationErrors?.email}
                 </p>
               )}
             </div>
@@ -154,7 +130,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    if (validationErrors.password) {
+                    if (validationErrors?.password) {
                       setValidationErrors((prev) => ({
                         ...prev,
                         password: undefined,
@@ -162,7 +138,7 @@ export default function LoginPage() {
                     }
                   }}
                   className={`pl-10 pr-10 theme-bg theme-border theme-text-primary placeholder:theme-text-muted ${
-                    validationErrors.password
+                    validationErrors?.password
                       ? "border-red-500 dark:border-red-400"
                       : ""
                   }`}
@@ -181,9 +157,9 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
-              {validationErrors.password && (
+              {validationErrors?.password && (
                 <p className="text-red-600 dark:text-red-400 text-sm">
-                  {validationErrors.password}
+                  {validationErrors?.password}
                 </p>
               )}
             </div>
