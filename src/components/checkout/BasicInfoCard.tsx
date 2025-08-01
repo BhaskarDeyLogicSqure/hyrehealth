@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import RenderFormError from "../RenderFormError";
 import { preventNonNumericInput } from "@/lib/utils";
+import DatePicker from "../ui/DatePicker";
 
 const BasicInfoCard = ({
   formFields,
@@ -80,26 +81,29 @@ const BasicInfoCard = ({
 
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="dob">
-              Date of Birth <span className="text-red-600">*</span>
-            </Label>
-            <Input
-              id="dob"
-              type="date"
-              value={formFields?.dob}
-              onChange={(e) => handleInputChange("dob", e.target.value)}
-              className={errors?.dob ? "border-red-500" : ""}
-              max={(() => {
+            <DatePicker
+              label="Date of Birth"
+              date={formFields?.dob ? new Date(formFields?.dob) : undefined}
+              onDateChange={(date) => {
+                if (date) {
+                  handleInputChange("dob", date?.toISOString());
+                } else {
+                  handleInputChange("dob", "");
+                }
+              }}
+              placeholder="Select your date of birth"
+              required={true}
+              error={!!errors?.dob}
+              errorMessage={errors?.dob}
+              maxDate={(() => {
                 const today = new Date();
-                const maxDate = new Date(
+                return new Date(
                   today.getFullYear() - 18,
                   today.getMonth(),
                   today.getDate()
                 );
-                return maxDate.toISOString().split("T")[0];
               })()}
             />
-            <RenderFormError errors={errors} field="dob" />
           </div>
         </div>
       </CardContent>

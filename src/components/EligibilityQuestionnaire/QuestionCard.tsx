@@ -390,14 +390,14 @@ QuestionCardProps) => {
                 }
               }}
               placeholder={currentQuestion?.helpText || "Pick a date"}
-              className="mt-2"
             />
+
             {currentValue && (
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-sm text-gray-600">
                   Selected: {formatDate(currentValue, "MM/DD/YYYY")}
                 </span>
-                <Button
+                {/* <Button
                   type="button"
                   variant="ghost"
                   size="sm"
@@ -405,9 +405,10 @@ QuestionCardProps) => {
                   className="text-red-500 hover:text-red-700 h-6 px-2"
                 >
                   Clear
-                </Button>
+                </Button> */}
               </div>
             )}
+
             {currentQuestion?.helpText && (
               <p className="text-xs text-gray-500 mt-1">
                 {currentQuestion?.helpText}
