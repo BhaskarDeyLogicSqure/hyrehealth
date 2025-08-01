@@ -283,7 +283,7 @@ const QuestionForm = ({
                 return (
                   <Button
                     onClick={() => _handleNextBtn(currentStepInfo)}
-                    disabled={isNavigatingToCheckout}
+                    disabled={isNavigatingToCheckout || isUploadingFile}
                   >
                     {_getNextBtnText(currentStepInfo)}
                   </Button>
