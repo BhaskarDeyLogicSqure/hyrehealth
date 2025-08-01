@@ -489,21 +489,72 @@ QuestionCardProps) => {
               </div>
 
               {currentValue && (
-                <div className="mt-2 flex items-center space-x-2 text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">
-                  <File className="h-4 w-4 text-blue-600" />
-                  <span className="flex-1">
-                    {currentValue?.name ||
+                <div
+                  className={
+                    "mt-2 flex items-center space-x-2 text-sm p-3 rounded-lg border transition-colors " +
+                    (currentValue?.uploadedUrl
+                      ? "bg-green-50 border-green-200"
+                      : "bg-gray-50 border-gray-200")
+                  }
+                >
+                  <File
+                    className={
+                      "h-4 w-4 " +
+                      (currentValue?.uploadedUrl
+                        ? "text-green-600"
+                        : "text-blue-600")
+                    }
+                  />
+                  <span
+                    className={
+                      "flex-1 " +
+                      (currentValue?.uploadedUrl
+                        ? "font-medium text-green-800"
+                        : "")
+                    }
+                  >
+                    {(
+                      currentValue?.name ||
                       currentValue?.originalFile?.name ||
-                      currentValue}
+                      currentValue
+                    )?.length > 30
+                      ? (
+                          (currentValue?.name ||
+                            currentValue?.originalFile?.name ||
+                            currentValue) as string
+                        )?.slice(0, 15) +
+                        "..." +
+                        (
+                          (currentValue?.name ||
+                            currentValue?.originalFile?.name ||
+                            currentValue) as string
+                        )?.slice(-10)
+                      : currentValue?.name ||
+                        currentValue?.originalFile?.name ||
+                        currentValue}
                   </span>
+
                   {currentValue?.size && (
-                    <span className="text-xs text-gray-400">
+                    <span
+                      className={
+                        "text-xs " +
+                        (currentValue?.uploadedUrl
+                          ? "text-green-700"
+                          : "text-gray-400")
+                      }
+                    >
                       ({getFileSize(currentValue?.size)})
                     </span>
                   )}
                   {currentValue?.uploadedUrl && (
-                    <span className="text-xs text-green-600">✓ Uploaded</span>
+                    <span
+                      className="text-xs text-green-600 font-bold"
+                      title="Uploaded"
+                    >
+                      Uploaded
+                    </span>
                   )}
+
                   <Button
                     type="button"
                     variant="ghost"
