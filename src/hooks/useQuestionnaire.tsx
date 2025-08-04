@@ -462,18 +462,10 @@ const useQuestionnaire = (
             );
 
             if (uploadResult) {
-              // Update response with the uploaded file information
-              const fileResponse = {
-                originalFile: file,
-                uploadedUrl: uploadResult?.url,
-                filename: uploadResult?.filename,
-                contentType: uploadResult?.contentType,
-                uploadedAt: new Date().toISOString(),
-              };
-
+              // Store only the uploaded URL in responses
               setResponses((prev) => ({
                 ...prev,
-                [currentQuestion?._id]: fileResponse,
+                [currentQuestion?._id]: uploadResult?.url,
               }));
 
               setUploadComplete(true);

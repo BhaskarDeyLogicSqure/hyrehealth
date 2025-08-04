@@ -515,7 +515,9 @@ QuestionCardProps) => {
                 <div
                   className={
                     "mt-2 flex items-center space-x-2 text-sm p-3 rounded-lg border transition-colors " +
-                    (currentValue?.uploadedUrl
+                    (currentValue &&
+                    typeof currentValue === "string" &&
+                    currentValue?.startsWith("http")
                       ? "bg-green-50 border-green-200"
                       : "bg-gray-50 border-gray-200")
                   }
@@ -523,7 +525,9 @@ QuestionCardProps) => {
                   <File
                     className={
                       "h-4 w-4 " +
-                      (currentValue?.uploadedUrl
+                      (currentValue &&
+                      typeof currentValue === "string" &&
+                      currentValue?.startsWith("http")
                         ? "text-green-600"
                         : "text-blue-600")
                     }
