@@ -1,12 +1,6 @@
 import dynamic from "next/dynamic";
 import ThemeLoader from "@/components/ThemeLoader";
 
-interface PageProps {
-  searchParams: {
-    orderId?: string;
-  };
-}
-
 // Dynamic import for the intake form component
 const IntakeForm = dynamic(() => import("@/components/IntakeForm/index"), {
   loading: () => (
@@ -14,8 +8,8 @@ const IntakeForm = dynamic(() => import("@/components/IntakeForm/index"), {
   ),
 });
 
-const IntakeFormPage = ({ searchParams }: PageProps) => {
-  return <IntakeForm searchParams={searchParams} />;
+const IntakeFormPage = () => {
+  return <IntakeForm />;
 };
 
 export default IntakeFormPage;

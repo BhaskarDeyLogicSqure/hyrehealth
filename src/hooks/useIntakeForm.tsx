@@ -1,113 +1,57 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   showSuccessToast,
   showErrorToast,
 } from "@/components/GlobalErrorHandler";
-
-interface IntakeQuestion {
-  _id: string;
-  questionText: string;
-  questionType: string;
-  options?: any[];
-  helpText?: string;
-  required?: boolean;
-}
-
-interface IntakeFormResponse {
-  questionId: string;
-  answer: any;
-}
-
-const useIntakeForm = (orderId: string) => {
+import { useIntakeFormData } from "@/api/postCheckout/useIntakeFormData";
+import {
+  IntakeFormQuestion,
+  IntakeFormResponsePayload,
+} from "@/types/intakeForms";
+import { postCheckoutApi } from "@/api/postCheckout/postCheckoutApi";
+const useIntakeForm = () => {
   const router = useRouter();
+
+  const {
+    intakeFormDataQuestions,
+    isIntakeFormLoading,
+    isIntakeFormError,
+    intakeFormError,
+  } = useIntakeFormData();
+
+  console.log({
+    intakeFormDataQuestions,
+    isIntakeFormLoading,
+    isIntakeFormError,
+    intakeFormError,
+  });
+
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Mock questions for now - this would come from API
-  const questions: IntakeQuestion[] = useMemo(
-    () => [
-      {
-        _id: "q1",
-        questionText: "What is your current height?",
-        questionType: "number",
-        helpText: "Please enter your height in inches",
-        required: true,
-      },
-      {
-        _id: "q2",
-        questionText: "What is your current weight?",
-        questionType: "number",
-        helpText: "Please enter your weight in pounds",
-        required: false,
-      },
-      {
-        _id: "q3",
-        questionText: "What is your date of birth?",
-        questionType: "date",
-        helpText: "Please select your date of birth",
-        required: false,
-      },
-      {
-        _id: "q4",
-        questionText: "Do you have any allergies?",
-        questionType: "radio",
-        options: [
-          { _id: "yes", label: "Yes" },
-          { _id: "no", label: "No" },
-        ],
-        required: false,
-      },
-      {
-        _id: "q5",
-        questionText: "Please describe any current medications you are taking:",
-        questionType: "textarea",
-        helpText: "Include dosage and frequency",
-        required: false,
-      },
-      {
-        _id: "q6",
-        questionText: "What is your primary health concern?",
-        questionType: "select",
-        options: [
-          { _id: "weight_loss", label: "Weight Loss" },
-          { _id: "hair_loss", label: "Hair Loss" },
-          { _id: "skin_concerns", label: "Skin Concerns" },
-          { _id: "other", label: "Other" },
-        ],
-        required: false,
-      },
-      {
-        _id: "q7",
-        questionText:
-          "Please upload any recent lab results or medical documents:",
-        questionType: "file",
-        helpText: "Accepted formats: PDF, JPG, PNG (Max 10MB)",
-        required: false,
-      },
-      {
-        _id: "q8",
-        questionText: "When was your last physical examination?",
-        questionType: "date",
-        helpText: "Please select the date of your last physical exam",
-        required: false,
-      },
-    ],
-    []
+  const questions = useMemo(
+    () => intakeFormDataQuestions || [],
+    [intakeFormDataQuestions]
   );
 
-  const totalSteps = questions.length + 1; // +1 for introduction
+  const totalSteps = questions?.length + 1; // +1 for introduction
 
   const progress = useMemo(() => {
     if (currentStep === 0) return 0;
     return ((currentStep - 1) / (totalSteps - 2)) * 100; // -2 because we don't count intro and final step
   }, [currentStep, totalSteps]);
 
-  const _getCurrentQuestion = (): IntakeQuestion | null => {
+  const _getCurrentQuestion = useCallback((): IntakeFormQuestion | null => {
     if (currentStep === 0 || currentStep >= totalSteps) return null;
     return questions[currentStep - 1];
-  };
+  }, [currentStep, questions, totalSteps]);
+
+  const _getCurrentQuestionId = useCallback((): string => {
+    const currentQuestion = _getCurrentQuestion();
+    return currentQuestion?.question?._id || "";
+  }, [_getCurrentQuestion]);
 
   const _updateResponse = (value: any) => {
     const currentQuestion = _getCurrentQuestion();
@@ -115,7 +59,7 @@ const useIntakeForm = (orderId: string) => {
 
     setResponses((prev) => ({
       ...prev,
-      [currentQuestion?._id]: value,
+      [_getCurrentQuestionId()]: value,
     }));
   };
 
@@ -128,8 +72,8 @@ const useIntakeForm = (orderId: string) => {
 
     // Check if current question is required and answered
     const currentQuestion = _getCurrentQuestion();
-    if (currentQuestion?.required) {
-      const currentValue = responses?.[currentQuestion?._id];
+    if (currentQuestion?.isRequired) {
+      const currentValue = responses?.[_getCurrentQuestionId()];
       if (
         !currentValue ||
         (Array.isArray(currentValue) && currentValue?.length === 0)
@@ -160,8 +104,8 @@ const useIntakeForm = (orderId: string) => {
   const handleSubmit = async () => {
     // Check if all required questions are answered
     const unansweredRequiredQuestions = questions?.filter((question) => {
-      if (!question?.required) return false;
-      const value = responses?.[question?._id];
+      if (!question?.isRequired) return false;
+      const value = responses?.[_getCurrentQuestionId()];
       return !value || (Array.isArray(value) && value?.length === 0);
     });
 
@@ -173,29 +117,35 @@ const useIntakeForm = (orderId: string) => {
     setIsSubmitting(true);
 
     try {
-      // Mock API call - replace with actual API
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const payload: IntakeFormResponsePayload = {
+        _intakeForm: "",
+        questionnaireResponses: [] as {
+          _question: string | undefined;
+          answer: string | string[] | undefined;
+        }[],
+      };
 
       // Prepare responses for API
-      const formResponses: IntakeFormResponse[] = Object.entries(responses).map(
-        ([questionId, answer]) => ({
-          questionId,
-          answer,
-        })
-      );
+      if (responses && Object.keys(responses)?.length > 0) {
+        payload["questionnaireResponses"] = Object.entries(responses)?.map(
+          ([questionId, answer]) => {
+            return {
+              _question: questionId || undefined,
+              answer: answer || undefined,
+            };
+          }
+        );
+      }
 
       console.log("Submitting intake form:", {
-        orderId,
-        responses: formResponses,
+        payload,
       });
 
-      // TODO: Replace with actual API call
-      // await intakeFormApi.submitForm(orderId, formResponses);
-
+      const response = await postCheckoutApi.submitIntakeFormQuestions(payload);
+      console.log({ response });
       showSuccessToast("Intake form submitted successfully!");
-
       // Redirect to thank you page or order details
-      router.push(`/pre-consultation?orderId=${orderId}`);
+      router.push(`/pre-consultation`);
     } catch (error) {
       console.error("Error submitting intake form:", error);
       showErrorToast("Failed to submit intake form. Please try again.");
@@ -211,8 +161,8 @@ const useIntakeForm = (orderId: string) => {
     progress,
     questions,
     isSubmitting,
-    setCurrentStep,
     getCurrentQuestion: _getCurrentQuestion,
+    getCurrentQuestionId: _getCurrentQuestionId,
     updateResponse: _updateResponse,
     handleNext: _handleNext,
     handleBack: _handleBack,

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { postCheckoutApi } from "./postCheckoutApi";
 
-export const useIntakeForm = () => {
+export const useIntakeFormData = () => {
   const {
     data,
     isPending: isIntakeFormLoading,
@@ -15,7 +15,7 @@ export const useIntakeForm = () => {
   });
 
   return {
-    data,
+    intakeFormDataQuestions: data?.data?.intakeForms,
     isIntakeFormLoading,
     isIntakeFormError,
     intakeFormError,

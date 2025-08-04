@@ -358,16 +358,16 @@ const useQuestionnaire = (
   //   );
   // };
 
-  const _showToastMessage = (
-    description: string,
-    variant: "default" | "destructive" = "default"
-  ) => {
-    if (variant === "destructive") {
-      showErrorToast(description);
-    } else {
-      showSuccessToast(description);
-    }
-  };
+  // const _showToastMessage = (
+  //   description: string,
+  //   variant: "default" | "destructive" = "default"
+  // ) => {
+  //   if (variant === "destructive") {
+  //     showErrorToast(description);
+  //   } else {
+  //     showSuccessToast(description);
+  //   }
+  // };
 
   // Add function to restart general questions
   const _restartGeneralQuestions = () => {
@@ -816,6 +816,13 @@ const useQuestionnaire = (
     totalGeneralQuestions,
     totalActualQuestions,
     productSections,
+    isNavigatingToCheckout,
+    isUploadingFile,
+    uploadProgress,
+    uploadFileName,
+    showUploadPopup,
+    uploadError,
+    uploadComplete,
     getCurrentQuestion: _getCurrentQuestion,
     getCurrentStepInfo: _getCurrentStepInfo,
     setCurrentStep,
@@ -828,13 +835,6 @@ const useQuestionnaire = (
     restartProduct: _restartProduct,
     restartGeneralQuestions: _restartGeneralQuestions,
     checkIfAnswerIsCorrect: _checkIfAnswerIsCorrect,
-    isNavigatingToCheckout,
-    isUploadingFile,
-    uploadProgress,
-    uploadFileName,
-    showUploadPopup,
-    uploadError,
-    uploadComplete,
     closeUploadPopup: _closeUploadPopup,
   };
 };

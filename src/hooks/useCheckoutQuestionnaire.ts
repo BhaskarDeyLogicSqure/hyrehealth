@@ -150,21 +150,22 @@ export const useCheckoutQuestionnaire = () => {
   };
 
   const getAllProductResponses = () => {
-    return questionnaire.productResponses;
+    return questionnaire?.productResponses;
   };
 
   const getQuestionnaireProgress = () => {
-    if (questionnaire.totalQuestions === 0) return 0;
+    if (questionnaire?.totalQuestions === 0) return 0;
     return (
-      (questionnaire.totalQuestionsAnswered / questionnaire.totalQuestions) *
+      (questionnaire?.totalQuestionsAnswered / questionnaire?.totalQuestions) *
       100
     );
   };
 
   const getEligibilityStatus = () => {
-    if (!questionnaire.isCompleted) return "pending";
-    if (questionnaire.generalEligibility === false) return "general_ineligible";
-    if (questionnaire.eligibleProductIds.length === 0)
+    if (!questionnaire?.isCompleted) return "pending";
+    if (questionnaire?.generalEligibility === false)
+      return "general_ineligible";
+    if (questionnaire?.eligibleProductIds.length === 0)
       return "no_eligible_products";
     return "eligible";
   };

@@ -43,8 +43,6 @@ const OrderSummarySection = ({
     questionnaire,
   } = useCheckoutQuestionnaire();
 
-  console.log({ eligibleProducts, questionnaire });
-
   const {
     productConfigurations,
     selectedProducts,

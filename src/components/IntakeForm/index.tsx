@@ -1,46 +1,106 @@
 "use client";
 
-import { Suspense } from "react";
-import ThemeLoader from "@/components/ThemeLoader";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { showErrorToast } from "@/components/GlobalErrorHandler";
-import IntakeFormComponent from "./IntakeFormComponent";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import ThemeLoader from "@/components/ThemeLoader";
+import IntakeFormCard from "./IntakeFormCard";
+import useIntakeForm from "@/hooks/useIntakeForm";
 
-interface IntakeFormProps {
-  searchParams?: {
-    orderId?: string;
-  };
-}
-
-const IntakeForm = ({ searchParams = {} }: IntakeFormProps) => {
+const IntakeForm = () => {
   const router = useRouter();
-  const orderId = searchParams?.orderId || "";
 
-  useEffect(() => {
-    if (!orderId) {
-      showErrorToast("Order ID is required");
-      router.push("/");
+  const {
+    currentStep,
+    responses,
+    totalSteps,
+    progress,
+    questions,
+    getCurrentQuestionId,
+    getCurrentQuestion,
+    updateResponse,
+    handleNext,
+    handleBack,
+    isSubmitting,
+  } = useIntakeForm();
+
+  const _getStepTitle = () => {
+    if (currentStep === 0) {
+      return "Introduction";
     }
-  }, [orderId, router]);
+    return `Question ${currentStep} of ${totalSteps - 1}`;
+  };
 
-  if (!orderId) {
-    return (
-      <div className="theme-bg min-h-screen">
-        <ThemeLoader variant="full-page" message="Loading..." />
-      </div>
+  const _getNextBtnText = () => {
+    return currentStep === totalSteps - 1 ? (
+      isSubmitting ? (
+        <ThemeLoader
+          type="inline"
+          variant="simple"
+          size="sm"
+          message="Submitting..."
+          className="gap-2"
+        />
+      ) : (
+        <>
+          Submit Form
+          <ArrowRight className="h-4 w-4 ml-2" />
+        </>
+      )
+    ) : (
+      <>
+        Next
+        <ArrowRight className="h-4 w-4 ml-2" />
+      </>
     );
-  }
+  };
 
   return (
-    <div className="theme-bg min-h-screen">
-      <Suspense
-        fallback={
-          <ThemeLoader variant="full-page" message="Loading intake form..." />
-        }
-      >
-        <IntakeFormComponent orderId={orderId} />
-      </Suspense>
+    <div className="min-h-screen theme-bg">
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        {/* Progress Header */}
+        {currentStep >= 0 && (
+          <div className="mb-8">
+            <div className="flex justify-between text-sm theme-text-muted mb-2">
+              <span>{_getStepTitle()}</span>
+              <span>{Math.round(progress)}% Complete</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </div>
+        )}
+
+        {/* Question Card */}
+        <IntakeFormCard
+          currentStep={currentStep}
+          responses={responses}
+          questions={questions}
+          getCurrentQuestion={getCurrentQuestion}
+          updateResponse={updateResponse}
+          handleNext={handleNext}
+          getCurrentQuestionId={getCurrentQuestionId}
+        />
+
+        {/* Navigation */}
+        {currentStep >= 0 && (
+          <div className="flex justify-between">
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+
+            {currentStep > 0 && (
+              <Button onClick={handleNext} disabled={isSubmitting}>
+                {_getNextBtnText()}
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

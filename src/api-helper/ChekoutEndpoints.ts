@@ -19,3 +19,8 @@ export const INTAKE_FORM_QUESTIONS_ENDPOINT = {
   endpoint: "/intake-forms",
   httpType: httpType.GET,
 };
+
+export const SUBMIT_INTAKE_FORM_QUESTIONS_ENDPOINT = {
+  endpoint: "/intake-forms/store-responses",
+  httpType: httpType.POST,
+};

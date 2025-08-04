@@ -16,23 +16,18 @@ import { DatePicker } from "../ui/DatePicker";
 import { Upload, File } from "lucide-react";
 import { formatDate } from "@/lib/dayjs";
 import { getFileSize } from "@/lib/utils";
-
-interface IntakeQuestion {
-  _id: string;
-  questionText: string;
-  questionType: string;
-  options?: any[];
-  helpText?: string;
-  required?: boolean;
-}
+import { IntakeFormQuestion } from "@/types/intakeForms";
+import { QuestionType } from "@/types/questionnaire";
+import { Checkbox } from "../ui/checkbox";
 
 interface IntakeFormCardProps {
   currentStep: number;
   responses: Record<string, any>;
-  questions: IntakeQuestion[];
-  getCurrentQuestion: () => IntakeQuestion | null;
+  questions: IntakeFormQuestion[];
+  getCurrentQuestion: () => IntakeFormQuestion | null;
   updateResponse: (value: any) => void;
   handleNext: () => void;
+  getCurrentQuestionId: () => string;
 }
 
 const IntakeFormCard = ({
@@ -42,30 +37,57 @@ const IntakeFormCard = ({
   getCurrentQuestion,
   updateResponse,
   handleNext,
+  getCurrentQuestionId,
 }: IntakeFormCardProps) => {
   const _renderQuestion = () => {
     const currentQuestion = getCurrentQuestion();
+
     if (!currentQuestion) return null;
 
-    const currentValue = responses?.[currentQuestion?._id];
+    const currentValue = responses?.[getCurrentQuestionId()];
 
-    switch (currentQuestion?.questionType) {
-      case "number":
+    switch (currentQuestion?.question?.questionType) {
+      case QuestionType.Text:
         return (
           <div>
             <Label
-              htmlFor={currentQuestion?._id}
+              htmlFor={getCurrentQuestionId()}
               className="theme-text-primary"
             >
-              {currentQuestion?.questionText}
-              {currentQuestion?.required && (
+              {currentQuestion?.question?.questionText}
+            </Label>
+            <Input
+              id={getCurrentQuestionId()}
+              type="text"
+              placeholder={currentQuestion?.question?.helpText || ""}
+              value={currentValue || ""}
+              onChange={(e) => updateResponse(e.target.value)}
+              className="mt-2"
+            />
+            {currentQuestion?.question?.helpText && (
+              <p className="text-xs text-gray-500 mt-1">
+                {currentQuestion?.question?.helpText}
+              </p>
+            )}
+          </div>
+        );
+
+      case QuestionType.Number:
+        return (
+          <div>
+            <Label
+              htmlFor={getCurrentQuestionId()}
+              className="theme-text-primary"
+            >
+              {currentQuestion?.question?.questionText}
+              {currentQuestion?.isRequired && (
                 <span className="text-red-500 ml-1">*</span>
               )}
             </Label>
             <Input
-              id={currentQuestion?._id}
+              id={getCurrentQuestionId()}
               type="number"
-              placeholder={currentQuestion?.helpText || ""}
+              placeholder={currentQuestion?.question?.helpText || ""}
               value={currentValue || ""}
               onChange={(e) => updateResponse(e.target.value)}
               className="mt-2"
@@ -73,12 +95,12 @@ const IntakeFormCard = ({
           </div>
         );
 
-      case "radio":
+      case QuestionType.Radio:
         return (
           <div>
             <Label className="theme-text-primary">
-              {currentQuestion?.questionText}
-              {currentQuestion?.required && (
+              {currentQuestion?.question?.questionText}
+              {currentQuestion?.isRequired && (
                 <span className="text-red-500 ml-1">*</span>
               )}
             </Label>
@@ -87,7 +109,7 @@ const IntakeFormCard = ({
               onValueChange={updateResponse}
               className="mt-2"
             >
-              {currentQuestion?.options?.map((option: any) => {
+              {currentQuestion?.question?.options?.map((option: any) => {
                 const optionValue =
                   typeof option === "string" ? option : option?._id;
                 const optionLabel =
@@ -112,12 +134,12 @@ const IntakeFormCard = ({
           </div>
         );
 
-      case "select":
+      case QuestionType.Select:
         return (
           <div>
             <Label className="theme-text-primary">
-              {currentQuestion?.questionText}
-              {currentQuestion?.required && (
+              {currentQuestion?.question?.questionText}
+              {currentQuestion?.isRequired && (
                 <span className="text-red-500 ml-1">*</span>
               )}
             </Label>
@@ -126,7 +148,7 @@ const IntakeFormCard = ({
                 <SelectValue placeholder="Select an option" />
               </SelectTrigger>
               <SelectContent>
-                {currentQuestion?.options?.map((option: any) => {
+                {currentQuestion?.question?.options?.map((option: any) => {
                   const optionValue =
                     typeof option === "string" ? option : option?._id;
                   const optionLabel =
@@ -143,21 +165,21 @@ const IntakeFormCard = ({
           </div>
         );
 
-      case "textarea":
+      case QuestionType.Textarea:
         return (
           <div>
             <Label
-              htmlFor={currentQuestion?._id}
+              htmlFor={getCurrentQuestionId()}
               className="theme-text-primary"
             >
-              {currentQuestion?.questionText}
-              {currentQuestion?.required && (
+              {currentQuestion?.question?.questionText}
+              {currentQuestion?.isRequired && (
                 <span className="text-red-500 ml-1">*</span>
               )}
             </Label>
             <Textarea
-              id={currentQuestion?._id}
-              placeholder={currentQuestion?.helpText || ""}
+              id={getCurrentQuestionId()}
+              placeholder={currentQuestion?.question?.helpText || ""}
               value={currentValue || ""}
               onChange={(e) => updateResponse(e.target.value)}
               className="mt-2"
@@ -166,12 +188,12 @@ const IntakeFormCard = ({
           </div>
         );
 
-      case "date":
+      case QuestionType.Date:
         return (
           <div>
             <Label className="theme-text-primary">
-              {currentQuestion?.questionText}
-              {currentQuestion?.required && (
+              {currentQuestion?.question?.questionText}
+              {currentQuestion?.isRequired && (
                 <span className="text-red-500 ml-1">*</span>
               )}
             </Label>
@@ -184,7 +206,7 @@ const IntakeFormCard = ({
                   updateResponse(null);
                 }
               }}
-              placeholder={currentQuestion?.helpText || "Pick a date"}
+              placeholder={currentQuestion?.question?.helpText || "Pick a date"}
             />
 
             {currentValue && (
@@ -195,20 +217,95 @@ const IntakeFormCard = ({
               </div>
             )}
 
-            {currentQuestion?.helpText && (
+            {currentQuestion?.question?.helpText && (
               <p className="text-xs text-gray-500 mt-1">
-                {currentQuestion?.helpText}
+                {currentQuestion?.question?.helpText}
               </p>
             )}
           </div>
         );
 
-      case "file":
+      case QuestionType.Dropdown:
         return (
           <div>
             <Label className="theme-text-primary">
-              {currentQuestion?.questionText}
-              {currentQuestion?.required && (
+              {currentQuestion?.question?.questionText}
+            </Label>
+            <Select value={currentValue || ""} onValueChange={updateResponse}>
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="Select an option" />
+              </SelectTrigger>
+              <SelectContent>
+                {currentQuestion?.question?.options?.map((option) => {
+                  const optionValue =
+                    typeof option === "string" ? option : option?._id;
+                  const optionLabel =
+                    typeof option === "string" ? option : option?.label;
+                  return (
+                    <SelectItem key={optionValue} value={optionValue}>
+                      {optionLabel}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+        );
+
+      case QuestionType.Checkbox:
+        return (
+          <div>
+            <Label className="theme-text-primary">
+              {currentQuestion?.question?.questionText}
+            </Label>
+            <div className="mt-2 space-y-2">
+              {currentQuestion?.question?.options?.map((option) => {
+                const optionValue =
+                  typeof option === "string" ? option : option?._id;
+                const optionLabel =
+                  typeof option === "string" ? option : option?.label;
+
+                return (
+                  <div
+                    key={optionValue}
+                    className="flex items-center space-x-2"
+                  >
+                    <Checkbox
+                      id={optionValue}
+                      checked={currentValue?.includes(optionValue) || false}
+                      onCheckedChange={(checked) => {
+                        const newValue = currentValue || [];
+                        if (checked) {
+                          updateResponse([...newValue, optionValue]);
+                        } else {
+                          updateResponse(
+                            newValue.filter(
+                              (item: string) => item !== optionValue
+                            )
+                          );
+                        }
+                      }}
+                      className="cursor-pointer"
+                    />
+                    <Label
+                      htmlFor={optionValue}
+                      className="text-sm theme-text-primary cursor-pointer"
+                    >
+                      {optionLabel}
+                    </Label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+
+      case QuestionType.File:
+        return (
+          <div>
+            <Label className="theme-text-primary">
+              {currentQuestion?.question?.questionText}
+              {currentQuestion?.isRequired && (
                 <span className="text-red-500 ml-1">*</span>
               )}
             </Label>
@@ -246,22 +343,22 @@ const IntakeFormCard = ({
                   <Upload className="mx-auto h-8 w-8 text-gray-400" />
                   <div className="text-sm text-gray-600">
                     <label
-                      htmlFor={currentQuestion?._id}
+                      htmlFor={getCurrentQuestionId()}
                       className="cursor-pointer text-blue-600 hover:text-blue-500"
                     >
                       Choose file
                     </label>
                     <span className="text-gray-500"> or drag and drop</span>
                   </div>
-                  {currentQuestion?.helpText && (
+                  {currentQuestion?.question?.helpText && (
                     <p className="text-xs text-gray-500">
-                      {currentQuestion?.helpText}
+                      {currentQuestion?.question?.helpText}
                     </p>
                   )}
                 </div>
 
                 <Input
-                  id={currentQuestion?._id}
+                  id={getCurrentQuestionId()}
                   type="file"
                   className="hidden"
                   onChange={(e) => {
@@ -346,10 +443,10 @@ const IntakeFormCard = ({
         <div>
           <div className="flex justify-between items-start mb-2">
             <h1 className="text-2xl font-bold theme-text-primary">
-              Question {currentStep} of {questions.length}
+              Question {currentStep} of {questions?.length}
             </h1>
             <span className="text-sm theme-text-muted bg-gray-100 px-2 py-1 rounded">
-              {currentStep} of {questions.length}
+              {currentStep} of {questions?.length}
             </span>
           </div>
           <p className="theme-text-muted">
