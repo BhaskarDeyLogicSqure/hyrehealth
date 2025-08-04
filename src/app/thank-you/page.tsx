@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Video, Clock, Truck, Mail, Box } from "lucide-react";
 import { SUPPORT_EMAIL } from "@/configs";
-import { useOrderConfirmation } from "@/api/order-confirmation/useOrderConfirmation";
+import { useOrderConfirmation } from "@/api/postCheckout/useOrderConfirmation";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
 import ThemeLoader from "@/components/ThemeLoader";
 

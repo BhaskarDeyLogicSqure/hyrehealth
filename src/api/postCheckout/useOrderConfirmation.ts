@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { orderConfirmationApi } from "@/api/order-confirmation/orderConfirmationApi";
+import { postCheckoutApi } from "@/api/postCheckout/postCheckoutApi";
 
 export const useOrderConfirmation = (orderId: string) => {
   const {
@@ -11,7 +11,7 @@ export const useOrderConfirmation = (orderId: string) => {
   } = useQuery({
     queryKey: ["orderConfirmation", orderId],
     queryFn: async () => {
-      const response = await orderConfirmationApi.getOrderConfirmation(orderId);
+      const response = await postCheckoutApi.getOrderConfirmation(orderId);
       return response.data;
     },
     enabled: !!orderId, // Only run query if orderId is provided

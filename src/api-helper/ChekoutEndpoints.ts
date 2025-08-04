@@ -14,3 +14,8 @@ export const ORDER_CONFIRMATION_DETAILS_ENDPOINT = {
   endpoint: "/invoice",
   httpType: httpType.GET,
 };
+
+export const INTAKE_FORM_QUESTIONS_ENDPOINT = {
+  endpoint: "/intake-forms",
+  httpType: httpType.GET,
+};
