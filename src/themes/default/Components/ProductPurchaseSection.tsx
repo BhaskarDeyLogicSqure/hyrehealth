@@ -16,6 +16,7 @@ import { Product } from "@/types/products";
 import ThemeLoader from "@/components/ThemeLoader";
 import useProductPurchaseSection from "@/hooks/useProductPurchaseSection";
 import { useNavigationState } from "@/hooks/useNavigationState";
+import { DIGITS_AFTER_DECIMALS } from "@/configs";
 const ProductPurchaseSection = ({
   product,
   selectedRelatedProducts,
@@ -120,10 +121,12 @@ const ProductPurchaseSection = ({
           {/* Pricing */}
           <div className="space-y-3 mb-6">
             <div className="flex justify-between text-sm theme-text-muted">
-              <span>Monthly price:</span>
+              <span>Price:</span>
               <span>
                 {selectedDosageWithDuration?.price
-                  ? `$${selectedDosageWithDuration?.price}`
+                  ? `$${selectedDosageWithDuration?.price?.toFixed(
+                      DIGITS_AFTER_DECIMALS
+                    )}`
                   : "-"}
               </span>
             </div>
@@ -143,14 +146,20 @@ const ProductPurchaseSection = ({
             (relatedProductsTotal || relatedProductsTotal === 0) ? (
               <div className="flex justify-between text-sm theme-text-muted">
                 <span>Related products:</span>
-                <span>${relatedProductsTotal}</span>
+                <span>
+                  ${relatedProductsTotal?.toFixed(DIGITS_AFTER_DECIMALS)}
+                </span>
               </div>
             ) : null}
 
             <Separator />
             <div className="flex justify-between text-lg font-semibold theme-text-primary">
               <span>Total:</span>
-              <span>${getTotalPrice}</span>
+              <span>
+                {getTotalPrice
+                  ? `$${getTotalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}`
+                  : "-"}
+              </span>
             </div>
           </div>
 

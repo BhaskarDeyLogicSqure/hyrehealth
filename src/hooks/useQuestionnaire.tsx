@@ -344,30 +344,6 @@ const useQuestionnaire = (
   };
 
   // console.log({ responses });
-  // Calculate overall eligibility based on current responses
-  // const calculateOverallEligibility = () => {
-  //   // First check general eligibility
-  //   const generalEligible = calculateGeneralEligibility();
-  //   if (!generalEligible) {
-  //     return false; // Immediately ineligible
-  //   }
-
-  //   // Check if at least one product is eligible
-  //   return productSections?.some((_, index) =>
-  //     calculateProductEligibility(index)
-  //   );
-  // };
-
-  // const _showToastMessage = (
-  //   description: string,
-  //   variant: "default" | "destructive" = "default"
-  // ) => {
-  //   if (variant === "destructive") {
-  //     showErrorToast(description);
-  //   } else {
-  //     showSuccessToast(description);
-  //   }
-  // };
 
   // Add function to restart general questions
   const _restartGeneralQuestions = () => {
@@ -448,7 +424,7 @@ const useQuestionnaire = (
           const productResultStep = stepStructure?.findIndex(
             (step) =>
               step?.type === "productResult" &&
-              step?.productIndex === currentStepInfo.productIndex
+              step?.productIndex === currentStepInfo?.productIndex
           );
 
           if (productResultStep !== -1) {
