@@ -108,7 +108,7 @@ const useUploadService = () => {
 
         if (onProgress) onProgress(60);
 
-        const s3Url = `https://${credentials?.bucket}.s3.${region}.amazonaws.com/${filename}`;
+        const s3Url = `https://${bucket}.s3.${region}.amazonaws.com/${filename}`;
 
         if (onProgress) onProgress(70);
 

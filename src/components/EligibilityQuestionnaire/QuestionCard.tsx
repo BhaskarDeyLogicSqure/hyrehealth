@@ -5,7 +5,6 @@ import {
   CheckCircle,
   XCircle,
   Package,
-  Calendar as CalendarIcon,
   Upload,
   File,
 } from "lucide-react";
@@ -197,7 +196,10 @@ QuestionCardProps) => {
               htmlFor={currentQuestion?._id}
               className="theme-text-primary"
             >
-              {currentQuestion?.questionText}
+              {currentQuestion?.questionText}{" "}
+              {currentQuestion?.isRequired ? (
+                <span className="text-destructive">*</span>
+              ) : null}
             </Label>
             <Input
               id={currentQuestion?._id}
@@ -214,7 +216,10 @@ QuestionCardProps) => {
         return (
           <div>
             <Label className="theme-text-primary">
-              {currentQuestion?.questionText}
+              {currentQuestion?.questionText}{" "}
+              {currentQuestion?.isRequired ? (
+                <span className="text-destructive">*</span>
+              ) : null}
             </Label>
             <RadioGroup
               value={currentValue || ""}
@@ -250,7 +255,10 @@ QuestionCardProps) => {
         return (
           <div>
             <Label className="theme-text-primary">
-              {currentQuestion?.questionText}
+              {currentQuestion?.questionText}{" "}
+              {currentQuestion?.isRequired ? (
+                <span className="text-destructive">*</span>
+              ) : null}
             </Label>
             <div className="mt-2 space-y-2">
               {currentQuestion?.options?.map((option: QuestionnaireOption) => {
@@ -298,7 +306,10 @@ QuestionCardProps) => {
         return (
           <div>
             <Label className="theme-text-primary">
-              {currentQuestion?.questionText}
+              {currentQuestion?.questionText}{" "}
+              {currentQuestion?.isRequired ? (
+                <span className="text-destructive">*</span>
+              ) : null}
             </Label>
             <Select value={currentValue || ""} onValueChange={updateResponse}>
               <SelectTrigger className="mt-2">
@@ -332,7 +343,10 @@ QuestionCardProps) => {
               htmlFor={currentQuestion?._id}
               className="theme-text-primary"
             >
-              {currentQuestion?.questionText}
+              {currentQuestion?.questionText}{" "}
+              {currentQuestion?.isRequired ? (
+                <span className="text-destructive">*</span>
+              ) : null}
             </Label>
             <Textarea
               id={currentQuestion?._id}
@@ -349,7 +363,10 @@ QuestionCardProps) => {
         return (
           <div>
             <Label className="theme-text-primary">
-              {currentQuestion?.questionText}
+              {currentQuestion?.questionText}{" "}
+              {currentQuestion?.isRequired ? (
+                <span className="text-destructive">*</span>
+              ) : null}
             </Label>
             <Select value={currentValue || ""} onValueChange={updateResponse}>
               <SelectTrigger className="mt-2">
@@ -378,7 +395,10 @@ QuestionCardProps) => {
         return (
           <div>
             <Label className="theme-text-primary">
-              {currentQuestion?.questionText}
+              {currentQuestion?.questionText}{" "}
+              {currentQuestion?.isRequired ? (
+                <span className="text-destructive">*</span>
+              ) : null}
             </Label>
             <DatePicker
               date={currentValue ? new Date(currentValue) : undefined}
@@ -421,7 +441,10 @@ QuestionCardProps) => {
         return (
           <div>
             <Label className="theme-text-primary">
-              {currentQuestion?.questionText}
+              {currentQuestion?.questionText}{" "}
+              {currentQuestion?.isRequired ? (
+                <span className="text-destructive">*</span>
+              ) : null}
             </Label>
             <div className="mt-2">
               <div
@@ -492,7 +515,9 @@ QuestionCardProps) => {
                 <div
                   className={
                     "mt-2 flex items-center space-x-2 text-sm p-3 rounded-lg border transition-colors " +
-                    (currentValue?.uploadedUrl
+                    (currentValue &&
+                    typeof currentValue === "string" &&
+                    currentValue?.startsWith("http")
                       ? "bg-green-50 border-green-200"
                       : "bg-gray-50 border-gray-200")
                   }
@@ -500,7 +525,9 @@ QuestionCardProps) => {
                   <File
                     className={
                       "h-4 w-4 " +
-                      (currentValue?.uploadedUrl
+                      (currentValue &&
+                      typeof currentValue === "string" &&
+                      currentValue?.startsWith("http")
                         ? "text-green-600"
                         : "text-blue-600")
                     }

@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
 import Image from "next/image";
-import { DEFAULT_IMAGE_URL } from "@/configs";
+import { DEFAULT_IMAGE_URL, DIGITS_AFTER_DECIMALS } from "@/configs";
 import { Product } from "@/types/products";
 
 const RelatedProductsSection = ({
@@ -46,7 +46,7 @@ const RelatedProductsSection = ({
 
     // Find default duration for the selected dosage
     const defaultDurationOption =
-      relatedProduct.pricing.subscriptionOptions.find(
+      relatedProduct?.pricing?.subscriptionOptions?.find(
         (option: any) =>
           option?.strength === defaultDosageOption?.strength &&
           option?.isDefault === true
@@ -129,7 +129,10 @@ const RelatedProductsSection = ({
                           </span>
                         </div>
                         <div className="text-sm font-semibold text-blue-600">
-                          ${defaultPricing?.price}
+                          $
+                          {defaultPricing?.price?.toFixed(
+                            DIGITS_AFTER_DECIMALS
+                          )}
                         </div>
                       </div>
 

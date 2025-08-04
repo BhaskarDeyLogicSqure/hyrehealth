@@ -344,30 +344,6 @@ const useQuestionnaire = (
   };
 
   // console.log({ responses });
-  // Calculate overall eligibility based on current responses
-  // const calculateOverallEligibility = () => {
-  //   // First check general eligibility
-  //   const generalEligible = calculateGeneralEligibility();
-  //   if (!generalEligible) {
-  //     return false; // Immediately ineligible
-  //   }
-
-  //   // Check if at least one product is eligible
-  //   return productSections?.some((_, index) =>
-  //     calculateProductEligibility(index)
-  //   );
-  // };
-
-  const _showToastMessage = (
-    description: string,
-    variant: "default" | "destructive" = "default"
-  ) => {
-    if (variant === "destructive") {
-      showErrorToast(description);
-    } else {
-      showSuccessToast(description);
-    }
-  };
 
   // Add function to restart general questions
   const _restartGeneralQuestions = () => {
@@ -448,7 +424,7 @@ const useQuestionnaire = (
           const productResultStep = stepStructure?.findIndex(
             (step) =>
               step?.type === "productResult" &&
-              step?.productIndex === currentStepInfo.productIndex
+              step?.productIndex === currentStepInfo?.productIndex
           );
 
           if (productResultStep !== -1) {
@@ -486,18 +462,10 @@ const useQuestionnaire = (
             );
 
             if (uploadResult) {
-              // Update response with the uploaded file information
-              const fileResponse = {
-                originalFile: file,
-                uploadedUrl: uploadResult?.url,
-                filename: uploadResult?.filename,
-                contentType: uploadResult?.contentType,
-                uploadedAt: new Date().toISOString(),
-              };
-
+              // Store only the uploaded URL in responses
               setResponses((prev) => ({
                 ...prev,
-                [currentQuestion?._id]: fileResponse,
+                [currentQuestion?._id]: uploadResult?.url,
               }));
 
               setUploadComplete(true);
@@ -816,6 +784,13 @@ const useQuestionnaire = (
     totalGeneralQuestions,
     totalActualQuestions,
     productSections,
+    isNavigatingToCheckout,
+    isUploadingFile,
+    uploadProgress,
+    uploadFileName,
+    showUploadPopup,
+    uploadError,
+    uploadComplete,
     getCurrentQuestion: _getCurrentQuestion,
     getCurrentStepInfo: _getCurrentStepInfo,
     setCurrentStep,
@@ -828,13 +803,6 @@ const useQuestionnaire = (
     restartProduct: _restartProduct,
     restartGeneralQuestions: _restartGeneralQuestions,
     checkIfAnswerIsCorrect: _checkIfAnswerIsCorrect,
-    isNavigatingToCheckout,
-    isUploadingFile,
-    uploadProgress,
-    uploadFileName,
-    showUploadPopup,
-    uploadError,
-    uploadComplete,
     closeUploadPopup: _closeUploadPopup,
   };
 };
