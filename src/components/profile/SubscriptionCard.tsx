@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Package } from "lucide-react";
 import { Badge } from "../ui/badge";
@@ -7,6 +7,7 @@ import { CalendarIcon, CheckCircle, AlertTriangle, X } from "lucide-react";
 import { formatDate } from "@/lib/dayjs";
 import SkipShipmentModal from "./modals/SkipShipmentModal";
 import PauseSubscriptionModal from "./modals/PauseSubscriptionModal";
+import { formatCurrency } from "@/lib/utils";
 
 const SubscriptionCard = ({ subscription }: { subscription: any }) => {
   // Helper functions
@@ -16,7 +17,7 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
   ) => {
     const now = new Date();
     const isExpiringSoon =
-      consultationExpiry.getTime() - now.getTime() < 14 * 24 * 60 * 60 * 1000;
+      consultationExpiry?.getTime() - now?.getTime() < 14 * 24 * 60 * 60 * 1000;
 
     if (status === "reconsult_needed") {
       return <Badge variant="destructive">Reconsult Required</Badge>;
@@ -37,6 +38,14 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
     return <Badge variant="secondary">{status}</Badge>;
   };
 
+  const _getPricePerMonth = useMemo(() => {
+    const price = subscription?.billing?.amount;
+    const duration = subscription?.plan?.intervalCount;
+    const pricePerMonth = price / duration;
+
+    return pricePerMonth;
+  }, [subscription]);
+
   return (
     <Card key={subscription?.id} className="overflow-hidden">
       <CardHeader className="pb-4">
@@ -44,11 +53,13 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
-              {subscription?.productName}
-              <Badge variant="outline">{subscription?.dosage}</Badge>
+              {subscription?.product?.name || "N/A"}
+              {subscription?.strength ? (
+                <Badge variant="outline">{subscription?.strength}mg</Badge>
+              ) : null}
             </CardTitle>
             <p className="text-gray-600 text-sm mt-1">
-              ${subscription?.price}/month
+              {formatCurrency(_getPricePerMonth)}/month
             </p>
           </div>
           {_getSubscriptionStatusBadge(
@@ -115,26 +126,59 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
               <CalendarIcon className="h-4 w-4 mr-2" />
               Upcoming
             </h4>
-            {subscription?.nextShipment ? (
+            {subscription?.billing?.nextBillingDate ? (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Next shipment:</span>
-                  <span className="font-medium">
-                    {formatDate(subscription?.nextShipment)}
+                  <span
+                    className="font-medium"
+                    title={formatDate(
+                      subscription?.billing?.nextShipmentDate,
+                      "MMM DD, YYYY"
+                    )}
+                  >
+                    {subscription?.billing?.nextShipmentDate
+                      ? formatDate(
+                          subscription?.billing?.nextShipmentDate,
+                          "MM/DD/YYYY"
+                        )
+                      : "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Next billing:</span>
-                  <span className="font-medium">
-                    {formatDate(subscription?.nextBilling)}
+                  <span
+                    className="font-medium"
+                    title={formatDate(
+                      subscription?.billing?.nextBillingDate,
+                      "MMM DD, YYYY"
+                    )}
+                  >
+                    {subscription?.billing?.nextBillingDate
+                      ? formatDate(
+                          subscription?.billing?.nextBillingDate,
+                          "MM/DD/YYYY"
+                        )
+                      : "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">
                     Consultation valid until:
                   </span>
-                  <span className="font-medium">
-                    {formatDate(subscription?.consultationExpiry)}
+                  <span
+                    className="font-medium"
+                    title={formatDate(
+                      subscription?.billing?.consultationExpiry,
+                      "MMM DD, YYYY"
+                    )}
+                  >
+                    {subscription?.consultationExpiry
+                      ? formatDate(
+                          subscription?.consultationExpiry,
+                          "MM/DD/YYYY"
+                        )
+                      : "N/A"}
                   </span>
                 </div>
               </div>
@@ -169,7 +213,7 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
         </div>
 
         {/* Action Buttons */}
-        {subscription?.status === "active" && (
+        {/* {subscription?.status === "active" && (
           <div className="flex flex-wrap gap-2 pt-4 border-t">
             <SkipShipmentModal subscription={subscription} />
             <PauseSubscriptionModal subscription={subscription} />
@@ -182,7 +226,7 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
               Cancel
             </Button>
           </div>
-        )}
+        )} */}
       </CardContent>
     </Card>
   );
