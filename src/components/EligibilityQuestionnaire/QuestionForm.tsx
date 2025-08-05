@@ -12,18 +12,9 @@ import UploadProgressPopup from "@/components/ui/UploadProgressPopup";
 interface QuestionFormProps {
   questions: any;
   productId: string;
-  dosage: string;
-  duration: string;
-  totalQuestions: number;
 }
 
-const QuestionForm = ({
-  questions,
-  productId,
-  dosage,
-  duration,
-  totalQuestions,
-}: QuestionFormProps) => {
+const QuestionForm = ({ questions, productId }: QuestionFormProps) => {
   const router = useRouter();
 
   const {
@@ -32,9 +23,6 @@ const QuestionForm = ({
     totalSteps,
     progress,
     totalGeneralQuestions,
-    // questionsList,
-    // totalProductQuestions,
-    // currentQuestionIndex,
     totalActualQuestions,
     productSections,
     setCurrentStep,
@@ -54,7 +42,6 @@ const QuestionForm = ({
     uploadError,
     uploadComplete,
     closeUploadPopup,
-    // handleContinueAfterIneligible,
   } = useQuestionnaire(questions, productId);
 
   const _getStepTitle = () => {
@@ -220,9 +207,6 @@ const QuestionForm = ({
           currentStep={currentStep}
           responses={responses}
           totalGeneralQuestions={totalGeneralQuestions}
-          // productId={productId}
-          // totalProductQuestions={totalProductQuestions}
-          // currentQuestionIndex={currentQuestionIndex}
           totalActualQuestions={totalActualQuestions}
           productSections={productSections}
           setCurrentStep={setCurrentStep}
@@ -234,8 +218,6 @@ const QuestionForm = ({
           restartProduct={restartProduct}
           restartGeneralQuestions={restartGeneralQuestions}
           isUploadingFile={isUploadingFile}
-          // handleBack={handleBack}
-          // handleContinueAfterIneligible={handleContinueAfterIneligible}
         />
 
         {/* Navigation */}
