@@ -15,3 +15,11 @@ export const UPDATE_PROFILE_ENDPOINT: EndpointConfigType = {
   attachToken: true,
   attachXUserId: true,
 };
+
+// subscriptions
+export const GET_USER_SUBSCRIPTIONS: EndpointConfigType = {
+  endpoint: "/subscriptions",
+  httpType: httpType.PUT,
+  attachToken: true,
+  attachXUserId: true,
+};

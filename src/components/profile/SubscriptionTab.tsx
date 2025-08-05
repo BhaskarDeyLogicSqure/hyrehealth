@@ -1,10 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Package } from "lucide-react";
 import { Button } from "../ui/button";
 import SubscriptionCard from "./SubscriptionCard";
-
+import { useProfileApi } from "@/api/profile/useProfileApi";
 const SubscriptionTab = () => {
+  const {
+    subscriptionData,
+    isSubscriptionLoading,
+    subscriptionError,
+    isSubscriptionError,
+  } = useProfileApi();
+
   // Mock subscription data
   const subscriptions = [
     {
@@ -64,6 +71,8 @@ const SubscriptionTab = () => {
       ],
     },
   ];
+
+  console.log({ subscriptionData, isSubscriptionLoading, subscriptionError });
 
   return (
     <>

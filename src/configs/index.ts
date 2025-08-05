@@ -40,6 +40,7 @@ export const PRODUCT_SORT_OPTIONS = [
 export const FEATURED_CATEGORIES_LIMIT = 3;
 export const CATEGORIES_PER_PAGE = 6;
 export const DIGITS_AFTER_DECIMALS = 2;
+export const STALE_TIME_FOR_REACT_QUERY = 5 * 60 * 1000; // 5 minutes;
 
 export const SUPPORT_EMAIL = "support@hyrehealth.com";
 export const SUPPORT_PHONE_NUMBER = "+1 1234567890";
