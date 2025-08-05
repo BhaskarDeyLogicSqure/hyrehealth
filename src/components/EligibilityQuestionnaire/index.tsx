@@ -8,8 +8,6 @@ import ThemeLoader from "@/components/ThemeLoader";
 interface EligibilityQuestionnaireProps {
   searchParams?: {
     productId?: string;
-    dosage?: string;
-    duration?: string;
     relatedProducts?: string;
   };
 }
@@ -31,21 +29,18 @@ const EligibilityQuestionnaire = async ({
 }: EligibilityQuestionnaireProps) => {
   const productId = searchParams.productId || "";
   const relatedProductIds = searchParams?.relatedProducts || "";
-  const dosage = searchParams.dosage || "";
-  const duration = searchParams.duration || "";
 
   // Fetch questions from API
   let questionsList;
-  let totalQuestions = 0;
+
   try {
     // pass productId and relatedProducts id as array
     const questionsResponse = await questionnaireApi.getQuestionnaire([
-      productId,
-      ...(relatedProductIds ? relatedProductIds?.split(",") : []),
+      productId, // main product id
+      ...(relatedProductIds ? relatedProductIds?.split(",") : []), // array of related product ids
     ]);
 
     questionsList = questionsResponse?.data;
-    totalQuestions = questionsResponse?.total;
   } catch (error: any) {
     handleServerError(error, {
       customMessage: "Failed to load questionnaire",
@@ -63,13 +58,7 @@ const EligibilityQuestionnaire = async ({
           <ThemeLoader variant="full-page" message="Loading questionnaire..." />
         }
       >
-        <QuestionForm
-          questions={questionsList}
-          productId={productId}
-          dosage={dosage}
-          duration={duration}
-          totalQuestions={totalQuestions}
-        />
+        <QuestionForm questions={questionsList} productId={productId} />
       </Suspense>
     </div>
   );

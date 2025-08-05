@@ -6,7 +6,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import React, { useEffect, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  X,
+  Image as ImageIcon,
+  Video as VideoIcon,
+} from "lucide-react";
 import { DEFAULT_IMAGE_URL } from "@/configs";
 
 const ImageVideoViewFullScreenModal = ({
@@ -18,6 +25,8 @@ const ImageVideoViewFullScreenModal = ({
   prevMedia,
   nextMedia,
   setCurrentMediaIndex,
+  handleMediaError,
+  isMediaFailed,
 }: {
   isFullscreenOpen: boolean;
   setIsFullscreenOpen: (isFullscreenOpen: boolean) => void;
@@ -27,11 +36,25 @@ const ImageVideoViewFullScreenModal = ({
   prevMedia: () => void;
   nextMedia: () => void;
   setCurrentMediaIndex: (index: number) => void;
+  handleMediaError: (index: number) => void;
+  isMediaFailed: (index: number) => boolean;
 }) => {
   const currentMedia = useMemo(
     () => allMedia[currentMediaIndex],
     [allMedia, currentMediaIndex]
   );
+
+  const getCurrentMedia = () => {
+    const media = allMedia?.[currentMediaIndex];
+    if (!media) return null;
+
+    // If media failed to load, return null to show placeholder
+    if (isMediaFailed(currentMediaIndex)) {
+      return null;
+    }
+
+    return media;
+  };
 
   // Keyboard accessibility for fullscreen modal
   useEffect(() => {
@@ -98,26 +121,45 @@ const ImageVideoViewFullScreenModal = ({
         </DialogClose>
 
         <div className="relative w-full h-full flex items-center justify-center bg-black rounded-lg">
-          {currentMedia?.type === "image" ? (
+          {getCurrentMedia()?.type === "image" ? (
             <img
               src={
-                currentMedia?.url && !currentMedia?.url.includes("example")
-                  ? currentMedia?.url
+                getCurrentMedia()?.url &&
+                !getCurrentMedia()?.url.includes("example")
+                  ? getCurrentMedia()?.url
                   : DEFAULT_IMAGE_URL
               }
-              alt={currentMedia?.alt || product?.name || "Product Media"}
+              alt={getCurrentMedia()?.alt || product?.name || "Product Media"}
               className="max-w-full max-h-full object-contain"
+              onError={() => handleMediaError(currentMediaIndex)}
             />
-          ) : (
+          ) : getCurrentMedia()?.type === "video" ? (
             <video
-              src={currentMedia?.url}
+              src={getCurrentMedia()?.url}
               controls
               controlsList="nodownload"
               className="max-w-full max-h-full object-contain"
               autoPlay
+              onError={() => handleMediaError(currentMediaIndex)}
             >
               Your browser does not support the video tag.
             </video>
+          ) : (
+            // Placeholder for failed media in fullscreen
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gray-800 rounded-lg">
+              <div className="text-center text-white">
+                {getCurrentMedia()?.type === "video" ? (
+                  <VideoIcon className="h-24 w-24 text-gray-400 mx-auto mb-4" />
+                ) : (
+                  <ImageIcon className="h-24 w-24 text-gray-400 mx-auto mb-4" />
+                )}
+                <p className="text-lg text-gray-300 font-medium mb-2">
+                  {getCurrentMedia()?.type === "video" ? "Video" : "Image"} not
+                  available
+                </p>
+                <p className="text-sm text-gray-400">Broken or invalid link</p>
+              </div>
+            </div>
           )}
 
           {/* Fullscreen Navigation Arrows */}

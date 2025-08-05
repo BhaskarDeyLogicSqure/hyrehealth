@@ -539,6 +539,11 @@ QuestionCardProps) => {
                         ? "font-medium text-green-800"
                         : "")
                     }
+                    title={
+                      currentValue?.name ||
+                      currentValue?.originalFile?.name ||
+                      currentValue
+                    }
                   >
                     {(
                       currentValue?.name ||

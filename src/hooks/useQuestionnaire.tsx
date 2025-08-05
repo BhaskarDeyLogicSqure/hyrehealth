@@ -15,6 +15,8 @@ import {
   showErrorToast,
 } from "@/components/GlobalErrorHandler";
 import useUploadService from "./useUploadService";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 interface ProductSection {
   productId: string;
@@ -30,11 +32,13 @@ const useQuestionnaire = (
   const router = useRouter();
   const dispatch = useDispatch();
   const { uploadImage } = useUploadService();
+  const checkoutReducer = useSelector(
+    (state: RootState) => state?.checkoutReducer
+  );
 
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [questionsList, setQuestionsList] = useState<Record<string, any>>({});
-  // const [currentProductIndex, setCurrentProductIndex] = useState(0);
   const [isNavigatingToCheckout, setIsNavigatingToCheckout] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -397,10 +401,6 @@ const useQuestionnaire = (
 
         if (!isAnswerCorrect) {
           // Set to general ineligible state instead of completely aborting
-          // _showToastMessage(
-          //   "Unfortunately, your answer makes you ineligible. You can restart the general questions to try again.",
-          //   "destructive"
-          // );
           setCurrentStep(-2); // Set to general ineligible state (-2 to distinguish from overall ineligible -1)
           return;
         }
@@ -664,13 +664,6 @@ const useQuestionnaire = (
 
     localStorage.setItem("lastConsultation", new Date().toISOString());
 
-    // Create checkout params with only eligible products
-    // const checkoutParams = new URLSearchParams({
-    //   product: productId,
-    //   dosage,
-    //   duration,
-    // });
-
     // // Add eligible related products if any (excluding the main product)
     // const eligibleRelatedProducts = eligibleProducts
     //   ?.map((section) => section?.productId?.split("_")[0]) // Extract actual product ID
@@ -684,10 +677,6 @@ const useQuestionnaire = (
     // }
 
     router.push(`/checkout`);
-    // Reset loading state after navigation
-    // setTimeout(() => {
-    //   setIsNavigatingToCheckout(false);
-    // }, 100);
     setIsNavigatingToCheckout(false);
   };
 
@@ -774,7 +763,18 @@ const useQuestionnaire = (
     }
   }, [questions]);
 
-  // console.log("2323", { questionsList, stepStructure, currentStep });
+  useEffect(() => {
+    // if there is no main product in the checkoutReducer, then redirect to previous page and show error toast
+    if (!checkoutReducer?.mainProduct) {
+      showErrorToast("Product not found"); // toaster message for user feedback
+      // if there is a productId, then redirect to the product page else redirect to products page
+      if (productId) {
+        router.push(`/products/${productId}`);
+      } else {
+        router.push(`/products`);
+      }
+    }
+  }, []);
 
   return {
     currentStep,

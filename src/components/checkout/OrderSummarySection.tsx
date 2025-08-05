@@ -38,6 +38,7 @@ const OrderSummarySection = ({
 
   const {
     eligibleProducts,
+    mainProductIfEligible,
     isFromQuestionnaire,
     selectedRelatedProducts,
     questionnaire,
@@ -62,7 +63,7 @@ const OrderSummarySection = ({
     handleDeleteProductAlert,
     setIsCheckoutLoading,
   } = useOrderCheckout({
-    product: eligibleProducts?.[0]?.product, // it is the main product
+    product: mainProductIfEligible ?? null, // it is the main product
     initialMainProductSelectedOption: eligibleProducts?.[0]?.selectedOption, // it is the initial selected option for the main product, can be changed later on user interaction
     selectedRelatedProducts, // it is the list of all related products (if any)
   });
@@ -147,7 +148,9 @@ const OrderSummarySection = ({
       }
 
       // Navigate to thank you page after successful checkout
-      router.push(`/thank-you/${response?.data?.invoice?.invoiceNumber}`);
+      router.push(
+        `/thank-you?orderId=${response?.data?.invoice?.invoiceNumber}`
+      );
       clearCheckout(); // clear the checkout data after successful checkout
     } catch (error) {
       console.error(error);

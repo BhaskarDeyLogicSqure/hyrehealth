@@ -19,9 +19,9 @@ const useOrderCheckout = ({
   initialMainProductSelectedOption,
   selectedRelatedProducts,
 }: {
-  product: Product;
+  product: Product | null;
   initialMainProductSelectedOption: any;
-  selectedRelatedProducts: string[];
+  selectedRelatedProducts: Product[];
 }) => {
   const { validateCoupon, isValidateCouponLoading, isValidateCouponError } =
     useChekoutApi();
@@ -45,12 +45,15 @@ const useOrderCheckout = ({
 
   // Get all eligible products (main product + related products)
   const allEligibleProducts = useMemo(() => {
-    const products = [product];
-    if (product?.similarProducts) {
-      products?.push(...product?.similarProducts);
+    const products: Product[] = [];
+    if (product) {
+      products?.push(product);
+    }
+    if (selectedRelatedProducts) {
+      products?.push(...selectedRelatedProducts);
     }
     return products;
-  }, [product]);
+  }, [product, selectedRelatedProducts]);
 
   // Initialize product configurations
   useEffect(() => {
@@ -75,10 +78,7 @@ const useOrderCheckout = ({
     }
 
     // Add selected related products
-    selectedRelatedProducts?.forEach((productId) => {
-      const relatedProduct = allEligibleProducts?.find(
-        (p) => p?._id === productId
-      );
+    selectedRelatedProducts?.forEach((relatedProduct) => {
       if (relatedProduct) {
         // in case of related products, we need to get the default dosage option as from product details page, we are sending the product with default dosage option only
         const defaultDosageOption =
