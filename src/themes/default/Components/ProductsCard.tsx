@@ -2,10 +2,10 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { DEFAULT_IMAGE_URL } from "@/configs";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { Star } from "lucide-react";
+import { Star, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   useNavigationState,
@@ -21,6 +21,7 @@ const ProductsCard = ({
   isFeatured?: boolean;
 }) => {
   const { navigateWithState, isNavigatingTo } = useNavigationState();
+  const [imageFailed, setImageFailed] = useState(false);
 
   const _handleProductClick = (productId: string) => {
     // Use navigation utility to store current state and navigate
@@ -28,6 +29,10 @@ const ProductsCard = ({
       `/products/${productId}`,
       NAVIGATION_KEYS.LAST_PRODUCTS_PAGE
     );
+  };
+
+  const _handleImageError = () => {
+    setImageFailed(true);
   };
 
   const productUrl = `/products/${product?._id}`;
@@ -82,22 +87,33 @@ const ProductsCard = ({
     >
       <CardContent className="p-6 h-full flex flex-col">
         {/* Product Image */}
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-8 mb-4 text-center h-48 flex items-center justify-center">
-          {product?.media?.images[0]?.url ? (
-            <Image
-              // src={product?.media?.images[0]?.url}
-              src={DEFAULT_IMAGE_URL}
-              alt={product?.name}
-              width={48}
-              height={48}
-              className="rounded-xl"
+        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl mb-4 text-center h-48 flex items-center justify-center p-0 overflow-hidden">
+          {product?.media?.images[0]?.url && !imageFailed ? (
+            <div
+              className="w-full h-full relative cursor-pointer"
               onClick={() => _handleProductClick(product?._id)}
-            />
+            >
+              <Image
+                src={product?.media?.images[0]?.url || DEFAULT_IMAGE_URL}
+                alt={product?.name}
+                fill
+                className="object-cover rounded-xl"
+                onError={_handleImageError}
+                sizes="100vw"
+                priority={false}
+              />
+            </div>
           ) : (
             <div className="w-16 h-16 bg-white rounded-full mx-auto flex items-center justify-center shadow-sm">
-              <span className="text-2xl font-bold text-blue-600">
-                {product?.name?.charAt(0)}
-              </span>
+              {imageFailed ? (
+                <span title="Image failed to load">
+                  <ImageIcon className="h-8 w-8 text-gray-400" />
+                </span>
+              ) : (
+                <span className="text-2xl font-bold text-blue-600">
+                  {product?.name?.charAt(0)}
+                </span>
+              )}
             </div>
           )}
         </div>

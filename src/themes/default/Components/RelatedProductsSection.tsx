@@ -1,9 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { DEFAULT_IMAGE_URL, DIGITS_AFTER_DECIMALS } from "@/configs";
 import { Product } from "@/types/products";
+import { useState } from "react";
 
 const RelatedProductsSection = ({
   product,
@@ -14,6 +15,16 @@ const RelatedProductsSection = ({
   selectedRelatedProducts: string[];
   handleRelatedProductToggle: (productId: string) => void;
 }) => {
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+
+  const handleImageError = (productId: string) => {
+    setFailedImages((prev) => new Set(prev).add(productId));
+  };
+
+  const isImageFailed = (productId: string) => {
+    return failedImages.has(productId);
+  };
+
   // Function to get default pricing for a related product
   const getDefaultPricing = (relatedProduct: any) => {
     if (!relatedProduct?.pricing?.subscriptionOptions) {
@@ -97,19 +108,27 @@ const RelatedProductsSection = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="text-2xl">
-                      <Image
-                        src={
-                          relatedProduct?.media?.images?.[0]?.url &&
-                          !relatedProduct?.media?.images?.[0]?.url.includes(
-                            "example"
-                          )
-                            ? relatedProduct?.media?.images?.[0]?.url
-                            : DEFAULT_IMAGE_URL
-                        }
-                        alt={relatedProduct?.name || "N/A"}
-                        width={36}
-                        height={36}
-                      />
+                      {relatedProduct?.media?.images?.[0]?.url &&
+                      !isImageFailed(relatedProduct?._id) ? (
+                        <Image
+                          src={
+                            relatedProduct?.media?.images?.[0]?.url &&
+                            !relatedProduct?.media?.images?.[0]?.url.includes(
+                              "example"
+                            )
+                              ? relatedProduct?.media?.images?.[0]?.url
+                              : DEFAULT_IMAGE_URL
+                          }
+                          alt={relatedProduct?.name || "N/A"}
+                          width={36}
+                          height={36}
+                          onError={() => handleImageError(relatedProduct?._id)}
+                        />
+                      ) : (
+                        <div className="w-9 h-9 bg-gray-100 rounded flex items-center justify-center">
+                          <ImageIcon className="h-5 w-5 text-gray-400" />
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold theme-text-primary">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -11,7 +11,7 @@ import {
   NAVIGATION_KEYS,
 } from "@/hooks/useNavigationState";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, Image as ImageIcon } from "lucide-react";
 import { DEFAULT_THEME_CATEGORIES_COLORS } from "@/configs";
 
 const CategoriesCard = ({
@@ -25,6 +25,7 @@ const CategoriesCard = ({
 }) => {
   const router = useRouter();
   const { navigateWithState, isNavigatingTo } = useNavigationState();
+  const [imageFailed, setImageFailed] = useState(false);
 
   const _handleCategoryClick = (categoryId: string) => {
     // Use navigation utility to store current state and navigate
@@ -32,6 +33,10 @@ const CategoriesCard = ({
       `/products?category=${categoryId}`,
       NAVIGATION_KEYS.LAST_CATEGORIES_PAGE
     );
+  };
+
+  const _handleImageError = () => {
+    setImageFailed(true);
   };
 
   const _getRandomCategoryColor = (index: number) => {
@@ -70,12 +75,19 @@ const CategoriesCard = ({
               <div
                 className={`w-full h-full rounded-full flex items-center justify-center`}
               >
-                <Image
-                  src={category?.image || imageUrl}
-                  alt={category?.name}
-                  fill
-                  className="rounded-full object-cover"
-                />
+                {!imageFailed ? (
+                  <Image
+                    src={category?.image || imageUrl}
+                    alt={category?.name}
+                    fill
+                    className="rounded-full object-cover"
+                    onError={_handleImageError}
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center">
+                    <ImageIcon className="h-6 w-6 text-gray-400" />
+                  </div>
+                )}
               </div>
             </div>
             <h3 className="text-xl font-semibold mb-2">
@@ -105,12 +117,19 @@ const CategoriesCard = ({
                 <div
                   className={`w-full h-full rounded-full flex items-center justify-center`}
                 >
-                  <Image
-                    src={category?.image || imageUrl}
-                    alt={category?.name}
-                    fill
-                    className="rounded-lg object-cover"
-                  />
+                  {!imageFailed ? (
+                    <Image
+                      src={category?.image || imageUrl}
+                      alt={category?.name}
+                      fill
+                      className="rounded-lg object-cover"
+                      onError={_handleImageError}
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center">
+                      <ImageIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                  )}
                 </div>
               </div>
 
