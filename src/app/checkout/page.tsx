@@ -11,10 +11,8 @@ import AccountCreationCard from "@/components/checkout/AccountCreationCard";
 import useCheckoutDetails from "@/hooks/useCheckoutDetails";
 
 const CheckoutPage = () => {
-  const { formFields, errors, handleOnChange, handleGetPayload } =
+  const { isLoggedIn, formFields, errors, handleOnChange, handleGetPayload } =
     useCheckoutDetails();
-
-  const isLoggedIn = false; // TODO: change this to actual implementation from redux store
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -30,11 +28,13 @@ const CheckoutPage = () => {
           {/* Left Column - Forms */}
           <div className="lg:col-span-2 space-y-6">
             {/* Basic Information */}
-            <BasicInfoCard
-              formFields={formFields}
-              errors={errors}
-              handleInputChange={handleOnChange}
-            />
+            {!isLoggedIn ? (
+              <BasicInfoCard
+                formFields={formFields}
+                errors={errors}
+                handleInputChange={handleOnChange}
+              />
+            ) : null}
 
             {/* Billing Address */}
             <BillingAddressCard
@@ -51,13 +51,13 @@ const CheckoutPage = () => {
             />
 
             {/* Account Creation (if not logged in) */}
-            {!isLoggedIn && (
+            {!isLoggedIn ? (
               <AccountCreationCard
                 formFields={formFields}
                 errors={errors}
                 handleOnChange={handleOnChange}
               />
-            )}
+            ) : null}
 
             {/* Terms and Conditions */}
             <Card>
