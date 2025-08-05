@@ -383,6 +383,7 @@ const useQuestionnaire = (
       if (
         currentQuestion?.isRequired &&
         (!currentValue ||
+          (typeof currentValue === "string" && currentValue?.trim() === "") ||
           (Array.isArray(currentValue) && currentValue?.length === 0))
       ) {
         showErrorToast("Please answer this question before continuing.");

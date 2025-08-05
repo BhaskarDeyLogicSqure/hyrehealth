@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { categoryApi } from "./categoryApi";
+import { STALE_TIME_FOR_REACT_QUERY } from "@/configs";
 
 type CategoryFilters = {
   search?: string;
@@ -19,7 +20,7 @@ const useCategoryApi = (filterPayload: CategoryFilters = {}) => {
   } = useQuery({
     queryKey: ["Categories", filterPayload], // React Query will cache based on filters
     queryFn: () => categoryApi.getCategories(filterPayload),
-    staleTime: 1000 * 60 * 5, // cache for 5 minutes
+    staleTime: STALE_TIME_FOR_REACT_QUERY, // cache for 5 minutes
     retry: 1, // retry once on failure
   });
 

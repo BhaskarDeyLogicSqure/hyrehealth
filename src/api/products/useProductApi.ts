@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { productApi } from "./productApi";
+import { STALE_TIME_FOR_REACT_QUERY } from "@/configs";
 
 type ProductFilters = {
   search?: string;
@@ -19,7 +20,7 @@ const useProductApi = (filterPayload: ProductFilters = {}) => {
   } = useQuery({
     queryKey: ["Products", filterPayload], // React Query will cache based on filters
     queryFn: () => productApi.getProducts(filterPayload),
-    staleTime: 1000 * 60 * 5, // cache for 5 minutes
+    staleTime: STALE_TIME_FOR_REACT_QUERY, // cache for 5 minutes
     retry: 1, // retry once on failure
   });
 

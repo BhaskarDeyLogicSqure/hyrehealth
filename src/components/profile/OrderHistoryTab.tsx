@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Table,
@@ -8,13 +8,24 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { Package, Receipt, Truck, RotateCcw, Eye } from "lucide-react";
+import {
+  Package,
+  Receipt,
+  Truck,
+  RotateCcw,
+  Eye,
+  MessageSquare,
+} from "lucide-react";
 import { formatDate } from "@/lib/dayjs";
 import { Button } from "../ui/button";
 import { DIGITS_AFTER_DECIMALS } from "@/configs";
 import { Badge } from "../ui/badge";
+import ReviewModal from "./ReviewModal";
 
 const OrderHistoryTab = () => {
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+
   // Mock order data
   const orders = [
     {
@@ -27,6 +38,10 @@ const OrderHistoryTab = () => {
       trackingNumber: "1Z999AA1234567890",
       canReorder: true,
       image: "https://placehold.co/600x400",
+      review: {
+        rating: 4,
+        review: "qwerthsdfgb",
+      },
     },
     {
       id: "ORD-2024-002",
@@ -38,6 +53,7 @@ const OrderHistoryTab = () => {
       trackingNumber: "1Z999BB1234567891",
       canReorder: true,
       image: "https://placehold.co/600x400",
+      review: null,
     },
     {
       id: "ORD-2023-089",
@@ -49,11 +65,11 @@ const OrderHistoryTab = () => {
       trackingNumber: null,
       canReorder: false,
       image: "https://placehold.co/600x400",
+      review: null,
     },
   ];
 
   const getOrderStatusBadge = (status: string) => {
-    console.log({ status });
     switch (status) {
       case "delivered":
         return <Badge className="bg-green-100 text-green-800">Delivered</Badge>;
@@ -64,6 +80,23 @@ const OrderHistoryTab = () => {
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
+  };
+
+  const handleReviewClick = (order: any) => {
+    setSelectedOrder(order);
+    setReviewModalOpen(true);
+  };
+
+  const handleReviewSubmit = (rating: number, review: string) => {
+    // Here you would typically make an API call to save the review
+    console.log("Review submitted:", {
+      rating,
+      review,
+      orderId: selectedOrder?.id,
+    });
+
+    // Update the order with the new review (in a real app, this would be done via API)
+    // For now, we'll just log it
   };
 
   return (
@@ -128,6 +161,14 @@ const OrderHistoryTab = () => {
                             Track
                           </Button>
                         )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleReviewClick(order)}
+                        >
+                          <MessageSquare className="h-4 w-4 mr-1" />
+                          Reviews
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -190,6 +231,14 @@ const OrderHistoryTab = () => {
                     Reorder
                   </Button>
                 )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleReviewClick(order)}
+                >
+                  <MessageSquare className="h-4 w-4 mr-1" />
+                  Reviews
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -213,6 +262,15 @@ const OrderHistoryTab = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Review Modal */}
+      <ReviewModal
+        isOpen={reviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+        productName={selectedOrder?.productName || ""}
+        currentReview={selectedOrder?.review}
+        onSubmit={handleReviewSubmit}
+      />
     </>
   );
 };

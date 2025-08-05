@@ -4,7 +4,7 @@ import { useState } from "react";
 import { isValidEmail, isValidPhone, isValidPassword } from "@/lib/utils";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
 import { formatDate } from "@/lib/dayjs";
-
+import { isUserAuthenticated } from "@/utils/auth";
 const initialFormFields = {
   firstName: "",
   lastName: "",
@@ -46,6 +46,8 @@ const initialIsDirty = {
 };
 
 const useCheckoutDetails = () => {
+  const isLoggedIn = isUserAuthenticated();
+
   const [formFields, setFormFields] =
     useState<Record<string, any>>(initialFormFields);
   const [isDirty, setIsDirty] =
@@ -83,64 +85,76 @@ const useCheckoutDetails = () => {
               // basic info form validation
               case "firstName":
               case "lastName": {
-                if (
-                  key === "firstName" &&
-                  !newFormFields?.[key]?.trim()?.length
-                ) {
-                  newErrors[key] = "*First name is required";
-                  isFormValid = false;
-                } else if (
-                  // validate firatName for length constraints, and lastName for length constraints only if lastName value is present
-                  (key === "firstName" ||
-                    (key === "lastName" &&
-                      newFormFields?.[key]?.trim()?.length)) &&
-                  (newFormFields?.[key]?.trim()?.length < 2 ||
-                    newFormFields?.[key]?.trim()?.length > 100)
-                ) {
-                  newErrors[key] = "*Must be between 2-100 characters";
-                  isFormValid = false;
-                } else {
-                  newErrors[key] = null;
-                  newIsDirty[key] = false;
+                // if user is not logged in, validate basic info fields
+                if (!isLoggedIn) {
+                  if (
+                    key === "firstName" &&
+                    !newFormFields?.[key]?.trim()?.length
+                  ) {
+                    newErrors[key] = "*First name is required";
+                    isFormValid = false;
+                  } else if (
+                    // validate firatName for length constraints, and lastName for length constraints only if lastName value is present
+                    (key === "firstName" ||
+                      (key === "lastName" &&
+                        newFormFields?.[key]?.trim()?.length)) &&
+                    (newFormFields?.[key]?.trim()?.length < 2 ||
+                      newFormFields?.[key]?.trim()?.length > 100)
+                  ) {
+                    newErrors[key] = "*Must be between 2-100 characters";
+                    isFormValid = false;
+                  } else {
+                    newErrors[key] = null;
+                    newIsDirty[key] = false;
+                  }
                 }
                 break;
               }
 
               case "email": {
-                if (!newFormFields?.[key]?.trim()?.length) {
-                  newErrors[key] = "*Email is required";
-                  isFormValid = false;
-                } else if (!isValidEmail(newFormFields?.[key])) {
-                  newErrors[key] = "*Invalid email address";
-                  isFormValid = false;
-                } else {
-                  newErrors[key] = null;
-                  newIsDirty[key] = false;
+                // if user is not logged in, validate email field
+                if (!isLoggedIn) {
+                  if (!newFormFields?.[key]?.trim()?.length) {
+                    newErrors[key] = "*Email is required";
+                    isFormValid = false;
+                  } else if (!isValidEmail(newFormFields?.[key])) {
+                    newErrors[key] = "*Invalid email address";
+                    isFormValid = false;
+                  } else {
+                    newErrors[key] = null;
+                    newIsDirty[key] = false;
+                  }
                 }
                 break;
               }
 
               case "phone": {
-                if (!newFormFields?.[key]?.trim()?.length) {
-                  newErrors[key] = "*Phone is required";
-                  isFormValid = false;
-                } else if (!isValidPhone(newFormFields?.[key])) {
-                  newErrors[key] = "*Invalid phone number";
-                  isFormValid = false;
-                } else {
-                  newErrors[key] = null;
-                  newIsDirty[key] = false;
+                // if user is not logged in, validate phone field
+                if (!isLoggedIn) {
+                  if (!newFormFields?.[key]?.trim()?.length) {
+                    newErrors[key] = "*Phone is required";
+                    isFormValid = false;
+                  } else if (!isValidPhone(newFormFields?.[key])) {
+                    newErrors[key] = "*Invalid phone number";
+                    isFormValid = false;
+                  } else {
+                    newErrors[key] = null;
+                    newIsDirty[key] = false;
+                  }
                 }
                 break;
               }
 
               case "dob": {
-                if (!newFormFields?.[key]?.trim()?.length) {
-                  newErrors[key] = "*Date of birth is required";
-                  isFormValid = false;
-                } else {
-                  newErrors[key] = null;
-                  newIsDirty[key] = false;
+                // if user is not logged in, validate dob field
+                if (!isLoggedIn) {
+                  if (!newFormFields?.[key]?.trim()?.length) {
+                    newErrors[key] = "*Date of birth is required";
+                    isFormValid = false;
+                  } else {
+                    newErrors[key] = null;
+                    newIsDirty[key] = false;
+                  }
                 }
                 break;
               }
@@ -205,22 +219,25 @@ const useCheckoutDetails = () => {
               // account creation form validation
               case "password":
               case "confirmPassword": {
-                if (!newFormFields?.[key]?.trim()?.length) {
-                  newErrors[key] = `*Required`;
-                  isFormValid = false;
-                } else if (!isValidPassword(newFormFields?.[key])) {
-                  newErrors[key] =
-                    "*Password must be 8–20 characters with a letter, number, and special character.";
-                  isFormValid = false;
-                } else if (
-                  key === "confirmPassword" &&
-                  newFormFields?.[key] !== newFormFields?.["password"]
-                ) {
-                  newErrors[key] = "*Passwords do not match";
-                  isFormValid = false;
-                } else {
-                  newErrors[key] = null;
-                  newIsDirty[key] = false;
+                // if user is not logged in, validate password field
+                if (!isLoggedIn) {
+                  if (!newFormFields?.[key]?.trim()?.length) {
+                    newErrors[key] = `*Required`;
+                    isFormValid = false;
+                  } else if (!isValidPassword(newFormFields?.[key])) {
+                    newErrors[key] =
+                      "*Password must be 8–20 characters with a letter, number, and special character.";
+                    isFormValid = false;
+                  } else if (
+                    key === "confirmPassword" &&
+                    newFormFields?.[key] !== newFormFields?.["password"]
+                  ) {
+                    newErrors[key] = "*Passwords do not match";
+                    isFormValid = false;
+                  } else {
+                    newErrors[key] = null;
+                    newIsDirty[key] = false;
+                  }
                 }
                 break;
               }
@@ -285,7 +302,7 @@ const useCheckoutDetails = () => {
         email: newFormFields?.email || undefined,
         phone: newFormFields?.phone || undefined,
         dob: newFormFields?.dob
-          ? formatDate(newFormFields.dob, "YYYY-MM-DD")
+          ? formatDate(newFormFields?.dob, "YYYY-MM-DD")
           : undefined,
 
         // billing address
@@ -320,6 +337,18 @@ const useCheckoutDetails = () => {
         questionnaireResponses: [], // will be populated on useOrderCheckout hook at the time of checkout
       };
 
+      if (isLoggedIn) {
+        // delete basic info fields
+        delete payload["firstName"];
+        delete payload["lastName"];
+        delete payload["email"];
+        delete payload["phone"];
+        delete payload["dob"];
+
+        // delete password field
+        delete payload["password"];
+      }
+
       console.log("payload", payload);
       resolve({
         error: false,
@@ -329,6 +358,7 @@ const useCheckoutDetails = () => {
   };
 
   return {
+    isLoggedIn,
     formFields,
     errors,
     handleOnChange: _handleOnChange,

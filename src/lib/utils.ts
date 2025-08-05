@@ -44,3 +44,14 @@ export const getFileSize = (size: number) => {
     return `${(size / 1024 / 1024 / 1024).toFixed(1)} GB`;
   }
 };
+
+export const formatCurrency = (amount: number) => {
+  return amount != null
+    ? amount.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    : "$0.00";
+};
