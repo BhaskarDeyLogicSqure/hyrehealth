@@ -19,7 +19,7 @@ import { getFileSize } from "@/lib/utils";
 import { IntakeFormQuestion } from "@/types/intakeForms";
 import { QuestionType } from "@/types/questionnaire";
 import { Checkbox } from "../ui/checkbox";
-
+import { US_SHORT_DATE_FORMAT } from "@/configs";
 interface IntakeFormCardProps {
   currentStep: number;
   responses: Record<string, any>;
@@ -28,6 +28,7 @@ interface IntakeFormCardProps {
   updateResponse: (value: any) => void;
   handleNext: () => void;
   getCurrentQuestionId: () => string;
+  uploadingFiles?: Set<string>;
 }
 
 const IntakeFormCard = ({
@@ -38,6 +39,7 @@ const IntakeFormCard = ({
   updateResponse,
   handleNext,
   getCurrentQuestionId,
+  uploadingFiles = new Set(),
 }: IntakeFormCardProps) => {
   const _renderQuestion = () => {
     const currentQuestion = getCurrentQuestion();
@@ -45,6 +47,7 @@ const IntakeFormCard = ({
     if (!currentQuestion) return null;
 
     const currentValue = responses?.[getCurrentQuestionId()];
+    const isUploading = uploadingFiles?.has(getCurrentQuestionId());
 
     switch (currentQuestion?.question?.questionType) {
       case QuestionType.Text:
@@ -212,7 +215,7 @@ const IntakeFormCard = ({
             {currentValue && (
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-sm text-gray-600">
-                  Selected: {formatDate(currentValue, "MM/DD/YYYY")}
+                  Selected: {formatDate(currentValue, US_SHORT_DATE_FORMAT)}
                 </span>
               </div>
             )}
@@ -355,6 +358,9 @@ const IntakeFormCard = ({
                       {currentQuestion?.question?.helpText}
                     </p>
                   )}
+                  {isUploading && (
+                    <p className="text-xs text-blue-600">Uploading file...</p>
+                  )}
                 </div>
 
                 <Input
@@ -372,19 +378,98 @@ const IntakeFormCard = ({
               </div>
 
               {currentValue && (
-                <div className="mt-2 flex items-center space-x-2 text-sm p-3 rounded-lg border bg-gray-50 border-gray-200">
-                  <File className="h-4 w-4 text-blue-600" />
-                  <span className="flex-1">
-                    {currentValue?.name?.length > 30
-                      ? currentValue?.name?.slice(0, 15) +
+                <div
+                  className={
+                    "mt-2 flex items-center space-x-2 text-sm p-3 rounded-lg border transition-colors " +
+                    (currentValue &&
+                    typeof currentValue === "object" &&
+                    currentValue?.uploadedUrl
+                      ? "bg-green-50 border-green-200"
+                      : currentValue &&
+                        typeof currentValue === "object" &&
+                        currentValue?.originalFile
+                      ? "bg-yellow-50 border-yellow-200"
+                      : "bg-gray-50 border-gray-200")
+                  }
+                >
+                  <File
+                    className={
+                      "h-4 w-4 " +
+                      (currentValue &&
+                      typeof currentValue === "object" &&
+                      currentValue?.uploadedUrl
+                        ? "text-green-600"
+                        : currentValue &&
+                          typeof currentValue === "object" &&
+                          currentValue?.originalFile
+                        ? "text-yellow-600"
+                        : "text-blue-600")
+                    }
+                  />
+                  <span
+                    className={
+                      "flex-1 " +
+                      (currentValue?.uploadedUrl
+                        ? "font-medium text-green-800"
+                        : currentValue?.originalFile
+                        ? "font-medium text-yellow-800"
+                        : "")
+                    }
+                    title={
+                      currentValue?.name ||
+                      currentValue?.originalFile?.name ||
+                      currentValue
+                    }
+                  >
+                    {(
+                      currentValue?.name ||
+                      currentValue?.originalFile?.name ||
+                      currentValue
+                    )?.length > 30
+                      ? (
+                          (currentValue?.name ||
+                            currentValue?.originalFile?.name ||
+                            currentValue) as string
+                        )?.slice(0, 15) +
                         "..." +
-                        currentValue?.name?.slice(-10)
-                      : currentValue?.name}
+                        (
+                          (currentValue?.name ||
+                            currentValue?.originalFile?.name ||
+                            currentValue) as string
+                        )?.slice(-10)
+                      : currentValue?.name ||
+                        currentValue?.originalFile?.name ||
+                        currentValue}
                   </span>
 
                   {currentValue?.size && (
-                    <span className="text-xs text-gray-400">
+                    <span
+                      className={
+                        "text-xs " +
+                        (currentValue?.uploadedUrl
+                          ? "text-green-700"
+                          : currentValue?.originalFile
+                          ? "text-yellow-700"
+                          : "text-gray-400")
+                      }
+                    >
                       ({getFileSize(currentValue?.size)})
+                    </span>
+                  )}
+                  {currentValue?.uploadedUrl && (
+                    <span
+                      className="text-xs text-green-600 font-bold"
+                      title="Uploaded"
+                    >
+                      Uploaded
+                    </span>
+                  )}
+                  {currentValue?.originalFile && !currentValue?.uploadedUrl && (
+                    <span
+                      className="text-xs text-yellow-600 font-bold"
+                      title="Pending Upload"
+                    >
+                      Pending
                     </span>
                   )}
 
@@ -394,6 +479,7 @@ const IntakeFormCard = ({
                     size="sm"
                     onClick={() => updateResponse(null)}
                     className="text-red-500 hover:text-red-700 h-6 w-6 p-0"
+                    disabled={isUploading}
                   >
                     ×
                   </Button>

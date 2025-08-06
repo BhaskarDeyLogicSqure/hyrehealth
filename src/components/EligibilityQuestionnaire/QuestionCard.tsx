@@ -30,6 +30,7 @@ import {
 } from "@/types/questionnaire";
 import { formatDate } from "@/lib/dayjs";
 import { getFileSize } from "@/lib/utils";
+import { US_SHORT_DATE_FORMAT } from "@/configs";
 
 interface ProductSection {
   productId: string;
@@ -263,7 +264,9 @@ QuestionCardProps) => {
             <div className="mt-2 space-y-2">
               {currentQuestion?.options?.map((option: QuestionnaireOption) => {
                 const optionValue =
-                  typeof option === "string" ? option : option?._id;
+                  typeof option === "string"
+                    ? option
+                    : option?._id || option?.id || option?.value;
                 const optionLabel =
                   typeof option === "string" ? option : option?.label;
 
@@ -415,7 +418,7 @@ QuestionCardProps) => {
             {currentValue && (
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-sm text-gray-600">
-                  Selected: {formatDate(currentValue, "MM/DD/YYYY")}
+                  Selected: {formatDate(currentValue, US_SHORT_DATE_FORMAT)}
                 </span>
                 {/* <Button
                   type="button"

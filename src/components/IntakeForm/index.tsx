@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import ThemeLoader from "@/components/ThemeLoader";
 import IntakeFormCard from "./IntakeFormCard";
 import useIntakeForm from "@/hooks/useIntakeForm";
+import UploadProgressPopup from "@/components/ui/UploadProgressPopup";
 
 const IntakeForm = () => {
   const router = useRouter();
@@ -23,6 +24,14 @@ const IntakeForm = () => {
     handleNext,
     handleBack,
     isSubmitting,
+    uploadingFiles,
+    // Upload progress popup state
+    showUploadPopup,
+    uploadProgress,
+    uploadFileName,
+    uploadError,
+    uploadComplete,
+    closeUploadPopup,
   } = useIntakeForm();
 
   const _getStepTitle = () => {
@@ -79,6 +88,7 @@ const IntakeForm = () => {
           updateResponse={updateResponse}
           handleNext={handleNext}
           getCurrentQuestionId={getCurrentQuestionId}
+          uploadingFiles={uploadingFiles}
         />
 
         {/* Navigation */}
@@ -101,6 +111,16 @@ const IntakeForm = () => {
           </div>
         )}
       </div>
+
+      {/* Upload Progress Popup */}
+      <UploadProgressPopup
+        isVisible={showUploadPopup}
+        progress={uploadProgress}
+        fileName={uploadFileName}
+        onClose={closeUploadPopup}
+        isComplete={uploadComplete}
+        error={uploadError}
+      />
     </div>
   );
 };

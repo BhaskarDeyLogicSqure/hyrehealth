@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Table,
@@ -18,86 +18,144 @@ import {
 } from "lucide-react";
 import { formatDate } from "@/lib/dayjs";
 import { Button } from "../ui/button";
-import { DIGITS_AFTER_DECIMALS } from "@/configs";
-import { Badge } from "../ui/badge";
+import { DIGITS_AFTER_DECIMALS, US_SHORT_DATE_FORMAT } from "@/configs";
 import ReviewModal from "./ReviewModal";
+import CustomPagination from "@/components/CustomPagination";
+import ThemeLoader from "@/components/ThemeLoader";
+import useOrderHistory from "@/hooks/useOrderHistory";
 
 const OrderHistoryTab = () => {
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const {
+    ordersList,
+    totalItems,
+    dataPayload,
+    reviewModal,
+    expandedOrders,
+    isInvoicesLoading,
+    invoicesError,
+    isInvoicesError,
+    handlePageChange,
+    getOrderStatusBadge,
+    toggleReviewModal,
+    handleReviewSubmit,
+    toggleOrderExpansion,
+    handleImageError,
+    getImageSrc,
+  } = useOrderHistory();
 
-  // Mock order data
-  const orders = [
-    {
-      id: "ORD-2024-001",
-      date: new Date("2024-01-15"),
-      productName: "Semaglutide",
-      dosage: "0.25mg",
-      total: 299.0,
-      status: "delivered",
-      trackingNumber: "1Z999AA1234567890",
-      canReorder: true,
-      image: "https://placehold.co/600x400",
-      review: {
-        rating: 4,
-        review: "qwerthsdfgb",
-      },
-    },
-    {
-      id: "ORD-2024-002",
-      date: new Date("2024-02-18"),
-      productName: "BPC-157",
-      dosage: "5mg",
-      total: 199.0,
-      status: "in_progress",
-      trackingNumber: "1Z999BB1234567891",
-      canReorder: true,
-      image: "https://placehold.co/600x400",
-      review: null,
-    },
-    {
-      id: "ORD-2023-089",
-      date: new Date("2023-12-10"),
-      productName: "NAD+ Therapy",
-      dosage: "100mg",
-      total: 349.0,
-      status: "refunded",
-      trackingNumber: null,
-      canReorder: false,
-      image: "https://placehold.co/600x400",
-      review: null,
-    },
-  ];
-
-  const getOrderStatusBadge = (status: string) => {
-    switch (status) {
-      case "delivered":
-        return <Badge className="bg-green-100 text-green-800">Delivered</Badge>;
-      case "in_progress":
-        return <Badge className="bg-blue-100 text-blue-800">In Progress</Badge>;
-      case "refunded":
-        return <Badge className="bg-red-100 text-red-800">Refunded</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
+  // Component to render multiple products
+  const _renderProducts = (
+    products: any[],
+    isMobile: boolean = false,
+    orderId?: string
+  ) => {
+    if (!products || products.length === 0) {
+      return (
+        <div className="flex items-center gap-3">
+          <div className="text-sm text-gray-500">No products found</div>
+        </div>
+      );
     }
+
+    if (products?.length === 1) {
+      const product = products?.[0];
+      return (
+        <div className="flex items-center gap-3">
+          <img
+            src={getImageSrc(product?.images?.[0])}
+            alt={product?.name || "Product"}
+            className={`${
+              isMobile ? "w-12 h-12" : "w-10 h-10"
+            } rounded object-cover`}
+            onError={() => handleImageError(product?.images?.[0])}
+          />
+          <div>
+            <div className="font-medium">{product?.name || "Product"}</div>
+            <div className="text-sm text-gray-500">
+              {product?.strength ? `${product?.strength}mg` : "N/A"}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Multiple products with show more toggle
+    const isExpanded = orderId ? expandedOrders[orderId] : false;
+    const displayedProducts = isExpanded ? products : products?.slice(0, 1);
+    const hasMoreProducts = products?.length > 1;
+
+    return (
+      <div className="space-y-2">
+        {displayedProducts?.map((product, index) => (
+          <div key={index} className="flex items-center gap-3">
+            <img
+              src={getImageSrc(product?.images?.[0])}
+              alt={product?.name || "Product"}
+              className={`${
+                isMobile ? "w-12 h-12" : "w-10 h-10"
+              } rounded object-cover`}
+              onError={() => handleImageError(product?.images?.[0])}
+            />
+            <div className="flex-1">
+              <div className="font-medium">{product?.name || "Product"}</div>
+              <div className="text-sm text-gray-500">
+                {product?.strength ? `${product?.strength}mg` : "N/A"}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {hasMoreProducts && orderId && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => toggleOrderExpansion(orderId)}
+            className="text-xs text-blue-600 hover:text-blue-700 p-0 h-auto"
+          >
+            {isExpanded
+              ? `Show less`
+              : `Show ${products?.length - 1} more product${
+                  products?.length - 1 > 1 ? "s" : ""
+                }`}
+          </Button>
+        )}
+      </div>
+    );
   };
 
-  const handleReviewClick = (order: any) => {
-    setSelectedOrder(order);
-    setReviewModalOpen(true);
-  };
+  // Loading state
+  if (isInvoicesLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="flex items-center justify-center py-12">
+          <ThemeLoader type="inline" variant="simple" size="lg" />
+        </div>
+      </div>
+    );
+  }
 
-  const handleReviewSubmit = (rating: number, review: string) => {
-    // Here you would typically make an API call to save the review
-    console.log("Review submitted:", {
-      rating,
-      review,
-      orderId: selectedOrder?.id,
-    });
-
-    // Update the order with the new review (in a real app, this would be done via API)
-    // For now, we'll just log it
-  };
+  // Error state
+  if (isInvoicesError) {
+    return (
+      <Card className="text-center py-12">
+        <CardContent>
+          <Package className="h-12 w-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Error Loading Orders
+          </h3>
+          <p className="text-gray-600 mb-4">
+            {invoicesError?.message || "Failed to load your order history"}
+          </p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="bg-brand-dark-blue hover:bg-brand-dark-blue/90"
+          >
+            Try Again
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <>
@@ -115,7 +173,7 @@ const OrderHistoryTab = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Order</TableHead>
-                  <TableHead>Product</TableHead>
+                  <TableHead>Products</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Total</TableHead>
                   <TableHead>Status</TableHead>
@@ -124,27 +182,23 @@ const OrderHistoryTab = () => {
               </TableHeader>
 
               <TableBody>
-                {orders?.map((order: any) => (
-                  <TableRow key={order?.id}>
-                    <TableCell className="font-medium">{order?.id}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={order?.image}
-                          alt={order?.productName}
-                          className="w-10 h-10 rounded object-cover"
-                        />
-                        <div>
-                          <div className="font-medium">
-                            {order?.productName}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {order?.dosage}
-                          </div>
-                        </div>
-                      </div>
+                {ordersList?.map((order: any) => (
+                  <TableRow key={order?._id || order?.id}>
+                    <TableCell className="font-medium">
+                      {order?.invoiceNumber || "N/A"}
                     </TableCell>
-                    <TableCell>{formatDate(order?.date)}</TableCell>
+                    <TableCell>
+                      {_renderProducts(
+                        order?.products || [],
+                        false,
+                        order?._id || order?.id
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {order?.date
+                        ? formatDate(order?.date, US_SHORT_DATE_FORMAT)
+                        : "N/A"}
+                    </TableCell>
                     <TableCell>
                       ${order?.total?.toFixed(DIGITS_AFTER_DECIMALS)}
                     </TableCell>
@@ -164,7 +218,7 @@ const OrderHistoryTab = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleReviewClick(order)}
+                          onClick={() => toggleReviewModal(true, order)}
                         >
                           <MessageSquare className="h-4 w-4 mr-1" />
                           Reviews
@@ -181,32 +235,32 @@ const OrderHistoryTab = () => {
 
       {/* Mobile Card View */}
       <div className="md:hidden space-y-4">
-        {orders?.map((order: any) => (
-          <Card key={order?.id}>
+        {ordersList?.map((order: any) => (
+          <Card key={order?._id || order?.id}>
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <CardTitle className="text-lg">{order?.id}</CardTitle>
+                  <CardTitle className="text-lg">
+                    {order?.invoiceNumber || "N/A"}
+                  </CardTitle>
                   <p className="text-sm text-gray-600">
-                    {formatDate(order?.date)}
+                    {order?.date
+                      ? formatDate(order?.date, US_SHORT_DATE_FORMAT)
+                      : "N/A"}
                   </p>
                 </div>
                 {getOrderStatusBadge(order?.status)}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
-                <img
-                  src={order?.image}
-                  alt={order?.productName}
-                  className="w-12 h-12 rounded object-cover"
-                />
-                <div>
-                  <div className="font-medium">{order?.productName}</div>
-                  <div className="text-sm text-gray-500">{order?.dosage}</div>
-                  <div className="text-lg font-semibold">
-                    ${order?.total?.toFixed(DIGITS_AFTER_DECIMALS)}
-                  </div>
+              <div className="space-y-3">
+                {_renderProducts(
+                  order?.products || [],
+                  true,
+                  order?._id || order?.id
+                )}
+                <div className="text-lg font-semibold">
+                  ${order?.total?.toFixed(DIGITS_AFTER_DECIMALS)}
                 </div>
               </div>
 
@@ -234,7 +288,7 @@ const OrderHistoryTab = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleReviewClick(order)}
+                  onClick={() => toggleReviewModal(true, order)}
                 >
                   <MessageSquare className="h-4 w-4 mr-1" />
                   Reviews
@@ -245,8 +299,22 @@ const OrderHistoryTab = () => {
         ))}
       </div>
 
+      {/* Pagination */}
+      {totalItems > 0 && (
+        <div className="mt-8">
+          <CustomPagination
+            currentPage={dataPayload?.page}
+            totalItems={totalItems}
+            itemsPerPage={dataPayload?.limit}
+            onPageChange={handlePageChange}
+            showInfo={true}
+            maxVisiblePages={5}
+          />
+        </div>
+      )}
+
       {/* Empty State */}
-      {orders?.length === 0 && (
+      {totalItems == 0 && (
         <Card className="text-center py-12">
           <CardContent>
             <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -256,7 +324,10 @@ const OrderHistoryTab = () => {
             <p className="text-gray-600 mb-4">
               Start your health journey with our personalized treatments
             </p>
-            <Button onClick={() => (window.location.href = "/products")}>
+            <Button
+              onClick={() => (window.location.href = "/products")}
+              className="bg-brand-dark-blue hover:bg-brand-dark-blue/90"
+            >
               Browse Treatments
             </Button>
           </CardContent>
@@ -265,10 +336,14 @@ const OrderHistoryTab = () => {
 
       {/* Review Modal */}
       <ReviewModal
-        isOpen={reviewModalOpen}
-        onClose={() => setReviewModalOpen(false)}
-        productName={selectedOrder?.productName || ""}
-        currentReview={selectedOrder?.review}
+        isOpen={reviewModal?.isOpen}
+        onClose={() => toggleReviewModal(false)}
+        productName={
+          (reviewModal?.order as any)?.products?.[0]?.name ||
+          (reviewModal?.order as any)?.productName ||
+          ""
+        }
+        currentReview={(reviewModal?.order as any)?.review}
         onSubmit={handleReviewSubmit}
       />
     </>

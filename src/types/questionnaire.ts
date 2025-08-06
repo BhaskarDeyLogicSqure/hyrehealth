@@ -18,6 +18,7 @@ export type QuestionnaireOption = {
   additionalQuestions: any[]; // You can replace 'any' with a more specific type if available
   isCorrect: boolean;
   _id: string;
+  id?: string;
 };
 
 export type Question = {

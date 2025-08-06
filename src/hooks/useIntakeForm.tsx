@@ -10,26 +10,25 @@ import {
   IntakeFormResponsePayload,
 } from "@/types/intakeForms";
 import { postCheckoutApi } from "@/api/postCheckout/postCheckoutApi";
+import useUploadService from "./useUploadService";
+
 const useIntakeForm = () => {
   const router = useRouter();
+  const { uploadImage } = useUploadService();
 
-  const {
-    intakeFormDataQuestions,
-    isIntakeFormLoading,
-    isIntakeFormError,
-    intakeFormError,
-  } = useIntakeFormData();
-
-  console.log({
-    intakeFormDataQuestions,
-    isIntakeFormLoading,
-    isIntakeFormError,
-    intakeFormError,
-  });
+  const { intakeFormDataQuestions } = useIntakeFormData();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
+
+  // Upload progress popup state
+  const [showUploadPopup, setShowUploadPopup] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadFileName, setUploadFileName] = useState("");
+  const [uploadError, setUploadError] = useState("");
+  const [uploadComplete, setUploadComplete] = useState(false);
 
   const questions = useMemo(
     () => intakeFormDataQuestions || [],
@@ -63,6 +62,111 @@ const useIntakeForm = () => {
     }));
   };
 
+  const closeUploadPopup = () => {
+    setShowUploadPopup(false);
+    setUploadProgress(0);
+    setUploadFileName("");
+    setUploadError("");
+    setUploadComplete(false);
+  };
+
+  const _handleFileUpload = async (file: File, questionId: string) => {
+    try {
+      setUploadingFiles((prev) => new Set(prev).add(questionId));
+      setShowUploadPopup(true);
+      setUploadFileName(file.name);
+      setUploadProgress(0);
+      setUploadError("");
+      setUploadComplete(false);
+
+      // Upload file to S3
+      const uploadResult = await uploadImage(
+        file,
+        "intake-forms/",
+        (progress) => {
+          console.log(`Upload progress for ${questionId}: ${progress}%`);
+          setUploadProgress(progress);
+        }
+      );
+
+      if (uploadResult) {
+        // Update response with uploaded file info
+        const fileInfo = {
+          originalFile: file,
+          uploadedUrl: uploadResult.url,
+          filename: uploadResult.filename,
+          contentType: uploadResult.contentType,
+          size: file.size,
+          name: file.name,
+        };
+
+        _updateResponse(fileInfo);
+        setUploadComplete(true);
+        setUploadProgress(100);
+
+        // Auto-hide popup after 2 seconds
+        setTimeout(() => {
+          closeUploadPopup();
+        }, 2000);
+
+        showSuccessToast("File uploaded successfully!");
+      } else {
+        setUploadError("Failed to upload file. Please try again.");
+        showErrorToast("Failed to upload file. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      setUploadError("Failed to upload file. Please try again.");
+      showErrorToast("Failed to upload file. Please try again.");
+    } finally {
+      setUploadingFiles((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(questionId);
+        return newSet;
+      });
+    }
+  };
+
+  const _updateResponseWithFileUpload = async (value: any) => {
+    const currentQuestion = _getCurrentQuestion();
+    if (!currentQuestion) return;
+
+    const questionId = _getCurrentQuestionId();
+
+    // Store file locally without uploading immediately
+    if (value instanceof File) {
+      // Store the file object locally for later upload
+      _updateResponse({
+        originalFile: value,
+        name: value.name,
+        size: value.size,
+        type: value.type,
+        uploadedUrl: null, // Will be set after upload
+      });
+    } else {
+      // For non-file values, update directly
+      _updateResponse(value);
+    }
+  };
+
+  const _uploadPendingFiles = async () => {
+    const currentQuestion = _getCurrentQuestion();
+    if (!currentQuestion) return;
+
+    const questionId = _getCurrentQuestionId();
+    const currentValue = responses?.[questionId];
+
+    // Check if current question has a file that needs uploading
+    if (
+      currentValue &&
+      typeof currentValue === "object" &&
+      currentValue?.originalFile instanceof File &&
+      !currentValue?.uploadedUrl
+    ) {
+      await _handleFileUpload(currentValue.originalFile, questionId);
+    }
+  };
+
   const _handleNext = async () => {
     if (currentStep === 0) {
       // Introduction step - move to first question
@@ -82,6 +186,9 @@ const useIntakeForm = () => {
         return;
       }
     }
+
+    // Upload any pending files before proceeding
+    await _uploadPendingFiles();
 
     if (currentStep === totalSteps - 1) {
       // Final step - submit form
@@ -129,9 +236,15 @@ const useIntakeForm = () => {
       if (responses && Object.keys(responses)?.length > 0) {
         payload["questionnaireResponses"] = Object.entries(responses)?.map(
           ([questionId, answer]) => {
+            // Handle file uploads - send the uploaded URL instead of file object
+            let processedAnswer = answer;
+            if (answer && typeof answer === "object" && answer.uploadedUrl) {
+              processedAnswer = answer.uploadedUrl;
+            }
+
             return {
               _question: questionId || undefined,
-              answer: answer || undefined,
+              answer: processedAnswer || undefined,
             };
           }
         );
@@ -140,9 +253,8 @@ const useIntakeForm = () => {
       console.log("Submitting intake form:", {
         payload,
       });
+      await postCheckoutApi.submitIntakeFormQuestions(payload);
 
-      const response = await postCheckoutApi.submitIntakeFormQuestions(payload);
-      console.log({ response });
       showSuccessToast("Intake form submitted successfully!");
       // Redirect to thank you page or order details
       router.push(`/pre-consultation`);
@@ -161,9 +273,17 @@ const useIntakeForm = () => {
     progress,
     questions,
     isSubmitting,
+    uploadingFiles,
+    // Upload progress popup state
+    showUploadPopup,
+    uploadProgress,
+    uploadFileName,
+    uploadError,
+    uploadComplete,
+    closeUploadPopup,
     getCurrentQuestion: _getCurrentQuestion,
     getCurrentQuestionId: _getCurrentQuestionId,
-    updateResponse: _updateResponse,
+    updateResponse: _updateResponseWithFileUpload,
     handleNext: _handleNext,
     handleBack: _handleBack,
   };

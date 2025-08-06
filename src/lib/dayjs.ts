@@ -10,7 +10,7 @@ import isBetweenPlugin from "dayjs/plugin/isBetween";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import isoWeek from "dayjs/plugin/isoWeek";
 import updateLocale from "dayjs/plugin/updateLocale";
-
+import { US_SHORT_DATE_FORMAT, US_DATE_TIME_FORMAT } from "@/configs";
 // Extend dayjs with plugins
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -52,7 +52,7 @@ dayjs.updateLocale("en", {
 // Utility functions for common date operations
 export const formatDate = (
   date: string | Date,
-  format: string = "MM/DD/YYYY"
+  format: string = US_SHORT_DATE_FORMAT
 ): string => {
   if (!date) return "";
   return dayjs(date)?.format(format);
@@ -60,7 +60,7 @@ export const formatDate = (
 
 export const formatDateTime = (
   date: string | Date,
-  format: string = "MM/DD/YYYY HH:mm:ss"
+  format: string = US_DATE_TIME_FORMAT
 ): string => {
   if (!date) return "";
   return dayjs(date)?.format(format);
@@ -101,8 +101,8 @@ export const isThisYear = (date: string | Date): boolean => {
   return dayjs(date)?.isSame(dayjs(), "year");
 };
 
-export const addDays = (date: string | Date, days: number): Date | null => {
-  if (!date || !days) return null;
+export const addDays = (date: string | Date, days: number): Date | string => {
+  if (!date || !days) return "";
   return dayjs(date)?.add(days, "day").toDate();
 };
 
@@ -267,7 +267,7 @@ export const convertToTimezone = (
 export const formatInTimezone = (
   date: string | Date,
   timezone: string,
-  format: string = "YYYY-MM-DD HH:mm:ss"
+  format: string = US_DATE_TIME_FORMAT
 ): string | null => {
   if (!date) return null;
   return dayjs(date)?.tz(timezone)?.format(format);

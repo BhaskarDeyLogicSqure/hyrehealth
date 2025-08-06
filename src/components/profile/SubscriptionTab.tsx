@@ -1,24 +1,22 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Card, CardContent } from "../ui/card";
 import { Package } from "lucide-react";
 import { Button } from "../ui/button";
 import SubscriptionCard from "./SubscriptionCard";
-import { useProfileApi } from "@/api/profile/useProfileApi";
+import CustomPagination from "@/components/CustomPagination";
 import ThemeLoader from "@/components/ThemeLoader";
+import useSubscription from "@/hooks/useSubscription";
 
 const SubscriptionTab = () => {
   const {
-    subscriptionData,
+    subscriptionsList,
+    totalItems,
     isSubscriptionLoading,
-    subscriptionError,
     isSubscriptionError,
-  } = useProfileApi();
-
-  console.log({
-    subscriptionData,
-    isSubscriptionLoading,
     subscriptionError,
-  });
+    dataPayload,
+    _handlePageChange,
+  } = useSubscription();
 
   // Show loading state
   if (isSubscriptionLoading) {
@@ -56,7 +54,7 @@ const SubscriptionTab = () => {
   }
 
   // Show empty state if no subscriptions
-  if (!subscriptionData || subscriptionData?.length === 0) {
+  if (!subscriptionsList || subscriptionsList?.length === 0) {
     return (
       <Card className="text-center py-12">
         <CardContent>
@@ -81,13 +79,27 @@ const SubscriptionTab = () => {
   return (
     <>
       <div className="space-y-6">
-        {subscriptionData?.map((subscription: any) => (
+        {subscriptionsList?.map((subscription: any) => (
           <SubscriptionCard
-            key={subscription?.id}
+            key={subscription?._doc?._id}
             subscription={subscription}
           />
         ))}
       </div>
+
+      {/* Pagination */}
+      {totalItems > 0 && (
+        <div className="mt-8">
+          <CustomPagination
+            currentPage={dataPayload?.page}
+            totalItems={totalItems}
+            itemsPerPage={dataPayload?.limit}
+            onPageChange={_handlePageChange}
+            showInfo={true}
+            maxVisiblePages={5}
+          />
+        </div>
+      )}
 
       {/* Add New Subscription */}
       <Card className="mt-8 border-dashed">

@@ -2,7 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { profileApi } from "./profileApi";
 import { STALE_TIME_FOR_REACT_QUERY } from "@/configs";
 
-export const useProfileApi = () => {
+export const useProfileApi = (
+  page?: number,
+  limit?: number,
+  subscriptionPage?: number,
+  subscriptionLimit?: number
+) => {
   const {
     data: profileData,
     isLoading: isProfileLoading,
@@ -18,18 +23,40 @@ export const useProfileApi = () => {
     error: subscriptionError,
     isError: isSubscriptionError,
   } = useQuery({
-    queryKey: ["subscription"],
-    queryFn: () => profileApi.getUserSubscriptions(),
+    queryKey: ["subscription", subscriptionPage, subscriptionLimit],
+    queryFn: () =>
+      profileApi.getUserSubscriptions(subscriptionPage, subscriptionLimit),
+    staleTime: STALE_TIME_FOR_REACT_QUERY,
+  });
+
+  const {
+    data: invoicesData,
+    isLoading: isInvoicesLoading,
+    error: invoicesError,
+    isError: isInvoicesError,
+  } = useQuery({
+    queryKey: ["invoices", page, limit],
+    queryFn: () => profileApi.getAllInvoices(page, limit),
     staleTime: STALE_TIME_FOR_REACT_QUERY,
   });
 
   return {
+    // profile
     profileData,
     isProfileLoading,
     profileError,
+
+    // subscription
     subscriptionData: subscriptionData?.subscriptions,
+    subscriptionPagination: subscriptionData?.pagination,
     isSubscriptionLoading,
     subscriptionError,
     isSubscriptionError,
+
+    // invoices
+    invoicesData: invoicesData,
+    isInvoicesLoading,
+    invoicesError,
+    isInvoicesError,
   };
 };
