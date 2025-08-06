@@ -40,3 +40,31 @@ export interface PortalFeatures {
   enableCustomization: boolean;
   requireDeliveryConfirmation: boolean;
 }
+
+export interface Invoice {
+  _id: string;
+  invoiceNumber: string;
+  order: any | null;
+  products: {
+    _id: string;
+    name: string;
+    description: string;
+    strength: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }[];
+  date: string;
+  total: number;
+  status: string;
+  type: string;
+  customer: {
+    name: string;
+    email: string;
+  };
+  merchant: {
+    name: string;
+    email: string;
+  };
+  currency: string;
+}

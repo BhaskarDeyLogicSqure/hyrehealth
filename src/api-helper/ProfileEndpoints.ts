@@ -23,3 +23,10 @@ export const GET_USER_SUBSCRIPTIONS: EndpointConfigType = {
   attachToken: true,
   attachXUserId: true,
 };
+
+export const GET_ALL_INVOICES: EndpointConfigType = {
+  endpoint: "/invoices",
+  httpType: httpType.GET,
+  attachToken: true,
+  attachXUserId: true,
+};
