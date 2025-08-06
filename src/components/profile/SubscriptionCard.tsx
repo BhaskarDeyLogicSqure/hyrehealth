@@ -63,6 +63,16 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
             <p className="text-gray-600 text-sm mt-1">
               {formatCurrency(_getPricePerMonth)}/month
             </p>
+
+            <p className="text-gray-600 text-sm mt-1">
+              Purchased Date:{" "}
+              {subscription?._doc?.billing?.startDate
+                ? formatDate(
+                    subscription?._doc?.billing?.startDate,
+                    US_SHORT_DATE_FORMAT
+                  )
+                : null}
+            </p>
           </div>
           {_getSubscriptionStatusBadge(
             subscription?._doc?.status,
