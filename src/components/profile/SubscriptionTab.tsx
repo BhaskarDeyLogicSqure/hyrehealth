@@ -1,24 +1,54 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Package } from "lucide-react";
 import { Button } from "../ui/button";
 import SubscriptionCard from "./SubscriptionCard";
 import { useProfileApi } from "@/api/profile/useProfileApi";
+import CustomPagination from "@/components/CustomPagination";
 import ThemeLoader from "@/components/ThemeLoader";
 
 const SubscriptionTab = () => {
+  const [dataPayload, setDataPayload] = useState({
+    page: 1,
+    limit: 10,
+  });
+
   const {
     subscriptionData,
+    subscriptionPagination,
     isSubscriptionLoading,
     subscriptionError,
     isSubscriptionError,
-  } = useProfileApi();
+  } = useProfileApi(
+    undefined,
+    undefined,
+    dataPayload?.page,
+    dataPayload?.limit
+  );
 
   console.log({
     subscriptionData,
+    subscriptionPagination,
     isSubscriptionLoading,
     subscriptionError,
   });
+
+  // Handle pagination data structure
+  const subscriptionsList = Array.isArray(subscriptionData)
+    ? subscriptionData
+    : subscriptionData || [];
+  const paginationData = Array.isArray(subscriptionData)
+    ? null
+    : subscriptionPagination;
+
+  // Calculate pagination
+  const totalItems = paginationData?.total || subscriptionsList?.length || 0;
+
+  const _handlePageChange = (page: number = 1) => {
+    setDataPayload({ ...dataPayload, page });
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // Show loading state
   if (isSubscriptionLoading) {
@@ -56,7 +86,7 @@ const SubscriptionTab = () => {
   }
 
   // Show empty state if no subscriptions
-  if (!subscriptionData || subscriptionData?.length === 0) {
+  if (!subscriptionsList || subscriptionsList?.length === 0) {
     return (
       <Card className="text-center py-12">
         <CardContent>
@@ -81,13 +111,27 @@ const SubscriptionTab = () => {
   return (
     <>
       <div className="space-y-6">
-        {subscriptionData?.map((subscription: any) => (
+        {subscriptionsList?.map((subscription: any) => (
           <SubscriptionCard
             key={subscription?._doc?._id}
             subscription={subscription}
           />
         ))}
       </div>
+
+      {/* Pagination */}
+      {totalItems > 0 && (
+        <div className="mt-8">
+          <CustomPagination
+            currentPage={dataPayload?.page}
+            totalItems={totalItems}
+            itemsPerPage={dataPayload?.limit}
+            onPageChange={_handlePageChange}
+            showInfo={true}
+            maxVisiblePages={5}
+          />
+        </div>
+      )}
 
       {/* Add New Subscription */}
       <Card className="mt-8 border-dashed">

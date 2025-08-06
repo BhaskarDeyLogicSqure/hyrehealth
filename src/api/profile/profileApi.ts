@@ -19,13 +19,22 @@ export const profileApi = {
     return response?.data;
   },
 
-  getUserSubscriptions: async () => {
+  getUserSubscriptions: async (page?: number, limit?: number) => {
+    const params = new URLSearchParams();
+    if (page) params?.append("page", page?.toString());
+    if (limit) params?.append("limit", limit?.toString());
+
+    const queryString = params?.toString();
+    const endpoint = queryString
+      ? `${GET_USER_SUBSCRIPTIONS.endpoint}?${queryString}`
+      : GET_USER_SUBSCRIPTIONS.endpoint;
+
     const response = await apiService.get<{
       data: any;
       error: boolean;
-    }>(GET_USER_SUBSCRIPTIONS.endpoint);
+    }>(endpoint);
     if (response?.error) {
-      throw new Error("Failed to load profile");
+      throw new Error("Failed to load subscriptions");
     }
 
     return response?.data;

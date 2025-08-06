@@ -201,7 +201,9 @@ const OrderHistoryTab = () => {
   if (isInvoicesLoading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <ThemeLoader variant="full-page" />
+        <div className="flex items-center justify-center py-12">
+          <ThemeLoader type="inline" variant="simple" size="lg" />
+        </div>
       </div>
     );
   }

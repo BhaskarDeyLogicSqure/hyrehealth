@@ -2,7 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { profileApi } from "./profileApi";
 import { STALE_TIME_FOR_REACT_QUERY } from "@/configs";
 
-export const useProfileApi = (page?: number, limit?: number) => {
+export const useProfileApi = (
+  page?: number,
+  limit?: number,
+  subscriptionPage?: number,
+  subscriptionLimit?: number
+) => {
   const {
     data: profileData,
     isLoading: isProfileLoading,
@@ -18,8 +23,9 @@ export const useProfileApi = (page?: number, limit?: number) => {
     error: subscriptionError,
     isError: isSubscriptionError,
   } = useQuery({
-    queryKey: ["subscription"],
-    queryFn: () => profileApi.getUserSubscriptions(),
+    queryKey: ["subscription", subscriptionPage, subscriptionLimit],
+    queryFn: () =>
+      profileApi.getUserSubscriptions(subscriptionPage, subscriptionLimit),
     staleTime: STALE_TIME_FOR_REACT_QUERY,
   });
 
@@ -42,6 +48,7 @@ export const useProfileApi = (page?: number, limit?: number) => {
 
     // subscription
     subscriptionData: subscriptionData?.subscriptions,
+    subscriptionPagination: subscriptionData?.pagination,
     isSubscriptionLoading,
     subscriptionError,
     isSubscriptionError,

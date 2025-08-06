@@ -101,8 +101,8 @@ export const isThisYear = (date: string | Date): boolean => {
   return dayjs(date)?.isSame(dayjs(), "year");
 };
 
-export const addDays = (date: string | Date, days: number): Date | null => {
-  if (!date || !days) return null;
+export const addDays = (date: string | Date, days: number): Date | string => {
+  if (!date || !days) return "";
   return dayjs(date)?.add(days, "day").toDate();
 };
 

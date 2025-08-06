@@ -4,19 +4,20 @@ import { Package } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { CalendarIcon, CheckCircle, AlertTriangle, X } from "lucide-react";
-import { formatDate } from "@/lib/dayjs";
+import { addDays, formatDate, isDateBefore } from "@/lib/dayjs";
 
 import { formatCurrency } from "@/lib/utils";
 import { READABLE_DATE_FORMAT, US_SHORT_DATE_FORMAT } from "@/configs";
+
 const SubscriptionCard = ({ subscription }: { subscription: any }) => {
   // Helper functions
   const _getSubscriptionStatusBadge = (
     status: string,
-    consultationExpiry: Date
+    nextBillingDate: Date
   ) => {
     const now = new Date();
-    const isExpiringSoon =
-      consultationExpiry?.getTime() - now?.getTime() < 14 * 24 * 60 * 60 * 1000;
+    // check if the next billing date is within 14 days
+    const isExpiringSoon = isDateBefore(nextBillingDate, addDays(now, 14));
 
     if (status === "reconsult_needed") {
       return <Badge variant="destructive">Reconsult Required</Badge>;
@@ -65,7 +66,7 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
           </div>
           {_getSubscriptionStatusBadge(
             subscription?._doc?.status,
-            subscription?._doc?.consultationExpiry
+            subscription?._doc?.billing?.nextBillingDate
           )}
         </div>
       </CardHeader>
@@ -82,8 +83,8 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
                 </h4>
                 <p className="text-red-700 text-sm mt-1">
                   Your consultation expired on{" "}
-                  {formatDate(subscription?._doc?.consultationExpiry)}. Complete
-                  a new consultation to resume your subscription.
+                  {formatDate(subscription?._doc?.billing?.nextBillingDate)}.
+                  Complete a new consultation to resume your subscription.
                 </p>
                 <Button size="sm" className="mt-3 bg-red-600 hover:bg-red-700">
                   Schedule Consultation
@@ -94,31 +95,34 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
         )}
 
         {subscription?._doc?.status === "active" &&
-          subscription?._doc?.consultationExpiry?.getTime() - Date.now() <
-            14 * 24 * 60 * 60 * 1000 && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <div className="flex items-start">
-                <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5 mr-3" />
-                <div>
-                  <h4 className="font-semibold text-orange-800">
-                    Consultation Expires Soon
-                  </h4>
-                  <p className="text-orange-700 text-sm mt-1">
-                    Your consultation expires on{" "}
-                    {formatDate(subscription?._doc?.consultationExpiry)}.
-                    Schedule a renewal to avoid interruption.
-                  </p>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="mt-3 border-orange-300 text-orange-700"
-                  >
-                    Renew Consultation
-                  </Button>
-                </div>
+        subscription?._doc?.billing?.nextBillingDate &&
+        isDateBefore(
+          subscription?._doc?.billing?.nextBillingDate,
+          addDays(new Date(), 14)
+        ) ? (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5 mr-3" />
+              <div>
+                <h4 className="font-semibold text-orange-800">
+                  Consultation Expires Soon
+                </h4>
+                <p className="text-orange-700 text-sm mt-1">
+                  Your consultation expires on{" "}
+                  {formatDate(subscription?._doc?.billing?.nextBillingDate)}.
+                  Schedule a renewal to avoid interruption.
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-3 border-orange-300 text-orange-700"
+                >
+                  Renew Consultation
+                </Button>
               </div>
             </div>
-          )}
+          </div>
+        ) : null}
 
         {/* Subscription Details */}
         <div className="grid md:grid-cols-2 gap-6">
@@ -127,7 +131,7 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
               <CalendarIcon className="h-4 w-4 mr-2" />
               Upcoming
             </h4>
-            {subscription?._doc?.billing?.nextBillingDate ? (
+            {subscription?._doc?.status === "active" ? (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Next shipment:</span>
@@ -170,21 +174,23 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
                   <span
                     className="font-medium"
                     title={formatDate(
-                      subscription?._doc?.billing?.consultationExpiry,
+                      subscription?._doc?.billing?.nextBillingDate,
                       READABLE_DATE_FORMAT
                     )}
                   >
-                    {subscription?._doc?.consultationExpiry
+                    {subscription?._doc?.billing?.nextBillingDate
                       ? formatDate(
-                          subscription?._doc?.consultationExpiry,
+                          subscription?._doc?.billing?.nextBillingDate,
                           US_SHORT_DATE_FORMAT
                         )
                       : "N/A"}
                   </span>
                 </div>
               </div>
-            ) : (
+            ) : subscription?._doc?.status === "paused" ? (
               <p className="text-gray-500 text-sm">Subscription paused</p>
+            ) : (
+              <p className="text-gray-500 text-sm">No data available</p>
             )}
           </div>
 
