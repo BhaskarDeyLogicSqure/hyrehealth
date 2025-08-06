@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,56 +10,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, Mail, KeyRound, CheckCircle } from "lucide-react";
+import { Loader2, Mail, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import useForgotPassword from "@/hooks/useForgotPassword";
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [error, setError] = useState("");
-  const [validationError, setValidationError] = useState("");
-
-  const validateForm = () => {
-    if (!email.trim()) {
-      setValidationError("Email is required");
-      return false;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setValidationError("Please enter a valid email address");
-      return false;
-    }
-
-    setValidationError("");
-    return true;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      // Simulate API call for demo
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // In a real app, you would make an API call here
-      // await forgotPasswordApi({ email });
-
-      setIsSubmitted(true);
-    } catch (error) {
-      setError("An error occurred. Please try again later.");
-      console.error("Forgot password failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {
+    email,
+    isLoading,
+    isSubmitted,
+    error,
+    validationError,
+    handleSubmit,
+    setEmail,
+    setIsSubmitted,
+    setValidationError,
+  } = useForgotPassword();
 
   // Success state
   if (isSubmitted) {
@@ -142,7 +107,7 @@ export default function ForgotPasswordPage() {
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-md p-3 dark:bg-red-900/20 dark:border-red-800">
                 <p className="text-red-700 dark:text-red-400 text-sm">
-                  {error}
+                  {error?.message}
                 </p>
               </div>
             )}

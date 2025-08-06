@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useProfileApi } from "@/api/profile/useProfileApi";
 import { Badge } from "@/components/ui/badge";
 
-const useOrderHistory = () => {
+const useOrderHistory = (customerId: string) => {
   const [dataPayload, setDataPayload] = useState({
     page: 1,
     limit: 10,
@@ -14,7 +14,13 @@ const useOrderHistory = () => {
     isInvoicesLoading,
     invoicesError,
     isInvoicesError,
-  } = useProfileApi(dataPayload?.page, dataPayload?.limit);
+  } = useProfileApi(
+    dataPayload?.page,
+    dataPayload?.limit,
+    undefined,
+    undefined,
+    customerId
+  );
 
   const [reviewModal, setReviewModal] = useState({
     isOpen: false,
@@ -41,7 +47,6 @@ const useOrderHistory = () => {
   };
 
   const _getOrderStatusBadge = (status: string) => {
-    console.log({ status });
     switch (status) {
       case "paid":
         return <Badge className="bg-green-100 text-green-800">Paid</Badge>;

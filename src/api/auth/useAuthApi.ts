@@ -31,9 +31,40 @@ export const useAuthApi = () => {
     },
   });
 
+  const forgotPasswordMutation = useMutation({
+    mutationFn: authApi.forgotPassword,
+    onSuccess: (response) => {
+      showSuccessToast("Password reset email sent");
+    },
+    onError: (error) => {
+      showErrorToast(error?.message || "Something went wrong");
+    },
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: authApi.resetPassword,
+    onSuccess: (response) => {
+      showSuccessToast("Password reset successful");
+    },
+    onError: (error) => {
+      showErrorToast(error?.message || "Something went wrong");
+    },
+  });
+
   return {
-    login: loginMutation.mutate,
+    // login
+    login: loginMutation.mutateAsync,
     isLoading: loginMutation.isPending,
     error: loginMutation.error,
+
+    // forgot password
+    forgotPassword: forgotPasswordMutation.mutateAsync,
+    isForgotPasswordLoading: forgotPasswordMutation.isPending,
+    forgotPasswordError: forgotPasswordMutation.error,
+
+    // reset password
+    resetPassword: resetPasswordMutation.mutateAsync,
+    isResetPasswordLoading: resetPasswordMutation.isPending,
+    resetPasswordError: resetPasswordMutation.error,
   };
 };

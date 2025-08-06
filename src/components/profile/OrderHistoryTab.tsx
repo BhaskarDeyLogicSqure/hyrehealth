@@ -24,7 +24,7 @@ import CustomPagination from "@/components/CustomPagination";
 import ThemeLoader from "@/components/ThemeLoader";
 import useOrderHistory from "@/hooks/useOrderHistory";
 
-const OrderHistoryTab = () => {
+const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
   const {
     ordersList,
     totalItems,
@@ -41,7 +41,7 @@ const OrderHistoryTab = () => {
     toggleOrderExpansion,
     handleImageError,
     getImageSrc,
-  } = useOrderHistory();
+  } = useOrderHistory(customerId);
 
   // Component to render multiple products
   const _renderProducts = (

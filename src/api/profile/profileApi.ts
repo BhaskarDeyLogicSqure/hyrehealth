@@ -40,10 +40,15 @@ export const profileApi = {
     return response?.data;
   },
 
-  getAllInvoices: async (page?: number, limit?: number) => {
+  getAllInvoices: async (
+    page?: number,
+    limit?: number,
+    customerId?: string
+  ) => {
     const params = new URLSearchParams();
     if (page) params?.append("page", page?.toString());
     if (limit) params?.append("limit", limit?.toString());
+    if (customerId) params?.append("customerId", customerId);
 
     const queryString = params?.toString();
     const endpoint = queryString

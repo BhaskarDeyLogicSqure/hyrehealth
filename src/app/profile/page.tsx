@@ -110,7 +110,7 @@ const ProfilePage = () => {
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-6 mt-8">
-            <OrderHistoryTab />
+            <OrderHistoryTab customerId={user?.id || ""} />
           </TabsContent>
 
           <TabsContent value="payments" className="space-y-6 mt-8">

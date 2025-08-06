@@ -6,7 +6,8 @@ export const useProfileApi = (
   page?: number,
   limit?: number,
   subscriptionPage?: number,
-  subscriptionLimit?: number
+  subscriptionLimit?: number,
+  customerId?: string
 ) => {
   const {
     data: profileData,
@@ -35,8 +36,8 @@ export const useProfileApi = (
     error: invoicesError,
     isError: isInvoicesError,
   } = useQuery({
-    queryKey: ["invoices", page, limit],
-    queryFn: () => profileApi.getAllInvoices(page, limit),
+    queryKey: ["invoices", page, limit, customerId],
+    queryFn: () => profileApi.getAllInvoices(page, limit, customerId),
     staleTime: STALE_TIME_FOR_REACT_QUERY,
   });
 
