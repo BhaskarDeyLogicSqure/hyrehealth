@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Table,
@@ -18,104 +18,30 @@ import {
 } from "lucide-react";
 import { formatDate } from "@/lib/dayjs";
 import { Button } from "../ui/button";
-import {
-  DEFAULT_IMAGE_URL,
-  DIGITS_AFTER_DECIMALS,
-  US_SHORT_DATE_FORMAT,
-} from "@/configs";
-import { Badge } from "../ui/badge";
+import { DIGITS_AFTER_DECIMALS, US_SHORT_DATE_FORMAT } from "@/configs";
 import ReviewModal from "./ReviewModal";
-import { useProfileApi } from "@/api/profile/useProfileApi";
 import CustomPagination from "@/components/CustomPagination";
 import ThemeLoader from "@/components/ThemeLoader";
+import useOrderHistory from "@/hooks/useOrderHistory";
 
 const OrderHistoryTab = () => {
-  const [dataPayload, setDataPayload] = useState({
-    page: 1,
-    limit: 10,
-  });
-
   const {
-    invoicesData: orders,
+    ordersList,
+    totalItems,
+    dataPayload,
+    reviewModal,
+    expandedOrders,
     isInvoicesLoading,
     invoicesError,
     isInvoicesError,
-  } = useProfileApi(dataPayload?.page, dataPayload?.limit);
-
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
-  const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>(
-    {}
-  );
-  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
-
-  console.log({ orders });
-
-  // Handle pagination data structure
-  const ordersList = Array.isArray(orders) ? orders : orders?.invoices || [];
-  const paginationData = Array.isArray(orders) ? null : orders?.pagination;
-
-  // Calculate pagination
-  const totalItems = paginationData?.total || ordersList?.length || 0;
-
-  const _handlePageChange = (page: number = 1) => {
-    setDataPayload({ ...dataPayload, page });
-    // Scroll to top when page changes
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const _getOrderStatusBadge = (status: string) => {
-    console.log({ status });
-    switch (status) {
-      case "paid":
-        return <Badge className="bg-green-100 text-green-800">Paid</Badge>;
-      case "in_progress":
-        return <Badge className="bg-blue-100 text-blue-800">In Progress</Badge>;
-      case "refunded":
-        return <Badge className="bg-red-100 text-red-800">Refunded</Badge>;
-      case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-      case "cancelled":
-        return <Badge className="bg-gray-100 text-gray-800">Cancelled</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
-
-  const handleReviewClick = (order: any) => {
-    setSelectedOrder(order);
-    setReviewModalOpen(true);
-  };
-
-  const handleReviewSubmit = (rating: number, review: string) => {
-    // Here you would typically make an API call to save the review
-    console.log("Review submitted:", {
-      rating,
-      review,
-      orderId: selectedOrder?.id,
-    });
-
-    // Update the order with the new review (in a real app, this would be done via API)
-    // For now, we'll just log it
-  };
-
-  const toggleOrderExpansion = (orderId: string) => {
-    setExpandedOrders((prev) => ({
-      ...prev,
-      [orderId]: !prev[orderId],
-    }));
-  };
-
-  const handleImageError = (imageUrl: string) => {
-    setFailedImages((prev) => new Set(prev).add(imageUrl));
-  };
-
-  const getImageSrc = (imageUrl: string) => {
-    if (!imageUrl || failedImages.has(imageUrl)) {
-      return DEFAULT_IMAGE_URL;
-    }
-    return imageUrl;
-  };
+    handlePageChange,
+    getOrderStatusBadge,
+    toggleReviewModal,
+    handleReviewSubmit,
+    toggleOrderExpansion,
+    handleImageError,
+    getImageSrc,
+  } = useOrderHistory();
 
   // Component to render multiple products
   const _renderProducts = (
@@ -276,7 +202,7 @@ const OrderHistoryTab = () => {
                     <TableCell>
                       ${order?.total?.toFixed(DIGITS_AFTER_DECIMALS)}
                     </TableCell>
-                    <TableCell>{_getOrderStatusBadge(order?.status)}</TableCell>
+                    <TableCell>{getOrderStatusBadge(order?.status)}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm">
@@ -292,7 +218,7 @@ const OrderHistoryTab = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleReviewClick(order)}
+                          onClick={() => toggleReviewModal(true, order)}
                         >
                           <MessageSquare className="h-4 w-4 mr-1" />
                           Reviews
@@ -323,7 +249,7 @@ const OrderHistoryTab = () => {
                       : "N/A"}
                   </p>
                 </div>
-                {_getOrderStatusBadge(order?.status)}
+                {getOrderStatusBadge(order?.status)}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -362,7 +288,7 @@ const OrderHistoryTab = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleReviewClick(order)}
+                  onClick={() => toggleReviewModal(true, order)}
                 >
                   <MessageSquare className="h-4 w-4 mr-1" />
                   Reviews
@@ -380,7 +306,7 @@ const OrderHistoryTab = () => {
             currentPage={dataPayload?.page}
             totalItems={totalItems}
             itemsPerPage={dataPayload?.limit}
-            onPageChange={_handlePageChange}
+            onPageChange={handlePageChange}
             showInfo={true}
             maxVisiblePages={5}
           />
@@ -410,12 +336,14 @@ const OrderHistoryTab = () => {
 
       {/* Review Modal */}
       <ReviewModal
-        isOpen={reviewModalOpen}
-        onClose={() => setReviewModalOpen(false)}
+        isOpen={reviewModal?.isOpen}
+        onClose={() => toggleReviewModal(false)}
         productName={
-          selectedOrder?.products?.[0]?.name || selectedOrder?.productName || ""
+          (reviewModal?.order as any)?.products?.[0]?.name ||
+          (reviewModal?.order as any)?.productName ||
+          ""
         }
-        currentReview={selectedOrder?.review}
+        currentReview={(reviewModal?.order as any)?.review}
         onSubmit={handleReviewSubmit}
       />
     </>

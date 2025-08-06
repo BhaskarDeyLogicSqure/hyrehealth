@@ -1,54 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent } from "../ui/card";
 import { Package } from "lucide-react";
 import { Button } from "../ui/button";
 import SubscriptionCard from "./SubscriptionCard";
-import { useProfileApi } from "@/api/profile/useProfileApi";
 import CustomPagination from "@/components/CustomPagination";
 import ThemeLoader from "@/components/ThemeLoader";
+import useSubscription from "@/hooks/useSubscription";
 
 const SubscriptionTab = () => {
-  const [dataPayload, setDataPayload] = useState({
-    page: 1,
-    limit: 10,
-  });
-
   const {
-    subscriptionData,
-    subscriptionPagination,
+    subscriptionsList,
+    totalItems,
     isSubscriptionLoading,
-    subscriptionError,
     isSubscriptionError,
-  } = useProfileApi(
-    undefined,
-    undefined,
-    dataPayload?.page,
-    dataPayload?.limit
-  );
-
-  console.log({
-    subscriptionData,
-    subscriptionPagination,
-    isSubscriptionLoading,
     subscriptionError,
-  });
-
-  // Handle pagination data structure
-  const subscriptionsList = Array.isArray(subscriptionData)
-    ? subscriptionData
-    : subscriptionData || [];
-  const paginationData = Array.isArray(subscriptionData)
-    ? null
-    : subscriptionPagination;
-
-  // Calculate pagination
-  const totalItems = paginationData?.total || subscriptionsList?.length || 0;
-
-  const _handlePageChange = (page: number = 1) => {
-    setDataPayload({ ...dataPayload, page });
-    // Scroll to top when page changes
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+    dataPayload,
+    _handlePageChange,
+  } = useSubscription();
 
   // Show loading state
   if (isSubscriptionLoading) {
