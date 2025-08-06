@@ -54,7 +54,7 @@ export default function LoginPage() {
     }
 
     try {
-      login({ email, password });
+      await login({ handle: email, password });
     } catch (error) {
       console.error("Login failed:", error);
     }

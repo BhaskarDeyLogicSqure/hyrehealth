@@ -99,10 +99,10 @@ export default function GlobalErrorHandler() {
 
 // Utility functions for manual error handling
 export const showErrorToast = (
-  message: string,
+  message?: string,
   options: ErrorToastOptions = {}
 ) => {
-  toast.error(message, {
+  toast.error(message || "Something went wrong", {
     duration: options.duration || 5000,
     style: {
       background: "#ef4444",
