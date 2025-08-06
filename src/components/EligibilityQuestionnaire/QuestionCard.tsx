@@ -264,7 +264,9 @@ QuestionCardProps) => {
             <div className="mt-2 space-y-2">
               {currentQuestion?.options?.map((option: QuestionnaireOption) => {
                 const optionValue =
-                  typeof option === "string" ? option : option?._id;
+                  typeof option === "string"
+                    ? option
+                    : option?._id || option?.id || option?.value;
                 const optionLabel =
                   typeof option === "string" ? option : option?.label;
 

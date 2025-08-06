@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -15,8 +14,6 @@ interface QuestionFormProps {
 }
 
 const QuestionForm = ({ questions, productId }: QuestionFormProps) => {
-  const router = useRouter();
-
   const {
     currentStep,
     responses,
