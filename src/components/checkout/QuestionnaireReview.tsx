@@ -5,7 +5,7 @@ import { CheckCircle, XCircle, AlertCircle, Clock } from "lucide-react";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import { QuestionType } from "@/types/questionnaire";
 import { formatDate } from "@/lib/dayjs";
-
+import { READABLE_DATE_FORMAT } from "@/configs";
 const QuestionnaireReview = () => {
   const {
     questionnaire,
@@ -34,7 +34,7 @@ const QuestionnaireReview = () => {
       case QuestionType.Boolean:
         return answer ? "Yes" : "No";
       case QuestionType.Date:
-        return formatDate(answer, "MMMM D, YYYY");
+        return formatDate(answer, READABLE_DATE_FORMAT);
       default:
         return String(answer);
     }
@@ -112,7 +112,7 @@ const QuestionnaireReview = () => {
             {questionnaire?.completedAt && (
               <span className="text-sm text-gray-500">
                 Completed on{" "}
-                {formatDate(questionnaire?.completedAt, "MMMM D, YYYY")}
+                {formatDate(questionnaire?.completedAt, READABLE_DATE_FORMAT)}
               </span>
             )}
           </div>

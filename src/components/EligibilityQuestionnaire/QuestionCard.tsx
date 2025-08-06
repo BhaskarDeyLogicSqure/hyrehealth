@@ -30,6 +30,7 @@ import {
 } from "@/types/questionnaire";
 import { formatDate } from "@/lib/dayjs";
 import { getFileSize } from "@/lib/utils";
+import { US_SHORT_DATE_FORMAT } from "@/configs";
 
 interface ProductSection {
   productId: string;
@@ -415,7 +416,7 @@ QuestionCardProps) => {
             {currentValue && (
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-sm text-gray-600">
-                  Selected: {formatDate(currentValue, "MM/DD/YYYY")}
+                  Selected: {formatDate(currentValue, US_SHORT_DATE_FORMAT)}
                 </span>
                 {/* <Button
                   type="button"

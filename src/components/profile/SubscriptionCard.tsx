@@ -5,10 +5,9 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { CalendarIcon, CheckCircle, AlertTriangle, X } from "lucide-react";
 import { formatDate } from "@/lib/dayjs";
-import SkipShipmentModal from "./modals/SkipShipmentModal";
-import PauseSubscriptionModal from "./modals/PauseSubscriptionModal";
-import { formatCurrency } from "@/lib/utils";
 
+import { formatCurrency } from "@/lib/utils";
+import { READABLE_DATE_FORMAT, US_SHORT_DATE_FORMAT } from "@/configs";
 const SubscriptionCard = ({ subscription }: { subscription: any }) => {
   // Helper functions
   const _getSubscriptionStatusBadge = (
@@ -39,23 +38,25 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
   };
 
   const _getPricePerMonth = useMemo(() => {
-    const price = subscription?.billing?.amount;
-    const duration = subscription?.plan?.intervalCount;
+    const price = subscription?._doc?.billing?.amount;
+    const duration = subscription?._doc?.plan?.intervalCount;
     const pricePerMonth = price / duration;
 
     return pricePerMonth;
   }, [subscription]);
 
   return (
-    <Card key={subscription?.id} className="overflow-hidden">
+    <Card key={subscription?._doc?.id} className="overflow-hidden">
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
           <div>
             <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
-              {subscription?.product?.name || "N/A"}
-              {subscription?.strength ? (
-                <Badge variant="outline">{subscription?.strength}mg</Badge>
+              {subscription?._doc?.product?.name || "N/A"}
+              {subscription?._doc?.strength ? (
+                <Badge variant="outline">
+                  {subscription?._doc?.strength}mg
+                </Badge>
               ) : null}
             </CardTitle>
             <p className="text-gray-600 text-sm mt-1">
@@ -63,15 +64,15 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
             </p>
           </div>
           {_getSubscriptionStatusBadge(
-            subscription?.status,
-            subscription?.consultationExpiry
+            subscription?._doc?.status,
+            subscription?._doc?.consultationExpiry
           )}
         </div>
       </CardHeader>
 
       <CardContent className="space-y-6">
         {/* Status-specific alerts */}
-        {subscription?.status === "reconsult_needed" && (
+        {subscription?._doc?.status === "reconsult_needed" && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <div className="flex items-start">
               <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 mr-3" />
@@ -81,8 +82,8 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
                 </h4>
                 <p className="text-red-700 text-sm mt-1">
                   Your consultation expired on{" "}
-                  {formatDate(subscription?.consultationExpiry)}. Complete a new
-                  consultation to resume your subscription.
+                  {formatDate(subscription?._doc?.consultationExpiry)}. Complete
+                  a new consultation to resume your subscription.
                 </p>
                 <Button size="sm" className="mt-3 bg-red-600 hover:bg-red-700">
                   Schedule Consultation
@@ -92,8 +93,8 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
           </div>
         )}
 
-        {subscription?.status === "active" &&
-          subscription?.consultationExpiry?.getTime() - Date.now() <
+        {subscription?._doc?.status === "active" &&
+          subscription?._doc?.consultationExpiry?.getTime() - Date.now() <
             14 * 24 * 60 * 60 * 1000 && (
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
               <div className="flex items-start">
@@ -104,8 +105,8 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
                   </h4>
                   <p className="text-orange-700 text-sm mt-1">
                     Your consultation expires on{" "}
-                    {formatDate(subscription?.consultationExpiry)}. Schedule a
-                    renewal to avoid interruption.
+                    {formatDate(subscription?._doc?.consultationExpiry)}.
+                    Schedule a renewal to avoid interruption.
                   </p>
                   <Button
                     size="sm"
@@ -126,21 +127,21 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
               <CalendarIcon className="h-4 w-4 mr-2" />
               Upcoming
             </h4>
-            {subscription?.billing?.nextBillingDate ? (
+            {subscription?._doc?.billing?.nextBillingDate ? (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Next shipment:</span>
                   <span
                     className="font-medium"
                     title={formatDate(
-                      subscription?.billing?.nextShipmentDate,
-                      "MMM DD, YYYY"
+                      subscription?.nextShipment?.dateOfShipment,
+                      READABLE_DATE_FORMAT
                     )}
                   >
-                    {subscription?.billing?.nextShipmentDate
+                    {subscription?.nextShipment?.dateOfShipment
                       ? formatDate(
-                          subscription?.billing?.nextShipmentDate,
-                          "MM/DD/YYYY"
+                          subscription?.nextShipment?.dateOfShipment,
+                          US_SHORT_DATE_FORMAT
                         )
                       : "N/A"}
                   </span>
@@ -150,14 +151,14 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
                   <span
                     className="font-medium"
                     title={formatDate(
-                      subscription?.billing?.nextBillingDate,
-                      "MMM DD, YYYY"
+                      subscription?._doc?.billing?.nextBillingDate,
+                      READABLE_DATE_FORMAT
                     )}
                   >
-                    {subscription?.billing?.nextBillingDate
+                    {subscription?._doc?.billing?.nextBillingDate
                       ? formatDate(
-                          subscription?.billing?.nextBillingDate,
-                          "MM/DD/YYYY"
+                          subscription?._doc?.billing?.nextBillingDate,
+                          US_SHORT_DATE_FORMAT
                         )
                       : "N/A"}
                   </span>
@@ -169,14 +170,14 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
                   <span
                     className="font-medium"
                     title={formatDate(
-                      subscription?.billing?.consultationExpiry,
-                      "MMM DD, YYYY"
+                      subscription?._doc?.billing?.consultationExpiry,
+                      READABLE_DATE_FORMAT
                     )}
                   >
-                    {subscription?.consultationExpiry
+                    {subscription?._doc?.consultationExpiry
                       ? formatDate(
-                          subscription?.consultationExpiry,
-                          "MM/DD/YYYY"
+                          subscription?._doc?.consultationExpiry,
+                          US_SHORT_DATE_FORMAT
                         )
                       : "N/A"}
                   </span>
@@ -190,24 +191,39 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
           <div className="space-y-4">
             <h4 className="font-semibold">Recent Shipments</h4>
             <div className="space-y-2">
-              {subscription?.shipmentHistory
-                ?.slice(0, 3)
-                ?.map((shipment: any, index: number) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center text-sm"
-                  >
-                    <span className="text-gray-600">
-                      {formatDate(shipment?.date)}
-                    </span>
-                    <div className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-green-600 mr-1" />
-                      <span className="text-green-600 capitalize">
-                        {shipment?.status}
+              {subscription?.previousShipments?.length > 0 ? (
+                subscription?.previousShipments
+                  ?.slice(0, 3)
+                  ?.map((shipment: any, index: number) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center text-sm"
+                    >
+                      <span
+                        className="text-gray-600"
+                        title={formatDate(
+                          shipment?.dateOfShipment,
+                          READABLE_DATE_FORMAT
+                        )}
+                      >
+                        {formatDate(
+                          shipment?.dateOfShipment,
+                          US_SHORT_DATE_FORMAT
+                        )}
                       </span>
+                      <div className="flex items-center">
+                        <CheckCircle className="h-4 w-4 text-green-600 mr-1" />
+                        <span className="text-green-600 capitalize">
+                          {shipment?.status}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+              ) : (
+                <p className="text-gray-500 text-sm">
+                  No previous shipments found
+                </p>
+              )}
             </div>
           </div>
         </div>

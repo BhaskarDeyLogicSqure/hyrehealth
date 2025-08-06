@@ -19,7 +19,7 @@ import { getFileSize } from "@/lib/utils";
 import { IntakeFormQuestion } from "@/types/intakeForms";
 import { QuestionType } from "@/types/questionnaire";
 import { Checkbox } from "../ui/checkbox";
-
+import { US_SHORT_DATE_FORMAT } from "@/configs";
 interface IntakeFormCardProps {
   currentStep: number;
   responses: Record<string, any>;
@@ -215,7 +215,7 @@ const IntakeFormCard = ({
             {currentValue && (
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-sm text-gray-600">
-                  Selected: {formatDate(currentValue, "MM/DD/YYYY")}
+                  Selected: {formatDate(currentValue, US_SHORT_DATE_FORMAT)}
                 </span>
               </div>
             )}

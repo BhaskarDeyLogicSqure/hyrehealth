@@ -12,7 +12,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
-
+import { US_SHORT_DATE_FORMAT } from "@/configs";
 // Custom validation types
 export interface DateValidation {
   // Specific dates to disable
@@ -66,7 +66,7 @@ export function DatePicker({
   yearRange = { start: 1900, end: new Date().getFullYear() + 10 },
   showClearButton = false,
   clearButtonText = "Clear",
-  format = "MM/DD/YYYY",
+  format = US_SHORT_DATE_FORMAT,
   error = false,
   errorMessage,
   dateValidation,
