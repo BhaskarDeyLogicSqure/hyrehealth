@@ -51,16 +51,16 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               <Package className="h-5 w-5" />
               {subscription?._doc?.product?.name || "N/A"}
               {subscription?._doc?.strength ? (
-                <Badge variant="outline">
+                <Badge variant="outline" className="text-sm">
                   {subscription?._doc?.strength}mg
                 </Badge>
               ) : null}
             </CardTitle>
-            <p className="text-gray-600 text-sm mt-1">
+            <p className="text-gray-600 text-sm mt-2 font-medium">
               {formatCurrency(_getPricePerMonth)}/month
             </p>
 

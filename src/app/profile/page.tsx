@@ -76,13 +76,13 @@ const ProfilePage = () => {
   return (
     <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-gray-900 mb-3">
           Welcome, {userName}
         </h1>
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">
           {tabConfig?.[activeTab as keyof typeof tabConfig]?.title}
         </h2>
-        <p className="text-gray-600">
+        <p className="text-gray-600 text-lg">
           {tabConfig?.[activeTab as keyof typeof tabConfig]?.subtitle}
         </p>
       </div>

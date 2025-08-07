@@ -84,10 +84,10 @@ const PaymentManagementTab = () => {
                 <div className="flex items-center gap-4">
                   {_getCardIcon(method?.type)}
                   <div>
-                    <div className="font-medium">
+                    <div className="font-semibold text-gray-900">
                       •••• •••• •••• {method?.last4}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-600">
                       {method?.name} • Expires {method?.expiry}
                     </div>
                   </div>
@@ -128,10 +128,10 @@ const PaymentManagementTab = () => {
       <Card className="border-dashed">
         <CardContent className="text-center py-12">
           <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-xl font-semibold text-gray-900 mb-3">
             Add New Payment Method
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 mb-4 text-base">
             Securely save a new card for faster checkout
           </p>
           <Dialog>
