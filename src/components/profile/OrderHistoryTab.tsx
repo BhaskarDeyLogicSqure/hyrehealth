@@ -140,10 +140,10 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
       <Card className="text-center py-12">
         <CardContent>
           <Package className="h-12 w-12 text-red-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-xl font-semibold text-gray-900 mb-3">
             Error Loading Orders
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 mb-4 text-base">
             {invoicesError?.message || "Failed to load your order history"}
           </p>
           <Button
@@ -163,7 +163,7 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
       <div className="hidden md:block">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               <Package className="h-5 w-5" />
               Your Orders
             </CardTitle>
@@ -318,10 +318,10 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
         <Card className="text-center py-12">
           <CardContent>
             <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">
               No Orders Yet
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 mb-4 text-base">
               Start your health journey with our personalized treatments
             </p>
             <Button

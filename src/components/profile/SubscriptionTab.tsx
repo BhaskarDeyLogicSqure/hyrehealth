@@ -35,10 +35,10 @@ const SubscriptionTab = () => {
       <Card className="text-center py-12">
         <CardContent>
           <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-xl font-semibold text-gray-900 mb-3">
             Unable to Load Subscriptions
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 mb-4 text-base">
             {subscriptionError?.message ||
               "Failed to load your subscriptions. Please try again later."}
           </p>
@@ -59,10 +59,10 @@ const SubscriptionTab = () => {
       <Card className="text-center py-12">
         <CardContent>
           <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-xl font-semibold text-gray-900 mb-3">
             No Active Subscriptions
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 mb-4 text-base">
             Start your health journey with our personalized treatments
           </p>
           <Button
