@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { useCookies } from "@/hooks/useCookies";
 import { isUserAuthenticated } from "@/utils/auth";
+import Swal from "sweetalert2";
+
 const Topbar = () => {
   const pathname = usePathname();
   const router = useRouter();
@@ -30,46 +32,53 @@ const Topbar = () => {
   );
 
   // Navigation items for the main menu
-  const navigationItems = [
-    { name: "Treatments", href: "/categories" },
-    { name: "All Products", href: "/products" },
-    { name: "How It Works", href: "/how-it-works" },
-    { name: "Support", href: "/support" },
-  ];
+  const navigationItems = useMemo(
+    () => [
+      { name: "Treatments", href: "/categories" },
+      { name: "All Products", href: "/products" },
+      { name: "How It Works", href: "/how-it-works" },
+      { name: "Support", href: "/support" },
+    ],
+    []
+  );
 
-  const handleLogout = () => {
+  const _handleLogoutAlert = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, logout",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result?.isConfirmed) {
+        _handleLogout();
+      }
+    });
+  };
+
+  const _handleLogout = () => {
     dispatch(clearAuth());
     removeCookie("token");
-    router.push("/");
+
+    // If user is on profile page, redirect to homepage
+    if (pathname.startsWith("/profile")) {
+      router.push("/");
+    } else {
+      // For other pages, redirect to current page to refresh the state
+      router.push(pathname);
+    }
   };
 
-  const handleLogin = () => {
-    router.push("/auth/login");
+  const _handleRoute = (path: string) => {
+    router.push(path);
   };
 
-  const handleMySubscriptions = () => {
-    router.push("/profile?tab=subscriptions"); // Navigate to profile page with subscriptions tab
-  };
-
-  const handleOrderHistory = () => {
-    router.push("/profile?tab=orders"); // Navigate to profile page with orders tab
-  };
-
-  const handlePaymentMethods = () => {
-    router.push("/profile?tab=payments"); // Navigate to profile page with payments tab
-  };
-
-  // Mock user name for display - in real app this would come from user data
-  const userName = user?.firstName || "John";
-
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  useEffect(() => {
-    // Check if user is authenticated from the cookie or the redux store
-    const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
-    setIsAuthenticated(isAuthenticated);
-    // console.log({ user, isAuthenticated });
-  }, []);
-  // const isAuthenticated = isUserAuthenticated() || isAuthenticatedFromRedux;
+  // Use Redux state directly for authentication status
+  // Check if user is authenticated from the cookie or the redux store
+  const isAuthenticated = isAuthenticatedFromRedux || isUserAuthenticated();
 
   return (
     <nav className="navbar-bg navbar-border border-b sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
@@ -89,16 +98,16 @@ const Topbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center">
-            {navigationItems.map((item) => (
+            {navigationItems?.map((item) => (
               <Link
-                key={item.href}
-                href={item.href}
+                key={item?.href}
+                href={item?.href}
                 className={`
                   px-3 py-2 text-md font-medium transition-colors navbar-nav-text
-                  ${pathname === item.href ? "navbar-nav-text-active" : ""}
+                  ${pathname === item?.href ? "navbar-nav-text-active" : ""}
                 `}
               >
-                {item.name}
+                {item?.name}
               </Link>
             ))}
           </div>
@@ -109,7 +118,7 @@ const Topbar = () => {
               <>
                 <Button
                   variant="outline"
-                  onClick={handleMySubscriptions} // Navigate to profile page with subscriptions tab
+                  onClick={() => _handleRoute("/profile?tab=subscriptions")} // Navigate to profile page with subscriptions tab
                   className="text-sm"
                 >
                   <User className="h-4 w-4 mr-2" />
@@ -117,66 +126,19 @@ const Topbar = () => {
                 </Button>
 
                 <Button
-                  onClick={handleLogout}
+                  onClick={_handleLogoutAlert}
                   variant="outline"
                   size="sm"
                   className="text-red-600 text-sm cursor-pointer hover:text-white hover:bg-red-600"
                 >
-                  <LogOut className="h-4 w- mr-" />
+                  <LogOut className="h-4 w-4 mr-2" />
                   Logout
                 </Button>
-                {/* Authenticated User Dropdown */}
-                {/* <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <User className="h-4 w-4 mr-2" />
-                      My Account
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <div className="px-2 py-1.5 text-sm font-medium text-gray-900">
-                      Welcome, {userName}
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={handleMySubscriptions}
-                      className="cursor-pointer"
-                    >
-                      <Package className="h-4 w-4 mr-2" />
-                      My Subscriptions
-                      <Badge variant="secondary" className="ml-auto">
-                        2
-                      </Badge>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={handleOrderHistory}
-                      className="cursor-pointer"
-                    >
-                      <History className="h-4 w-4 mr-2" />
-                      Order History
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={handlePaymentMethods}
-                      className="cursor-pointer"
-                    >
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Manage Payment Methods
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={handleLogout}
-                      className="text-red-600 cursor-pointer"
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu> */}
               </>
             ) : (
               // Unauthenticated Sign In Button
               <Button
-                onClick={handleLogin}
+                onClick={() => _handleRoute("/auth/login")}
                 variant="outline"
                 size="sm"
                 className="navbar-nav-text text-sm"
@@ -209,17 +171,17 @@ const Topbar = () => {
           <div className="lg:hidden py-4 border-t navbar-border">
             <div className="flex flex-col space-y-4">
               {/* Mobile Navigation Items */}
-              {navigationItems.map((item) => (
+              {navigationItems?.map((item) => (
                 <Link
-                  key={item.href}
-                  href={item.href}
+                  key={item?.href}
+                  href={item?.href}
                   className={`
                     text-sm font-medium transition-colors py-2 navbar-nav-text
-                    ${pathname === item.href ? "navbar-nav-text-active" : ""}
+                    ${pathname === item?.href ? "navbar-nav-text-active" : ""}
                   `}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {item.name}
+                  {item?.name}
                 </Link>
               ))}
 
@@ -228,13 +190,13 @@ const Topbar = () => {
                 {isAuthenticated ? (
                   <div className="flex flex-col space-y-2">
                     <div className="text-sm font-medium text-gray-900 px-2 py-1">
-                      Welcome, {userName}
+                      Welcome, {user?.firstName || user?.fullName}
                     </div>
                     <Button
                       variant="outline"
                       className="w-full justify-start"
                       onClick={() => {
-                        handleMySubscriptions();
+                        _handleRoute("/profile?tab=subscriptions");
                         setIsMobileMenuOpen(false);
                       }}
                     >
@@ -248,7 +210,7 @@ const Topbar = () => {
                       variant="outline"
                       className="w-full justify-start"
                       onClick={() => {
-                        handleOrderHistory();
+                        _handleRoute("/profile?tab=orders");
                         setIsMobileMenuOpen(false);
                       }}
                     >
@@ -259,7 +221,7 @@ const Topbar = () => {
                       variant="outline"
                       className="w-full justify-start"
                       onClick={() => {
-                        handlePaymentMethods();
+                        _handleRoute("/profile?tab=payments");
                         setIsMobileMenuOpen(false);
                       }}
                     >
@@ -270,7 +232,7 @@ const Topbar = () => {
                       variant="outline"
                       className="w-full justify-start text-red-600"
                       onClick={() => {
-                        handleLogout();
+                        _handleLogoutAlert();
                         setIsMobileMenuOpen(false);
                       }}
                     >
@@ -281,7 +243,7 @@ const Topbar = () => {
                 ) : (
                   <Button
                     onClick={() => {
-                      handleLogin();
+                      _handleRoute("/auth/login");
                       setIsMobileMenuOpen(false);
                     }}
                     variant="outline"

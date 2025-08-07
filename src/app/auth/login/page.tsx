@@ -15,8 +15,13 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useAuthApi } from "@/api/auth/useAuthApi";
 import ThemeLoader from "@/components/ThemeLoader";
+import { profileApi } from "@/api/profile/profileApi";
+import { UserDataType } from "@/types/user";
+import { setUser } from "@/store/actions/authAction";
+import { useDispatch } from "react-redux";
 
 export default function LoginPage() {
+  const dispatch = useDispatch();
   const { login, isLoading } = useAuthApi();
 
   const [email, setEmail] = useState("");
@@ -55,6 +60,14 @@ export default function LoginPage() {
 
     try {
       await login({ handle: email, password });
+
+      const userProfileData: {
+        user: UserDataType;
+      } = await profileApi.getProfile();
+
+      if (userProfileData) {
+        dispatch(setUser(userProfileData?.user));
+      }
     } catch (error) {
       console.error("Login failed:", error);
     }
