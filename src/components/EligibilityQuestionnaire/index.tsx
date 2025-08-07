@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { headers } from "next/headers";
 import QuestionForm from "./QuestionForm";
 import { questionnaireApi } from "@/api/questionnaire/questionnaireApi";
 import { handleServerError } from "@/lib/error-handler";
@@ -30,15 +31,27 @@ const EligibilityQuestionnaire = async ({
   const productId = searchParams.productId || "";
   const relatedProductIds = searchParams?.relatedProducts || "";
 
+  // Get origin from headers
+  const headersList = headers();
+  const origin =
+    headersList?.get("x-forwarded-proto") && headersList?.get("host")
+      ? `${headersList?.get("x-forwarded-proto")}://${headersList?.get("host")}`
+      : headersList?.get("referer")
+      ? new URL(headersList?.get("referer")!).origin
+      : "";
+
   // Fetch questions from API
   let questionsList;
 
   try {
     // pass productId and relatedProducts id as array
-    const questionsResponse = await questionnaireApi.getQuestionnaire([
-      productId, // main product id
-      ...(relatedProductIds ? relatedProductIds?.split(",") : []), // array of related product ids
-    ]);
+    const questionsResponse = await questionnaireApi.getQuestionnaire(
+      [
+        productId, // main product id
+        ...(relatedProductIds ? relatedProductIds?.split(",") : []), // array of related product ids
+      ],
+      origin
+    );
 
     questionsList = questionsResponse?.data;
   } catch (error: any) {

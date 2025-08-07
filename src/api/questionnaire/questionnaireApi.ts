@@ -1,12 +1,11 @@
 import apiService from "..";
 import { GET_QUESTIONNAIRE_ENDPOINT } from "@/api-helper/QuestionnaireEndpoint";
 import { BASE_URL } from "@/configs";
-import { handleServerError } from "@/lib/error-handler";
-import { redirect } from "next/navigation";
 
 export const questionnaireApi = {
   getQuestionnaire: async (
-    productIds: string[]
+    productIds: string[],
+    domain: string
   ): Promise<{
     data: any;
     total: number;
@@ -16,6 +15,7 @@ export const questionnaireApi = {
       error: boolean;
     }>(BASE_URL + GET_QUESTIONNAIRE_ENDPOINT.endpoint, {
       productIds: productIds,
+      domain: domain,
     });
 
     if (response?.error) {
