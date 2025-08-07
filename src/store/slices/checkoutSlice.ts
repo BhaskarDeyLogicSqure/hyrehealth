@@ -127,7 +127,7 @@ const checkoutSlice = createSlice({
 
     // Add a single related product
     addRelatedProduct: (state, action: PayloadAction<RelatedProduct>) => {
-      const existingIndex = state.relatedProducts.findIndex(
+      const existingIndex = state?.relatedProducts?.findIndex(
         (item) => item.productId === action?.payload?.productId
       );
 
@@ -136,14 +136,14 @@ const checkoutSlice = createSlice({
         state.relatedProducts[existingIndex] = action?.payload;
       } else {
         // Add new product
-        state.relatedProducts.push(action?.payload);
+        state.relatedProducts?.push(action?.payload);
       }
       state.error = null;
     },
 
     // Remove a related product
     removeRelatedProduct: (state, action: PayloadAction<string>) => {
-      state.relatedProducts = state.relatedProducts.filter(
+      state.relatedProducts = state?.relatedProducts?.filter(
         (item) => item.productId !== action?.payload
       );
       state.error = null;
@@ -166,8 +166,8 @@ const checkoutSlice = createSlice({
         responses: QuestionnaireResponse[];
       }>
     ) => {
-      state.questionnaire.generalEligibility = action.payload.isEligible;
-      state.questionnaire.generalResponses = action.payload.responses;
+      state.questionnaire.generalEligibility = action?.payload?.isEligible;
+      state.questionnaire.generalResponses = action?.payload?.responses;
     },
 
     // Set product responses
@@ -175,7 +175,7 @@ const checkoutSlice = createSlice({
       state,
       action: PayloadAction<QuestionnaireResponse[]>
     ) => {
-      state.questionnaire.productResponses = action.payload;
+      state.questionnaire.productResponses = action?.payload;
     },
 
     // Add product responses (append to existing)
@@ -184,13 +184,13 @@ const checkoutSlice = createSlice({
       action: PayloadAction<QuestionnaireResponse[]>
     ) => {
       // Remove any existing responses for the same questions to avoid duplicates
-      const newResponseQuestionIds = action.payload.map((r) => r.questionId);
+      const newResponseQuestionIds = action?.payload?.map((r) => r?.questionId);
       state.questionnaire.productResponses =
-        state.questionnaire.productResponses.filter(
-          (r) => !newResponseQuestionIds.includes(r.questionId)
+        state?.questionnaire?.productResponses?.filter(
+          (r) => !newResponseQuestionIds.includes(r?.questionId)
         );
       // Add new responses
-      state.questionnaire.productResponses.push(...action.payload);
+      state?.questionnaire?.productResponses?.push(...action?.payload);
     },
 
     // Set product eligibility
@@ -198,32 +198,33 @@ const checkoutSlice = createSlice({
       state,
       action: PayloadAction<ProductEligibility>
     ) => {
-      const existingIndex = state.questionnaire.productEligibilities.findIndex(
-        (item) => item.productId === action.payload.productId
-      );
+      const existingIndex =
+        state?.questionnaire?.productEligibilities?.findIndex(
+          (item) => item?.productId === action?.payload?.productId
+        );
 
       if (existingIndex >= 0) {
         state.questionnaire.productEligibilities[existingIndex] =
-          action.payload;
+          action?.payload;
       } else {
-        state.questionnaire.productEligibilities.push(action.payload);
+        state?.questionnaire?.productEligibilities?.push(action?.payload);
       }
 
       // Update eligible/ineligible product lists
       state.questionnaire.eligibleProductIds =
-        state.questionnaire.productEligibilities
-          .filter((p) => p.isEligible === true)
-          .map((p) => p.productId);
+        state?.questionnaire?.productEligibilities
+          ?.filter((p) => p?.isEligible === true)
+          ?.map((p) => p?.productId);
 
       state.questionnaire.ineligibleProductIds =
-        state.questionnaire.productEligibilities
-          .filter((p) => p.isEligible === false)
-          .map((p) => p.productId);
+        state?.questionnaire?.productEligibilities
+          ?.filter((p) => p?.isEligible === false)
+          ?.map((p) => p?.productId);
 
       // Update overall eligibility
       state.questionnaire.overallEligible =
-        state.questionnaire.generalEligibility === true &&
-        state.questionnaire.eligibleProductIds.length > 0;
+        state?.questionnaire?.generalEligibility === true &&
+        state?.questionnaire?.eligibleProductIds?.length > 0;
     },
 
     // Complete questionnaire
@@ -236,9 +237,10 @@ const checkoutSlice = createSlice({
       }>
     ) => {
       state.questionnaire.isCompleted = true;
-      state.questionnaire.completedAt = action.payload.completedAt;
-      state.questionnaire.totalQuestions = action.payload.totalQuestions;
-      state.questionnaire.totalQuestionsAnswered = action.payload.totalAnswered;
+      state.questionnaire.completedAt = action?.payload?.completedAt;
+      state.questionnaire.totalQuestions = action?.payload?.totalQuestions;
+      state.questionnaire.totalQuestionsAnswered =
+        action?.payload?.totalAnswered;
       state.isFromQuestionnaire = true;
       state.currentStep = "review";
     },
@@ -247,17 +249,17 @@ const checkoutSlice = createSlice({
     filterToEligibleProducts: (state) => {
       // Filter main product
       if (
-        state.mainProduct &&
-        !state.questionnaire.eligibleProductIds.includes(
-          state.mainProduct.product._id
+        state?.mainProduct &&
+        !state?.questionnaire?.eligibleProductIds?.includes(
+          state?.mainProduct?.product?._id
         )
       ) {
         state.mainProduct = null;
       }
 
       // Filter related products
-      state.relatedProducts = state.relatedProducts.filter((product) =>
-        state.questionnaire.eligibleProductIds.includes(product.productId)
+      state.relatedProducts = state?.relatedProducts?.filter((product) =>
+        state?.questionnaire?.eligibleProductIds?.includes(product?.productId)
       );
     },
 
@@ -273,8 +275,8 @@ const checkoutSlice = createSlice({
         total += price;
 
         if (
-          state.questionnaire.eligibleProductIds.includes(
-            state.mainProduct.product._id
+          state?.questionnaire?.eligibleProductIds?.includes(
+            state?.mainProduct?.product?._id
           )
         ) {
           eligibleTotal += price;
@@ -284,13 +286,13 @@ const checkoutSlice = createSlice({
       }
 
       // Add related products prices
-      state.relatedProducts.forEach((relatedProduct) => {
+      state.relatedProducts?.forEach((relatedProduct) => {
         const price = relatedProduct?.selectedOption?.price || 0;
         total += price;
 
         if (
-          state.questionnaire.eligibleProductIds.includes(
-            relatedProduct.productId
+          state?.questionnaire?.eligibleProductIds?.includes(
+            relatedProduct?.productId
           )
         ) {
           eligibleTotal += price;

@@ -22,8 +22,6 @@ export const productApi = {
     data: Product[];
     total: number;
   }> => {
-    // console.log("making fetch categories call with filters:", filters);
-
     // Clean up undefined values
     const cleanFilters = Object.fromEntries(
       Object.entries(filters).filter(
@@ -41,7 +39,6 @@ export const productApi = {
       error: boolean;
     }>(`${BASE_URL}${GET_PRODUCTS_ENDPOINT?.endpoint}`, cleanFilters);
 
-    // console.log("categories response:", { response });
     return {
       data: response?.data?.products,
       total: response?.data?.total,
@@ -61,7 +58,6 @@ export const productApi = {
     if (response?.error) {
       throw new Error(response?.message);
     }
-    // console.log("response", { response });
     return response?.data?.product;
   },
 
@@ -76,7 +72,7 @@ export const productApi = {
       };
       error: boolean;
     }>(`${BASE_URL}${GET_PRODUCTS_ENDPOINT?.endpoint}`, {
-      // isPopular: true,
+      isPopular: true,
       limit: 3,
     });
 
@@ -85,15 +81,4 @@ export const productApi = {
       total: response?.data?.total,
     };
   },
-
-  // Search categories (for autocomplete/search)
-  // searchCategories: async (query: string, limit = 10): Promise<Category[]> => {
-  //   if (!query.trim()) return [];
-
-  //   const response = await apiService.get<{
-  //     data: Category[];
-  //   }>(`${GET_CATEGORIES_ENDPOINT?.endpoint}/search`, { q: query, limit });
-
-  //   return response.data || [];
-  // },
 };
