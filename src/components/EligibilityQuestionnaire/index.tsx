@@ -71,7 +71,11 @@ const EligibilityQuestionnaire = async ({
           <ThemeLoader variant="full-page" message="Loading questionnaire..." />
         }
       >
-        <QuestionForm questions={questionsList} productId={productId} />
+        <QuestionForm
+          questions={questionsList}
+          productId={productId}
+          origin={origin}
+        />
       </Suspense>
     </div>
   );

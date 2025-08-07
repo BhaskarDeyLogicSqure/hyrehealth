@@ -11,9 +11,10 @@ import UploadProgressPopup from "@/components/ui/UploadProgressPopup";
 interface QuestionFormProps {
   questions: any;
   productId: string;
+  origin: string;
 }
 
-const QuestionForm = ({ questions, productId }: QuestionFormProps) => {
+const QuestionForm = ({ questions, productId, origin }: QuestionFormProps) => {
   const {
     currentStep,
     responses,
@@ -40,6 +41,8 @@ const QuestionForm = ({ questions, productId }: QuestionFormProps) => {
     uploadComplete,
     closeUploadPopup,
   } = useQuestionnaire(questions, productId);
+
+  console.log("current origin", origin);
 
   const _getStepTitle = () => {
     const stepInfo = getCurrentStepInfo();
