@@ -24,6 +24,7 @@ import ThemeLoader from "../ThemeLoader";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/actions/authAction";
 import { useCookies } from "@/hooks/useCookies";
+import { isUserAuthenticated } from "@/utils/auth";
 
 const OrderSummarySection = ({
   handleGetPayload,
@@ -34,7 +35,10 @@ const OrderSummarySection = ({
   const dispatch = useDispatch();
   const { setCookie } = useCookies();
   const { clearCheckout } = useCheckout();
-  const { signUpWithPayment } = useChekoutApi();
+  const { signUpWithPayment, loginOrderCheckout } = useChekoutApi();
+
+  // check if the user is logged in
+  const isUserLoggedIn = isUserAuthenticated();
 
   const {
     eligibleProducts,
@@ -141,8 +145,15 @@ const OrderSummarySection = ({
       // Mock successful checkout
       console.log("Final payload:", payload);
 
+      let response;
       // call the checkout api
-      const response = await signUpWithPayment(payload);
+      if (isUserLoggedIn) {
+        // call the login order checkout api for logged in users
+        response = await loginOrderCheckout(payload);
+      } else {
+        // call the sign up with payment api for new users
+        response = await signUpWithPayment(payload);
+      }
 
       // Handle successful checkout - store token and user details
       if (response?.data?.token && response?.data?.customer) {
@@ -164,6 +175,7 @@ const OrderSummarySection = ({
       clearCheckout(); // clear the checkout data after successful checkout
     } catch (error) {
       console.error(error);
+      showErrorToast((error as any)?.message || "Something went wrong");
     } finally {
       //  no need to set isCheckoutLoading to false as we are moving to a new route from here after successful checkout
       setIsCheckoutLoading(false);
