@@ -9,7 +9,10 @@ type ProductFilters = {
   [key: string]: any; // for future filters
 };
 
-const useProductApi = (filterPayload: ProductFilters = {}) => {
+const useProductApi = (
+  filterPayload: ProductFilters = {},
+  origin: string = ""
+) => {
   //   console.log({ filterPayload });
   const {
     data: products,
@@ -18,8 +21,8 @@ const useProductApi = (filterPayload: ProductFilters = {}) => {
     isError: isProductsError,
     refetch: refetchProducts,
   } = useQuery({
-    queryKey: ["Products", filterPayload], // React Query will cache based on filters
-    queryFn: () => productApi.getProducts(filterPayload),
+    queryKey: ["Products", filterPayload, origin], // React Query will cache based on filters
+    queryFn: () => productApi.getProducts(filterPayload, origin),
     staleTime: STALE_TIME_FOR_REACT_QUERY, // cache for 5 minutes
     retry: 1, // retry once on failure
   });

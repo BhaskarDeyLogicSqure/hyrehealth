@@ -34,13 +34,15 @@ const useProducts = () => {
     );
   }, [hasNonDefaultValue]);
 
+  // get origin from headers
+  const origin = window.location.origin || "";
   const {
     products: productsResponse,
     total: totalResponse,
     isProductsLoading,
     isProductsError,
     productsError,
-  } = useProductApi(filters); // filters is being passed as a dependency in useProductApi, will make a new api call whenever the filters are updated
+  } = useProductApi(filters, origin); // filters is being passed as a dependency in useProductApi, will make a new api call whenever the filters are updated
 
   // display error toast if there is an error
   if (isProductsError) {
@@ -94,6 +96,7 @@ const useProducts = () => {
 
   useEffect(() => {
     if (productsResponse) {
+      console.log("productsResponse", productsResponse);
       setProducts({
         data: productsResponse,
         total: totalResponse,

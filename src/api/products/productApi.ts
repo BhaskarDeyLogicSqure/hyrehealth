@@ -57,7 +57,9 @@ export const productApi = {
       };
       error: boolean;
       message?: string;
-    }>(`${BASE_URL}${GET_SINGLE_PRODUCT_ENDPOINT?.endpoint}/${id}/${origin}`);
+    }>(`${BASE_URL}${GET_SINGLE_PRODUCT_ENDPOINT?.endpoint}/${id}`, {
+      domain: origin,
+    });
 
     if (response?.error) {
       throw new Error(response?.message);
