@@ -79,3 +79,24 @@ export const extractQueryParams = (): Record<string, string> => {
   }
   return params;
 };
+
+export const removeHtmlTags = (text: string) => {
+  if (!text) return "";
+  return text.replace(/<[^>]*>?/g, "");
+};
+
+export const removeHtmlTagsAndTrim = (text: string) => {
+  if (!text) return "";
+  return removeHtmlTags(text)?.trim();
+};
+
+export const getCurrentDomain = (headersList: Headers) => {
+  // Get origin from headers
+  const origin =
+    headersList?.get("x-forwarded-proto") && headersList?.get("host")
+      ? `${headersList?.get("x-forwarded-proto")}://${headersList?.get("host")}`
+      : headersList?.get("referer")
+      ? new URL(headersList?.get("referer")!).origin
+      : "";
+  return origin;
+};
