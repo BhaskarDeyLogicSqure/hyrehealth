@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   showSuccessToast,
@@ -12,7 +12,7 @@ import {
 import { postCheckoutApi } from "@/api/postCheckout/postCheckoutApi";
 import useUploadService from "./useUploadService";
 
-const useIntakeForm = () => {
+const useIntakeForm = (orderId: string) => {
   const router = useRouter();
   const { uploadImage } = useUploadService();
 
@@ -62,7 +62,7 @@ const useIntakeForm = () => {
     }));
   };
 
-  const closeUploadPopup = () => {
+  const _closeUploadPopup = () => {
     setShowUploadPopup(false);
     setUploadProgress(0);
     setUploadFileName("");
@@ -106,7 +106,7 @@ const useIntakeForm = () => {
 
         // Auto-hide popup after 2 seconds
         setTimeout(() => {
-          closeUploadPopup();
+          _closeUploadPopup();
         }, 2000);
 
         showSuccessToast("File uploaded successfully!");
@@ -130,8 +130,6 @@ const useIntakeForm = () => {
   const _updateResponseWithFileUpload = async (value: any) => {
     const currentQuestion = _getCurrentQuestion();
     if (!currentQuestion) return;
-
-    const questionId = _getCurrentQuestionId();
 
     // Store file locally without uploading immediately
     if (value instanceof File) {
@@ -192,7 +190,7 @@ const useIntakeForm = () => {
 
     if (currentStep === totalSteps - 1) {
       // Final step - submit form
-      await handleSubmit();
+      await _handleSubmit();
       return;
     }
 
@@ -208,7 +206,7 @@ const useIntakeForm = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const _handleSubmit = async () => {
     // Check if all required questions are answered
     const unansweredRequiredQuestions = questions?.filter((question) => {
       if (!question?.isRequired) return false;
@@ -257,7 +255,7 @@ const useIntakeForm = () => {
 
       showSuccessToast("Intake form submitted successfully!");
       // Redirect to thank you page or order details
-      router.push(`/pre-consultation`);
+      router.push(`/pre-consultation?orderId=${orderId}`);
     } catch (error) {
       console.error("Error submitting intake form:", error);
       showErrorToast("Failed to submit intake form. Please try again.");
@@ -265,6 +263,13 @@ const useIntakeForm = () => {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (!orderId) {
+      showErrorToast("No order ID found");
+      router.push("/");
+    }
+  }, [orderId]);
 
   return {
     currentStep,
@@ -280,7 +285,7 @@ const useIntakeForm = () => {
     uploadFileName,
     uploadError,
     uploadComplete,
-    closeUploadPopup,
+    closeUploadPopup: _closeUploadPopup,
     getCurrentQuestion: _getCurrentQuestion,
     getCurrentQuestionId: _getCurrentQuestionId,
     updateResponse: _updateResponseWithFileUpload,

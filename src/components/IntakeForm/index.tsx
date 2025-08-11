@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -9,9 +8,7 @@ import IntakeFormCard from "./IntakeFormCard";
 import useIntakeForm from "@/hooks/useIntakeForm";
 import UploadProgressPopup from "@/components/ui/UploadProgressPopup";
 
-const IntakeForm = () => {
-  const router = useRouter();
-
+const IntakeForm = ({ orderId }: { orderId: string }) => {
   const {
     currentStep,
     responses,
@@ -32,7 +29,7 @@ const IntakeForm = () => {
     uploadError,
     uploadComplete,
     closeUploadPopup,
-  } = useIntakeForm();
+  } = useIntakeForm(orderId);
 
   const _getStepTitle = () => {
     if (currentStep === 0) {
@@ -90,7 +87,6 @@ const IntakeForm = () => {
           getCurrentQuestionId={getCurrentQuestionId}
           uploadingFiles={uploadingFiles}
         />
-
         {/* Navigation */}
         {currentStep >= 0 && (
           <div className="flex justify-between">
