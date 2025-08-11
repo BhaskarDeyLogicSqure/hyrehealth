@@ -10,10 +10,15 @@ const useOrderHistory = (customerId: string) => {
   });
 
   const {
+    // invoices api hook
     invoicesData: orders,
     isInvoicesLoading,
     invoicesError,
     isInvoicesError,
+    // create review for product api hook
+    createReviewForProduct,
+    isCreateReviewLoading,
+    createReviewError,
   } = useProfileApi(
     dataPayload?.page,
     dataPayload?.limit,
@@ -67,13 +72,19 @@ const useOrderHistory = (customerId: string) => {
     setReviewModal({ isOpen, order });
   };
 
-  const _handleReviewSubmit = (rating: number, review: string) => {
+  const _handleReviewSubmit = async (rating: number, review: string) => {
     // Here you would typically make an API call to save the review
     console.log("Review submitted:", {
       rating,
       review,
       //   orderId: reviewModal?.order?._doc?._id,
     });
+
+    // await createReviewForProduct({
+    //   productId: reviewModal?.order?.productId,
+    //   rating,
+    //   review,
+    // });
 
     // Update the order with the new review (in a real app, this would be done via API)
     // For now, we'll just log it

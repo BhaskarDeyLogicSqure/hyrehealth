@@ -10,49 +10,76 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
+import { useProfileApi } from "@/api/profile/useProfileApi";
 
 interface ReviewModalProps {
   isOpen: boolean;
-  onClose: () => void;
-  productName: string;
-  currentReview?: {
-    rating: number;
-    review: string;
-  };
+  toggleModal: () => void;
+  data: any;
   onSubmit: (rating: number, review: string) => void;
 }
 
+const initialFormFields = {
+  rating: 0,
+  review: "",
+};
+
 const ReviewModal = ({
   isOpen,
-  onClose,
-  productName,
-  currentReview,
+  data,
+  toggleModal,
   onSubmit,
 }: ReviewModalProps) => {
-  const [rating, setRating] = useState(currentReview?.rating || 0);
-  const [review, setReview] = useState(currentReview?.review || "");
+  const { productReviewData, isProductReviewLoading, productReviewError } =
+    useProfileApi(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      data?.products?._id || data?.id
+    );
+
+  console.log({
+    data,
+    productReviewData,
+    isProductReviewLoading,
+    productReviewError,
+  });
+
+  // const [rating, setRating] = useState(0);
+  // const [review, setReview] = useState("");
+  const [formFields, setFormFields] = useState(initialFormFields);
+
   const [hoveredRating, setHoveredRating] = useState(0);
 
-  const handleStarClick = (starIndex: number) => {
-    setRating(starIndex + 1);
+  // const _handleStarClick = (starIndex: number) => {
+  //   setRating(starIndex + 1);
+  // };
+
+  const _handleFormFieldChange = (
+    field: keyof typeof formFields,
+    value: any
+  ) => {
+    setFormFields({ ...formFields, [field]: value });
   };
 
-  const handleStarHover = (starIndex: number) => {
+  const _handleStarHover = (starIndex: number) => {
     setHoveredRating(starIndex + 1);
   };
 
-  const handleStarLeave = () => {
+  const _handleStarLeave = () => {
     setHoveredRating(0);
   };
 
-  const handleSubmit = () => {
-    if (rating > 0) {
-      onSubmit(rating, review);
-      onClose();
+  const _handleSubmit = () => {
+    if (formFields?.rating > 0) {
+      onSubmit(formFields?.rating, formFields?.review);
+      toggleModal();
     }
   };
 
-  const renderStars = (ratingValue: number, interactive: boolean = false) => {
+  const _renderStars = (ratingValue: number, interactive: boolean = false) => {
     return Array.from({ length: 5 }, (_, index) => {
       const starValue = index + 1;
       const isFilled = starValue <= ratingValue;
@@ -64,9 +91,13 @@ const ReviewModal = ({
           className={`${
             interactive ? "cursor-pointer" : "cursor-default"
           } transition-colors`}
-          onClick={interactive ? () => handleStarClick(index) : undefined}
-          onMouseEnter={interactive ? () => handleStarHover(index) : undefined}
-          onMouseLeave={interactive ? handleStarLeave : undefined}
+          onClick={
+            interactive
+              ? () => _handleFormFieldChange("rating", index + 1)
+              : undefined
+          }
+          onMouseEnter={interactive ? () => _handleStarHover(index) : undefined}
+          onMouseLeave={interactive ? _handleStarLeave : undefined}
           disabled={!interactive}
         >
           <Star
@@ -80,7 +111,7 @@ const ReviewModal = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={toggleModal}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center justify-between">
@@ -93,7 +124,9 @@ const ReviewModal = ({
         <div className="space-y-6">
           {/* Product Name */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900">{productName}</h3>
+            <h3 className="text-lg font-medium text-gray-900">
+              {"productName"}
+            </h3>
             <p className="text-sm text-gray-600">
               Share your experience with this product
             </p>
@@ -103,7 +136,7 @@ const ReviewModal = ({
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">Rating</label>
             <div className="flex items-center space-x-1">
-              {renderStars(hoveredRating || rating, true)}
+              {_renderStars(hoveredRating || formFields?.rating, true)}
             </div>
           </div>
 
@@ -112,8 +145,8 @@ const ReviewModal = ({
             <label className="text-sm font-medium text-gray-700">Review</label>
             <Textarea
               placeholder="Share your experience with this product..."
-              value={review}
-              onChange={(e) => setReview(e.target.value)}
+              value={formFields?.review}
+              onChange={(e) => _handleFormFieldChange("review", e.target.value)}
               className="min-h-[100px] resize-none"
             />
           </div>
@@ -121,8 +154,8 @@ const ReviewModal = ({
           {/* Submit Button */}
           <div className="flex justify-center">
             <Button
-              onClick={handleSubmit}
-              disabled={rating === 0}
+              onClick={_handleSubmit}
+              disabled={formFields?.rating === 0}
               className="w-full"
             >
               Submit Review

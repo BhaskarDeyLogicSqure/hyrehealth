@@ -337,13 +337,8 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
       {/* Review Modal */}
       <ReviewModal
         isOpen={reviewModal?.isOpen}
-        onClose={() => toggleReviewModal(false)}
-        productName={
-          (reviewModal?.order as any)?.products?.[0]?.name ||
-          (reviewModal?.order as any)?.productName ||
-          ""
-        }
-        currentReview={(reviewModal?.order as any)?.review}
+        data={reviewModal?.order}
+        toggleModal={toggleReviewModal}
         onSubmit={handleReviewSubmit}
       />
     </>

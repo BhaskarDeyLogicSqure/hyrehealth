@@ -2,6 +2,8 @@ import {
   GET_ALL_INVOICES,
   GET_PROFILE_ENDPOINT,
   GET_USER_SUBSCRIPTIONS,
+  CREATE_REVIEW_FOR_PRODUCT,
+  GET_SINGLE_PRODUCT_REVIEW,
 } from "@/api-helper/ProfileEndpoints";
 import apiService from "..";
 import { Invoice } from "@/types/profile";
@@ -61,6 +63,41 @@ export const profileApi = {
     }>(endpoint);
     if (response?.error) {
       throw new Error("Failed to load invoices");
+    }
+
+    return response?.data;
+  },
+
+  getSingleProductReview: async (productId: string) => {
+    const response = await apiService.get<{
+      data: any;
+      error: boolean;
+      message?: string;
+    }>(`${GET_SINGLE_PRODUCT_REVIEW.endpoint}/${productId}`);
+    if (response?.error) {
+      throw new Error(response?.message || "Failed to load product review");
+    }
+
+    return response?.data;
+  },
+
+  createReviewForProduct: async (
+    productId: string,
+    rating: number,
+    review: string
+  ) => {
+    const response = await apiService.post<{
+      data: any;
+      error: boolean;
+      message?: string;
+    }>(`${CREATE_REVIEW_FOR_PRODUCT.endpoint}`, {
+      productId,
+      rating,
+      reviewText: review,
+    });
+
+    if (response?.error) {
+      throw new Error(response?.message || "Failed to create review");
     }
 
     return response?.data;
