@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { profileApi } from "./profileApi";
 import { STALE_TIME_FOR_REACT_QUERY } from "@/configs";
 
@@ -7,7 +7,8 @@ export const useProfileApi = (
   limit?: number,
   subscriptionPage?: number,
   subscriptionLimit?: number,
-  customerId?: string
+  customerId?: string,
+  productId?: string
 ) => {
   const {
     data: profileData,
@@ -41,6 +42,33 @@ export const useProfileApi = (
     staleTime: STALE_TIME_FOR_REACT_QUERY,
   });
 
+  const {
+    data: productReviewData,
+    isLoading: isProductReviewLoading,
+    error: productReviewError,
+    isError: isProductReviewError,
+  } = useQuery({
+    queryKey: ["productReview", productId],
+    queryFn: () => profileApi.getSingleProductReview(productId || ""),
+    staleTime: STALE_TIME_FOR_REACT_QUERY,
+  });
+
+  const {
+    mutateAsync: createReviewForProduct,
+    isPending: isCreateReviewLoading,
+    error: createReviewError,
+  } = useMutation({
+    mutationFn: ({
+      productId,
+      rating,
+      review,
+    }: {
+      productId: string;
+      rating: number;
+      review: string;
+    }) => profileApi.createReviewForProduct(productId, rating, review),
+  });
+
   return {
     // profile
     profileData,
@@ -59,5 +87,16 @@ export const useProfileApi = (
     isInvoicesLoading,
     invoicesError,
     isInvoicesError,
+
+    // product review
+    productReviewData: productReviewData,
+    isProductReviewLoading,
+    productReviewError,
+    isProductReviewError,
+
+    // create review for product
+    createReviewForProduct,
+    isCreateReviewLoading,
+    createReviewError,
   };
 };

@@ -3,6 +3,8 @@ import ProductsPage from "./ClientPage";
 import { getQueryClient } from "@/utils/getQueryClientUtil";
 import { QueryHydrate } from "@/components/QueryHydrate";
 import { productApi } from "@/api/products/productApi";
+import { getCurrentDomain } from "@/lib/utils";
+import { headers } from "next/headers";
 
 export default async function Page({ searchParams }: { searchParams: any }) {
   const queryClient = getQueryClient();
@@ -21,10 +23,14 @@ export default async function Page({ searchParams }: { searchParams: any }) {
     Object.entries(filters).filter(([_, value]) => value !== "" && value !== 0)
   );
 
+  // Get origin from headers
+  const headersList = headers();
+  const origin = getCurrentDomain(headersList);
+
   // Prefetch products with the filters from URL
   await queryClient.prefetchQuery({
     queryKey: ["Products", cleanFilters], // Use the same key format as useProductApi
-    queryFn: () => productApi.getProducts(cleanFilters),
+    queryFn: () => productApi.getProducts(cleanFilters, origin),
   });
 
   const dehydratedState = dehydrate(queryClient);

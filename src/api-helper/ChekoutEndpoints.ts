@@ -5,6 +5,13 @@ export const SIGN_UP_WITH_PAYMENT_ENDPOINT = {
   httpType: httpType.POST,
 };
 
+// order checkout - for login users
+export const ORDER_CHECKOUT_ENDPOINT = {
+  endpoint: "/payment/products",
+  httpType: httpType.POST,
+};
+
+// validate coupon
 export const VALIDATE_COUPON_ENDPOINT = {
   endpoint: "/coupons/validate",
   httpType: httpType.POST,
@@ -23,4 +30,9 @@ export const INTAKE_FORM_QUESTIONS_ENDPOINT = {
 export const SUBMIT_INTAKE_FORM_QUESTIONS_ENDPOINT = {
   endpoint: "/intake-forms/store-responses",
   httpType: httpType.POST,
+};
+
+export const MEETING_DETAILS_ENDPOINT = {
+  endpoint: "/meetinglink",
+  httpType: httpType.GET,
 };

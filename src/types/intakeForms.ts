@@ -91,3 +91,11 @@ export interface IntakeFormResponsePayload {
     answer: string | string[] | undefined;
   }>;
 }
+
+export interface MeetingDetailsResponse {
+  error: boolean;
+  data: {
+    meetingUuid: string;
+    meetingLink: string;
+  };
+}

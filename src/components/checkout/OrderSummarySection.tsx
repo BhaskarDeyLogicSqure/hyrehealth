@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Shield, Tag, Trash2, X, Ticket } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { showSuccessToast } from "../GlobalErrorHandler";
+import { showErrorToast, showSuccessToast } from "../GlobalErrorHandler";
 import { Separator } from "@/components/ui/separator";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import useOrderCheckout from "@/hooks/useOrderCheckout";
@@ -24,6 +24,7 @@ import ThemeLoader from "../ThemeLoader";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/actions/authAction";
 import { useCookies } from "@/hooks/useCookies";
+import { isUserAuthenticated } from "@/utils/auth";
 
 const OrderSummarySection = ({
   handleGetPayload,
@@ -34,7 +35,10 @@ const OrderSummarySection = ({
   const dispatch = useDispatch();
   const { setCookie } = useCookies();
   const { clearCheckout } = useCheckout();
-  const { signUpWithPayment } = useChekoutApi();
+  const { signUpWithPayment, loginOrderCheckout } = useChekoutApi();
+
+  // check if the user is logged in
+  const isUserLoggedIn = isUserAuthenticated();
 
   const {
     eligibleProducts,
@@ -77,7 +81,15 @@ const OrderSummarySection = ({
       const { error, payload } = await handleGetPayload(e);
 
       // return if no payload present or no questionnaire responses are present
-      if (error || !payload || !questionnaire?.generalResponses?.length) return;
+      if (error || !payload) return;
+
+      //  check if there's a valid questionnaire response
+      if (!questionnaire?.generalResponses?.length) {
+        showErrorToast(
+          "Please fill the questionnaire first from the previous step"
+        );
+        return;
+      }
 
       const invalidProducts = productConfigurations?.filter(
         (config) => !config?.dosageId || !config?.subscriptionDuration
@@ -103,6 +115,8 @@ const OrderSummarySection = ({
         payload["paymentInfo"]["products"] = productConfigurations?.map(
           (config) => {
             return {
+              isPrimary:
+                config?.productId === mainProductIfEligible?._id || undefined,
               productId: config?.productId || undefined,
               strength: config?.strength || undefined,
               subscriptionOptionId: config?.dosageId || undefined,
@@ -131,8 +145,15 @@ const OrderSummarySection = ({
       // Mock successful checkout
       console.log("Final payload:", payload);
 
+      let response;
       // call the checkout api
-      const response = await signUpWithPayment(payload);
+      if (isUserLoggedIn) {
+        // call the login order checkout api for logged in users
+        response = await loginOrderCheckout(payload);
+      } else {
+        // call the sign up with payment api for new users
+        response = await signUpWithPayment(payload);
+      }
 
       // Handle successful checkout - store token and user details
       if (response?.data?.token && response?.data?.customer) {
@@ -154,6 +175,7 @@ const OrderSummarySection = ({
       clearCheckout(); // clear the checkout data after successful checkout
     } catch (error) {
       console.error(error);
+      showErrorToast((error as any)?.message || "Something went wrong");
     } finally {
       //  no need to set isCheckoutLoading to false as we are moving to a new route from here after successful checkout
       setIsCheckoutLoading(false);
@@ -164,53 +186,27 @@ const OrderSummarySection = ({
   if (
     !isFromQuestionnaire ||
     !eligibleProducts ||
-    eligibleProducts?.length === 0
+    eligibleProducts?.length === 0 ||
+    !questionnaire?.isCompleted ||
+    !questionnaire?.generalResponses?.length
   ) {
     // redirect to products page after 5 seconds
-    // const [seconds, setSeconds] = useState(5);
 
-    // useEffect(() => {
-    //   const timer = setTimeout(() => {
-    //     if (seconds === 0) {
-    //       router.push("/products");
-    //     } else {
-    //       setSeconds(seconds - 1);
-    //     }
-    //   }, 1000);
-    //   return () => clearTimeout(timer);
-    // }, [seconds]);
+    useEffect(() => {
+      if (eligibleProducts?.length === 0) {
+        showErrorToast("No eligible products found");
+      }
 
-    return (
-      <div>
-        <Card className="sticky top-24 shadow-lg">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-bold">Order Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center py-8 text-gray-500">
-              <p>No eligible products found.</p>
-              <p className="text-sm mt-2">
-                Please add products to your cart first.
-              </p>
+      if (
+        eligibleProducts?.length > 0 &&
+        (!questionnaire?.isCompleted ||
+          !questionnaire?.generalResponses?.length)
+      ) {
+        showErrorToast("Please complete the eligibility questionnaire first");
+      }
 
-              <Button
-                variant="outline"
-                className="mt-4 theme-btn bg-brand-dark-blue text-white"
-                onClick={() => router.push("/products")}
-              >
-                Explore Products
-              </Button>
-
-              {/* <div className="mt-4">
-                Redirecting to products page in{" "}
-                <span className="font-bold">{seconds}</span> seconds...
-                <span className="ml-2"></span>
-              </div> */}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+      router.push("/products");
+    }, []);
   }
 
   return (

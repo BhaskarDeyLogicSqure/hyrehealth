@@ -55,3 +55,48 @@ export const formatCurrency = (amount: number) => {
       })
     : "$0.00";
 };
+
+export const extractQueryParams = (): Record<string, string> => {
+  const {
+    location: { search: queryParamString },
+  } = window;
+  const params: Record<string, string> = {};
+  if (queryParamString.length > 1 && queryParamString.indexOf("?") > -1) {
+    let queryStr = queryParamString.replace("?", "");
+    queryStr = decodeURIComponent(queryStr);
+    if (queryStr?.indexOf("&") === -1) {
+      // Contains only one param
+      const paramParts = queryStr?.split("=");
+      params[paramParts[0]] = paramParts[1];
+    } else {
+      // Contains multiple params
+      const queryParams = queryStr?.split("&");
+      queryParams?.forEach((queryParam) => {
+        const paramParts = queryParam?.split("=");
+        params[paramParts[0]] = paramParts[1];
+      });
+    }
+  }
+  return params;
+};
+
+export const removeHtmlTags = (text: string) => {
+  if (!text) return "";
+  return text.replace(/<[^>]*>?/g, "");
+};
+
+export const removeHtmlTagsAndTrim = (text: string) => {
+  if (!text) return "";
+  return removeHtmlTags(text)?.trim();
+};
+
+export const getCurrentDomain = (headersList: Headers) => {
+  // Get origin from headers
+  const origin =
+    headersList?.get("x-forwarded-proto") && headersList?.get("host")
+      ? `${headersList?.get("x-forwarded-proto")}://${headersList?.get("host")}`
+      : headersList?.get("referer")
+      ? new URL(headersList?.get("referer")!).origin
+      : "";
+  return origin;
+};

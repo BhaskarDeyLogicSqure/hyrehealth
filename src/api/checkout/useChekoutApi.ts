@@ -15,6 +15,7 @@ interface CheckoutResponse {
 }
 
 const useChekoutApi = () => {
+  // order checkout with signup - for new users
   const {
     data: checkoutData,
     error: checkoutError,
@@ -34,6 +35,19 @@ const useChekoutApi = () => {
     },
   });
 
+  // order checkout - for login users
+  const {
+    data: loginOrderCheckoutData,
+    error: loginOrderCheckoutError,
+    isPending: isLoginOrderCheckoutLoading,
+    isError: isLoginOrderCheckoutError,
+    mutateAsync: loginOrderCheckout,
+  } = useMutation<CheckoutResponse, Error, CheckoutPayload>({
+    mutationFn: (payload: CheckoutPayload) =>
+      checkoutApi.orderCheckout(payload),
+  });
+
+  // validate coupon
   const {
     data: validateCouponData,
     error: validateCouponError,
@@ -81,6 +95,15 @@ const useChekoutApi = () => {
 
     // Actions
     validateCoupon,
+
+    // Login order checkout data and state
+    loginOrderCheckoutData: loginOrderCheckoutData?.data,
+    isLoginOrderCheckoutLoading,
+    isLoginOrderCheckoutError,
+    loginOrderCheckoutError,
+
+    // Actions
+    loginOrderCheckout,
   };
 };
 

@@ -17,14 +17,15 @@ export interface ProductFilters {
 
 export const productApi = {
   getProducts: async (
-    filters: ProductFilters = {}
+    filters: ProductFilters = {},
+    origin: string = ""
   ): Promise<{
     data: Product[];
     total: number;
   }> => {
     // Clean up undefined values
     const cleanFilters = Object.fromEntries(
-      Object.entries(filters).filter(
+      Object.entries(filters)?.filter(
         ([_, value]) => value !== undefined && value !== ""
       )
     );
@@ -37,7 +38,10 @@ export const productApi = {
         pages: number;
       };
       error: boolean;
-    }>(`${BASE_URL}${GET_PRODUCTS_ENDPOINT?.endpoint}`, cleanFilters);
+    }>(`${BASE_URL}${GET_PRODUCTS_ENDPOINT?.endpoint}`, {
+      ...cleanFilters,
+      origin,
+    });
 
     return {
       data: response?.data?.products,
@@ -46,14 +50,16 @@ export const productApi = {
   },
 
   // Get single product
-  getProductById: async (id: string): Promise<Product> => {
+  getProductById: async (id: string, origin: string = ""): Promise<Product> => {
     const response = await apiService.get<{
       data: {
         product: Product;
       };
       error: boolean;
       message?: string;
-    }>(`${BASE_URL}${GET_SINGLE_PRODUCT_ENDPOINT?.endpoint}/${id}`);
+    }>(`${BASE_URL}${GET_SINGLE_PRODUCT_ENDPOINT?.endpoint}/${id}`, {
+      domain: origin,
+    });
 
     if (response?.error) {
       throw new Error(response?.message);

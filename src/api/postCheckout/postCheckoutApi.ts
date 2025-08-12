@@ -1,6 +1,7 @@
 import apiService from "@/api";
 import {
   INTAKE_FORM_QUESTIONS_ENDPOINT,
+  MEETING_DETAILS_ENDPOINT,
   ORDER_CONFIRMATION_DETAILS_ENDPOINT,
   SUBMIT_INTAKE_FORM_QUESTIONS_ENDPOINT,
 } from "@/api-helper/ChekoutEndpoints";
@@ -8,6 +9,7 @@ import {
   IntakeFormQuestionsResponse,
   IntakeFormResponsePayload,
   IntakeFormSubmitResponse,
+  MeetingDetailsResponse,
   OrderConfirmationResponse,
 } from "@/types/intakeForms";
 
@@ -69,6 +71,25 @@ export const postCheckoutApi = {
       };
     } catch (error) {
       console.error("Intake form questions submit API error:", error);
+      throw error;
+    }
+  },
+
+  // get meeting id for meeting schedule
+  getMeetingDetails: async (
+    invoiceId: string
+  ): Promise<MeetingDetailsResponse> => {
+    try {
+      const response = await apiService.get<MeetingDetailsResponse>(
+        `${MEETING_DETAILS_ENDPOINT.endpoint}/${invoiceId}`
+      );
+
+      return {
+        data: response?.data,
+        error: response?.error || false,
+      };
+    } catch (error) {
+      console.error("Meeting details API error:", error);
       throw error;
     }
   },

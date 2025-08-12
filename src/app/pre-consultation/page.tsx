@@ -1,46 +1,57 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, Video, Clock, FileText } from "lucide-react";
 import { SUPPORT_EMAIL } from "@/configs";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  showErrorToast,
+  showSuccessToast,
+} from "@/components/GlobalErrorHandler";
+import { extractQueryParams } from "@/lib/utils";
+import useMeetingDetails from "@/api/postCheckout/useMeetingDetails";
+import ThemeLoader from "@/components/ThemeLoader";
+
 const PreConsultation = () => {
-  const searchParams = useSearchParams();
-  const { toast } = useToast();
+  const router = useRouter();
+  const { orderId } = extractQueryParams();
+  const { meetingDetails, isMeetingDetailsError, meetingDetailsError } =
+    useMeetingDetails(orderId);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const orderNumber = searchParams.get("order") || "HH-2024-001";
-  const product = searchParams.get("product") || "semaglutide";
-
-  const handleJoinConsultation = async () => {
-    console.log("Joining consultation with Qualiphy API");
-
+  const _handleJoinConsultation = async () => {
     try {
-      toast({
-        title: "Connecting to Provider",
-        description: "Please wait while we connect you...",
-      });
+      setIsLoading(true);
+      showSuccessToast("Connecting to Provider...");
 
-      // Simulate Qualiphy API integration
-      setTimeout(() => {
-        toast({
-          title: "Consultation Ready",
-          description: "Your provider is ready to see you!",
-        });
+      // simulate delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        // In a real implementation, this would redirect to Qualiphy URL
-        // window.open('https://qualiphy.com/consultation/...', '_blank');
-      }, 2000);
+      if (isMeetingDetailsError) {
+        showErrorToast(meetingDetailsError?.message || "Connection Error");
+        return;
+      }
+
+      const meetingId = meetingDetails?.meetingUuid;
+
+      showSuccessToast("Consultation Ready");
+      router.push(`/meeting-room?meetingId=${meetingId}`);
     } catch (error) {
       console.error("Error joining consultation:", error);
-      toast({
-        title: "Connection Error",
-        description: "Please try again or contact support.",
-        variant: "destructive",
-      });
+      showErrorToast("Connection Error");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!orderId) {
+      showErrorToast("No Order ID found");
+      router.push("/");
+    }
+  }, [orderId]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -68,11 +79,11 @@ const PreConsultation = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Order Number:</span>
-                <span className="font-semibold">#{orderNumber}</span>
+                <span className="font-semibold">#{orderId}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Treatment:</span>
-                <span className="font-semibold capitalize">{product}</span>
+                <span className="font-semibold capitalize">{"product"}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Intake Status:</span>
@@ -120,12 +131,14 @@ const PreConsultation = () => {
 
             <div className="mt-8 pt-6 border-t">
               <Button
-                onClick={handleJoinConsultation}
+                onClick={_handleJoinConsultation}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
                 size="lg"
+                disabled={isLoading}
               >
                 <Video className="h-5 w-5 mr-2" />
-                Join Your Consultation
+                Join Your Consultation{" "}
+                {isLoading && <ThemeLoader variant="simple" type="inline" />}
               </Button>
               <p className="text-sm text-gray-500 text-center mt-2">
                 Connect with your licensed provider now

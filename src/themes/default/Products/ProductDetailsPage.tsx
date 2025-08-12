@@ -1,6 +1,8 @@
 import ProductSection from "../Components/ProductSection";
 import { productApi } from "@/api/products/productApi";
 import { handleServerError } from "@/lib/error-handler";
+import { getCurrentDomain } from "@/lib/utils";
+import { headers } from "next/headers";
 // import { notFound } from "next/navigation";
 interface ProductDetailsPageProps {
   params: {
@@ -13,8 +15,12 @@ const DefaultProductDetailsPage = async ({
 }: ProductDetailsPageProps) => {
   let product;
 
+  // get the origin from the headers
+  const headersList = headers();
+  const origin = getCurrentDomain(headersList);
+
   try {
-    product = await productApi.getProductById(params?.id);
+    product = await productApi.getProductById(params?.id, origin);
   } catch (err: any) {
     // Use the global error handler
     handleServerError(err, {

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, lazy, Suspense } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import ThemeLoader from "@/components/ThemeLoader";
+import { extractQueryParams } from "@/lib/utils";
 
 const SubscriptionTab = lazy(
   () => import("@/components/profile/SubscriptionTab")
@@ -35,7 +36,7 @@ const tabConfig = {
 
 const ProfilePage = () => {
   const user = useSelector((state: RootState) => state?.authReducer?.user);
-  const searchParams = useSearchParams();
+  const { tab: initialTab } = extractQueryParams();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -57,7 +58,6 @@ const ProfilePage = () => {
   // }, []);
 
   useEffect(() => {
-    const initialTab = searchParams.get("tab");
     if (
       initialTab &&
       ["subscriptions", "orders", "payments"].includes(initialTab)
@@ -67,7 +67,7 @@ const ProfilePage = () => {
       // If no valid tab parameter, set default and update URL
       router?.replace(`${pathname}?tab=subscriptions`);
     }
-  }, [searchParams, router, pathname]);
+  }, [initialTab, router, pathname]);
 
   const userName = user?.firstName || "";
 
