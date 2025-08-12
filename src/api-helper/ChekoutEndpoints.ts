@@ -33,6 +33,6 @@ export const SUBMIT_INTAKE_FORM_QUESTIONS_ENDPOINT = {
 };
 
 export const MEETING_DETAILS_ENDPOINT = {
-  endpoint: "/meetinglink/",
+  endpoint: "/meetinglink",
   httpType: httpType.GET,
 };
