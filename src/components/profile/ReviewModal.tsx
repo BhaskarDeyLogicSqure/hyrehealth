@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,12 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
 import { useProfileApi } from "@/api/profile/useProfileApi";
+import { showErrorToast } from "../GlobalErrorHandler";
 
 interface ReviewModalProps {
   isOpen: boolean;
-  toggleModal: () => void;
   data: any;
-  onSubmit: (rating: number, review: string) => void;
+  isCreateReviewLoading: boolean;
+  createReviewError?: any;
+  toggleModal: () => void;
+  onSubmit: (rating: number, review: string, productId: string) => void;
 }
 
 const initialFormFields = {
@@ -27,9 +30,23 @@ const initialFormFields = {
 const ReviewModal = ({
   isOpen,
   data,
+  isCreateReviewLoading,
   toggleModal,
   onSubmit,
 }: ReviewModalProps) => {
+  // currently only one product is supported when creating a review, which is the main product if available, otherwise the first product
+  const _getMainProduct = useMemo(() => {
+    const mainProduct = data?.products?.find(
+      (product: any) => product?.isPrimary
+    );
+
+    // if no main product is found, return the first product
+    if (!mainProduct) {
+      return data?.products?.[0];
+    }
+    return mainProduct;
+  }, [data]);
+
   const { productReviewData, isProductReviewLoading, productReviewError } =
     useProfileApi(
       undefined,
@@ -37,25 +54,19 @@ const ReviewModal = ({
       undefined,
       undefined,
       undefined,
-      data?.products?._id || data?.id
+      _getMainProduct?._id,
+      data?._id
     );
 
   console.log({
-    data,
     productReviewData,
     isProductReviewLoading,
     productReviewError,
   });
 
-  // const [rating, setRating] = useState(0);
-  // const [review, setReview] = useState("");
   const [formFields, setFormFields] = useState(initialFormFields);
 
   const [hoveredRating, setHoveredRating] = useState(0);
-
-  // const _handleStarClick = (starIndex: number) => {
-  //   setRating(starIndex + 1);
-  // };
 
   const _handleFormFieldChange = (
     field: keyof typeof formFields,
@@ -73,10 +84,13 @@ const ReviewModal = ({
   };
 
   const _handleSubmit = () => {
-    if (formFields?.rating > 0) {
-      onSubmit(formFields?.rating, formFields?.review);
-      toggleModal();
+    if (!formFields?.rating) {
+      showErrorToast("Please select a rating");
+      return;
     }
+
+    onSubmit(formFields?.rating, formFields?.review, _getMainProduct?._id);
+    toggleModal();
   };
 
   const _renderStars = (ratingValue: number, interactive: boolean = false) => {
@@ -110,6 +124,23 @@ const ReviewModal = ({
     });
   };
 
+  useEffect(() => {
+    if (productReviewError) {
+      showErrorToast("Review not found");
+    }
+  }, [productReviewError]);
+
+  useEffect(() => {
+    if (productReviewData) {
+      const reviewData = productReviewData?.reviews?.[0];
+
+      setFormFields({
+        rating: reviewData?.rating,
+        review: reviewData?.reviewText,
+      });
+    }
+  }, [productReviewData]);
+
   return (
     <Dialog open={isOpen} onOpenChange={toggleModal}>
       <DialogContent className="sm:max-w-md">
@@ -125,7 +156,7 @@ const ReviewModal = ({
           {/* Product Name */}
           <div>
             <h3 className="text-lg font-medium text-gray-900">
-              {"productName"}
+              {_getMainProduct?.name || "Product"}
             </h3>
             <p className="text-sm text-gray-600">
               Share your experience with this product
@@ -155,7 +186,7 @@ const ReviewModal = ({
           <div className="flex justify-center">
             <Button
               onClick={_handleSubmit}
-              disabled={formFields?.rating === 0}
+              disabled={isCreateReviewLoading}
               className="w-full"
             >
               Submit Review

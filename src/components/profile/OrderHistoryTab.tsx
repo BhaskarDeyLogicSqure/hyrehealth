@@ -23,7 +23,7 @@ import ReviewModal from "./ReviewModal";
 import CustomPagination from "@/components/CustomPagination";
 import ThemeLoader from "@/components/ThemeLoader";
 import useOrderHistory from "@/hooks/useOrderHistory";
-
+import { showSuccessToast } from "../GlobalErrorHandler";
 const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
   const {
     ordersList,
@@ -34,6 +34,8 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
     isInvoicesLoading,
     invoicesError,
     isInvoicesError,
+    isCreateReviewLoading,
+    createReviewError,
     handlePageChange,
     getOrderStatusBadge,
     toggleReviewModal,
@@ -157,6 +159,18 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
     );
   }
 
+  const _downloadInvoice = async (invoiceId: string) => {
+    try {
+      window.open(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/invoices/${invoiceId}/download`,
+        "_blank"
+      );
+      showSuccessToast("Invoice downloaded successfully");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       {/* Desktop Table View */}
@@ -205,7 +219,13 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
                     <TableCell>{getOrderStatusBadge(order?.status)}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            _downloadInvoice(order?._id || order?.id)
+                          }
+                        >
                           <Receipt className="h-4 w-4 mr-1" />
                           Invoice
                         </Button>
@@ -335,12 +355,16 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
       )}
 
       {/* Review Modal */}
-      <ReviewModal
-        isOpen={reviewModal?.isOpen}
-        data={reviewModal?.order}
-        toggleModal={toggleReviewModal}
-        onSubmit={handleReviewSubmit}
-      />
+      {reviewModal?.isOpen ? (
+        <ReviewModal
+          isOpen={reviewModal?.isOpen}
+          data={reviewModal?.order}
+          toggleModal={toggleReviewModal}
+          onSubmit={handleReviewSubmit}
+          isCreateReviewLoading={isCreateReviewLoading}
+          createReviewError={createReviewError}
+        />
+      ) : null}
     </>
   );
 };

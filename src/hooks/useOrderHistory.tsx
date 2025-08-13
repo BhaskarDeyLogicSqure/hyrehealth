@@ -1,5 +1,5 @@
 import { DEFAULT_IMAGE_URL } from "@/configs";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useProfileApi } from "@/api/profile/useProfileApi";
 import { Badge } from "@/components/ui/badge";
 
@@ -8,6 +8,14 @@ const useOrderHistory = (customerId: string) => {
     page: 1,
     limit: 10,
   });
+
+  const memoizedDataPayload = useMemo(
+    () => ({
+      page: dataPayload?.page,
+      limit: dataPayload?.limit,
+    }),
+    [dataPayload?.page, dataPayload?.limit]
+  );
 
   const {
     // invoices api hook
@@ -20,8 +28,8 @@ const useOrderHistory = (customerId: string) => {
     isCreateReviewLoading,
     createReviewError,
   } = useProfileApi(
-    dataPayload?.page,
-    dataPayload?.limit,
+    memoizedDataPayload?.page,
+    memoizedDataPayload?.limit,
     undefined,
     undefined,
     customerId
@@ -46,7 +54,7 @@ const useOrderHistory = (customerId: string) => {
   const totalItems = paginationData?.total || ordersList?.length || 0;
 
   const _handlePageChange = (page: number = 1) => {
-    setDataPayload({ ...dataPayload, page });
+    setDataPayload({ ...memoizedDataPayload, page });
     // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -72,22 +80,24 @@ const useOrderHistory = (customerId: string) => {
     setReviewModal({ isOpen, order });
   };
 
-  const _handleReviewSubmit = async (rating: number, review: string) => {
+  const _handleReviewSubmit = async (
+    rating: number,
+    review: string,
+    productId: string
+  ) => {
     // Here you would typically make an API call to save the review
     console.log("Review submitted:", {
       rating,
       review,
+      productId,
       //   orderId: reviewModal?.order?._doc?._id,
     });
 
-    // await createReviewForProduct({
-    //   productId: reviewModal?.order?.productId,
-    //   rating,
-    //   review,
-    // });
-
-    // Update the order with the new review (in a real app, this would be done via API)
-    // For now, we'll just log it
+    await createReviewForProduct({
+      productId,
+      rating,
+      review,
+    });
   };
 
   const _toggleOrderExpansion = (orderId: string) => {
@@ -111,12 +121,14 @@ const useOrderHistory = (customerId: string) => {
   return {
     ordersList,
     totalItems,
-    dataPayload,
+    dataPayload: memoizedDataPayload,
     reviewModal,
     expandedOrders,
     isInvoicesLoading,
     invoicesError,
     isInvoicesError,
+    isCreateReviewLoading,
+    createReviewError,
     handlePageChange: _handlePageChange,
     getOrderStatusBadge: _getOrderStatusBadge,
     toggleReviewModal: _toggleReviewModal,
