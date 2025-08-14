@@ -96,7 +96,7 @@ const OrderSummarySection = ({
       );
 
       if (invalidProducts?.length > 0) {
-        alert(
+        showErrorToast(
           "Please select valid dosage and duration for all selected products"
         );
         return;
@@ -168,11 +168,11 @@ const OrderSummarySection = ({
         showSuccessToast("Order Placed Successfully");
       }
 
+      clearCheckout(); // clear the checkout data after successful checkout
       // Navigate to thank you page after successful checkout
       router.push(
         `/thank-you?orderId=${response?.data?.invoice?.invoiceNumber}`
       );
-      clearCheckout(); // clear the checkout data after successful checkout
     } catch (error) {
       console.error(error);
       showErrorToast((error as any)?.message || "Something went wrong");
@@ -183,31 +183,31 @@ const OrderSummarySection = ({
   };
 
   // If not from questionnaire, show empty state or redirect
-  if (
-    !isFromQuestionnaire ||
-    !eligibleProducts ||
-    eligibleProducts?.length === 0 ||
-    !questionnaire?.isCompleted ||
-    !questionnaire?.generalResponses?.length
-  ) {
-    // redirect to products page after 5 seconds
+  // if (
+  //   !isFromQuestionnaire ||
+  //   !eligibleProducts ||
+  //   eligibleProducts?.length === 0 ||
+  //   !questionnaire?.isCompleted ||
+  //   !questionnaire?.generalResponses?.length
+  // ) {
+  //   // redirect to products page after 5 seconds
 
-    useEffect(() => {
-      if (eligibleProducts?.length === 0) {
-        showErrorToast("No eligible products found");
-      }
+  //   useEffect(() => {
+  //     if (eligibleProducts?.length === 0) {
+  //       showErrorToast("No eligible products found");
+  //     }
 
-      if (
-        eligibleProducts?.length > 0 &&
-        (!questionnaire?.isCompleted ||
-          !questionnaire?.generalResponses?.length)
-      ) {
-        showErrorToast("Please complete the eligibility questionnaire first");
-      }
+  //     if (
+  //       eligibleProducts?.length > 0 &&
+  //       (!questionnaire?.isCompleted ||
+  //         !questionnaire?.generalResponses?.length)
+  //     ) {
+  //       showErrorToast("Please complete the eligibility questionnaire first");
+  //     }
 
-      router.push("/products");
-    }, []);
-  }
+  //     router.push("/products");
+  //   }, []);
+  // }
 
   return (
     <div>

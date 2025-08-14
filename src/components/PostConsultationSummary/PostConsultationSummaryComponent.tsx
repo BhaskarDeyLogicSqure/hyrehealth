@@ -13,6 +13,9 @@ import { usePostConsultationSummary } from "@/api/postCheckout/usePostConsultati
 import { Skeleton } from "../ui/skeleton";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
+import { formatPriceInDollars } from "@/lib/utils";
+import { formatDate } from "@/lib/dayjs";
+import { US_SHORT_DATE_FORMAT } from "@/configs";
 
 const PostConsultationSummaryComponent = ({
   consultationId,
@@ -194,42 +197,90 @@ const PostConsultationSummaryComponent = ({
               <CardTitle className="flex items-center">
                 <Package className="h-5 w-5 mr-2" />
                 Your Treatment Plan
+                {treatmentPlan?.products?.length > 1 && (
+                  <Badge variant="secondary" className="ml-2">
+                    {treatmentPlan.products.length} Products
+                  </Badge>
+                )}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Product:</span>
-                <span className="font-semibold">
-                  {treatmentPlan?.products?.[0]?.productName || "N/A"}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Approved Dosage:</span>
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                  {treatmentPlan?.products?.[0]?.dosageInstructions || "N/A"}
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center">
+            <CardContent className="space-y-6">
+              {/* Products */}
+              {treatmentPlan?.products && treatmentPlan?.products.length > 0 ? (
+                <div className="space-y-4">
+                  {treatmentPlan?.products?.map((product, index) => (
+                    <div
+                      key={index}
+                      className={`${
+                        treatmentPlan?.products?.length > 1
+                          ? "border border-gray-200 rounded-lg p-4 bg-gray-50/50"
+                          : ""
+                      }`}
+                    >
+                      {treatmentPlan?.products?.length > 1 && (
+                        <div className="flex items-center mb-3">
+                          <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-2">
+                            {index + 1}
+                          </div>
+                          <h4 className="font-semibold text-gray-900">
+                            Product {index + 1}
+                          </h4>
+                        </div>
+                      )}
+
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Product Name:</span>
+                          <span className="font-semibold">
+                            {product?.productName || "N/A"}
+                          </span>
+                        </div>
+
+                        {product?.dosage && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600">
+                              Approved Dosage:
+                            </span>
+                            <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                              {product?.dosage}
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  No products found in treatment plan
+                </div>
+              )}
+
+              {/* Consultation Valid Until */}
+              <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                 <span className="text-gray-600">Consultation Valid Until:</span>
                 <span className="font-semibold">
                   {treatmentPlan?.consultationValidUntil
-                    ? new Date(
-                        treatmentPlan.consultationValidUntil
-                      ).toLocaleDateString()
+                    ? formatDate(
+                        treatmentPlan?.consultationValidUntil,
+                        US_SHORT_DATE_FORMAT
+                      )
                     : "N/A"}
                 </span>
               </div>
-              {treatmentPlan?.dosageInstructions ? (
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-blue-900 mb-2">
-                    Dosage Instructions
+
+              {/* General Treatment Instructions */}
+              {treatmentPlan?.dosageInstructions && (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                  <h4 className="font-semibold text-blue-900 mb-2 flex items-center">
+                    <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+                    General Treatment Instructions
                   </h4>
-                  <p className="text-blue-800 text-sm">
-                    {treatmentPlan?.dosageInstructions ||
-                      "No specific instructions provided."}
+                  <p className="text-blue-800 text-sm leading-relaxed">
+                    {treatmentPlan?.dosageInstructions}
                   </p>
                 </div>
-              ) : null}
+              )}
             </CardContent>
           </Card>
 
@@ -250,11 +301,15 @@ const PostConsultationSummaryComponent = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Consultation fee:</span>
-                <span>${orderSummary?.consultationFee || "0.00"}</span>
+                <span>
+                  {formatPriceInDollars(orderSummary?.consultationFee)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">First month treatment:</span>
-                <span>${orderSummary?.firstMonthTreatment || "0.00"}</span>
+                <span>
+                  {formatPriceInDollars(orderSummary?.firstMonthTreatment)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping:</span>
@@ -263,21 +318,21 @@ const PostConsultationSummaryComponent = ({
               <hr />
               <div className="flex justify-between font-bold text-lg">
                 <span>Total Paid:</span>
-                <span>${orderSummary?.totalPaid || "0.00"}</span>
+                <span>{formatPriceInDollars(orderSummary?.totalPaid)}</span>
               </div>
               {orderSummary?.nextBilling && (
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="font-semibold mb-2">Next Billing</h4>
                   <p className="text-sm text-gray-600">
-                    Your next charge of ${orderSummary.nextBilling.amount} will
-                    occur on{" "}
+                    Your next charge of{" "}
+                    {formatPriceInDollars(orderSummary?.nextBilling?.amount)}{" "}
+                    will occur on{" "}
                     {orderSummary.nextBilling.date
-                      ? new Date(
-                          orderSummary.nextBilling.date
-                        ).toLocaleDateString()
-                      : new Date(
-                          Date.now() + 30 * 24 * 60 * 60 * 1000
-                        ).toLocaleDateString()}
+                      ? formatDate(
+                          orderSummary?.nextBilling?.date,
+                          US_SHORT_DATE_FORMAT
+                        )
+                      : "N/A"}
                   </p>
                 </div>
               )}

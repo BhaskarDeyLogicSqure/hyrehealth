@@ -18,6 +18,7 @@ export interface Consultation {
 export interface TreatmentProduct {
   productName: string;
   strength: string;
+  dosage: string;
   dosageInstructions: string;
   quantity: number;
   refills: number;
