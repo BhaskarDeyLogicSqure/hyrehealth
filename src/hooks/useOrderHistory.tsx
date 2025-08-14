@@ -90,7 +90,6 @@ const useOrderHistory = (customerId: string) => {
       rating,
       review,
       productId,
-      //   orderId: reviewModal?.order?._doc?._id,
     });
 
     await createReviewForProduct({

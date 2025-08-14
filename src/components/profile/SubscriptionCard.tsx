@@ -39,24 +39,24 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
   };
 
   const _getPricePerMonth = useMemo(() => {
-    const price = subscription?._doc?.billing?.amount;
-    const duration = subscription?._doc?.plan?.intervalCount;
+    const price = subscription?.billing?.amount;
+    const duration = subscription?.plan?.intervalCount;
     const pricePerMonth = price / duration;
 
     return pricePerMonth;
   }, [subscription]);
 
   return (
-    <Card key={subscription?._doc?.id} className="overflow-hidden">
+    <Card key={subscription?._id} className="overflow-hidden">
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
           <div>
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               <Package className="h-5 w-5" />
-              {subscription?._doc?.product?.name || "N/A"}
-              {subscription?._doc?.strength ? (
+              {subscription?.product?.name || "N/A"}
+              {subscription?.strength ? (
                 <Badge variant="outline" className="text-sm">
-                  {subscription?._doc?.strength}mg
+                  {subscription?.strength}mg
                 </Badge>
               ) : null}
             </CardTitle>
@@ -66,24 +66,24 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
 
             <p className="text-gray-600 text-sm mt-1">
               Purchased Date:{" "}
-              {subscription?._doc?.billing?.startDate
+              {subscription?.billing?.startDate
                 ? formatDate(
-                    subscription?._doc?.billing?.startDate,
+                    subscription?.billing?.startDate,
                     US_SHORT_DATE_FORMAT
                   )
                 : null}
             </p>
           </div>
           {_getSubscriptionStatusBadge(
-            subscription?._doc?.status,
-            subscription?._doc?.billing?.nextBillingDate
+            subscription?.status,
+            subscription?.billing?.nextBillingDate
           )}
         </div>
       </CardHeader>
 
       <CardContent className="space-y-6">
         {/* Status-specific alerts */}
-        {subscription?._doc?.status === "reconsult_needed" && (
+        {subscription?.status === "reconsult_needed" && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <div className="flex items-start">
               <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 mr-3" />
@@ -93,8 +93,8 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
                 </h4>
                 <p className="text-red-700 text-sm mt-1">
                   Your consultation expired on{" "}
-                  {formatDate(subscription?._doc?.billing?.nextBillingDate)}.
-                  Complete a new consultation to resume your subscription.
+                  {formatDate(subscription?.billing?.nextBillingDate)}. Complete
+                  a new consultation to resume your subscription.
                 </p>
                 <Button size="sm" className="mt-3 bg-red-600 hover:bg-red-700">
                   Schedule Consultation
@@ -104,10 +104,10 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
           </div>
         )}
 
-        {subscription?._doc?.status === "active" &&
-        subscription?._doc?.billing?.nextBillingDate &&
+        {subscription?.status === "active" &&
+        subscription?.billing?.nextBillingDate &&
         isDateBefore(
-          subscription?._doc?.billing?.nextBillingDate,
+          subscription?.billing?.nextBillingDate,
           addDays(new Date(), 14)
         ) ? (
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
@@ -119,8 +119,8 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
                 </h4>
                 <p className="text-orange-700 text-sm mt-1">
                   Your consultation expires on{" "}
-                  {formatDate(subscription?._doc?.billing?.nextBillingDate)}.
-                  Schedule a renewal to avoid interruption.
+                  {formatDate(subscription?.billing?.nextBillingDate)}. Schedule
+                  a renewal to avoid interruption.
                 </p>
                 <Button
                   size="sm"
@@ -141,7 +141,7 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
               <CalendarIcon className="h-4 w-4 mr-2" />
               Upcoming
             </h4>
-            {subscription?._doc?.status === "active" ? (
+            {subscription?.status === "active" ? (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Next shipment:</span>
@@ -165,13 +165,13 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
                   <span
                     className="font-medium"
                     title={formatDate(
-                      subscription?._doc?.billing?.nextBillingDate,
+                      subscription?.billing?.nextBillingDate,
                       READABLE_DATE_FORMAT
                     )}
                   >
-                    {subscription?._doc?.billing?.nextBillingDate
+                    {subscription?.billing?.nextBillingDate
                       ? formatDate(
-                          subscription?._doc?.billing?.nextBillingDate,
+                          subscription?.billing?.nextBillingDate,
                           US_SHORT_DATE_FORMAT
                         )
                       : "N/A"}
@@ -184,20 +184,20 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
                   <span
                     className="font-medium"
                     title={formatDate(
-                      subscription?._doc?.billing?.nextBillingDate,
+                      subscription?.billing?.nextBillingDate,
                       READABLE_DATE_FORMAT
                     )}
                   >
-                    {subscription?._doc?.billing?.nextBillingDate
+                    {subscription?.billing?.nextBillingDate
                       ? formatDate(
-                          subscription?._doc?.billing?.nextBillingDate,
+                          subscription?.billing?.nextBillingDate,
                           US_SHORT_DATE_FORMAT
                         )
                       : "N/A"}
                   </span>
                 </div>
               </div>
-            ) : subscription?._doc?.status === "paused" ? (
+            ) : subscription?.status === "paused" ? (
               <p className="text-gray-500 text-sm">Subscription paused</p>
             ) : (
               <p className="text-gray-500 text-sm">No data available</p>

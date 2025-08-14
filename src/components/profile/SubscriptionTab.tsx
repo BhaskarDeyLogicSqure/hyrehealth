@@ -81,7 +81,7 @@ const SubscriptionTab = () => {
       <div className="space-y-6">
         {subscriptionsList?.map((subscription: any) => (
           <SubscriptionCard
-            key={subscription?._doc?._id}
+            key={subscription?._id}
             subscription={subscription}
           />
         ))}
