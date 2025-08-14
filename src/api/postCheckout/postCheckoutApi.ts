@@ -3,6 +3,7 @@ import {
   INTAKE_FORM_QUESTIONS_ENDPOINT,
   MEETING_DETAILS_ENDPOINT,
   ORDER_CONFIRMATION_DETAILS_ENDPOINT,
+  POST_CONSULTATION_SUMMARY_ENDPOINT,
   RENEWAL_DETAILS_ENDPOINT,
   SUBMIT_INTAKE_FORM_QUESTIONS_ENDPOINT,
 } from "@/api-helper/ChekoutEndpoints";
@@ -13,6 +14,7 @@ import {
   MeetingDetailsResponse,
   OrderConfirmationResponse,
 } from "@/types/intakeForms";
+import { PostConsultationSummaryResponse } from "@/types/postConsultationSummary";
 import { RenewalDetailsResponse } from "@/types/renewalDetails";
 
 // Order confirmation response interface
@@ -111,6 +113,25 @@ export const postCheckoutApi = {
       };
     } catch (error) {
       console.error("Renewal details API error:", error);
+      throw error;
+    }
+  },
+
+  // get post consultation summary
+  getPostConsultationSummary: async (
+    consultationId: string
+  ): Promise<PostConsultationSummaryResponse> => {
+    try {
+      const response = await apiService.get<PostConsultationSummaryResponse>(
+        `${POST_CONSULTATION_SUMMARY_ENDPOINT.endpoint}/${consultationId}/completion`
+      );
+
+      return {
+        error: response?.error || false,
+        data: response?.data,
+      };
+    } catch (error) {
+      console.error("Post consultation summary API error:", error);
       throw error;
     }
   },
