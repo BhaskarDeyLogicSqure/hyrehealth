@@ -8,7 +8,8 @@ export const useProfileApi = (
   subscriptionPage?: number,
   subscriptionLimit?: number,
   customerId?: string,
-  productId?: string
+  productId?: string,
+  orderId?: string // just for cache purposes for react query
 ) => {
   const {
     data: profileData,
@@ -48,7 +49,7 @@ export const useProfileApi = (
     error: productReviewError,
     isError: isProductReviewError,
   } = useQuery({
-    queryKey: ["productReview", productId],
+    queryKey: ["productReview", productId, orderId],
     queryFn: () => profileApi.getSingleProductReview(productId || ""),
     staleTime: STALE_TIME_FOR_REACT_QUERY,
   });

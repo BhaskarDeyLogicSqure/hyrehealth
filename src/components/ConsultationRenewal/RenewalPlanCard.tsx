@@ -4,41 +4,45 @@ import React from "react";
 import { CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
+import { formatDate } from "@/lib/dayjs";
+import { formatPriceInDollars } from "@/lib/utils";
+import { US_SHORT_DATE_FORMAT } from "@/configs";
 
 const RenewalPlanCard = ({
   plan,
-  selectedPlan,
+  selectedDosageAndDuration,
   handlePlanSelect,
 }: {
   plan: any;
-  selectedPlan: any;
+  selectedDosageAndDuration: any;
   handlePlanSelect: any;
 }) => {
   return (
     <Card
-      key={plan.id}
+      key={plan?.id}
       className={`cursor-pointer transition-all border-2 ${
-        selectedPlan === plan.id
+        selectedDosageAndDuration?.dosage === plan?.strength &&
+        selectedDosageAndDuration?.duration === plan?.duration?.value
           ? "border-primary bg-primary/5"
           : "border-border hover:border-primary/50"
       }`}
-      onClick={() => handlePlanSelect(plan.id)}
+      onClick={() => handlePlanSelect(plan?.strength, plan?.duration?.value)}
     >
       <CardHeader className="relative">
-        {plan.badge && (
+        {plan?.badge && (
           <Badge className="absolute -top-2 -right-2 bg-primary text-primary-foreground">
-            {plan.badge}
+            {plan?.badge}
           </Badge>
         )}
         <CardTitle className="flex justify-between items-center">
-          <span className="theme-text-primary">{plan.title}</span>
+          <span className="theme-text-primary">{plan?.title}</span>
           <div className="text-right">
             <div className="text-2xl font-bold theme-text-primary">
-              ${plan.price}
+              {formatPriceInDollars(plan?.price)}
             </div>
-            {plan.originalPrice && (
+            {plan?.originalPrice && (
               <div className="text-sm theme-text-muted line-through">
-                ${plan.originalPrice}
+                {formatPriceInDollars(plan?.originalPrice)}
               </div>
             )}
           </div>
@@ -48,21 +52,26 @@ const RenewalPlanCard = ({
         <div className="flex justify-between text-sm">
           <span className="theme-text-muted">Duration</span>
           <span className="font-medium theme-text-primary">
-            {plan.duration} month{plan.duration > 1 ? "s" : ""}
+            {plan?.duration?.value} month
+            {plan?.duration?.value > 1 ? "s" : ""}
           </span>
         </div>
-        {plan.savings && (
+        {plan?.savings && (
           <div className="flex justify-between text-sm">
             <span className="theme-text-muted">You save</span>
-            <span className="font-medium text-green-600">${plan.savings}</span>
+            <span className="font-medium text-green-600">
+              {formatPriceInDollars(plan?.savings)}
+            </span>
           </div>
         )}
-        <div className="flex justify-between text-sm">
-          <span className="theme-text-muted">Estimated delivery</span>
-          <span className="font-medium theme-text-primary">
-            3-5 business days
-          </span>
-        </div>
+        {plan?.estimatedDeliveryTime ? (
+          <div className="flex justify-between text-sm">
+            <span className="theme-text-muted">Estimated delivery</span>
+            <span className="font-medium theme-text-primary">
+              {formatDate(plan?.estimatedDeliveryTime, US_SHORT_DATE_FORMAT)}
+            </span>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

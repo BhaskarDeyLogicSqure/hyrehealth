@@ -6,7 +6,7 @@ const HomePageFeaturedProducts = ({
 }: {
   featuredProducts: any;
 }) => {
-  if (!featuredProducts) return null;
+  if (!featuredProducts?.length) return null;
 
   return (
     <section className="py-16 bg-white">

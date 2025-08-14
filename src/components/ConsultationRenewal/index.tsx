@@ -1,90 +1,124 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle } from "lucide-react";
-import { Theme } from "@/types/theme";
-import NeedNewConsultation from "./NeedNewConsultation";
-import PlanOptions from "./PlanOptions";
+"use client";
 
-const RenewalPage = () => {
-  const currentPlan = {
-    id: "1",
-    title: "1-Month Plan",
-    price: 100,
-    duration: 1, // months
-    product: "Semaglutide",
-    dosage: "0.5mg",
-    lastConsultation: "2024-12-01",
-    isConsultationValid: true,
-  };
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import ConsultationRenewalComponent from "./ConsultationRenewalComponent";
+import { useRenewalDetails } from "@/api/postCheckout/useRenewalDetails";
+import { Skeleton } from "../ui/skeleton";
+import { AlertTriangle, RefreshCw } from "lucide-react";
+import { Button } from "../ui/button";
+import { showErrorToast } from "@/components/GlobalErrorHandler";
 
-  const needsNewConsultation = currentPlan?.duration >= 3;
+const RenewalPage = ({ subscriptionId }: { subscriptionId: string }) => {
+  const router = useRouter();
+  const {
+    renewalDetails,
+    isRenewalDetailsLoading,
+    isRenewalDetailsError,
+    renewalDetailsError,
+    refetchRenewalDetails,
+  } = useRenewalDetails(subscriptionId);
+  // Handle errors with toast and redirect
+  useEffect(() => {
+    if (isRenewalDetailsError) {
+      const errorMessage =
+        renewalDetailsError?.message ||
+        "Failed to load renewal details. Redirecting back...";
+      showErrorToast(errorMessage);
 
-  if (needsNewConsultation) {
-    return <NeedNewConsultation />;
+      // Redirect to previous page after a short delay
+      setTimeout(() => {
+        router.back();
+      }, 1000);
+    }
+  }, [isRenewalDetailsError, renewalDetailsError, router]);
+
+  // Handle no data case
+  useEffect(() => {
+    if (!isRenewalDetailsLoading && !isRenewalDetailsError && !renewalDetails) {
+      showErrorToast("No renewal details found. Redirecting back...");
+
+      // Redirect to previous page after a short delay
+      setTimeout(() => {
+        router.back();
+      }, 1000);
+    }
+  }, [isRenewalDetailsLoading, isRenewalDetailsError, renewalDetails, router]);
+
+  // Loading state
+  if (isRenewalDetailsLoading) {
+    return (
+      <div className="min-h-screen theme-bg">
+        <main className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="space-y-8">
+            {/* Loading Header */}
+            <div className="text-center space-y-4">
+              <Skeleton className="h-8 w-96 mx-auto" />
+              <Skeleton className="h-6 w-80 mx-auto" />
+            </div>
+
+            {/* Loading Card */}
+            <div className="space-y-6">
+              <Skeleton className="h-48 w-full" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Error state - show simplified error message since toast will handle the error and redirect
+  if (isRenewalDetailsError) {
+    return (
+      <div className="min-h-screen theme-bg">
+        <main className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="text-center">
+            <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold theme-text-primary mb-2">
+              Error Loading Renewal Details
+            </h1>
+            <p className="theme-text-muted mb-4">
+              Redirecting back to previous page...
+            </p>
+            <Button
+              onClick={() => refetchRenewalDetails()}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Try Again
+            </Button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // No data state - show simplified message since toast will handle the error and redirect
+  if (!renewalDetails) {
+    return (
+      <div className="min-h-screen theme-bg">
+        <main className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="text-center">
+            <AlertTriangle className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold theme-text-primary mb-2">
+              No Renewal Details Found
+            </h1>
+            <p className="theme-text-muted">
+              Redirecting back to previous page...
+            </p>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen theme-bg">
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="space-y-8">
-          {/* Header */}
-          <div className="text-center space-y-4">
-            <h1 className="text-3xl font-bold theme-text-primary">
-              Ready to continue your treatment?
-            </h1>
-            <p className="text-lg theme-text-muted">
-              Extend your {currentPlan.product} subscription and keep your
-              progress going.
-            </p>
-          </div>
-
-          {/* Dosage Review */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="theme-text-primary">
-                  Your Current Treatment
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <div className="text-sm theme-text-muted">Product</div>
-                  <div className="font-medium theme-text-primary">
-                    {currentPlan.product}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm theme-text-muted">Current Dosage</div>
-                  <div className="font-medium theme-text-primary">
-                    {currentPlan.dosage}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm theme-text-muted">
-                    Last Consultation
-                  </div>
-                  <div className="font-medium theme-text-primary">
-                    {currentPlan.lastConsultation}
-                  </div>
-                </div>
-              </div>
-              {currentPlan.isConsultationValid && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <p className="text-sm text-green-800">
-                    Your last approved dosage will be used for this order.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Plan Options with Checkout CTA */}
-          <PlanOptions currentPlan={currentPlan} />
-        </div>
-      </main>
-    </div>
+    <ConsultationRenewalComponent
+      currentTreatment={renewalDetails?.currentTreatment}
+      extensionPlans={renewalDetails?.extensionPlans}
+    />
   );
 };
 

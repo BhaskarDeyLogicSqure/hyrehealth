@@ -6,7 +6,7 @@ const HomePageFeaturedTreatment = ({
 }: {
   featuredCategories: any;
 }) => {
-  if (!featuredCategories) return null;
+  if (!featuredCategories?.length) return null;
 
   return (
     <section className="py-16">

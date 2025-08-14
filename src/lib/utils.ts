@@ -2,6 +2,7 @@ import { REGEX_CONFIG } from "@/configs/regexConfig";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { isValidDate as isValidDateWithDayjs } from "@/lib/dayjs";
+import { DIGITS_AFTER_DECIMALS } from "@/configs";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -99,4 +100,8 @@ export const getCurrentDomain = (headersList: Headers) => {
       ? new URL(headersList?.get("referer")!).origin
       : "";
   return origin;
+};
+
+export const formatPriceInDollars = (price: number) => {
+  return `$${price?.toFixed(DIGITS_AFTER_DECIMALS)}`;
 };

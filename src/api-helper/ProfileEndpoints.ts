@@ -32,7 +32,7 @@ export const GET_ALL_INVOICES: EndpointConfigType = {
 };
 
 export const GET_SINGLE_PRODUCT_REVIEW: EndpointConfigType = {
-  endpoint: "/reviews/product",
+  endpoint: "/reviews",
   httpType: httpType.GET,
   attachToken: true,
   attachXUserId: true,
@@ -41,6 +41,13 @@ export const GET_SINGLE_PRODUCT_REVIEW: EndpointConfigType = {
 export const CREATE_REVIEW_FOR_PRODUCT: EndpointConfigType = {
   endpoint: "/reviews",
   httpType: httpType.POST,
+  attachToken: true,
+  attachXUserId: true,
+};
+
+export const DOWNLOAD_INVOICE: EndpointConfigType = {
+  endpoint: "/invoices",
+  httpType: httpType.GET,
   attachToken: true,
   attachXUserId: true,
 };
