@@ -35,11 +35,20 @@ interface PlanOptionsProps {
 }
 
 const PlanOptions = ({ currentPlan, extensionPlans }: PlanOptionsProps) => {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [selectedDosage, setSelectedDosage] = useState<number | null>(null);
+  const [selectedDosageAndDuration, setSelectedDosageAndDuration] = useState<{
+    dosage: number | null;
+    duration: number | null;
+  }>({
+    dosage: null,
+    duration: null,
+  });
 
-  const _handlePlanSelect = (planId: string) => {
-    setSelectedPlan(planId);
+  const _handlePlanSelect = (dosage: number, duration: number) => {
+    // setSelectedPlan(dosage, duration);
+    setSelectedDosageAndDuration({
+      dosage,
+      duration,
+    });
   };
 
   // Get unique dosages from extension plans
@@ -54,23 +63,41 @@ const PlanOptions = ({ currentPlan, extensionPlans }: PlanOptionsProps) => {
 
   // Set default dosage when extension plans are loaded
   useEffect(() => {
-    const availableDosages = _getAvailableDosages();
-    if (availableDosages?.length > 0 && selectedDosage === null) {
-      // Try to match current treatment strength first, otherwise use the first available
-      const currentStrength = currentPlan?.strength;
-      const defaultDosage = availableDosages?.includes(currentStrength)
-        ? currentStrength
-        : availableDosages[0];
+    const getAvailableDosages = _getAvailableDosages();
+    const currentStrength = currentPlan?.strength;
+    const currentDuration = currentPlan?.duration?.value;
+    const isCurrentDosageAvailable =
+      getAvailableDosages?.includes(currentStrength);
 
-      setSelectedDosage(defaultDosage);
+    if (currentStrength && currentDuration && isCurrentDosageAvailable) {
+      // Try to match current treatment strength first, otherwise use the first available
+      const selectedDosageAndDurationObject = {
+        dosage: currentStrength,
+        duration: currentDuration,
+      };
+
+      setSelectedDosageAndDuration(selectedDosageAndDurationObject);
+    } else {
+      // If current dosage is not available, use the first available dosage
+      const defaultDosage = extensionPlans?.find((plan) => plan?.isDefault);
+      if (defaultDosage) {
+        const selectedDosageAndDurationObject = {
+          dosage: defaultDosage?.strength,
+          duration: defaultDosage?.duration?.value,
+        };
+
+        setSelectedDosageAndDuration(selectedDosageAndDurationObject);
+      }
     }
-  }, [extensionPlans, currentPlan?.strength, selectedDosage]);
+  }, [extensionPlans, currentPlan?.strength, currentPlan?.duration?.value]);
 
   // Filter plans by selected dosage
   const _getFilteredPlansByDosage = () => {
-    if (!extensionPlans || selectedDosage === null) return [];
+    if (!extensionPlans || selectedDosageAndDuration === null) return [];
 
-    return extensionPlans?.filter((plan) => plan?.strength === selectedDosage);
+    return extensionPlans?.filter(
+      (plan) => plan?.strength === selectedDosageAndDuration?.dosage
+    );
   };
 
   // Convert extension plans to PlanOption format for the UI
@@ -99,6 +126,7 @@ const PlanOptions = ({ currentPlan, extensionPlans }: PlanOptionsProps) => {
           ? "Best Value"
           : undefined),
       estimatedDeliveryTime: plan?.estimatedDeliveryTime,
+      strength: plan?.strength,
     }));
   };
 
@@ -106,10 +134,7 @@ const PlanOptions = ({ currentPlan, extensionPlans }: PlanOptionsProps) => {
   const filteredPlans = _getFilteredPlansByDosage();
   const planOptions = _convertToPlanOptions(filteredPlans);
 
-  // Reset selected plan when dosage changes
-  useEffect(() => {
-    setSelectedPlan(null);
-  }, [selectedDosage]);
+  console.log({ selectedDosageAndDuration });
 
   return (
     <>
@@ -124,8 +149,13 @@ const PlanOptions = ({ currentPlan, extensionPlans }: PlanOptionsProps) => {
               Select Dosage
             </Label>
             <Select
-              value={selectedDosage?.toString() || ""}
-              onValueChange={(value) => setSelectedDosage(Number(value))}
+              value={selectedDosageAndDuration?.dosage?.toString() || ""}
+              onValueChange={(value) =>
+                setSelectedDosageAndDuration({
+                  dosage: Number(value),
+                  duration: selectedDosageAndDuration?.duration,
+                })
+              }
             >
               <SelectTrigger className="w-full max-w-xs">
                 <SelectValue placeholder="Choose dosage" />
@@ -153,15 +183,16 @@ const PlanOptions = ({ currentPlan, extensionPlans }: PlanOptionsProps) => {
                 <RenewalPlanCard
                   key={plan?.id}
                   plan={plan}
-                  selectedPlan={selectedPlan}
+                  selectedDosageAndDuration={selectedDosageAndDuration}
                   handlePlanSelect={_handlePlanSelect}
                 />
               ))}
             </div>
-          ) : selectedDosage ? (
+          ) : selectedDosageAndDuration?.dosage ? (
             <div className="text-center py-8">
               <p className="theme-text-muted">
-                No extension plans available for {selectedDosage}mg dosage.
+                No extension plans available for{" "}
+                {selectedDosageAndDuration?.dosage}mg dosage.
               </p>
             </div>
           ) : (
@@ -177,9 +208,9 @@ const PlanOptions = ({ currentPlan, extensionPlans }: PlanOptionsProps) => {
       {/* Checkout CTA */}
       {planOptions && planOptions?.length > 0 && (
         <CheckoutCTA
-          selectedPlanId={selectedPlan}
+          selectedPlanId={selectedDosageAndDuration?.dosage}
           currentPlan={currentPlan}
-          selectedDosage={selectedDosage}
+          selectedDosageAndDuration={selectedDosageAndDuration}
         />
       )}
     </>
