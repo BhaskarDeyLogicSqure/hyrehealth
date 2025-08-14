@@ -1,6 +1,9 @@
 export interface PlanOption {
   id: string;
-  duration: number;
+  duration: {
+    value: number;
+    unit: string;
+  };
   price: number;
   title: string;
   originalPrice?: number;

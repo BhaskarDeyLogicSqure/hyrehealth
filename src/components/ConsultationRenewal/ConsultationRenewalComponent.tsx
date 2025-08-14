@@ -4,10 +4,13 @@ import { CheckCircle } from "lucide-react";
 import PlanOptions from "./PlanOptions";
 
 const ConsultationRenewalComponent = ({
-  currentPlan,
+  currentTreatment,
+  extensionPlans,
 }: {
-  currentPlan: any;
+  currentTreatment: any;
+  extensionPlans?: any[];
 }) => {
+  console.log({ currentTreatment, extensionPlans });
   return (
     <div className="min-h-screen theme-bg">
       <main className="container mx-auto px-4 py-8 max-w-4xl">
@@ -18,8 +21,8 @@ const ConsultationRenewalComponent = ({
               Ready to continue your treatment?
             </h1>
             <p className="text-lg theme-text-muted">
-              Extend your {currentPlan.product} subscription and keep your
-              progress going.
+              Extend your {currentTreatment?.product || ""} subscription and
+              keep your progress going.
             </p>
           </div>
 
@@ -38,13 +41,13 @@ const ConsultationRenewalComponent = ({
                 <div>
                   <div className="text-sm theme-text-muted">Product</div>
                   <div className="font-medium theme-text-primary">
-                    {currentPlan.product}
+                    {currentTreatment?.product || "N/A"}
                   </div>
                 </div>
                 <div>
                   <div className="text-sm theme-text-muted">Current Dosage</div>
                   <div className="font-medium theme-text-primary">
-                    {currentPlan.dosage}
+                    {currentTreatment?.strength + "mg" || "N/A"}
                   </div>
                 </div>
                 <div>
@@ -52,11 +55,15 @@ const ConsultationRenewalComponent = ({
                     Last Consultation
                   </div>
                   <div className="font-medium theme-text-primary">
-                    {currentPlan.lastConsultation}
+                    {currentTreatment?.lastConsultation
+                      ? new Date(
+                          currentTreatment?.lastConsultation || ""
+                        ).toLocaleDateString()
+                      : "N/A"}
                   </div>
                 </div>
               </div>
-              {currentPlan.isConsultationValid && (
+              {currentTreatment?.isConsultationValid && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                   <p className="text-sm text-green-800">
                     Your last approved dosage will be used for this order.
@@ -67,7 +74,10 @@ const ConsultationRenewalComponent = ({
           </Card>
 
           {/* Plan Options with Checkout CTA */}
-          <PlanOptions currentPlan={currentPlan} />
+          <PlanOptions
+            currentPlan={currentTreatment}
+            extensionPlans={extensionPlans}
+          />
         </div>
       </main>
     </div>

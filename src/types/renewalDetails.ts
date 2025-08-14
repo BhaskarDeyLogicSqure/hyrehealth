@@ -1,11 +1,3 @@
-export interface RenewalDetail {
-  currentTreatment: CurrentTreatment;
-  extensionPlans: ExtensionPlan[];
-  pageHeader: PageHeader;
-  additionalInfo: AdditionalInfo;
-  subscription: SubscriptionInfo;
-}
-
 export interface CurrentTreatment {
   product: string;
   currentDosage: string;
@@ -62,20 +54,6 @@ export interface SubscriptionInfo {
   pharmacy: PharmacyInfo;
 }
 
-export interface RenewalDetail {
-  _id: string;
-  subscriptionId: string;
-  renewalDate: string;
-  renewalAmount: number;
-  renewalStatus: string;
-
-  currentTreatment: CurrentTreatment;
-  extensionPlans: ExtensionPlan[];
-  pageHeader: PageHeader;
-  additionalInfo: AdditionalInfo;
-  subscription: SubscriptionInfo;
-}
-
 export interface RenewalDetailsPageData {
   currentTreatment: CurrentTreatment;
   extensionPlans: ExtensionPlan[];
@@ -87,6 +65,10 @@ export interface RenewalDetailsPageData {
 export interface RenewalDetailsResponse {
   error: boolean;
   data: {
-    renewalDetails: Array<RenewalDetail>;
+    currentTreatment: CurrentTreatment;
+    extensionPlans: ExtensionPlan[];
+    pageHeader: PageHeader;
+    additionalInfo: AdditionalInfo;
+    subscription: SubscriptionInfo;
   };
 }

@@ -4,6 +4,7 @@ import React from "react";
 import { CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
+import { formatDate } from "@/lib/dayjs";
 
 const RenewalPlanCard = ({
   plan,
@@ -16,29 +17,29 @@ const RenewalPlanCard = ({
 }) => {
   return (
     <Card
-      key={plan.id}
+      key={plan?.id}
       className={`cursor-pointer transition-all border-2 ${
-        selectedPlan === plan.id
+        selectedPlan === plan?.id
           ? "border-primary bg-primary/5"
           : "border-border hover:border-primary/50"
       }`}
-      onClick={() => handlePlanSelect(plan.id)}
+      onClick={() => handlePlanSelect(plan?.id)}
     >
       <CardHeader className="relative">
-        {plan.badge && (
+        {plan?.badge && (
           <Badge className="absolute -top-2 -right-2 bg-primary text-primary-foreground">
-            {plan.badge}
+            {plan?.badge}
           </Badge>
         )}
         <CardTitle className="flex justify-between items-center">
-          <span className="theme-text-primary">{plan.title}</span>
+          <span className="theme-text-primary">{plan?.title}</span>
           <div className="text-right">
             <div className="text-2xl font-bold theme-text-primary">
-              ${plan.price}
+              ${plan?.price}
             </div>
-            {plan.originalPrice && (
+            {plan?.originalPrice && (
               <div className="text-sm theme-text-muted line-through">
-                ${plan.originalPrice}
+                ${plan?.originalPrice}
               </div>
             )}
           </div>
@@ -48,21 +49,24 @@ const RenewalPlanCard = ({
         <div className="flex justify-between text-sm">
           <span className="theme-text-muted">Duration</span>
           <span className="font-medium theme-text-primary">
-            {plan.duration} month{plan.duration > 1 ? "s" : ""}
+            {plan?.duration?.value} month
+            {plan?.duration?.value > 1 ? "s" : ""}
           </span>
         </div>
-        {plan.savings && (
+        {plan?.savings && (
           <div className="flex justify-between text-sm">
             <span className="theme-text-muted">You save</span>
-            <span className="font-medium text-green-600">${plan.savings}</span>
+            <span className="font-medium text-green-600">${plan?.savings}</span>
           </div>
         )}
-        <div className="flex justify-between text-sm">
-          <span className="theme-text-muted">Estimated delivery</span>
-          <span className="font-medium theme-text-primary">
-            3-5 business days
-          </span>
-        </div>
+        {plan?.estimatedDeliveryTime ? (
+          <div className="flex justify-between text-sm">
+            <span className="theme-text-muted">Estimated delivery</span>
+            <span className="font-medium theme-text-primary">
+              {formatDate(plan?.estimatedDeliveryTime)}
+            </span>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );
