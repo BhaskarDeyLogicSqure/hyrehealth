@@ -36,3 +36,8 @@ export const MEETING_DETAILS_ENDPOINT = {
   endpoint: "/meetinglink",
   httpType: httpType.GET,
 };
+
+export const RENEWAL_DETAILS_ENDPOINT = {
+  endpoint: "/subscriptions",
+  httpType: httpType.GET,
+};
