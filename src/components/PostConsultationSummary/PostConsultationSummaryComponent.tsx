@@ -80,13 +80,13 @@ const PostConsultationSummaryComponent = ({
 
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Loading Cards */}
-            {[1, 2].map((i) => (
+            {[1, 2]?.map((i) => (
               <Card key={i}>
                 <CardHeader>
                   <Skeleton className="h-6 w-48" />
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {[1, 2, 3, 4].map((j) => (
+                  {[1, 2, 3, 4]?.map((j) => (
                     <div key={j} className="flex justify-between items-center">
                       <Skeleton className="h-4 w-24" />
                       <Skeleton className="h-4 w-32" />
@@ -104,7 +104,7 @@ const PostConsultationSummaryComponent = ({
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {[1, 2, 3].map((i) => (
+                {[1, 2, 3]?.map((i) => (
                   <div key={i} className="flex items-start">
                     <Skeleton className="w-8 h-8 rounded-full mr-4 mt-1" />
                     <div className="flex-1">
@@ -168,6 +168,8 @@ const PostConsultationSummaryComponent = ({
 
   const { consultation, treatmentPlan, orderSummary } = postConsultationSummary;
 
+  console.log({ consultation, treatmentPlan, orderSummary });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -217,15 +219,17 @@ const PostConsultationSummaryComponent = ({
                     : "N/A"}
                 </span>
               </div>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-semibold text-blue-900 mb-2">
-                  Dosage Instructions
-                </h4>
-                <p className="text-blue-800 text-sm">
-                  {treatmentPlan?.dosageInstructions ||
-                    "No specific instructions provided."}
-                </p>
-              </div>
+              {treatmentPlan?.dosageInstructions ? (
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-blue-900 mb-2">
+                    Dosage Instructions
+                  </h4>
+                  <p className="text-blue-800 text-sm">
+                    {treatmentPlan?.dosageInstructions ||
+                      "No specific instructions provided."}
+                  </p>
+                </div>
+              ) : null}
             </CardContent>
           </Card>
 
