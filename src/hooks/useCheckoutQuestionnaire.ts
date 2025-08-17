@@ -7,7 +7,6 @@ import {
   addProductResponses,
   setProductEligibility,
   completeQuestionnaire,
-  filterToEligibleProducts,
   calculateTotal,
   setCheckoutStep,
   clearQuestionnaireData,
@@ -36,15 +35,29 @@ export const useCheckoutQuestionnaire = () => {
   const eligibleProductsTotal = useSelector(
     (state: RootState) => state.checkoutReducer?.eligibleProductsTotal
   );
-  const ineligibleProductsTotal = useSelector(
-    (state: RootState) => state.checkoutReducer?.ineligibleProductsTotal
-  );
   const mainProduct = useSelector(
     (state: RootState) => state.checkoutReducer?.mainProduct
   );
   const relatedProducts = useSelector(
     (state: RootState) => state.checkoutReducer?.relatedProducts
   );
+
+  // Helper functions to get eligible/ineligible product IDs
+  const getEligibleProductIds = useMemo(() => {
+    return (
+      questionnaire?.productEligibilities
+        ?.filter((p) => p?.isEligible === true)
+        ?.map((p) => p?.productId) || []
+    );
+  }, [questionnaire?.productEligibilities]);
+
+  const getIneligibleProductIds = useMemo(() => {
+    return (
+      questionnaire?.productEligibilities
+        ?.filter((p) => p?.isEligible === false)
+        ?.map((p) => p?.productId) || []
+    );
+  }, [questionnaire?.productEligibilities]);
 
   // Computed values
   const eligibleProducts = useMemo(() => {
@@ -53,7 +66,7 @@ export const useCheckoutQuestionnaire = () => {
     // Add main product if eligible
     if (
       mainProduct &&
-      questionnaire?.eligibleProductIds?.includes(mainProduct?.product?._id)
+      getEligibleProductIds.includes(mainProduct?.product?._id)
     ) {
       products?.push({
         type: "main",
@@ -64,9 +77,7 @@ export const useCheckoutQuestionnaire = () => {
 
     // Add eligible related products
     relatedProducts?.forEach((relatedProduct) => {
-      if (
-        questionnaire?.eligibleProductIds?.includes(relatedProduct?.productId)
-      ) {
+      if (getEligibleProductIds.includes(relatedProduct?.productId)) {
         products?.push({
           type: "related",
           product: relatedProduct?.product,
@@ -76,7 +87,7 @@ export const useCheckoutQuestionnaire = () => {
     });
 
     return products;
-  }, [mainProduct, relatedProducts, questionnaire.eligibleProductIds]);
+  }, [mainProduct, relatedProducts, getEligibleProductIds]);
 
   const ineligibleProducts = useMemo(() => {
     const products = [];
@@ -84,7 +95,7 @@ export const useCheckoutQuestionnaire = () => {
     // Add main product if ineligible
     if (
       mainProduct &&
-      questionnaire?.ineligibleProductIds?.includes(mainProduct?.product?._id)
+      getIneligibleProductIds.includes(mainProduct?.product?._id)
     ) {
       products.push({
         type: "main",
@@ -98,9 +109,7 @@ export const useCheckoutQuestionnaire = () => {
 
     // Add ineligible related products
     relatedProducts?.forEach((relatedProduct) => {
-      if (
-        questionnaire?.ineligibleProductIds?.includes(relatedProduct?.productId)
-      ) {
+      if (getIneligibleProductIds.includes(relatedProduct?.productId)) {
         products.push({
           type: "related",
           product: relatedProduct?.product,
@@ -116,7 +125,7 @@ export const useCheckoutQuestionnaire = () => {
   }, [
     mainProduct,
     relatedProducts,
-    questionnaire?.ineligibleProductIds,
+    getIneligibleProductIds,
     questionnaire?.productEligibilities,
   ]);
 
@@ -148,33 +157,12 @@ export const useCheckoutQuestionnaire = () => {
     );
   };
 
-  const getProductResponses = (productId: string) => {
-    // Filter product responses by productId field
-    return questionnaire?.productResponses?.filter(
-      (response) => response?.productId === productId
-    );
-  };
-
-  const getAllProductResponses = () => {
-    return questionnaire?.productResponses;
-  };
-
-  const getQuestionnaireProgress = () => {
-    if (questionnaire?.totalQuestions === 0) return 0;
+  // Check if user is eligible for checkout
+  const isEligibleForCheckout = useMemo(() => {
     return (
-      (questionnaire?.totalQuestionsAnswered / questionnaire?.totalQuestions) *
-      100
+      questionnaire?.generalEligibility === true && eligibleProducts?.length > 0
     );
-  };
-
-  const getEligibilityStatus = () => {
-    if (!questionnaire?.isCompleted) return "pending";
-    if (questionnaire?.generalEligibility === false)
-      return "general_ineligible";
-    if (questionnaire?.eligibleProductIds.length === 0)
-      return "no_eligible_products";
-    return "eligible";
-  };
+  }, [questionnaire?.generalEligibility, eligibleProducts]);
 
   // Action dispatchers
   const updateQuestionnaireData = (data: Partial<QuestionnaireData>) => {
@@ -200,7 +188,7 @@ export const useCheckoutQuestionnaire = () => {
     dispatch(setProductEligibility(eligibilityData));
   };
 
-  const markQuestionnaireComplete = (
+  const completeQuestionnaireProcess = (
     completedAt: string,
     totalQuestions: number,
     totalAnswered: number
@@ -210,8 +198,7 @@ export const useCheckoutQuestionnaire = () => {
     );
   };
 
-  const filterProductsToEligible = () => {
-    dispatch(filterToEligibleProducts());
+  const recalculateTotal = () => {
     dispatch(calculateTotal());
   };
 
@@ -221,11 +208,11 @@ export const useCheckoutQuestionnaire = () => {
     dispatch(setCheckoutStep(step));
   };
 
-  const clearQuestionnaire = () => {
+  const clearQuestionnaireState = () => {
     dispatch(clearQuestionnaireData());
   };
 
-  const recalculateTotal = () => {
+  const recalculateAndUpdate = () => {
     dispatch(calculateTotal());
   };
 
@@ -236,19 +223,19 @@ export const useCheckoutQuestionnaire = () => {
     currentStep,
     totalAmount,
     eligibleProductsTotal,
-    ineligibleProductsTotal,
+    mainProduct,
+    relatedProducts,
     eligibleProducts,
     ineligibleProducts,
     selectedRelatedProducts,
     relatedProductsTotalCost,
     mainProductIfEligible,
+    isEligibleForCheckout,
+    eligibleProductIds: getEligibleProductIds,
+    ineligibleProductIds: getIneligibleProductIds,
 
-    // Computed values
+    // Helper functions
     getProductEligibility,
-    getProductResponses,
-    getAllProductResponses,
-    getQuestionnaireProgress,
-    getEligibilityStatus,
 
     // Actions
     updateQuestionnaireData,
@@ -256,10 +243,10 @@ export const useCheckoutQuestionnaire = () => {
     updateProductResponses,
     appendProductResponses,
     updateProductEligibility,
-    markQuestionnaireComplete,
-    filterProductsToEligible,
-    updateCheckoutStep,
-    clearQuestionnaire,
+    completeQuestionnaireProcess,
     recalculateTotal,
+    updateCheckoutStep,
+    clearQuestionnaireState,
+    recalculateAndUpdate,
   };
 };

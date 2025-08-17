@@ -50,9 +50,6 @@ interface QuestionnaireData {
   generalResponses: QuestionnaireResponse[];
   productResponses: QuestionnaireResponse[]; // All product responses in one array
   productEligibilities: ProductEligibility[];
-  overallEligible: boolean | null;
-  eligibleProductIds: string[];
-  ineligibleProductIds: string[];
   totalQuestionsAnswered: number;
   totalQuestions: number;
 }
@@ -69,7 +66,6 @@ export interface CheckoutState {
   // Cart calculations
   totalAmount: number;
   eligibleProductsTotal: number;
-  ineligibleProductsTotal: number;
 
   // UI state
   isLoading: boolean;
@@ -87,9 +83,6 @@ const initialQuestionnaireState: QuestionnaireData = {
   generalResponses: [],
   productResponses: [],
   productEligibilities: [],
-  overallEligible: null,
-  eligibleProductIds: [],
-  ineligibleProductIds: [],
   totalQuestionsAnswered: 0,
   totalQuestions: 0,
 };
@@ -101,11 +94,19 @@ const initialState: CheckoutState = {
   questionnaire: initialQuestionnaireState,
   totalAmount: 0,
   eligibleProductsTotal: 0,
-  ineligibleProductsTotal: 0,
   isLoading: false,
   error: null,
   currentStep: "questionnaire",
   isFromQuestionnaire: false,
+};
+
+// Helper function to get eligible product IDs from productEligibilities
+const getEligibleProductIds = (
+  productEligibilities: ProductEligibility[]
+): string[] => {
+  return productEligibilities
+    .filter((p) => p.isEligible === true)
+    .map((p) => p.productId);
 };
 
 // Create the checkout slice
@@ -209,22 +210,6 @@ const checkoutSlice = createSlice({
       } else {
         state?.questionnaire?.productEligibilities?.push(action?.payload);
       }
-
-      // Update eligible/ineligible product lists
-      state.questionnaire.eligibleProductIds =
-        state?.questionnaire?.productEligibilities
-          ?.filter((p) => p?.isEligible === true)
-          ?.map((p) => p?.productId);
-
-      state.questionnaire.ineligibleProductIds =
-        state?.questionnaire?.productEligibilities
-          ?.filter((p) => p?.isEligible === false)
-          ?.map((p) => p?.productId);
-
-      // Update overall eligibility
-      state.questionnaire.overallEligible =
-        state?.questionnaire?.generalEligibility === true &&
-        state?.questionnaire?.eligibleProductIds?.length > 0;
     },
 
     // Complete questionnaire
@@ -245,43 +230,22 @@ const checkoutSlice = createSlice({
       state.currentStep = "review";
     },
 
-    // Filter products to only eligible ones
-    filterToEligibleProducts: (state) => {
-      // Filter main product
-      if (
-        state?.mainProduct &&
-        !state?.questionnaire?.eligibleProductIds?.includes(
-          state?.mainProduct?.product?._id
-        )
-      ) {
-        state.mainProduct = null;
-      }
-
-      // Filter related products
-      state.relatedProducts = state?.relatedProducts?.filter((product) =>
-        state?.questionnaire?.eligibleProductIds?.includes(product?.productId)
-      );
-    },
-
     // Calculate and set total amount
     calculateTotal: (state) => {
       let total = 0;
       let eligibleTotal = 0;
-      let ineligibleTotal = 0;
+
+      const eligibleProductIds = getEligibleProductIds(
+        state.questionnaire.productEligibilities
+      );
 
       // Add main product price
       if (state?.mainProduct) {
         const price = state?.mainProduct?.selectedOption?.price || 0;
         total += price;
 
-        if (
-          state?.questionnaire?.eligibleProductIds?.includes(
-            state?.mainProduct?.product?._id
-          )
-        ) {
+        if (eligibleProductIds.includes(state?.mainProduct?.product?._id)) {
           eligibleTotal += price;
-        } else {
-          ineligibleTotal += price;
         }
       }
 
@@ -290,20 +254,13 @@ const checkoutSlice = createSlice({
         const price = relatedProduct?.selectedOption?.price || 0;
         total += price;
 
-        if (
-          state?.questionnaire?.eligibleProductIds?.includes(
-            relatedProduct?.productId
-          )
-        ) {
+        if (eligibleProductIds.includes(relatedProduct?.productId)) {
           eligibleTotal += price;
-        } else {
-          ineligibleTotal += price;
         }
       });
 
       state.totalAmount = total;
       state.eligibleProductsTotal = eligibleTotal;
-      state.ineligibleProductsTotal = ineligibleTotal;
     },
 
     // Set checkout step
@@ -343,7 +300,6 @@ const checkoutSlice = createSlice({
       state.questionnaire = initialQuestionnaireState;
       state.totalAmount = 0;
       state.eligibleProductsTotal = 0;
-      state.ineligibleProductsTotal = 0;
       state.isLoading = false;
       state.error = null;
       state.currentStep = "questionnaire";
@@ -364,7 +320,6 @@ export const {
   addProductResponses,
   setProductEligibility,
   completeQuestionnaire,
-  filterToEligibleProducts,
   calculateTotal,
   setCheckoutStep,
   setLoading,
