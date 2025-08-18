@@ -14,6 +14,11 @@ interface ProductConfiguration {
   strength: number;
 }
 
+export enum CouponType {
+  PERCENTAGE = "percentage",
+  FIXED_AMOUNT = "fixed_amount",
+}
+
 const useOrderCheckout = ({
   product,
   initialMainProductSelectedOption,
@@ -31,7 +36,7 @@ const useOrderCheckout = ({
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string;
     discount: number;
-    type: "percentage" | "fixed_amount" | "";
+    type: CouponType | "";
   }>({
     code: "",
     discount: 0,
@@ -196,11 +201,11 @@ const useOrderCheckout = ({
     const totalPrice = _getTotalPrice;
 
     // if coupon type is percentage, apply percentage discount
-    if (appliedCoupon?.type === "percentage") {
+    if (appliedCoupon?.type === CouponType.PERCENTAGE) {
       const discount = appliedCoupon?.discount || 0;
       const discountedPrice = totalPrice - (totalPrice * discount) / 100;
       return discountedPrice; // return the discounted price
-    } else if (appliedCoupon?.type === "fixed_amount") {
+    } else if (appliedCoupon?.type === CouponType.FIXED_AMOUNT) {
       // if coupon type is fixed amount, apply fixed amount discount
       const discount = appliedCoupon?.discount || 0;
       const discountedPrice = totalPrice - discount;
@@ -210,6 +215,13 @@ const useOrderCheckout = ({
     // if coupon type is not set, return the total price
     return totalPrice;
   }, [_getTotalPrice, appliedCoupon]);
+
+  const _getDiscountApplied = useMemo(() => {
+    const totalPrice = _getTotalPrice;
+    const discountedPrice = _getDiscountedTotalPrice;
+    const discount = totalPrice - discountedPrice;
+    return discount;
+  }, [_getTotalPrice, _getDiscountedTotalPrice]);
 
   const _handleDosageAndSubscriptionDurationChange = (
     productId: string,
@@ -284,14 +296,27 @@ const useOrderCheckout = ({
 
         const response = await validateCoupon(coupon);
 
-        if (!isValidateCouponError) {
+        if (
+          !isValidateCouponError &&
+          response?.data?.data?.validation?.isValid
+        ) {
+          // coupon is valid, set the applied coupon
+          const couponType = response?.data?.data?.coupon?.type;
+          const couponDiscount = response?.data?.data?.coupon?.value;
+
           setAppliedCoupon({
             code: coupon,
-            discount: response?.data?.coupon?.value || 0,
-            type: response?.data?.coupon?.type || "",
+            discount: couponDiscount || 0,
+            type: couponType || "",
           });
           setCouponCode("");
           showSuccessToast(`Coupon code "${coupon}" applied successfully!`);
+        } else {
+          // coupon is not valid, show error toast
+          showErrorToast(
+            response?.data?.data?.validation?.message ||
+              "Coupon code is not valid"
+          );
         }
       } else {
         showErrorToast("Please enter a valid coupon code");
@@ -304,7 +329,7 @@ const useOrderCheckout = ({
 
   const _handleClearCoupon = () => {
     if (appliedCoupon) {
-      const removedCoupon = appliedCoupon;
+      const removedCoupon = appliedCoupon?.code;
       setAppliedCoupon({
         code: "",
         discount: 0,
@@ -346,6 +371,7 @@ const useOrderCheckout = ({
     isValidateCouponLoading,
     totalPrice: _getTotalPrice,
     discountedTotalPrice: _getDiscountedTotalPrice,
+    discountApplied: _getDiscountApplied,
     couponCode,
     appliedCoupon,
     setIsCheckoutLoading,

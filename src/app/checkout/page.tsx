@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,10 +11,64 @@ import OrderSummarySection from "@/components/checkout/OrderSummarySection";
 import PaymentInfoCard from "@/components/checkout/PaymentInfoCard";
 import AccountCreationCard from "@/components/checkout/AccountCreationCard";
 import useCheckoutDetails from "@/hooks/useCheckoutDetails";
+import { useCheckout } from "@/hooks/useCheckout";
+import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
+import { showErrorToast } from "@/components/GlobalErrorHandler";
 
 const CheckoutPage = () => {
+  const router = useRouter();
+  const { clearCheckout } = useCheckout();
+  const { questionnaire } = useCheckoutQuestionnaire();
   const { isLoggedIn, formFields, errors, handleOnChange, handleGetPayload } =
     useCheckoutDetails();
+
+  useEffect(() => {
+    // Check if we have valid checkout data, if not redirect to products page
+    const hasValidCheckoutData =
+      questionnaire?.isCompleted &&
+      questionnaire?.productEligibilities?.length > 0;
+
+    if (!hasValidCheckoutData) {
+      showErrorToast("No valid checkout data found");
+      router.replace("/products");
+      return;
+    }
+
+    // Handle browser back button - redirect to product page instead of questionnaire
+    const handlePopState = () => {
+      if (questionnaire?.productEligibilities?.[0]?.productId) {
+        router.replace(
+          `/products/${questionnaire.productEligibilities[0].productId}`
+        );
+      } else {
+        router.replace("/products");
+      }
+    };
+
+    // Clear checkout data when page is about to unload (navigating away)
+    const handleBeforeUnload = () => {
+      clearCheckout();
+    };
+
+    // Add event listeners
+    window.addEventListener("popstate", handlePopState);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // Override browser back behavior
+    window.history.pushState(null, "", window.location.href);
+
+    // Cleanup on unmount
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+
+      // Clear checkout data when component unmounts (navigating away)
+      const isLeavingCheckout = !window.location.pathname.includes("/checkout");
+      if (isLeavingCheckout) {
+        clearCheckout();
+      }
+    };
+  }, [router, clearCheckout, questionnaire]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -89,12 +145,6 @@ const CheckoutPage = () => {
           {/* Right Column - Order Summary */}
           <OrderSummarySection handleGetPayload={handleGetPayload} />
         </div>
-
-        {/* <br />
-        <br />
-        <br />
-        <br />
-        <QuestionnaireReview /> */}
       </div>
     </div>
   );
