@@ -84,12 +84,12 @@ const OrderSummarySection = ({
       if (error || !payload) return;
 
       //  check if there's a valid questionnaire response
-      if (!questionnaire?.generalResponses?.length) {
-        showErrorToast(
-          "Please fill the questionnaire first from the previous step"
-        );
-        return;
-      }
+      // if (!questionnaire?.generalResponses?.length) {
+      //   showErrorToast(
+      //     "Please fill the questionnaire first from the previous step"
+      //   );
+      //   return;
+      // }
 
       const invalidProducts = productConfigurations?.filter(
         (config) => !config?.dosageId || !config?.subscriptionDuration
@@ -103,7 +103,8 @@ const OrderSummarySection = ({
       }
 
       // add the price info to the payload
-      payload["paymentInfo"]["finalAmount"] = totalPrice; // this will be the final amount after applying the coupon
+      payload["paymentInfo"]["finalAmount"] =
+        discountedTotalPrice || totalPrice; // this will be the final amount after applying the coupon
 
       // add the coupon info to the payload
       if (appliedCoupon?.code) {
@@ -170,7 +171,7 @@ const OrderSummarySection = ({
 
       clearCheckout(); // clear the checkout data after successful checkout
       // Navigate to thank you page after successful checkout
-      router.push(
+      router.replace(
         `/thank-you?orderId=${response?.data?.invoice?.invoiceNumber}`
       );
     } catch (error) {

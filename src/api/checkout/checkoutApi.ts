@@ -67,14 +67,13 @@ export const checkoutApi = {
     }
   },
 
-  validateCoupon: async (
-    couponCode: string
-  ): Promise<ApiResponse<CheckoutResponse>> => {
+  validateCoupon: async (payload: {
+    couponCode: string;
+    productIds: string[];
+  }): Promise<ApiResponse<CheckoutResponse>> => {
     const response = await apiService.post<CheckoutResponse>(
       `${BASE_URL}${VALIDATE_COUPON_ENDPOINT?.endpoint}`,
-      {
-        couponCode,
-      }
+      payload
     );
 
     return response;

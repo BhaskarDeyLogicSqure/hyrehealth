@@ -4,22 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Video, Clock, FileText } from "lucide-react";
 import { SUPPORT_EMAIL } from "@/configs";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   showErrorToast,
   showSuccessToast,
 } from "@/components/GlobalErrorHandler";
-import { extractQueryParams } from "@/lib/utils";
 import useMeetingDetails from "@/api/postCheckout/useMeetingDetails";
 import ThemeLoader from "@/components/ThemeLoader";
 
 const PreConsultation = () => {
   const router = useRouter();
-  const { orderId } = extractQueryParams();
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("orderId") || "";
+
   const { meetingDetails, isMeetingDetailsError, meetingDetailsError } =
     useMeetingDetails(orderId);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [isTransitionLoading, setTransition] = useTransition();
 
   const _handleJoinConsultation = async () => {
     try {
@@ -131,14 +134,22 @@ const PreConsultation = () => {
 
             <div className="mt-8 pt-6 border-t">
               <Button
-                onClick={_handleJoinConsultation}
+                onClick={() => {
+                  setTransition(() => {
+                    _handleJoinConsultation();
+                  });
+                }}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
                 size="lg"
-                disabled={isLoading}
+                disabled={isLoading || isTransitionLoading}
               >
                 <Video className="h-5 w-5 mr-2" />
                 Join Your Consultation{" "}
-                {isLoading && <ThemeLoader variant="simple" type="inline" />}
+                {isLoading || isTransitionLoading ? (
+                  <ThemeLoader variant="simple" type="inline" />
+                ) : (
+                  ""
+                )}
               </Button>
               <p className="text-sm text-gray-500 text-center mt-2">
                 Connect with your licensed provider now

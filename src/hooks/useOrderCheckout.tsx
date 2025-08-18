@@ -104,6 +104,7 @@ const useOrderCheckout = ({
     setProductConfigurations(initialConfigurations);
   }, [allEligibleProducts, product?._id, selectedRelatedProducts]);
 
+  // returns the dosage options for the selected product
   const _generateDosageOptions = useMemo(() => {
     return (productId: string) => {
       const targetProduct = allEligibleProducts?.find(
@@ -131,6 +132,7 @@ const useOrderCheckout = ({
     };
   }, [allEligibleProducts]);
 
+  // returns the subscription duration options for the selected dosage
   const _generateSubscriptionDurationOptions = useMemo(() => {
     return (productId: string) => {
       const config = productConfigurations?.find(
@@ -157,6 +159,7 @@ const useOrderCheckout = ({
     };
   }, [productConfigurations, allEligibleProducts]);
 
+  // returns the selected dosage and subscription duration option
   const _getSelectedDosageWithDuration = useMemo(() => {
     return (productId: string) => {
       const config = productConfigurations?.find(
@@ -188,6 +191,7 @@ const useOrderCheckout = ({
     };
   }, [productConfigurations, allEligibleProducts]);
 
+  // returns the total price without applying any coupon
   const _getTotalPrice = useMemo(() => {
     const totalPrice = productConfigurations?.reduce((total, config) => {
       const selectedOption = _getSelectedDosageWithDuration(config?.productId);
@@ -197,6 +201,7 @@ const useOrderCheckout = ({
     return totalPrice;
   }, [productConfigurations, _getSelectedDosageWithDuration]);
 
+  // returns the total price after applying the coupon, and if no coupon is applied, it returns the total price
   const _getDiscountedTotalPrice = useMemo(() => {
     const totalPrice = _getTotalPrice;
 
@@ -216,13 +221,15 @@ const useOrderCheckout = ({
     return totalPrice;
   }, [_getTotalPrice, appliedCoupon]);
 
+  // returns the amount of discount applied
   const _getDiscountApplied = useMemo(() => {
     const totalPrice = _getTotalPrice;
     const discountedPrice = _getDiscountedTotalPrice;
     const discount = totalPrice - discountedPrice;
-    return discount;
+    return discount || 0;
   }, [_getTotalPrice, _getDiscountedTotalPrice]);
 
+  // handles the change of dosage and subscription duration
   const _handleDosageAndSubscriptionDurationChange = (
     productId: string,
     type: "dosage" | "subscriptionDuration",
@@ -267,6 +274,7 @@ const useOrderCheckout = ({
     setProductConfigurations(updatedProductConfigurations);
   };
 
+  // removes a product from the product configurations
   const _handleRemoveProduct = (productId: string) => {
     // Ensure at least one product remains (main product should always be there)
     const remainingProducts = productConfigurations?.filter(
@@ -281,6 +289,7 @@ const useOrderCheckout = ({
     setProductConfigurations(remainingProducts);
   };
 
+  // make api call to validate the coupon code, and if the coupon is valid, set the applied coupon
   const _handleApplyCoupon = async () => {
     try {
       const coupon = couponCode?.trim();
@@ -294,7 +303,11 @@ const useOrderCheckout = ({
           return;
         }
 
-        const response = await validateCoupon(coupon);
+        const payload = {
+          couponCode: coupon,
+          productIds: productConfigurations?.map((config) => config?.productId),
+        };
+        const response = await validateCoupon(payload);
 
         if (
           !isValidateCouponError &&
@@ -327,6 +340,7 @@ const useOrderCheckout = ({
     }
   };
 
+  // clears the applied coupon
   const _handleClearCoupon = () => {
     if (appliedCoupon) {
       const removedCoupon = appliedCoupon?.code;
@@ -339,10 +353,12 @@ const useOrderCheckout = ({
     }
   };
 
+  // handles the change of coupon code
   const _handleCouponCodeChange = (e: any) => {
     setCouponCode(e.target.value);
   };
 
+  // handles the delete product alert
   const _handleDeleteProductAlert = async (
     productId: string,
     productName: string

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { postCheckoutApi } from "@/api/postCheckout/postCheckoutApi";
 
-export const useOrderConfirmation = (orderId: string) => {
+export const useOrderConfirmation = (orderId: string | null) => {
   const {
     data: orderConfirmationResponse,
     error: orderConfirmationError,
