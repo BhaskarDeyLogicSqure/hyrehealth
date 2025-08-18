@@ -527,6 +527,21 @@ const useQuestionnaire = (
       }
     }
 
+    // Handle products with no questions - mark them as eligible by default
+    if (currentStepInfo?.type === "productIntro") {
+      const nextStepInfo = stepStructure?.[currentStep + 1];
+      if (
+        nextStepInfo?.type === "productResult" &&
+        currentStepInfo?.productIndex !== undefined
+      ) {
+        // This product has no questions, mark it as eligible by default
+        const productSection = productSections?.[currentStepInfo?.productIndex];
+        if (productSection && productSection?.questions?.length === 0) {
+          productSections[currentStepInfo.productIndex].isEligible = true;
+        }
+      }
+    }
+
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
