@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -11,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Shield, Tag, Trash2, X, Ticket } from "lucide-react";
+import { Shield, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { showErrorToast, showSuccessToast } from "../GlobalErrorHandler";
 import { Separator } from "@/components/ui/separator";
@@ -20,11 +19,11 @@ import useOrderCheckout from "@/hooks/useOrderCheckout";
 import { useCheckout } from "@/hooks/useCheckout";
 import { DIGITS_AFTER_DECIMALS } from "@/configs";
 import useChekoutApi from "@/api/checkout/useChekoutApi";
-import ThemeLoader from "../ThemeLoader";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/actions/authAction";
 import { useCookies } from "@/hooks/useCookies";
 import { isUserAuthenticated } from "@/utils/auth";
+import CouponCodeSection from "./CouponCodeSection";
 
 const OrderSummarySection = ({
   handleGetPayload,
@@ -54,6 +53,7 @@ const OrderSummarySection = ({
     isCheckoutLoading,
     totalPrice,
     discountedTotalPrice,
+    discountApplied,
     couponCode,
     appliedCoupon,
     isValidateCouponLoading,
@@ -339,58 +339,14 @@ const OrderSummarySection = ({
           })}
 
           {/* Coupon Code Section */}
-          <Card className="border border-gray-200">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Tag className="h-4 w-4 text-gray-600" />
-                <span className="text-sm font-medium">Coupon Code</span>
-              </div>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter coupon code"
-                  value={couponCode}
-                  onChange={(e) => handleCouponCodeChange(e)}
-                  className="flex-1"
-                  disabled={isValidateCouponLoading}
-                  onKeyDown={(e) => {
-                    console.log({ e });
-                    if (e.key === "Enter") {
-                      handleApplyCoupon();
-                    }
-                  }}
-                />
-                <Button
-                  variant="outline"
-                  onClick={handleApplyCoupon}
-                  className="px-4"
-                  disabled={isValidateCouponLoading}
-                >
-                  {isValidateCouponLoading ? (
-                    <>
-                      Applying <ThemeLoader type="inline" variant="simple" />
-                    </>
-                  ) : (
-                    "Apply"
-                  )}
-                </Button>
-              </div>
-              {appliedCoupon?.code && (
-                <div className="mt-3 flex items-center gap-2">
-                  <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium border border-green-200">
-                    <Ticket className="h-3 w-3" />
-                    <span>{appliedCoupon?.code}</span>
-                    <button
-                      onClick={handleClearCoupon}
-                      className="ml-1 hover:bg-white rounded-full p-0.5 transition-colors"
-                      title="Remove coupon"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <CouponCodeSection
+            couponCode={couponCode}
+            isValidateCouponLoading={isValidateCouponLoading}
+            appliedCoupon={appliedCoupon}
+            handleCouponCodeChange={handleCouponCodeChange}
+            handleApplyCoupon={handleApplyCoupon}
+            handleClearCoupon={handleClearCoupon}
+          />
 
           {/* Cost Breakdown */}
           <div className="space-y-3">
@@ -401,9 +357,7 @@ const OrderSummarySection = ({
             {appliedCoupon?.code ? (
               <div className="flex justify-between text-sm">
                 <span>Discount:</span>
-                <span>
-                  ${appliedCoupon?.discount?.toFixed(DIGITS_AFTER_DECIMALS)}
-                </span>
+                <span>${discountApplied?.toFixed(DIGITS_AFTER_DECIMALS)}</span>
               </div>
             ) : null}
             {/* <div className="flex justify-between text-sm">

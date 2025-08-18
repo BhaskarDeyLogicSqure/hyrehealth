@@ -692,7 +692,7 @@ const useQuestionnaire = (
     //   );
     // }
 
-    router.push(`/checkout`);
+    router.replace(`/checkout`); // replace to avoid going back to the questionnaire page
     setIsNavigatingToCheckout(false);
   };
 
