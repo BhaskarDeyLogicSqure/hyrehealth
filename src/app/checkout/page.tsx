@@ -18,15 +18,13 @@ import { showErrorToast } from "@/components/GlobalErrorHandler";
 const CheckoutPage = () => {
   const router = useRouter();
   const { clearCheckout } = useCheckout();
-  const { questionnaire } = useCheckoutQuestionnaire();
+  const { eligibleProducts } = useCheckoutQuestionnaire();
   const { isLoggedIn, formFields, errors, handleOnChange, handleGetPayload } =
     useCheckoutDetails();
 
   useEffect(() => {
     // Check if we have valid checkout data, if not redirect to products page
-    const hasValidCheckoutData =
-      questionnaire?.isCompleted &&
-      questionnaire?.productEligibilities?.length > 0;
+    const hasValidCheckoutData = eligibleProducts?.length;
 
     if (!hasValidCheckoutData) {
       showErrorToast("No valid checkout data found");
@@ -36,13 +34,13 @@ const CheckoutPage = () => {
 
     // Handle browser back button - redirect to product page instead of questionnaire
     const handlePopState = () => {
-      if (questionnaire?.productEligibilities?.[0]?.productId) {
-        router.replace(
-          `/products/${questionnaire.productEligibilities[0].productId}`
-        );
-      } else {
-        router.replace("/products");
-      }
+      // if (questionnaire?.productEligibilities?.[0]?.productId) {
+      //   router.replace(
+      //     `/products/${questionnaire.productEligibilities[0].productId}`
+      //   );
+      // } else {
+      router.replace("/products"); // for now redirect to products page in all cases
+      // }
     };
 
     // Clear checkout data when page is about to unload (navigating away)
@@ -68,7 +66,7 @@ const CheckoutPage = () => {
         clearCheckout();
       }
     };
-  }, [router, clearCheckout, questionnaire]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
