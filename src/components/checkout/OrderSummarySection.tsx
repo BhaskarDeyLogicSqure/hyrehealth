@@ -171,7 +171,7 @@ const OrderSummarySection = ({
 
       clearCheckout(); // clear the checkout data after successful checkout
       // Navigate to thank you page after successful checkout
-      router.push(
+      router.replace(
         `/thank-you?orderId=${response?.data?.invoice?.invoiceNumber}`
       );
     } catch (error) {
