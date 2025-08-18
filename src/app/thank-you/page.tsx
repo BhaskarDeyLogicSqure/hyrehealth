@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Video, Clock, Truck, Mail, Box } from "lucide-react";
@@ -9,11 +9,14 @@ import { SUPPORT_EMAIL } from "@/configs";
 import { useOrderConfirmation } from "@/api/postCheckout/useOrderConfirmation";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
 import ThemeLoader from "@/components/ThemeLoader";
-import { extractQueryParams } from "@/lib/utils";
 
 const ThankYouPage = () => {
   const router = useRouter();
-  const { orderId } = extractQueryParams();
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("orderId");
+  console.log("1111", { orderId });
+
+  const [isLoading, setTransition] = useTransition();
 
   // Use the order confirmation hook to fetch real data
   const {
@@ -137,11 +140,14 @@ const ThankYouPage = () => {
               <Button
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
                 onClick={() => {
-                  router.push(`/intake-form?orderId=${orderId}`);
+                  setTransition(() => {
+                    router.push(`/intake-form?orderId=${orderId}`);
+                  });
                 }}
+                disabled={isLoading}
               >
                 <Video className="h-5 w-5 mr-2" />
-                Start Consultation
+                Start Consultation {isLoading ? "..." : ""}
               </Button>
               <p className="text-sm text-gray-500 mt-2">
                 Complete your intake form first

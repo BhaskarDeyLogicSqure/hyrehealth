@@ -22,7 +22,7 @@ import { RenewalDetailsResponse } from "@/types/renewalDetails";
 export const postCheckoutApi = {
   // Get order confirmation details
   getOrderConfirmation: async (
-    orderId: string
+    orderId: string | null
   ): Promise<OrderConfirmationResponse> => {
     try {
       if (!orderId) {

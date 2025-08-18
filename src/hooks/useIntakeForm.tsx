@@ -271,6 +271,17 @@ const useIntakeForm = (orderId: string) => {
     }
   }, [orderId]);
 
+  // Auto-proceed if no questions are available
+  useEffect(() => {
+    // If questions have been loaded and there are no questions, automatically proceed
+    if (questions?.length === 0) {
+      // showSuccessToast(
+      //   "No intake questions available. Proceeding to next step."
+      // );
+      router.push(`/pre-consultation?orderId=${orderId}`);
+    }
+  }, [intakeFormDataQuestions, questions.length, orderId, router]);
+
   return {
     currentStep,
     responses,

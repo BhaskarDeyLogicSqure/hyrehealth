@@ -4,8 +4,7 @@ import dynamic from "next/dynamic";
 import ThemeLoader from "@/components/ThemeLoader";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { extractQueryParams } from "@/lib/utils";
+import { useRouter, useSearchParams } from "next/navigation";
 
 // Dynamic import for the intake form component
 const IntakeForm = dynamic(() => import("@/components/IntakeForm/index"), {
@@ -16,7 +15,8 @@ const IntakeForm = dynamic(() => import("@/components/IntakeForm/index"), {
 
 const IntakeFormPage = () => {
   const router = useRouter();
-  const { orderId } = extractQueryParams();
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("orderId") || "";
 
   useEffect(() => {
     if (!orderId) {

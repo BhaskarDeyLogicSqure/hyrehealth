@@ -54,8 +54,13 @@ const useChekoutApi = () => {
     isPending: isValidateCouponLoading,
     isError: isValidateCouponError,
     mutateAsync: validateCoupon,
-  } = useMutation<ApiResponse<CheckoutResponse>, Error, string>({
-    mutationFn: (couponCode: string) => checkoutApi.validateCoupon(couponCode),
+  } = useMutation<
+    ApiResponse<CheckoutResponse>,
+    Error,
+    { couponCode: string; productIds: string[] }
+  >({
+    mutationFn: (payload: { couponCode: string; productIds: string[] }) =>
+      checkoutApi.validateCoupon(payload),
     onSuccess: (data) => {
       if (data?.status === 200) {
         return {
