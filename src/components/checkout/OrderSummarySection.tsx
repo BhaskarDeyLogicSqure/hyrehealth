@@ -127,7 +127,7 @@ const OrderSummarySection = ({
       }
 
       // now update the payload with questionnaire responses
-      if (questionnaire?.generalResponses?.length > 0) {
+      if (isFromQuestionnaire && questionnaire?.generalResponses?.length > 0) {
         const newQuestionnaireResponses = [
           ...questionnaire?.generalResponses,
           ...questionnaire?.productResponses,

@@ -211,6 +211,7 @@ const PlanOptions = ({ currentPlan, extensionPlans }: PlanOptionsProps) => {
           selectedPlanId={selectedDosageAndDuration?.dosage}
           currentPlan={currentPlan}
           selectedDosageAndDuration={selectedDosageAndDuration}
+          extensionPlans={extensionPlans}
         />
       )}
     </>

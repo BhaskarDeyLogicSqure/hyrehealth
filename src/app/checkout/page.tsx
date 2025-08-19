@@ -28,7 +28,7 @@ const CheckoutPage = () => {
 
     if (!hasValidCheckoutData) {
       showErrorToast("No valid checkout data found");
-      router.replace("/products");
+      // router.replace("/products");
       return;
     }
 
