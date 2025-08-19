@@ -26,9 +26,19 @@ import { isUserAuthenticated } from "@/utils/auth";
 import CouponCodeSection from "./CouponCodeSection";
 
 const OrderSummarySection = ({
+  isProcessing,
+  fieldValidation,
   handleGetPayload,
+  generateToken,
 }: {
+  isProcessing: boolean;
   handleGetPayload: (e: React.FormEvent) => Promise<any>;
+  generateToken: any;
+  fieldValidation: {
+    ccnumber: boolean;
+    ccexp: boolean;
+    cvv: boolean;
+  };
 }) => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -72,16 +82,37 @@ const OrderSummarySection = ({
     selectedRelatedProducts, // it is the list of all related products (if any)
   });
 
+  console.log("1111", { fieldValidation });
   const _handleSubmit = async (e: React.FormEvent) => {
     try {
       if (e) e.preventDefault();
       setIsCheckoutLoading(true);
 
+      // if (
+      //   !fieldValidation?.ccnumber ||
+      //   !fieldValidation?.ccexp ||
+      //   !fieldValidation?.cvv
+      // ) {
+      //   showErrorToast("Please fill all the payment fields");
+      // }
+
+      // handle payment - generate payment token and wait for it
+      const generatedPaymentToken = await generateToken();
+      console.log("generatedPaymentToken", generatedPaymentToken);
+
       // get payload for payment details
       const { error, payload } = await handleGetPayload(e);
 
-      // return if no payload present or no questionnaire responses are present
-      if (error || !payload) return;
+      // return if no payload present or no questionnaire responses are present or payment fields are not filled
+      if (
+        error ||
+        !payload ||
+        !fieldValidation?.ccnumber ||
+        !fieldValidation?.ccexp ||
+        !fieldValidation?.cvv ||
+        !generatedPaymentToken
+      )
+        return;
 
       //  check if there's a valid questionnaire response
       // if (!questionnaire?.generalResponses?.length) {
@@ -109,6 +140,10 @@ const OrderSummarySection = ({
       // add the coupon info to the payload
       if (appliedCoupon?.code) {
         payload["paymentInfo"]["couponCode"] = appliedCoupon?.code;
+      }
+
+      if (generatedPaymentToken) {
+        payload["paymentInfo"]["paymentToken"] = generatedPaymentToken;
       }
 
       //  now update the payload with product configurations
@@ -146,37 +181,38 @@ const OrderSummarySection = ({
       // Mock successful checkout
       console.log("Final payload:", payload);
 
-      let response;
       // call the checkout api
-      if (isUserLoggedIn) {
-        // call the login order checkout api for logged in users
-        response = await loginOrderCheckout(payload);
-      } else {
-        // call the sign up with payment api for new users
-        response = await signUpWithPayment(payload);
-      }
+      // if (isUserLoggedIn) {
+      //   // call the login order checkout api for logged in users
+      //   response = await loginOrderCheckout(payload);
+      // } else {
+      //   // call the sign up with payment api for new users
+      //   response = await signUpWithPayment(payload);
+      // }
 
-      // Handle successful checkout - store token and user details
-      if (response?.data?.token && response?.data?.customer) {
-        // Store token in cookie
-        setCookie("token", response?.data?.token);
+      // // Handle successful checkout - store token and user details
+      // if (response?.data?.token && response?.data?.customer) {
+      //   // Store token in cookie
+      //   setCookie("token", response?.data?.token);
 
-        // Update Redux store with user details (initiating login)
-        dispatch(setUser(response?.data?.customer));
+      //   // Update Redux store with user details (initiating login)
+      //   dispatch(setUser(response?.data?.customer));
 
-        showSuccessToast("Order Placed Successfully! Welcome to HyreHealth!");
-      } else {
-        showSuccessToast("Order Placed Successfully");
-      }
+      //   showSuccessToast("Order Placed Successfully! Welcome to HyreHealth!");
+      // } else {
+      //   showSuccessToast("Order Placed Successfully");
+      // }
 
-      clearCheckout(); // clear the checkout data after successful checkout
+      // clearCheckout(); // clear the checkout data after successful checkout
       // Navigate to thank you page after successful checkout
-      router.replace(
-        `/thank-you?orderId=${response?.data?.invoice?.invoiceNumber}`
-      );
+      // router.replace(
+      //   `/thank-you?orderId=${response?.data?.invoice?.invoiceNumber}`
+      // );
     } catch (error) {
       console.error(error);
-      showErrorToast((error as any)?.message || "Something went wrong");
+      showErrorToast(
+        (error as any)?.message || error || "Something went wrong"
+      );
     } finally {
       //  no need to set isCheckoutLoading to false as we are moving to a new route from here after successful checkout
       setIsCheckoutLoading(false);
@@ -382,9 +418,11 @@ const OrderSummarySection = ({
           <Button
             onClick={_handleSubmit}
             className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 text-lg font-medium"
-            disabled={isCheckoutLoading}
+            disabled={isCheckoutLoading || isProcessing}
           >
-            {isCheckoutLoading ? "Processing..." : "Complete Purchase"}
+            {isCheckoutLoading || isProcessing
+              ? "Processing..."
+              : "Complete Purchase"}
           </Button>
 
           {/* Security Information */}
