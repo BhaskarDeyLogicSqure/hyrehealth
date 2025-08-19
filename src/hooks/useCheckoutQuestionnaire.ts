@@ -19,6 +19,9 @@ import { useMemo } from "react";
 export const useCheckoutQuestionnaire = () => {
   const dispatch = useDispatch();
 
+  const state = useSelector((state: RootState) => state.checkoutReducer);
+  console.log("parent state", { state });
+
   // Get questionnaire data from Redux
   const questionnaire = useSelector(
     (state: RootState) => state.checkoutReducer?.questionnaire
@@ -32,9 +35,9 @@ export const useCheckoutQuestionnaire = () => {
   const totalAmount = useSelector(
     (state: RootState) => state.checkoutReducer?.totalAmount
   );
-  const eligibleProductsTotal = useSelector(
-    (state: RootState) => state.checkoutReducer?.eligibleProductsTotal
-  );
+  // const eligibleProductsTotal = useSelector(
+  //   (state: RootState) => state.checkoutReducer?.eligibleProductsTotal
+  // );
   const mainProduct = useSelector(
     (state: RootState) => state.checkoutReducer?.mainProduct
   );
@@ -42,6 +45,7 @@ export const useCheckoutQuestionnaire = () => {
     (state: RootState) => state.checkoutReducer?.relatedProducts
   );
 
+  console.log({ mainProduct, relatedProducts });
   // Helper functions to get eligible/ineligible product IDs
   const getEligibleProductIds = useMemo(() => {
     return (
@@ -66,7 +70,7 @@ export const useCheckoutQuestionnaire = () => {
     // Add main product if eligible
     if (
       mainProduct &&
-      getEligibleProductIds.includes(mainProduct?.product?._id)
+      getEligibleProductIds?.includes(mainProduct?.product?._id)
     ) {
       products?.push({
         type: "main",
@@ -77,7 +81,7 @@ export const useCheckoutQuestionnaire = () => {
 
     // Add eligible related products
     relatedProducts?.forEach((relatedProduct) => {
-      if (getEligibleProductIds.includes(relatedProduct?.productId)) {
+      if (getEligibleProductIds?.includes(relatedProduct?.productId)) {
         products?.push({
           type: "related",
           product: relatedProduct?.product,
@@ -95,9 +99,9 @@ export const useCheckoutQuestionnaire = () => {
     // Add main product if ineligible
     if (
       mainProduct &&
-      getIneligibleProductIds.includes(mainProduct?.product?._id)
+      getIneligibleProductIds?.includes(mainProduct?.product?._id)
     ) {
-      products.push({
+      products?.push({
         type: "main",
         product: mainProduct?.product,
         selectedOption: mainProduct?.selectedOption,
@@ -109,8 +113,8 @@ export const useCheckoutQuestionnaire = () => {
 
     // Add ineligible related products
     relatedProducts?.forEach((relatedProduct) => {
-      if (getIneligibleProductIds.includes(relatedProduct?.productId)) {
-        products.push({
+      if (getIneligibleProductIds?.includes(relatedProduct?.productId)) {
+        products?.push({
           type: "related",
           product: relatedProduct?.product,
           selectedOption: relatedProduct?.selectedOption,
@@ -222,7 +226,7 @@ export const useCheckoutQuestionnaire = () => {
     isFromQuestionnaire,
     currentStep,
     totalAmount,
-    eligibleProductsTotal,
+    // eligibleProductsTotal,
     mainProduct,
     relatedProducts,
     eligibleProducts,

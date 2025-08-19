@@ -65,7 +65,7 @@ export interface CheckoutState {
 
   // Cart calculations
   totalAmount: number;
-  eligibleProductsTotal: number;
+  // eligibleProductsTotal: number;
 
   // UI state
   isLoading: boolean;
@@ -93,7 +93,7 @@ const initialState: CheckoutState = {
   relatedProducts: [],
   questionnaire: initialQuestionnaireState,
   totalAmount: 0,
-  eligibleProductsTotal: 0,
+  // eligibleProductsTotal: 0,
   isLoading: false,
   error: null,
   currentStep: "questionnaire",
@@ -260,7 +260,7 @@ const checkoutSlice = createSlice({
       });
 
       state.totalAmount = total;
-      state.eligibleProductsTotal = eligibleTotal;
+      // state.eligibleProductsTotal = eligibleTotal;
     },
 
     // Set checkout step
@@ -297,9 +297,12 @@ const checkoutSlice = createSlice({
     clearCheckout: (state) => {
       state.mainProduct = null;
       state.relatedProducts = [];
-      state.questionnaire = initialQuestionnaireState;
+      // deep copy the initial questionnaire state to avoid reference issues
+      state.questionnaire = JSON.parse(
+        JSON.stringify(initialQuestionnaireState)
+      );
       state.totalAmount = 0;
-      state.eligibleProductsTotal = 0;
+      // state.eligibleProductsTotal = 0;
       state.isLoading = false;
       state.error = null;
       state.currentStep = "questionnaire";
