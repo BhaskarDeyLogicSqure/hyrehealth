@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -8,65 +8,83 @@ import { Checkbox } from "@/components/ui/checkbox";
 import BasicInfoCard from "@/components/checkout/BasicInfoCard";
 import BillingAddressCard from "@/components/checkout/BillingAddressCard";
 import OrderSummarySection from "@/components/checkout/OrderSummarySection";
-import PaymentInfoCard from "@/components/checkout/PaymentInfoCard";
+import NMIPaymentInfoCard from "@/components/checkout/NMIPaymentInfoCard";
 import AccountCreationCard from "@/components/checkout/AccountCreationCard";
 import useCheckoutDetails from "@/hooks/useCheckoutDetails";
 import { useCheckout } from "@/hooks/useCheckout";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
+import useNMIPayments from "@/hooks/useNMIPayments";
 
 const CheckoutPage = () => {
   const router = useRouter();
   const { clearCheckout } = useCheckout();
   const { eligibleProducts } = useCheckoutQuestionnaire();
-  const { isLoggedIn, formFields, errors, handleOnChange, handleGetPayload } =
-    useCheckoutDetails();
+  const {
+    isLoggedIn,
+    formFields,
+    errors,
+    handleOnChange,
+    handleGetPayload,
+    setErrors,
+  } = useCheckoutDetails();
 
-  useEffect(() => {
-    // Check if we have valid checkout data, if not redirect to products page
-    const hasValidCheckoutData = eligibleProducts?.length;
+  // useEffect(() => {
+  //   // Check if we have valid checkout data, if not redirect to products page
+  //   const hasValidCheckoutData = eligibleProducts?.length;
 
-    if (!hasValidCheckoutData) {
-      showErrorToast("No valid checkout data found");
-      // router.replace("/products");
-      return;
-    }
+  //   if (!hasValidCheckoutData) {
+  //     showErrorToast("No valid checkout data found");
+  //     // router.replace("/products");
+  //     return;
+  //   }
 
-    // Handle browser back button - redirect to product page instead of questionnaire
-    const handlePopState = () => {
-      // if (questionnaire?.productEligibilities?.[0]?.productId) {
-      //   router.replace(
-      //     `/products/${questionnaire.productEligibilities[0].productId}`
-      //   );
-      // } else {
-      router.replace("/products"); // for now redirect to products page in all cases
-      // }
-    };
+  //   // Handle browser back button - redirect to product page instead of questionnaire
+  //   const handlePopState = () => {
+  //     // if (questionnaire?.productEligibilities?.[0]?.productId) {
+  //     //   router.replace(
+  //     //     `/products/${questionnaire.productEligibilities[0].productId}`
+  //     //   );
+  //     // } else {
+  //     router.replace("/products"); // for now redirect to products page in all cases
+  //     // }
+  //   };
 
-    // Clear checkout data when page is about to unload (navigating away)
-    const handleBeforeUnload = () => {
-      clearCheckout();
-    };
+  //   // Clear checkout data when page is about to unload (navigating away)
+  //   const handleBeforeUnload = () => {
+  //     clearCheckout();
+  //   };
 
-    // Add event listeners
-    window.addEventListener("popstate", handlePopState);
-    window.addEventListener("beforeunload", handleBeforeUnload);
+  //   // Add event listeners
+  //   window.addEventListener("popstate", handlePopState);
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
 
-    // Override browser back behavior
-    window.history.pushState(null, "", window.location.href);
+  //   // Override browser back behavior
+  //   window.history.pushState(null, "", window.location.href);
 
-    // Cleanup on unmount
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+  //   // Cleanup on unmount
+  //   return () => {
+  //     window.removeEventListener("popstate", handlePopState);
+  //     window.removeEventListener("beforeunload", handleBeforeUnload);
 
-      // Clear checkout data when component unmounts (navigating away)
-      const isLeavingCheckout = !window.location.pathname.includes("/checkout");
-      if (isLeavingCheckout) {
-        clearCheckout();
-      }
-    };
-  }, []);
+  //     // Clear checkout data when component unmounts (navigating away)
+  //     const isLeavingCheckout = !window.location.pathname.includes("/checkout");
+  //     if (isLeavingCheckout) {
+  //       clearCheckout();
+  //     }
+  //   };
+  // }, []);
+
+  const {
+    isCollectJSLoaded,
+    isProcessing,
+    paymentError,
+    paymentToken,
+    fieldValidation,
+    generateToken,
+  } = useNMIPayments(setErrors);
+
+  console.log("1234567890", { formFields, errors, fieldValidation });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -98,9 +116,12 @@ const CheckoutPage = () => {
             />
 
             {/* Payment Information */}
-            <PaymentInfoCard
+            <NMIPaymentInfoCard
               formFields={formFields}
               errors={errors}
+              isCollectJSLoaded={isCollectJSLoaded}
+              paymentError={paymentError}
+              paymentToken={paymentToken}
               handleOnChange={handleOnChange}
             />
 
@@ -141,7 +162,12 @@ const CheckoutPage = () => {
           </div>
 
           {/* Right Column - Order Summary */}
-          <OrderSummarySection handleGetPayload={handleGetPayload} />
+          <OrderSummarySection
+            isProcessing={isProcessing}
+            fieldValidation={fieldValidation}
+            handleGetPayload={handleGetPayload}
+            generateToken={generateToken}
+          />
         </div>
       </div>
     </div>

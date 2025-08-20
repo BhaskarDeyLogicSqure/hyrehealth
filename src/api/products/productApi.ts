@@ -67,7 +67,9 @@ export const productApi = {
     return response?.data?.product;
   },
 
-  getFeaturedProducts: async (): Promise<{
+  getFeaturedProducts: async (
+    origin: string = ""
+  ): Promise<{
     data: Product[];
     total: number;
   }> => {
@@ -80,6 +82,7 @@ export const productApi = {
     }>(`${BASE_URL}${GET_PRODUCTS_ENDPOINT?.endpoint}`, {
       isPopular: true,
       limit: 3,
+      origin,
     });
 
     return {
