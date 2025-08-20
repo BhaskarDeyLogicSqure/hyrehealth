@@ -35,7 +35,7 @@ const CheckoutCTA = ({
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const handleContinueToCheckout = () => {
+  const _handleContinueToCheckout = () => {
     if (
       !selectedDosageAndDuration?.dosage ||
       !selectedDosageAndDuration?.duration
@@ -63,68 +63,12 @@ const CheckoutCTA = ({
 
       // Create a mock Product object from current treatment data
       // Since we don't have full product details, we'll create a minimal product object
-      const mockProduct = {
-        type: "main",
-        _id: currentPlan?._id, // Use product id
-        name: currentPlan?.product || "Treatment", // product name
-        isPopular: false,
-        category: [
-          {
-            _id: "prescription-category",
-            name: "prescription",
-          },
-        ],
-        contentAndDescription: {
-          shortDescription: `${currentPlan?.product} renewal prescription`,
-          longDescription: `Renewal prescription for ${currentPlan?.product}`,
-          description: `Continue your ${currentPlan?.product} treatment`,
-          benefits: [],
-          sideEffects: [],
-          requiresPrescription: true,
-          isFdaApproved: true,
-          isFreeShipping: true,
-          isLicensedPhysician: true,
-          ingredientsOrComposition: [],
-          faqs: [],
-          extraInformations: [],
-        },
-        media: {
-          images: [],
-          videos: [],
-          documents: [],
-        },
-        pricing: {
-          basePrice: selectedPlan.price,
-          compareAtPrice: selectedPlan.originalPrice || selectedPlan.price,
-          subscriptionOptions: [],
-        },
-        dosages: [
-          {
-            _id: `dosage-${selectedPlan.strength}`,
-            strength: selectedPlan.strength,
-            strengthUnit: "mg",
-            durations: [
-              {
-                _id: `duration-${
-                  selectedPlan.duration?.value || selectedPlan.duration
-                }`,
-                value: selectedPlan.duration?.value || selectedPlan.duration,
-                unit: "month",
-                price: selectedPlan.price,
-              },
-            ],
-          },
-        ],
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
 
       // Create main product data for checkout slice
       const mainProductData = {
-        product: mockProduct,
+        product: currentPlan?.product,
         selectedOption: {
-          dosageId: `dosage-${selectedPlan.strength}`, // TODO: replace with the actual subscription option id
+          dosageId: selectedPlan?._id,
           dosageStrength: selectedPlan.strength,
           duration: selectedPlan.duration?.value || selectedPlan.duration,
           price: selectedPlan.price,
@@ -137,7 +81,7 @@ const CheckoutCTA = ({
       // Set product eligibility in checkout slice
       setProductEligibility({
         productId: currentPlan?._id,
-        productName: currentPlan?.product,
+        productName: currentPlan?.product?.name,
         isEligible: true,
         responses: [],
       });
@@ -164,7 +108,7 @@ const CheckoutCTA = ({
           !selectedDosageAndDuration?.duration ||
           isNavigating
         }
-        onClick={handleContinueToCheckout}
+        onClick={_handleContinueToCheckout}
       >
         {isNavigating ? (
           <ThemeLoader

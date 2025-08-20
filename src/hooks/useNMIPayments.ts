@@ -102,6 +102,7 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
 
   const _loadCollectJS = () => {
     if (window.CollectJS) {
+      setIsCollectJSLoaded(true);
       _initializeCollectJS();
       return;
     }

@@ -1,10 +1,15 @@
+import { Product } from "./products";
+
 export interface CurrentTreatment {
-  product: string;
+  _id: string;
+  isPrimary: boolean;
+  product: Product;
   currentDosage: string;
   strength: string;
   lastConsultation: string;
   status: string;
   subscriptionNumber: string;
+  duration: { value: number; unit: string };
 }
 
 export interface ExtensionPlan {
