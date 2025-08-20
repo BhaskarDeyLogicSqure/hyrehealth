@@ -274,13 +274,13 @@ const useIntakeForm = (orderId: string) => {
   // Auto-proceed if no questions are available
   useEffect(() => {
     // If questions have been loaded and there are no questions, automatically proceed
-    if (questions?.length === 0) {
+    if (intakeFormDataQuestions && !questions?.length) {
       // showSuccessToast(
       //   "No intake questions available. Proceeding to next step."
       // );
       router.push(`/pre-consultation?orderId=${orderId}`);
     }
-  }, [intakeFormDataQuestions, questions.length, orderId, router]);
+  }, [intakeFormDataQuestions, questions, orderId]);
 
   return {
     currentStep,
