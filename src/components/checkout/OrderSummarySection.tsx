@@ -24,7 +24,6 @@ import { setUser } from "@/store/actions/authAction";
 import { useCookies } from "@/hooks/useCookies";
 import { isUserAuthenticated } from "@/utils/auth";
 import CouponCodeSection from "./CouponCodeSection";
-
 const OrderSummarySection = ({
   isProcessing,
   fieldValidation,
@@ -182,32 +181,33 @@ const OrderSummarySection = ({
       console.log("Final payload:", payload);
 
       // call the checkout api
-      // if (isUserLoggedIn) {
-      //   // call the login order checkout api for logged in users
-      //   response = await loginOrderCheckout(payload);
-      // } else {
-      //   // call the sign up with payment api for new users
-      //   response = await signUpWithPayment(payload);
-      // }
+      let response;
+      if (isUserLoggedIn) {
+        // call the login order checkout api for logged in users
+        response = await loginOrderCheckout(payload);
+      } else {
+        // call the sign up with payment api for new users
+        response = await signUpWithPayment(payload);
+      }
 
-      // // Handle successful checkout - store token and user details
-      // if (response?.data?.token && response?.data?.customer) {
-      //   // Store token in cookie
-      //   setCookie("token", response?.data?.token);
+      // Handle successful checkout - store token and user details
+      if (response?.data?.token && response?.data?.customer) {
+        // Store token in cookie
+        setCookie("token", response?.data?.token);
 
-      //   // Update Redux store with user details (initiating login)
-      //   dispatch(setUser(response?.data?.customer));
+        // Update Redux store with user details (initiating login)
+        dispatch(setUser(response?.data?.customer));
 
-      //   showSuccessToast("Order Placed Successfully! Welcome to HyreHealth!");
-      // } else {
-      //   showSuccessToast("Order Placed Successfully");
-      // }
+        showSuccessToast("Order Placed Successfully! Welcome to HyreHealth!");
+      } else {
+        showSuccessToast("Order Placed Successfully");
+      }
 
-      // clearCheckout(); // clear the checkout data after successful checkout
+      clearCheckout(); // clear the checkout data after successful checkout
       // Navigate to thank you page after successful checkout
-      // router.replace(
-      //   `/thank-you?orderId=${response?.data?.invoice?.invoiceNumber}`
-      // );
+      router.replace(
+        `/thank-you?orderId=${response?.data?.invoice?.invoiceNumber}`
+      );
     } catch (error) {
       console.error(error);
       showErrorToast(
@@ -219,33 +219,6 @@ const OrderSummarySection = ({
     }
   };
 
-  // If not from questionnaire, show empty state or redirect
-  // if (
-  //   !isFromQuestionnaire ||
-  //   !eligibleProducts ||
-  //   eligibleProducts?.length === 0 ||
-  //   !questionnaire?.isCompleted ||
-  //   !questionnaire?.generalResponses?.length
-  // ) {
-  //   // redirect to products page after 5 seconds
-
-  //   useEffect(() => {
-  //     if (eligibleProducts?.length === 0) {
-  //       showErrorToast("No eligible products found");
-  //     }
-
-  //     if (
-  //       eligibleProducts?.length > 0 &&
-  //       (!questionnaire?.isCompleted ||
-  //         !questionnaire?.generalResponses?.length)
-  //     ) {
-  //       showErrorToast("Please complete the eligibility questionnaire first");
-  //     }
-
-  //     router.push("/products");
-  //   }, []);
-  // }
-
   return (
     <div>
       <Card className="sticky top-24 shadow-lg">
@@ -256,7 +229,7 @@ const OrderSummarySection = ({
           {/* Product Details Section */}
           {productConfigurations?.map((config) => {
             const product = eligibleProducts?.find(
-              (item) => item?.product?._id === config.productId
+              (item) => item?.product?._id === config?.productId
             )?.product;
 
             if (!product) return null;

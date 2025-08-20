@@ -29,51 +29,51 @@ const CheckoutPage = () => {
     setErrors,
   } = useCheckoutDetails();
 
-  // useEffect(() => {
-  //   // Check if we have valid checkout data, if not redirect to products page
-  //   const hasValidCheckoutData = eligibleProducts?.length;
+  useEffect(() => {
+    // Check if we have valid checkout data, if not redirect to products page
+    const hasValidCheckoutData = eligibleProducts?.length;
 
-  //   if (!hasValidCheckoutData) {
-  //     showErrorToast("No valid checkout data found");
-  //     // router.replace("/products");
-  //     return;
-  //   }
+    if (!hasValidCheckoutData) {
+      showErrorToast("No valid checkout data found");
+      router.replace("/products");
+      return;
+    }
 
-  //   // Handle browser back button - redirect to product page instead of questionnaire
-  //   const handlePopState = () => {
-  //     // if (questionnaire?.productEligibilities?.[0]?.productId) {
-  //     //   router.replace(
-  //     //     `/products/${questionnaire.productEligibilities[0].productId}`
-  //     //   );
-  //     // } else {
-  //     router.replace("/products"); // for now redirect to products page in all cases
-  //     // }
-  //   };
+    // Handle browser back button - redirect to product page instead of questionnaire
+    const handlePopState = () => {
+      // if (questionnaire?.productEligibilities?.[0]?.productId) {
+      //   router.replace(
+      //     `/products/${questionnaire.productEligibilities[0].productId}`
+      //   );
+      // } else {
+      router.replace("/products"); // for now redirect to products page in all cases
+      // }
+    };
 
-  //   // Clear checkout data when page is about to unload (navigating away)
-  //   const handleBeforeUnload = () => {
-  //     clearCheckout();
-  //   };
+    // Clear checkout data when page is about to unload (navigating away)
+    const handleBeforeUnload = () => {
+      clearCheckout();
+    };
 
-  //   // Add event listeners
-  //   window.addEventListener("popstate", handlePopState);
-  //   window.addEventListener("beforeunload", handleBeforeUnload);
+    // Add event listeners
+    window.addEventListener("popstate", handlePopState);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
-  //   // Override browser back behavior
-  //   window.history.pushState(null, "", window.location.href);
+    // Override browser back behavior
+    window.history.pushState(null, "", window.location.href);
 
-  //   // Cleanup on unmount
-  //   return () => {
-  //     window.removeEventListener("popstate", handlePopState);
-  //     window.removeEventListener("beforeunload", handleBeforeUnload);
+    // Cleanup on unmount
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
 
-  //     // Clear checkout data when component unmounts (navigating away)
-  //     const isLeavingCheckout = !window.location.pathname.includes("/checkout");
-  //     if (isLeavingCheckout) {
-  //       clearCheckout();
-  //     }
-  //   };
-  // }, []);
+      // Clear checkout data when component unmounts (navigating away)
+      const isLeavingCheckout = !window.location.pathname.includes("/checkout");
+      if (isLeavingCheckout) {
+        clearCheckout();
+      }
+    };
+  }, []);
 
   const {
     isCollectJSLoaded,
@@ -83,8 +83,6 @@ const CheckoutPage = () => {
     fieldValidation,
     generateToken,
   } = useNMIPayments(setErrors);
-
-  console.log("1234567890", { formFields, errors, fieldValidation });
 
   return (
     <div className="min-h-screen bg-gray-50">
