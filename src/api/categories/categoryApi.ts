@@ -46,7 +46,9 @@ export const categoryApi = {
     };
   },
 
-  getFeaturedCategories: async (): Promise<{
+  getFeaturedCategories: async (
+    origin: string = ""
+  ): Promise<{
     data: Category[];
     total: number;
   }> => {
@@ -59,6 +61,7 @@ export const categoryApi = {
     }>(`${GET_CATEGORIES_ENDPOINT?.endpoint}`, {
       isPopular: true,
       limit: FEATURED_CATEGORIES_LIMIT,
+      origin,
     });
     return {
       data: response?.data?.categories,
