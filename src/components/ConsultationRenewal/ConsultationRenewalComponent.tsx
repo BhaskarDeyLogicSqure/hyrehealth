@@ -2,12 +2,25 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle } from "lucide-react";
 import PlanOptions from "./PlanOptions";
+import { Product } from "@/types/products";
 
 const ConsultationRenewalComponent = ({
   currentTreatment,
   extensionPlans,
 }: {
-  currentTreatment: any;
+  currentTreatment: {
+    product: Product;
+    _id: string;
+    strength: string;
+    lastConsultation: string | null;
+    status: string;
+    isPrimary: boolean;
+    subscriptionNumber: string;
+    duration: {
+      value: number;
+      unit: string;
+    };
+  };
   extensionPlans?: any[];
 }) => {
   console.log({ currentTreatment, extensionPlans });
@@ -21,8 +34,8 @@ const ConsultationRenewalComponent = ({
               Ready to continue your treatment?
             </h1>
             <p className="text-lg theme-text-muted">
-              Extend your {currentTreatment?.product || ""} subscription and
-              keep your progress going.
+              Extend your {currentTreatment?.product?.name || ""} subscription
+              and keep your progress going.
             </p>
           </div>
 
@@ -41,7 +54,7 @@ const ConsultationRenewalComponent = ({
                 <div>
                   <div className="text-sm theme-text-muted">Product</div>
                   <div className="font-medium theme-text-primary">
-                    {currentTreatment?.product || "N/A"}
+                    {currentTreatment?.product?.name || "N/A"}
                   </div>
                 </div>
                 <div>
@@ -63,13 +76,13 @@ const ConsultationRenewalComponent = ({
                   </div>
                 </div>
               </div>
-              {currentTreatment?.isConsultationValid && (
+              {/* {currentTreatment?.isConsultationValid && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                   <p className="text-sm text-green-800">
                     Your last approved dosage will be used for this order.
                   </p>
                 </div>
-              )}
+              )} */}
             </CardContent>
           </Card>
 

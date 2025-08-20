@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -8,19 +8,26 @@ import { Checkbox } from "@/components/ui/checkbox";
 import BasicInfoCard from "@/components/checkout/BasicInfoCard";
 import BillingAddressCard from "@/components/checkout/BillingAddressCard";
 import OrderSummarySection from "@/components/checkout/OrderSummarySection";
-import PaymentInfoCard from "@/components/checkout/PaymentInfoCard";
+import NMIPaymentInfoCard from "@/components/checkout/NMIPaymentInfoCard";
 import AccountCreationCard from "@/components/checkout/AccountCreationCard";
 import useCheckoutDetails from "@/hooks/useCheckoutDetails";
 import { useCheckout } from "@/hooks/useCheckout";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
+import useNMIPayments from "@/hooks/useNMIPayments";
 
 const CheckoutPage = () => {
   const router = useRouter();
   const { clearCheckout } = useCheckout();
   const { eligibleProducts } = useCheckoutQuestionnaire();
-  const { isLoggedIn, formFields, errors, handleOnChange, handleGetPayload } =
-    useCheckoutDetails();
+  const {
+    isLoggedIn,
+    formFields,
+    errors,
+    handleOnChange,
+    handleGetPayload,
+    setErrors,
+  } = useCheckoutDetails();
 
   useEffect(() => {
     // Check if we have valid checkout data, if not redirect to products page
@@ -68,6 +75,15 @@ const CheckoutPage = () => {
     };
   }, []);
 
+  const {
+    isCollectJSLoaded,
+    isProcessing,
+    paymentError,
+    paymentToken,
+    fieldValidation,
+    generateToken,
+  } = useNMIPayments(setErrors);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -98,9 +114,12 @@ const CheckoutPage = () => {
             />
 
             {/* Payment Information */}
-            <PaymentInfoCard
+            <NMIPaymentInfoCard
               formFields={formFields}
               errors={errors}
+              isCollectJSLoaded={isCollectJSLoaded}
+              paymentError={paymentError}
+              paymentToken={paymentToken}
               handleOnChange={handleOnChange}
             />
 
@@ -141,7 +160,12 @@ const CheckoutPage = () => {
           </div>
 
           {/* Right Column - Order Summary */}
-          <OrderSummarySection handleGetPayload={handleGetPayload} />
+          <OrderSummarySection
+            isProcessing={isProcessing}
+            fieldValidation={fieldValidation}
+            handleGetPayload={handleGetPayload}
+            generateToken={generateToken}
+          />
         </div>
       </div>
     </div>

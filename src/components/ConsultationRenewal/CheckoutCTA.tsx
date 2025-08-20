@@ -6,11 +6,16 @@ import { ArrowRight, HelpCircle } from "lucide-react";
 import { useNavigationState } from "@/hooks/useNavigationState";
 import ThemeLoader from "@/components/ThemeLoader";
 import { SUPPORT_EMAIL } from "@/configs";
+import { useCheckout } from "@/hooks/useCheckout";
+import { setCheckoutStep } from "@/store/slices/checkoutSlice";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { useRouter } from "next/navigation";
 
 const CheckoutCTA = ({
   selectedPlanId,
   currentPlan,
   selectedDosageAndDuration,
+  extensionPlans,
 }: {
   selectedPlanId: any;
   currentPlan: any;
@@ -18,21 +23,78 @@ const CheckoutCTA = ({
     dosage: number | null;
     duration: number | null;
   };
+  extensionPlans?: any[];
 }) => {
-  const { navigateWithLoading, isNavigating } = useNavigationState();
+  const { isNavigating } = useNavigationState();
+  const {
+    clearCheckout,
+    setMainProduct,
+    calculateTotal,
+    setProductEligibility,
+  } = useCheckout();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
-  const handleContinueToCheckout = () => {
-    if (selectedPlanId) {
-      const checkoutParams = new URLSearchParams({
-        renewal: "true",
-        planId: selectedPlanId,
-        product: currentPlan?.product || "",
-        dosage: selectedDosageAndDuration?.dosage
-          ? `${selectedDosageAndDuration?.dosage}mg`
-          : currentPlan?.dosage || "",
+  const _handleContinueToCheckout = () => {
+    if (
+      !selectedDosageAndDuration?.dosage ||
+      !selectedDosageAndDuration?.duration
+    ) {
+      return;
+    }
+
+    console.log({ extensionPlans, selectedDosageAndDuration });
+
+    // Find the selected extension plan
+    const selectedPlan = extensionPlans?.find(
+      (plan) =>
+        plan?.strength === selectedDosageAndDuration?.dosage &&
+        plan?.duration?.value === selectedDosageAndDuration?.duration
+    );
+
+    if (!selectedPlan) {
+      console.error("Selected plan not found");
+      return;
+    }
+
+    try {
+      // Clear any existing checkout data if present
+      clearCheckout();
+
+      // Create a mock Product object from current treatment data
+      // Since we don't have full product details, we'll create a minimal product object
+
+      // Create main product data for checkout slice
+      const mainProductData = {
+        product: currentPlan?.product,
+        selectedOption: {
+          dosageId: selectedPlan?._id,
+          dosageStrength: selectedPlan.strength,
+          duration: selectedPlan.duration?.value || selectedPlan.duration,
+          price: selectedPlan.price,
+        },
+      };
+
+      // Set main product in checkout slice
+      setMainProduct(mainProductData);
+
+      // Set product eligibility in checkout slice
+      setProductEligibility({
+        productId: currentPlan?._id,
+        productName: currentPlan?.product?.name,
+        isEligible: true,
+        responses: [],
       });
+      // Set checkout step to "review" to skip questionnaire
+      dispatch(setCheckoutStep("review"));
 
-      navigateWithLoading(`/checkout?${checkoutParams.toString()}`);
+      // Calculate total
+      calculateTotal();
+
+      // Navigate to checkout
+      router.push("/checkout");
+    } catch (error) {
+      console.error("Error setting up checkout:", error);
     }
   };
 
@@ -41,8 +103,12 @@ const CheckoutCTA = ({
       <Button
         size="lg"
         className="w-full md:w-auto px-8"
-        disabled={!selectedPlanId || isNavigating}
-        onClick={handleContinueToCheckout}
+        disabled={
+          !selectedDosageAndDuration?.dosage ||
+          !selectedDosageAndDuration?.duration ||
+          isNavigating
+        }
+        onClick={_handleContinueToCheckout}
       >
         {isNavigating ? (
           <ThemeLoader

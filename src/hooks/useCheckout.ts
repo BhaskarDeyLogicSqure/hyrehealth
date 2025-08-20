@@ -10,6 +10,8 @@ import {
   clearError,
   clearCheckout,
   CheckoutState,
+  ProductEligibility,
+  setProductEligibility,
 } from "@/store/slices/checkoutSlice";
 
 // Import the action payload types from the slice
@@ -37,5 +39,7 @@ export const useCheckout = () => {
     setError: (error: string) => dispatch(setError(error)),
     clearError: () => dispatch(clearError()),
     clearCheckout: () => dispatch(clearCheckout()),
+    setProductEligibility: (eligibilityData: ProductEligibility) =>
+      dispatch(setProductEligibility(eligibilityData)),
   };
 };

@@ -11,7 +11,7 @@ import {
   NAVIGATION_KEYS,
 } from "@/hooks/useNavigationState";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Image as ImageIcon } from "lucide-react";
+import { Loader2, Image as ImageIcon, Star } from "lucide-react";
 import { DEFAULT_THEME_CATEGORIES_COLORS } from "@/configs";
 
 const CategoriesCard = ({
@@ -56,11 +56,21 @@ const CategoriesCard = ({
       {featuredCard ? (
         <Card
           key={category?._id}
-          className={`cursor-pointer hover:shadow-lg transition-shadow duration-300 ${
+          className={`cursor-pointer hover:shadow-lg transition-shadow duration-300 relative ${
             isLoading ? "opacity-75 pointer-events-none" : ""
           }`}
           onClick={() => _handleCategoryClick(category?._id)}
         >
+          {category?.isPopular && (
+            <div className="absolute top-2 right-2 z-10">
+              <div
+                className="bg-yellow-500 rounded-full p-1"
+                title="Popular category"
+              >
+                <Star className="h-4 w-4 text-white fill-white" />
+              </div>
+            </div>
+          )}
           <CardContent className="p-8 text-center">
             <div
               className={`w-14 h-14 rounded-full  bg-stone-100 overflow-hidden
@@ -99,11 +109,21 @@ const CategoriesCard = ({
       ) : (
         <Card
           key={category.id}
-          className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 ${categoryColor} hover:scale-105  ${
+          className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 relative ${categoryColor} hover:scale-105  ${
             isLoading ? "opacity-75 pointer-events-none scale-100" : ""
           }`}
           onClick={() => _handleCategoryClick(category?._id)}
         >
+          {category?.isPopular && (
+            <div className="absolute top-2 right-2 z-10">
+              <div
+                className="bg-yellow-500 rounded-full p-1"
+                title="Popular category"
+              >
+                <Star className="h-4 w-4 text-white fill-white" />
+              </div>
+            </div>
+          )}
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div

@@ -23,6 +23,11 @@ const initialFormFields = {
   password: "",
   confirmPassword: "",
   acceptTerms: false,
+  // NMI Payment fields
+  paymentToken: "",
+  paymentMethod: "",
+  cardType: "",
+  cardLast4: "",
 };
 
 const initialIsDirty = {
@@ -43,6 +48,11 @@ const initialIsDirty = {
   password: false,
   confirmPassword: false,
   acceptTerms: false,
+  // NMI Payment fields
+  paymentToken: false,
+  paymentMethod: false,
+  cardType: false,
+  cardLast4: false,
 };
 
 const useCheckoutDetails = () => {
@@ -202,9 +212,9 @@ const useCheckoutDetails = () => {
               }
 
               // payment info form validation
-              case "cardNumber":
-              case "expiryDate":
-              case "cvv":
+              // case "cardNumber":
+              // case "expiryDate":
+              // case "cvv":
               case "cardholderName": {
                 if (!newFormFields?.[key]?.trim()?.length) {
                   newErrors[key] = `*Required`;
@@ -325,12 +335,12 @@ const useCheckoutDetails = () => {
           // payment and card related info
           finalAmount: 0, // will be populated on useOrderCheckout hook at the time of checkout
           couponCode: "", // will be populated on useOrderCheckout hook at the time of checkout
-          paymentMethod: "",
-          cardLast4: "",
-          cardBrand: "",
-          // paymentMethod: "newFormFields?.paymentMethod", // TODO: add payment method field when work on payment gateway
-          // cardLast4: "newFormFields?.cardLast4", // TODO: add card last 4 digits when work on payment gateway
-          // cardBrand: "newFormFields?.cardBrand", // TODO: add card brand when work on payment gateway
+          // NMI Payment Information
+          paymentMethod: newFormFields?.paymentMethod || "",
+          paymentToken: newFormFields?.paymentToken || "",
+          cardLast4: newFormFields?.cardLast4 || "",
+          cardType: newFormFields?.cardType || "",
+          cardBrand: newFormFields?.cardType || "", // cardType and cardBrand are the same from NMI
         },
 
         // questionnaire responses
@@ -363,6 +373,7 @@ const useCheckoutDetails = () => {
     errors,
     handleOnChange: _handleOnChange,
     handleGetPayload: _handleGetPayload,
+    setErrors,
   };
 };
 

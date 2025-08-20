@@ -13,25 +13,28 @@ import {
 } from "../ui/select";
 import { Label } from "../ui/label";
 
+interface extensionPlanOption {
+  _id?: string;
+  id: string;
+  name: string;
+  badge: string;
+  price: number;
+  originalPrice: number;
+  duration: {
+    value: number;
+    unit: string;
+  };
+  estimatedDeliveryTime: string;
+  savings: number;
+  isPopular: boolean;
+  isBestValue: boolean;
+  strength: number;
+  isDefault: boolean;
+}
+
 interface PlanOptionsProps {
   currentPlan: any;
-  extensionPlans?: Array<{
-    id: string;
-    name: string;
-    badge: string;
-    price: number;
-    originalPrice: number;
-    duration: {
-      value: number;
-      unit: string;
-    };
-    estimatedDeliveryTime: string;
-    savings: number;
-    isPopular: boolean;
-    isBestValue: boolean;
-    strength: number;
-    isDefault: boolean;
-  }>;
+  extensionPlans?: Array<extensionPlanOption>;
 }
 
 const PlanOptions = ({ currentPlan, extensionPlans }: PlanOptionsProps) => {
@@ -107,7 +110,7 @@ const PlanOptions = ({ currentPlan, extensionPlans }: PlanOptionsProps) => {
     if (!plans) return [];
 
     return plans?.map((plan) => ({
-      id: plan?.id,
+      id: plan?._id || plan?.id,
       duration: {
         value: plan?.duration?.value,
         unit: plan?.duration?.unit,
@@ -211,6 +214,7 @@ const PlanOptions = ({ currentPlan, extensionPlans }: PlanOptionsProps) => {
           selectedPlanId={selectedDosageAndDuration?.dosage}
           currentPlan={currentPlan}
           selectedDosageAndDuration={selectedDosageAndDuration}
+          extensionPlans={extensionPlans}
         />
       )}
     </>
