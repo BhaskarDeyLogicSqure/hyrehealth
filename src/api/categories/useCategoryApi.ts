@@ -9,7 +9,10 @@ type CategoryFilters = {
   [key: string]: any; // for future filters
 };
 
-const useCategoryApi = (filterPayload: CategoryFilters = {}) => {
+const useCategoryApi = (
+  filterPayload: CategoryFilters = {},
+  origin: string = ""
+) => {
   //   console.log({ filterPayload });
   const {
     data: categories,
@@ -19,7 +22,7 @@ const useCategoryApi = (filterPayload: CategoryFilters = {}) => {
     refetch: refetchCategories,
   } = useQuery({
     queryKey: ["Categories", filterPayload], // React Query will cache based on filters
-    queryFn: () => categoryApi.getCategories(filterPayload),
+    queryFn: () => categoryApi.getCategories(filterPayload, origin),
     staleTime: STALE_TIME_FOR_REACT_QUERY, // cache for 5 minutes
     retry: 1, // retry once on failure
   });

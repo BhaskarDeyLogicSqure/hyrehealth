@@ -15,7 +15,8 @@ export interface CategoryFilters {
 
 export const categoryApi = {
   getCategories: async (
-    filters: CategoryFilters = {}
+    filters: CategoryFilters = {},
+    origin: string = ""
   ): Promise<{
     data: Category[];
     total: number;
@@ -28,6 +29,8 @@ export const categoryApi = {
         ([_, value]) => value !== undefined && value !== ""
       )
     );
+
+    cleanFilters["origin"] = origin;
 
     const response = await apiService.get<{
       data: {
