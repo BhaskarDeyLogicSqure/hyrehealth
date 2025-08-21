@@ -24,3 +24,10 @@ export interface IResetPasswordResponseData {
   email?: string;
   handle?: string;
 }
+
+export interface MerchantNMIpaymentTokenResponse {
+  error: boolean;
+  data: {
+    nmiMerchantApiKey: string;
+  };
+}
