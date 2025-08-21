@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -72,7 +72,6 @@ const CheckoutPage = () => {
     isCollectJSLoaded,
     isProcessing,
     paymentError,
-    paymentToken,
     fieldValidation,
     generateToken,
   } = useNMIPayments(setErrors);
@@ -112,7 +111,6 @@ const CheckoutPage = () => {
               errors={errors}
               isCollectJSLoaded={isCollectJSLoaded}
               paymentError={paymentError}
-              paymentToken={paymentToken}
               handleOnChange={handleOnChange}
             />
 

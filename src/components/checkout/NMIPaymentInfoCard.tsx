@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { CreditCard, Shield, AlertCircle, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CreditCard, Shield, AlertCircle, RefreshCw } from "lucide-react";
 import RenderFormError from "../RenderFormError";
 
 const NMIPaymentInfoCard = ({
@@ -12,16 +13,38 @@ const NMIPaymentInfoCard = ({
   errors,
   isCollectJSLoaded,
   paymentError,
-  paymentToken,
   handleOnChange,
 }: {
   formFields: any;
   errors: any;
   isCollectJSLoaded: boolean;
   paymentError: string | null;
-  paymentToken: string | null;
   handleOnChange: (field: string, value: string) => void;
 }) => {
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+
+  useEffect(() => {
+    // Set a timeout for loading CollectJS
+    const timeout = setTimeout(() => {
+      if (!isCollectJSLoaded) {
+        setLoadingTimeout(true);
+      }
+    }, 10000); // 10 seconds timeout
+
+    return () => clearTimeout(timeout);
+  }, [isCollectJSLoaded]);
+
+  useEffect(() => {
+    if (isCollectJSLoaded) {
+      setLoadingTimeout(false);
+    }
+  }, [isCollectJSLoaded]);
+
+  const handleRetry = () => {
+    setLoadingTimeout(false);
+    window.location.reload();
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -36,12 +59,27 @@ const NMIPaymentInfoCard = ({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Status Messages */}
-        {!isCollectJSLoaded && (
+        {!isCollectJSLoaded && !loadingTimeout && (
           <div className="flex items-center space-x-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
             <p className="text-sm text-blue-800">
               Loading secure payment form...
             </p>
+          </div>
+        )}
+
+        {loadingTimeout && (
+          <div className="flex items-center space-x-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <AlertCircle className="h-4 w-4 text-yellow-600 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm text-yellow-800">
+                Payment system is taking longer than expected to load.
+              </p>
+            </div>
+            <Button size="sm" variant="outline" onClick={handleRetry}>
+              <RefreshCw className="h-4 w-4 mr-1" />
+              Refresh
+            </Button>
           </div>
         )}
 
@@ -169,33 +207,6 @@ const NMIPaymentInfoCard = ({
           />
           <RenderFormError errors={errors} field="cardholderName" />
         </div>
-
-        {/* Token Generation Button */}
-        {/* <div className="pt-4">
-          <Button
-            type="button"
-            onClick={generateToken}
-            disabled={!isCollectJSLoaded || isProcessing || !!paymentToken}
-            className="w-full"
-          >
-            {isProcessing ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                Generating Token...
-              </>
-            ) : paymentToken ? (
-              <>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Token Generated
-              </>
-            ) : (
-              <>
-                <Lock className="h-4 w-4 mr-2" />
-                Generate Payment Token
-              </>
-            )}
-          </Button>
-        </div> */}
 
         {/* Test Card Info for Development */}
         {process.env.NODE_ENV === "development" && (
