@@ -91,6 +91,7 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
 
   const _initializeCollectJs = async () => {
     const tokenizationKey = await _getMerchantNMIpaymentToken();
+    console.log({ tokenizationKey });
 
     _loadCollectJS(tokenizationKey as string);
   };
