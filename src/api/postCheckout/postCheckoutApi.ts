@@ -2,11 +2,13 @@ import apiService from "@/api";
 import {
   INTAKE_FORM_QUESTIONS_ENDPOINT,
   MEETING_DETAILS_ENDPOINT,
+  MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT,
   ORDER_CONFIRMATION_DETAILS_ENDPOINT,
   POST_CONSULTATION_SUMMARY_ENDPOINT,
   RENEWAL_DETAILS_ENDPOINT,
   SUBMIT_INTAKE_FORM_QUESTIONS_ENDPOINT,
 } from "@/api-helper/ChekoutEndpoints";
+import { MerchantNMIpaymentTokenResponse } from "@/types/auth";
 import {
   IntakeFormQuestionsResponse,
   IntakeFormResponsePayload,
@@ -135,4 +137,22 @@ export const postCheckoutApi = {
       throw error;
     }
   },
+
+  // get merchant's NMI payment token for payment processing
+  getMerchantNMITokenizationKey:
+    async (): Promise<MerchantNMIpaymentTokenResponse> => {
+      try {
+        const response = await apiService.get<MerchantNMIpaymentTokenResponse>(
+          `${MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT.endpoint}`
+        );
+
+        return {
+          error: response?.error || false,
+          data: response?.data,
+        };
+      } catch (error) {
+        console.error("Merchant NMI tokenization key API error:", error);
+        throw error;
+      }
+    },
 };

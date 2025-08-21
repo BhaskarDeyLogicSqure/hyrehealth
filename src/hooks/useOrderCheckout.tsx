@@ -309,10 +309,7 @@ const useOrderCheckout = ({
         };
         const response = await validateCoupon(payload);
 
-        if (
-          !isValidateCouponError &&
-          response?.data?.data?.validation?.isValid
-        ) {
+        if (response?.data?.data?.validation?.isValid) {
           // coupon is valid, set the applied coupon
           const couponType = response?.data?.data?.coupon?.type;
           const couponDiscount = response?.data?.data?.coupon?.value;

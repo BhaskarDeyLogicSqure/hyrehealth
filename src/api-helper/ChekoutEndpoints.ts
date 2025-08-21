@@ -46,3 +46,8 @@ export const POST_CONSULTATION_SUMMARY_ENDPOINT = {
   endpoint: "/consultation",
   httpType: httpType.GET,
 };
+
+export const MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT = {
+  endpoint: "/payment/merchant-nmi-key",
+  httpType: httpType.GET,
+};

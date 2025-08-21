@@ -92,16 +92,25 @@ const ProfilePage = () => {
         className="w-full"
         onValueChange={_handleTabChange}
       >
-        <TabsList className="grid w-full grid-cols-3 p-1 h-12">
-          <TabsTrigger value="subscriptions" className="py-3 px-6">
+        <TabsList className="flex w-full gap-2 p-1 h-12 bg-muted rounded-lg">
+          <TabsTrigger
+            value="subscriptions"
+            className="flex-1 py-3 px-6 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition"
+          >
             My Subscriptions
           </TabsTrigger>
-          <TabsTrigger value="orders" className="py-3 px-6">
+          <TabsTrigger
+            value="orders"
+            className="flex-1 py-3 px-6 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition"
+          >
             Order History
           </TabsTrigger>
-          <TabsTrigger value="payments" className="py-3 px-6">
+          {/* <TabsTrigger
+            value="payments"
+            className="flex-1 py-3 px-6 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition"
+          >
             Payment Methods
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
 
         <Suspense fallback={<ThemeLoader variant="full-page" />}>
@@ -113,9 +122,9 @@ const ProfilePage = () => {
             <OrderHistoryTab customerId={user?.id || ""} />
           </TabsContent>
 
-          <TabsContent value="payments" className="space-y-6 mt-8">
+          {/* <TabsContent value="payments" className="space-y-6 mt-8">
             <PaymentManagementTab />
-          </TabsContent>
+          </TabsContent> */}
         </Suspense>
       </Tabs>
     </div>

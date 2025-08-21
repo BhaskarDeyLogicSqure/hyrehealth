@@ -1,3 +1,5 @@
+import { postCheckoutApi } from "@/api/postCheckout/postCheckoutApi";
+import { showErrorToast } from "@/components/GlobalErrorHandler";
 import { useRef, useState, useEffect } from "react";
 
 declare global {
@@ -29,7 +31,7 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
 
   // NMI Configuration
   const NMI_CONFIG = {
-    tokenizationKey: process.env.NEXT_PUBLIC_NMI_TOKENIZATION_KEY || "",
+    // tokenizationKey: process.env.NEXT_PUBLIC_NMI_TOKENIZATION_KEY || "",
     variant: "inline",
     invalidCss: {
       color: "#dc2626",
@@ -68,27 +70,52 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
     },
   };
 
+  const _getMerchantNMIpaymentToken = async (): Promise<string | null> => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await postCheckoutApi.getMerchantNMITokenizationKey();
+        if (response?.data?.nmiMerchantApiKey) {
+          const token = response?.data?.nmiMerchantApiKey;
+          resolve(token);
+        }
+      } catch (error) {
+        console.error("Merchant NMI payment token API error:", error);
+        showErrorToast(
+          (error as any)?.message ||
+            "Failed to get merchant NMI payment token, please try again later"
+        );
+        resolve(null);
+      }
+    });
+  };
+
+  const _initializeCollectJs = async () => {
+    const tokenizationKey = await _getMerchantNMIpaymentToken();
+
+    _loadCollectJS(tokenizationKey as string);
+  };
+
   useEffect(() => {
-    _loadCollectJS();
+    _initializeCollectJs();
 
     // Add CSS for Collect.js iframes to ensure proper sizing
     const style = document.createElement("style");
     style.textContent = `
-      /* Ensure Collect.js iframes take full width and height */
-      div[data-collect-js] iframe {
-        width: 100% !important;
-        height: 40px !important;
-        border: none !important;
-        display: block !important;
-      }
-      
-      /* Remove any default margins/padding */
-      div[data-collect-js] {
-        width: 100% !important;
-        min-height: 40px !important;
-        display: block !important;
-      }
-    `;
+       /* Ensure Collect.js iframes take full width and height */
+       div[data-collect-js] iframe {
+         width: 100% !important;
+         height: 40px !important;
+         border: none !important;
+         display: block !important;
+       }
+       
+       /* Remove any default margins/padding */
+       div[data-collect-js] {
+         width: 100% !important;
+         min-height: 40px !important;
+         display: block !important;
+       }
+     `;
     document.head.appendChild(style);
 
     return () => {
@@ -100,10 +127,17 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
     };
   }, []);
 
-  const _loadCollectJS = () => {
+  const _loadCollectJS = (tokenizationKey: string) => {
     if (window.CollectJS) {
       setIsCollectJSLoaded(true);
       _initializeCollectJS();
+      return;
+    }
+
+    if (!tokenizationKey) {
+      setPaymentError(
+        "Failed to load payment security layer. Please refresh and try again."
+      );
       return;
     }
 
@@ -113,7 +147,7 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
     script.src = "https://secure.nmi.com/token/Collect.js";
     script.async = true;
 
-    script.setAttribute("data-tokenization-key", NMI_CONFIG?.tokenizationKey);
+    script.setAttribute("data-tokenization-key", tokenizationKey);
     script.setAttribute("data-variant", NMI_CONFIG?.variant);
 
     script.onload = () => {
@@ -285,8 +319,6 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
   };
 
   useEffect(() => {
-    console.log("fieldValidation", fieldValidation);
-
     // Only show errors if shouldShowErrors is true and after submit attempt
     if (shouldShowErrors) {
       setErrors((prev: any) => ({
