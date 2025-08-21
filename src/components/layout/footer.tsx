@@ -32,7 +32,7 @@ export function Footer() {
           </div>
 
           {/* Treatments */}
-          <div>
+          {/* <div>
             <h3 className="font-semibold mb-4 footer-text">Treatments</h3>
             <ul className="space-y-2 text-sm">
               <li>
@@ -60,7 +60,7 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* Support */}
           <div>

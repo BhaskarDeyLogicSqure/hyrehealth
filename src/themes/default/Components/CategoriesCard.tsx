@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 const imageUrl =
@@ -23,7 +22,6 @@ const CategoriesCard = ({
   featuredCard?: boolean;
   index: number;
 }) => {
-  const router = useRouter();
   const { navigateWithState, isNavigatingTo } = useNavigationState();
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -61,16 +59,6 @@ const CategoriesCard = ({
           }`}
           onClick={() => _handleCategoryClick(category?._id)}
         >
-          {category?.isPopular && (
-            <div className="absolute top-2 right-2 z-10">
-              <div
-                className="bg-yellow-500 rounded-full p-1"
-                title="Popular category"
-              >
-                <Star className="h-4 w-4 text-white fill-white" />
-              </div>
-            </div>
-          )}
           <CardContent className="p-8 text-center">
             <div
               className={`w-14 h-14 rounded-full  bg-stone-100 overflow-hidden
@@ -85,7 +73,7 @@ const CategoriesCard = ({
               <div
                 className={`w-full h-full rounded-full flex items-center justify-center`}
               >
-                {!imageFailed ? (
+                {!imageFailed && category?.image ? (
                   <Image
                     src={category?.image || imageUrl}
                     alt={category?.name}
@@ -95,35 +83,41 @@ const CategoriesCard = ({
                   />
                 ) : (
                   <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center">
-                    <ImageIcon className="h-6 w-6 text-gray-400" />
+                    {category?.name ? (
+                      category?.name?.charAt(0)
+                    ) : (
+                      <ImageIcon className="h-6 w-6 text-gray-400" />
+                    )}
                   </div>
                 )}
               </div>
             </div>
             <h3 className="text-xl font-semibold mb-2">
               {category?.name || "N/A"}
+
+              {/* {category?.isPopular && (
+                <span
+                  className="ml-2 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5"
+                  title="Popular category"
+                >
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-400 mr-1" />
+                  <span className="text-xs font-medium text-yellow-700">
+                    Popular
+                  </span>
+                </span>
+              )} */}
             </h3>
             <p className="text-gray-600">{category?.description || "N/A"}</p>
           </CardContent>
         </Card>
       ) : (
         <Card
-          key={category.id}
+          key={category?._id || category?.id}
           className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 relative ${categoryColor} hover:scale-105  ${
             isLoading ? "opacity-75 pointer-events-none scale-100" : ""
           }`}
           onClick={() => _handleCategoryClick(category?._id)}
         >
-          {category?.isPopular && (
-            <div className="absolute top-2 right-2 z-10">
-              <div
-                className="bg-yellow-500 rounded-full p-1"
-                title="Popular category"
-              >
-                <Star className="h-4 w-4 text-white fill-white" />
-              </div>
-            </div>
-          )}
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div
@@ -137,7 +131,7 @@ const CategoriesCard = ({
                 <div
                   className={`w-full h-full rounded-full flex items-center justify-center`}
                 >
-                  {!imageFailed ? (
+                  {!imageFailed && category?.image ? (
                     <Image
                       src={category?.image || imageUrl}
                       alt={category?.name}
@@ -147,22 +141,44 @@ const CategoriesCard = ({
                     />
                   ) : (
                     <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center">
-                      <ImageIcon className="h-5 w-5 text-gray-400" />
+                      {/* <ImageIcon className="h-5 w-5 text-gray-400" /> */}
+                      <span className="text-2xl font-bold text-blue-600">
+                        {category?.name ? (
+                          category?.name?.charAt(0)
+                        ) : (
+                          <ImageIcon className="h-5 w-5 text-gray-400" />
+                        )}
+                      </span>
                     </div>
                   )}
                 </div>
               </div>
 
-              <span className="text-sm theme-text-muted bg-white px-2 py-1 rounded-full shadow-sm">
-                {category?.statistics?.productCount
-                  ? category?.statistics?.productCount
-                  : 0}{" "}
-                products
-              </span>
+              {category?.products?.length > 0 ? (
+                <span className="text-sm theme-text-muted bg-white px-2 py-1 rounded-full shadow-sm">
+                  {category?.products?.length}{" "}
+                  {category?.products?.length === 1 ? "product" : "products"}
+                </span>
+              ) : (
+                <span className="text-sm text-gray-400 bg-gray-50 px-2 py-1 rounded-full shadow-sm italic">
+                  No products available
+                </span>
+              )}
             </div>
 
-            <h3 className="text-xl font-semibold text-black mb-2 break-words line-clamp-2 h-15">
-              {category?.name}
+            <h3 className="text-xl font-semibold text-black mb-2 break-words line-clamp-2 h-15 flex items-center gap-2">
+              {category?.name}{" "}
+              {category?.isPopular && (
+                <span
+                  className="ml-2 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5"
+                  title="Popular category"
+                >
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-400 mr-1" />
+                  <span className="text-xs font-medium text-yellow-700">
+                    Popular
+                  </span>
+                </span>
+              )}
             </h3>
             <p className="theme-text-muted text-sm leading-relaxed">
               {category?.description}
