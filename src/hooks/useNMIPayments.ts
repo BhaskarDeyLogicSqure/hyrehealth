@@ -17,6 +17,7 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentToken, setPaymentToken] = useState<string | null>(null);
+  const [initializationAttempts, setInitializationAttempts] = useState(0);
   const scriptRef = useRef<HTMLScriptElement | null>(null);
   const tokenPromiseRef = useRef<{
     resolve: (token: string) => void;
@@ -90,10 +91,30 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
   };
 
   const _initializeCollectJs = async () => {
-    const tokenizationKey = await _getMerchantNMIpaymentToken();
-    console.log({ tokenizationKey });
+    try {
+      setInitializationAttempts((prev) => prev + 1);
 
-    _loadCollectJS(tokenizationKey as string);
+      const tokenizationKey = await _getMerchantNMIpaymentToken();
+      console.log({ tokenizationKey });
+
+      if (!tokenizationKey) {
+        throw new Error("Failed to get tokenization key");
+      }
+
+      _loadCollectJS(tokenizationKey as string);
+    } catch (error) {
+      console.error("Failed to initialize CollectJS:", error);
+      setPaymentError(
+        "Failed to initialize payment system. Please refresh and try again."
+      );
+
+      // Retry up to 3 times
+      if (initializationAttempts < 3) {
+        setTimeout(() => {
+          _initializeCollectJs();
+        }, 2000);
+      }
+    }
   };
 
   useEffect(() => {
@@ -152,14 +173,33 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
     script.setAttribute("data-variant", NMI_CONFIG?.variant);
 
     script.onload = () => {
-      setIsCollectJSLoaded(true);
-      _initializeCollectJS();
+      console.log("CollectJS script loaded successfully");
+      // Add a delay to ensure the script is fully initialized
+      setTimeout(() => {
+        if (window.CollectJS) {
+          _initializeCollectJS();
+        } else {
+          console.error("CollectJS not available after script load");
+          setPaymentError(
+            "Payment system failed to initialize. Please refresh and try again."
+          );
+        }
+      }, 200);
     };
 
     script.onerror = () => {
+      console.error("Failed to load CollectJS script");
       setPaymentError(
         "Failed to load payment security layer. Please refresh and try again."
       );
+      // Retry after 2 seconds
+      setTimeout(() => {
+        if (scriptRef.current) {
+          document.head.removeChild(scriptRef.current);
+          scriptRef.current = null;
+        }
+        _loadCollectJS(tokenizationKey);
+      }, 2000);
     };
 
     document.head.appendChild(script);
@@ -175,7 +215,10 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
         callback: _handleCollectJSResponse,
         fieldsAvailableCallback: () => {
           console.log("Collect.js fields ready");
-          setIsCollectJSLoaded(true);
+          // Add a small delay to ensure DOM is ready
+          setTimeout(() => {
+            setIsCollectJSLoaded(true);
+          }, 100);
         },
         validationCallback: (
           field: string,
