@@ -151,12 +151,16 @@ const ProductsCard = ({
 
         {/* Price */}
         <div className="flex items-center justify-between mb-4">
-          <div>
-            <span className="text-2xl font-bold theme-text-primary">
-              ${product?.pricing?.basePrice}
-            </span>
-            {/* <span className="theme-text-muted text-sm">/month</span> */}
-          </div>
+          {product?.pricing?.compareAtPrice ? (
+            <div>
+              <span className="text-2xl font-bold theme-text-primary">
+                ${product?.pricing?.compareAtPrice}
+              </span>
+              {/* <span className="theme-text-muted text-sm">/month</span> */}
+            </div>
+          ) : (
+            "-"
+          )}
         </div>
 
         {/* CTA */}
