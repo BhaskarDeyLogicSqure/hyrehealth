@@ -50,14 +50,8 @@ const CheckoutPage = () => {
       // }
     };
 
-    // Clear checkout data when page is about to unload (navigating away)
-    const handleBeforeUnload = () => {
-      clearCheckout();
-    };
-
     // Add event listeners
     window.addEventListener("popstate", handlePopState);
-    window.addEventListener("beforeunload", handleBeforeUnload);
 
     // Override browser back behavior
     window.history.pushState(null, "", window.location.href);
@@ -65,7 +59,6 @@ const CheckoutPage = () => {
     // Cleanup on unmount
     return () => {
       window.removeEventListener("popstate", handlePopState);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
 
       // Clear checkout data when component unmounts (navigating away)
       const isLeavingCheckout = !window.location.pathname.includes("/checkout");
