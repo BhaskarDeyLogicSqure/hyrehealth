@@ -193,7 +193,7 @@ const OrderSummarySection = ({
       // Handle successful checkout - store token and user details
       if (response?.data?.token && response?.data?.customer) {
         // Store token in cookie
-        setCookie("token", response?.data?.token);
+        setCookie("customer-token", response?.data?.token);
 
         // Update Redux store with user details (initiating login)
         dispatch(setUser(response?.data?.customer));

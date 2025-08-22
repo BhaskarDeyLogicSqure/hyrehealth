@@ -214,11 +214,8 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
         ...NMI_CONFIG,
         callback: _handleCollectJSResponse,
         fieldsAvailableCallback: () => {
-          console.log("Collect.js fields ready");
-          // Add a small delay to ensure DOM is ready
-          setTimeout(() => {
-            setIsCollectJSLoaded(true);
-          }, 100);
+          console.log("Collect.js fields ready 123456789");
+          setIsCollectJSLoaded(true);
         },
         validationCallback: (
           field: string,

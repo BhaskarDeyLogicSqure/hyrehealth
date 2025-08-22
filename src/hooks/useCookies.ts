@@ -7,13 +7,13 @@ export function useCookies() {
 
   useEffect(() => {
     const parseCookies = () => {
-      const cookieString = document.cookie;
+      const cookieString = document?.cookie;
       const cookieObject: Record<string, string> = {};
 
       if (cookieString) {
-        cookieString.split(";").forEach(cookie => {
-          const [name, ...rest] = cookie.trim().split("=");
-          const value = rest.join("=");
+        cookieString?.split(";")?.forEach((cookie) => {
+          const [name, ...rest] = cookie?.trim()?.split("=");
+          const value = rest?.join("=");
           if (name && value !== undefined) {
             cookieObject[name] = decodeURIComponent(value);
           }
@@ -25,9 +25,12 @@ export function useCookies() {
     setCookies(parseCookies());
   }, []);
 
-  const getCookie = useCallback((name: string): string | undefined => {
-    return cookies[name];
-  }, [cookies]);
+  const getCookie = useCallback(
+    (name: string): string | undefined => {
+      return cookies[name];
+    },
+    [cookies]
+  );
 
   const setCookie = useCallback(
     (
@@ -45,30 +48,30 @@ export function useCookies() {
       let cookieString = `${name}=${encodeURIComponent(value)}`;
 
       if (options.expires) {
-        cookieString += `; Expires=${options.expires.toUTCString()}`;
+        cookieString += `; Expires=${options?.expires?.toUTCString()}`;
       }
 
       if (options.maxAge) {
-        cookieString += `; Max-Age=${options.maxAge}`;
+        cookieString += `; Max-Age=${options?.maxAge}`;
       }
 
-      if (options.domain) {
-        cookieString += `; Domain=${options.domain}`;
+      if (options?.domain) {
+        cookieString += `; Domain=${options?.domain}`;
       }
 
-      cookieString += `; Path=${options.path || "/"}`;
+      cookieString += `; Path=${options?.path || "/"}`;
 
-      if (options.secure) {
+      if (options?.secure) {
         cookieString += `; Secure`;
       }
 
-      if (options.sameSite) {
-        cookieString += `; SameSite=${options.sameSite}`;
+      if (options?.sameSite) {
+        cookieString += `; SameSite=${options?.sameSite}`;
       }
 
       document.cookie = cookieString;
 
-      setCookies(prev => ({
+      setCookies((prev) => ({
         ...prev,
         [name]: value,
       }));
@@ -86,15 +89,15 @@ export function useCookies() {
     ) => {
       let cookieString = `${name}=; Expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 
-      if (options.domain) {
-        cookieString += `; Domain=${options.domain}`;
+      if (options?.domain) {
+        cookieString += `; Domain=${options?.domain}`;
       }
 
-      cookieString += `; Path=${options.path || "/"}`;
+      cookieString += `; Path=${options?.path || "/"}`;
 
       document.cookie = cookieString;
 
-      setCookies(prev => {
+      setCookies((prev) => {
         const newCookies = { ...prev };
         delete newCookies[name];
         return newCookies;

@@ -9,7 +9,7 @@ const useSubscription = () => {
 
   const {
     subscriptionData,
-    subscriptionPagination,
+    subscriptionTotal,
     isSubscriptionLoading,
     subscriptionError,
     isSubscriptionError,
@@ -22,7 +22,7 @@ const useSubscription = () => {
 
   console.log({
     subscriptionData,
-    subscriptionPagination,
+    subscriptionTotal,
     isSubscriptionLoading,
     subscriptionError,
   });
@@ -31,12 +31,9 @@ const useSubscription = () => {
   const subscriptionsList = Array.isArray(subscriptionData)
     ? subscriptionData
     : subscriptionData || [];
-  const paginationData = Array.isArray(subscriptionData)
-    ? null
-    : subscriptionPagination;
 
   // Calculate pagination
-  const totalItems = paginationData?.total || subscriptionsList?.length || 0;
+  const totalItems = subscriptionTotal || subscriptionsList?.length || 0;
 
   const _handlePageChange = (page: number = 1) => {
     setDataPayload({ ...dataPayload, page });

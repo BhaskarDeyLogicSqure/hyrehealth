@@ -14,7 +14,7 @@ export const decodeJWTToken = (token: string) => {
 
 export const getToken = (): string | null => {
   const { getCookie } = useCookies();
-  return getCookie("token") || null;
+  return getCookie("customer-token") || null;
 };
 
 // Non-hook version for use outside React components (like axios interceptors)
@@ -26,7 +26,7 @@ export const getTokenFromCookie = (): string | null => {
   const cookies = document.cookie.split(";");
   for (let cookie of cookies) {
     const [name, value] = cookie?.trim()?.split("=");
-    if (name === "token") {
+    if (name === "customer-token") {
       return decodeURIComponent(value);
     }
   }

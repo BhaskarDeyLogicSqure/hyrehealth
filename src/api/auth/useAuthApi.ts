@@ -18,7 +18,7 @@ export const useAuthApi = () => {
     mutationFn: authApi.login,
     onSuccess: (response) => {
       // Set token in cookie
-      setCookie("token", response?.data?.token);
+      setCookie("customer-token", response?.data?.token);
       showSuccessToast("Login successful");
       // Update Redux store
       dispatch(setUser(response?.data?.user));
