@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -95,55 +96,71 @@ const DefaultProductsPage = () => {
           <div className={`md:block ${showFilters ? "block" : "hidden"}`}>
             <div className="grid md:grid-cols-3 gap-4">
               {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search treatments..."
-                  value={search}
-                  onChange={(e) =>
-                    handleOnChangeFilters("search", e.target.value)
-                  }
-                  className="pl-10"
-                />
+              <div className="space-y-2">
+                <Label htmlFor="search-input" className="text-sm font-medium text-gray-700">
+                  Search Treatments
+                </Label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    id="search-input"
+                    placeholder="Search treatments..."
+                    value={search}
+                    onChange={(e) =>
+                      handleOnChangeFilters("search", e.target.value)
+                    }
+                    className="pl-10"
+                  />
+                </div>
               </div>
 
               {/* Category Filter */}
-              <Select
-                value={filters?.category}
-                onValueChange={(value) =>
-                  handleOnChangeFilters("category", value)
-                }
-              >
-                <SelectTrigger className="relative">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories?.map((category: Category) => (
-                    <SelectItem key={category?._id} value={category?._id}>
-                      {category?.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <Label htmlFor="category-filter" className="text-sm font-medium text-gray-700">
+                  Category
+                </Label>
+                <Select
+                  value={filters?.category}
+                  onValueChange={(value) =>
+                    handleOnChangeFilters("category", value)
+                  }
+                >
+                  <SelectTrigger id="category-filter" className="relative">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories?.map((category: Category) => (
+                      <SelectItem key={category?._id} value={category?._id}>
+                        {category?.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Sort */}
-              <Select
-                value={filters?.sort}
-                onValueChange={(value) => handleOnChangeFilters("sort", value)}
-              >
-                <SelectTrigger>
-                  <ArrowUpDown className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PRODUCT_SORT_OPTIONS.map((option: any) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <Label htmlFor="sort-filter" className="text-sm font-medium text-gray-700">
+                  Sort By
+                </Label>
+                <Select
+                  value={filters?.sort}
+                  onValueChange={(value) => handleOnChangeFilters("sort", value)}
+                >
+                  <SelectTrigger id="sort-filter">
+                    <ArrowUpDown className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRODUCT_SORT_OPTIONS.map((option: any) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
