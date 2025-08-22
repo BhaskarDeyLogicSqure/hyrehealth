@@ -3,6 +3,7 @@ import {
   ILoginResponseData,
   IResetPasswordResponseData,
   LoginCredentials,
+  MerchantNMIpaymentTokenResponse,
 } from "@/types/auth";
 import {
   FORGOT_PASSWORD_ENDPOINT,
@@ -11,6 +12,7 @@ import {
 } from "@/api-helper/AuthEndpoints";
 import { ApiResponse } from "@/types";
 import apiService from "..";
+import { MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT } from "@/api-helper/ChekoutEndpoints";
 
 export const authApi = {
   login: async (
@@ -44,4 +46,24 @@ export const authApi = {
 
     return response?.data as ApiResponse<IResetPasswordResponseData>;
   },
+
+  // get footer details and NMI merchant token
+
+  // get merchant's NMI payment token for payment processing
+  getMerchantNMITokenizationKey:
+    async (): Promise<MerchantNMIpaymentTokenResponse> => {
+      try {
+        const response = await apiService.get<MerchantNMIpaymentTokenResponse>(
+          `${MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT.endpoint}`
+        );
+
+        return {
+          error: response?.error || false,
+          data: response?.data,
+        };
+      } catch (error) {
+        console.error("Merchant NMI tokenization key API error:", error);
+        throw error;
+      }
+    },
 };

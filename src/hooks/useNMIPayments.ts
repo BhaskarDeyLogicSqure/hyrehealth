@@ -1,6 +1,6 @@
-import { postCheckoutApi } from "@/api/postCheckout/postCheckoutApi";
-import { showErrorToast } from "@/components/GlobalErrorHandler";
 import { useRef, useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 declare global {
   interface Window {
@@ -13,11 +13,16 @@ declare global {
 }
 
 const useNMIPayments = (setErrors: (error: any) => void) => {
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
+
   const [isCollectJSLoaded, setIsCollectJSLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentToken, setPaymentToken] = useState<string | null>(null);
   const [initializationAttempts, setInitializationAttempts] = useState(0);
+
   const scriptRef = useRef<HTMLScriptElement | null>(null);
   const tokenPromiseRef = useRef<{
     resolve: (token: string) => void;
@@ -71,30 +76,11 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
     },
   };
 
-  const _getMerchantNMIpaymentToken = async (): Promise<string | null> => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const response = await postCheckoutApi.getMerchantNMITokenizationKey();
-        if (response?.data?.nmiMerchantApiKey) {
-          const token = response?.data?.nmiMerchantApiKey;
-          resolve(token);
-        }
-      } catch (error) {
-        console.error("Merchant NMI payment token API error:", error);
-        showErrorToast(
-          (error as any)?.message ||
-            "Failed to get merchant NMI payment token, please try again later"
-        );
-        resolve(null);
-      }
-    });
-  };
-
   const _initializeCollectJs = async () => {
     try {
       setInitializationAttempts((prev) => prev + 1);
 
-      const tokenizationKey = await _getMerchantNMIpaymentToken();
+      const tokenizationKey = merchantData?.nmiMerchantApiKey;
       console.log({ tokenizationKey });
 
       if (!tokenizationKey) {

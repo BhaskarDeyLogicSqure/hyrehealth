@@ -28,7 +28,7 @@ const Topbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { user, isAuthenticated: isAuthenticatedFromRedux } = useSelector(
-    (state: RootState) => state.authReducer
+    (state: RootState) => state?.authReducer
   );
 
   // Navigation items for the main menu
