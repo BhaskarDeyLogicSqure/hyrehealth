@@ -151,10 +151,10 @@ const ProductsCard = ({
 
         {/* Price */}
         <div className="flex items-center justify-between mb-4">
-          {product?.pricing?.compareAtPrice ? (
+          {product?.pricing?.lowestPrice ? (
             <div>
               <span className="text-2xl font-bold theme-text-primary">
-                ${product?.pricing?.compareAtPrice}
+                ${product?.pricing?.lowestPrice}
               </span>
               {/* <span className="theme-text-muted text-sm">/month</span> */}
             </div>

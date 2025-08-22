@@ -54,37 +54,6 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Treatments */}
-          {/* <div>
-            <h3 className="font-semibold mb-4 footer-text">Treatments</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/categories?category=weight-loss"
-                  className="footer-link transition-colors"
-                >
-                  Weight Loss
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/categories?category=peptides"
-                  className="footer-link transition-colors"
-                >
-                  Peptides
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/categories?category=wellness"
-                  className="footer-link transition-colors"
-                >
-                  Wellness
-                </Link>
-              </li>
-            </ul>
-          </div> */}
-
           {/* Support */}
           <div>
             <h3 className="font-semibold mb-4 footer-text">Support</h3>
@@ -112,17 +81,26 @@ export function Footer() {
             <h3 className="font-semibold mb-4 footer-text">Legal</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/privacy" className="footer-link transition-colors">
+                <Link
+                  href="/privacy-policy"
+                  className="footer-link transition-colors"
+                >
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="footer-link transition-colors">
+                <Link
+                  href="/terms-and-conditions"
+                  className="footer-link transition-colors"
+                >
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="/hipaa" className="footer-link transition-colors">
+                <Link
+                  href="/hipaa-compliance"
+                  className="footer-link transition-colors"
+                >
                   HIPAA Notice
                 </Link>
               </li>
