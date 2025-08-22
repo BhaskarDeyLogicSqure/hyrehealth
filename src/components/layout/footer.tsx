@@ -3,12 +3,10 @@
 import useMerchantDetails from "@/api/auth/useMerchantDetails";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { setMerchantData } from "@/store/slices/merchantSlice";
-import { RootState } from "@/store";
 import { getCurrentYear } from "@/lib/utils";
-import { MerchantNMIpaymentTokenResponse } from "@/types/auth";
 
 export function Footer() {
   const dispatch = useDispatch();
@@ -16,12 +14,6 @@ export function Footer() {
   // Call the hook at the component level, not inside a function
   const { merchantData: fetchedMerchantData, merchantDataError } =
     useMerchantDetails();
-
-  // prevent rendering of footer on auth pages
-  const pathname = usePathname();
-  if (pathname?.startsWith("/auth/")) {
-    return null;
-  }
 
   useEffect(() => {
     if (merchantDataError) {
@@ -34,6 +26,12 @@ export function Footer() {
       dispatch(setMerchantData(fetchedMerchantData));
     }
   }, [fetchedMerchantData, merchantDataError, dispatch]);
+
+  // prevent rendering of footer on auth pages
+  const pathname = usePathname();
+  if (pathname?.startsWith("/auth/")) {
+    return null;
+  }
 
   return (
     <footer className="footer-bg footer-text py-12">
