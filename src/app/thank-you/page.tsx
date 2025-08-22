@@ -106,7 +106,7 @@ const ThankYouPage = () => {
                     {product?.totalPrice ? (
                       <div className="mt-2 md:mt-0 text-right">
                         <span className="font-semibold text-gray-900">
-                          ${product?.totalPrice}
+                          ${product?.totalPrice} / month
                         </span>
                       </div>
                     ) : null}
