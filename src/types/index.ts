@@ -18,47 +18,6 @@ export interface IAddress {
   country: string;
 }
 
-// Gift Box types
-export interface GiftBoxItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-  category: string;
-  inStock: boolean;
-}
-
-export interface IGiftBox {
-  id: string;
-  name: string;
-  description: string;
-  boxCoverImage: string;
-  items: GiftBoxItem[];
-  category: string;
-  tags: string[];
-  size: string;
-  basePrice: number;
-  theme: string;
-  isCustom: boolean;
-  isDigital: boolean;
-  isPhysical: boolean;
-}
-
-// Cart types
-export interface CartItem {
-  id: string;
-  giftBoxId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  customizations?: {
-    message?: string;
-    branding?: string;
-    additionalItems?: string[];
-  };
-}
-
 // Recipient types
 export interface Address {
   street: string;

@@ -42,6 +42,7 @@ export interface Product {
   pricing: {
     basePrice: number;
     compareAtPrice: number;
+    lowestPrice: number;
     subscriptionOptions?: any[];
   };
   intakeFormRequirements?: {
