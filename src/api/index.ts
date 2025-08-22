@@ -21,9 +21,9 @@ const axiosInstance = axios.create({
 
 // Add request interceptor to include token for all requests(if token is present, i.e protected routes)
 axiosInstance.interceptors.request.use((config) => {
-  const token = getTokenFromCookie();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const customerToken = getTokenFromCookie();
+  if (customerToken) {
+    config.headers.Authorization = `Bearer ${customerToken}`;
   }
   return config;
 });

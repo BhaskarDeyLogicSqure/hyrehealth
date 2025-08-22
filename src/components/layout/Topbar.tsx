@@ -61,7 +61,7 @@ const Topbar = () => {
 
   const _handleLogout = () => {
     dispatch(clearAuth());
-    removeCookie("token");
+    removeCookie("customer-token");
 
     // If user is on profile page, redirect to homepage
     if (pathname.startsWith("/profile")) {
