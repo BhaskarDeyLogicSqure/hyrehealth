@@ -78,7 +78,7 @@ export const useProfileApi = (
 
     // subscription
     subscriptionData: subscriptionData?.subscriptions,
-    subscriptionPagination: subscriptionData?.pagination,
+    subscriptionTotal: subscriptionData?.total,
     isSubscriptionLoading,
     subscriptionError,
     isSubscriptionError,
