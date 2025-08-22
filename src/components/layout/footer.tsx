@@ -52,6 +52,9 @@ export function Footer() {
             </p>
           </div>
 
+          {/* empty div for spacing and alignment */}
+          <div />
+
           {/* Support */}
           <div>
             <h3 className="font-semibold mb-4 footer-text">Support</h3>
