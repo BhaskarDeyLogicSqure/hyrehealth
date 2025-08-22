@@ -22,6 +22,7 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentToken, setPaymentToken] = useState<string | null>(null);
   const [initializationAttempts, setInitializationAttempts] = useState(0);
+  const [isInitializing, setIsInitializing] = useState(false);
 
   const scriptRef = useRef<HTMLScriptElement | null>(null);
   const tokenPromiseRef = useRef<{
@@ -37,7 +38,6 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
 
   // NMI Configuration
   const NMI_CONFIG = {
-    // tokenizationKey: process.env.NEXT_PUBLIC_NMI_TOKENIZATION_KEY || "",
     variant: "inline",
     invalidCss: {
       color: "#dc2626",
@@ -77,35 +77,61 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
   };
 
   const _initializeCollectJs = async () => {
+    if (isInitializing) return; // Prevent multiple simultaneous initializations
+
     try {
+      setIsInitializing(true);
       setInitializationAttempts((prev) => prev + 1);
 
+      console.log("Merchant data:", merchantData);
       const tokenizationKey = merchantData?.nmiMerchantApiKey;
-      console.log({ tokenizationKey });
+      console.log("Tokenization key:", tokenizationKey);
+
+      if (!merchantData) {
+        throw new Error("Merchant data not loaded yet");
+      }
 
       if (!tokenizationKey) {
-        throw new Error("Failed to get tokenization key");
+        throw new Error("NMI tokenization key not found in merchant data");
       }
 
       _loadCollectJS(tokenizationKey as string);
     } catch (error) {
       console.error("Failed to initialize CollectJS:", error);
-      setPaymentError(
-        "Failed to initialize payment system. Please refresh and try again."
-      );
 
-      // Retry up to 3 times
-      if (initializationAttempts < 3) {
+      if (!merchantData) {
+        setPaymentError("Loading payment system...");
+      } else {
+        setPaymentError(
+          "Failed to initialize payment system. Please refresh and try again."
+        );
+      }
+
+      // Retry up to 3 times only if we have merchant data
+      if (merchantData && initializationAttempts < 3) {
         setTimeout(() => {
+          setIsInitializing(false);
           _initializeCollectJs();
         }, 2000);
       }
+    } finally {
+      setIsInitializing(false);
     }
   };
 
+  // Effect to initialize when merchant data becomes available
   useEffect(() => {
-    _initializeCollectJs();
+    if (
+      merchantData?.nmiMerchantApiKey &&
+      !isCollectJSLoaded &&
+      !isInitializing
+    ) {
+      console.log("Merchant data available, initializing CollectJS...");
+      _initializeCollectJs();
+    }
+  }, [merchantData, isCollectJSLoaded, isInitializing]);
 
+  useEffect(() => {
     // Add CSS for Collect.js iframes to ensure proper sizing
     const style = document.createElement("style");
     style.textContent = `
@@ -137,6 +163,7 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
 
   const _loadCollectJS = (tokenizationKey: string) => {
     if (window.CollectJS) {
+      console.log("CollectJS already available");
       setIsCollectJSLoaded(true);
       _initializeCollectJS();
       return;
@@ -149,7 +176,15 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
       return;
     }
 
-    if (scriptRef.current) return;
+    if (scriptRef.current) {
+      console.log("CollectJS script already loading/loaded");
+      return;
+    }
+
+    console.log(
+      "Loading CollectJS script with tokenization key:",
+      tokenizationKey
+    );
 
     const script = document.createElement("script");
     script.src = "https://secure.nmi.com/token/Collect.js";
@@ -170,22 +205,27 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
             "Payment system failed to initialize. Please refresh and try again."
           );
         }
-      }, 200);
+      }, 500); // Increased delay to 500ms
     };
 
-    script.onerror = () => {
-      console.error("Failed to load CollectJS script");
+    script.onerror = (error) => {
+      console.error("Failed to load CollectJS script:", error);
       setPaymentError(
-        "Failed to load payment security layer. Please refresh and try again."
+        "Failed to load payment security layer. Please check your internet connection and try again."
       );
-      // Retry after 2 seconds
+
+      // Clean up failed script
+      if (scriptRef.current) {
+        document.head.removeChild(scriptRef.current);
+        scriptRef.current = null;
+      }
+
+      // Retry after 3 seconds
       setTimeout(() => {
-        if (scriptRef.current) {
-          document.head.removeChild(scriptRef.current);
-          scriptRef.current = null;
+        if (initializationAttempts < 3) {
+          _loadCollectJS(tokenizationKey);
         }
-        _loadCollectJS(tokenizationKey);
-      }, 2000);
+      }, 3000);
     };
 
     document.head.appendChild(script);
@@ -193,15 +233,20 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
   };
 
   const _initializeCollectJS = () => {
-    if (!window.CollectJS) return;
+    if (!window.CollectJS) {
+      console.error("CollectJS not available for initialization");
+      return;
+    }
 
     try {
+      console.log("Configuring CollectJS...");
       window.CollectJS.configure({
         ...NMI_CONFIG,
         callback: _handleCollectJSResponse,
         fieldsAvailableCallback: () => {
-          console.log("Collect.js fields ready 123456789");
+          console.log("Collect.js fields ready and available");
           setIsCollectJSLoaded(true);
+          setPaymentError(null); // Clear any previous errors
         },
         validationCallback: (
           field: string,
@@ -223,18 +268,13 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
               [field]: !status ? message : "",
             }));
           }
-
-          // Handle validation feedback in form errors
-          //   if (!status && message) {
-          //     handleOnChange(`${field}Error`, message);
-          //   } else {
-          //     handleOnChange(`${field}Error`, "");
-          //   }
         },
       });
     } catch (error) {
       console.error("Failed to configure CollectJS:", error);
-      setPaymentError("Payment system configuration error.");
+      setPaymentError(
+        "Payment system configuration error. Please refresh the page."
+      );
     }
   };
 
@@ -364,6 +404,8 @@ const useNMIPayments = (setErrors: (error: any) => void) => {
     paymentToken,
     fieldValidation,
     generateToken: _generateToken,
+    isInitializing, // Add this for loading states
+    merchantDataAvailable: !!merchantData?.nmiMerchantApiKey, // Add this to check if merchant data is available
   };
 };
 
