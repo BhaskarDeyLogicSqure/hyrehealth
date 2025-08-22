@@ -60,17 +60,17 @@ export function Footer() {
             <h3 className="font-semibold mb-4 footer-text">Support</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/help" className="footer-link transition-colors">
+                <Link href="/support" className="footer-link transition-colors">
                   Help Center
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="footer-link transition-colors">
+                <Link href="/support" className="footer-link transition-colors">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="footer-link transition-colors">
+                <Link href="/support" className="footer-link transition-colors">
                   FAQ
                 </Link>
               </li>
