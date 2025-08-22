@@ -49,14 +49,14 @@ const LegalDocumentViewer: React.FC<LegalDocumentViewerProps> = ({
   }
 
   // Check if document has HTML content
-  if (!document?.documentDetailsHtmlText) {
+  if (document?.documentDetailsHtmlText) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
             {document?.documentName || fallbackTitle}
           </h1>
-          <p className="text-muted-foreground">Legal Document</p>
+          {/* <p className="text-muted-foreground">Legal Document</p> */}
         </div>
         <div
           className="legal-document-content max-w-none"
