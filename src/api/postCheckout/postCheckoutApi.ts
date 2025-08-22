@@ -137,22 +137,4 @@ export const postCheckoutApi = {
       throw error;
     }
   },
-
-  // get merchant's NMI payment token for payment processing
-  getMerchantNMITokenizationKey:
-    async (): Promise<MerchantNMIpaymentTokenResponse> => {
-      try {
-        const response = await apiService.get<MerchantNMIpaymentTokenResponse>(
-          `${MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT.endpoint}`
-        );
-
-        return {
-          error: response?.error || false,
-          data: response?.data,
-        };
-      } catch (error) {
-        console.error("Merchant NMI tokenization key API error:", error);
-        throw error;
-      }
-    },
 };

@@ -1,16 +1,39 @@
 "use client";
 
+import useMerchantDetails from "@/api/auth/useMerchantDetails";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { setMerchantData } from "@/store/slices/merchantSlice";
+import { RootState } from "@/store";
+import { getCurrentYear } from "@/lib/utils";
+import { MerchantNMIpaymentTokenResponse } from "@/types/auth";
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
+  const dispatch = useDispatch();
 
+  // Call the hook at the component level, not inside a function
+  const { merchantData: fetchedMerchantData, merchantDataError } =
+    useMerchantDetails();
+
+  // prevent rendering of footer on auth pages
   const pathname = usePathname();
-
-  if (pathname.startsWith("/auth/")) {
+  if (pathname?.startsWith("/auth/")) {
     return null;
   }
+
+  useEffect(() => {
+    if (merchantDataError) {
+      console.error("Error fetching merchant data:", merchantDataError);
+      return;
+    }
+
+    // update it with latest fetched merchant data
+    if (fetchedMerchantData) {
+      dispatch(setMerchantData(fetchedMerchantData));
+    }
+  }, [fetchedMerchantData, merchantDataError, dispatch]);
 
   return (
     <footer className="footer-bg footer-text py-12">
@@ -110,7 +133,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t footer-border mt-8 pt-8 text-center">
           <p className="footer-text-muted text-sm">
-            &copy; <span suppressHydrationWarning>{currentYear}</span>{" "}
+            &copy; <span suppressHydrationWarning>{getCurrentYear()}</span>{" "}
             HealthPortal. All rights reserved. | Licensed Medical Professionals
           </p>
         </div>

@@ -105,3 +105,7 @@ export const getCurrentDomain = (headersList: Headers) => {
 export const formatPriceInDollars = (price: number) => {
   return `$${price?.toFixed(DIGITS_AFTER_DECIMALS)}`;
 };
+
+export const getCurrentYear = () => {
+  return new Date().getFullYear();
+};
