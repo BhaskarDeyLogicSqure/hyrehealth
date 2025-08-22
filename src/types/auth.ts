@@ -37,7 +37,7 @@ export interface MerchantLegalDocument {
 export interface MerchantNMIpaymentTokenResponse {
   error: boolean;
   data: {
-    merchantOwnLegalDocumentsLink: MerchantLegalDocument[];
+    merchantOwnLegalDocuments: MerchantLegalDocument[];
     nmiMerchantApiKey: string;
   };
 }
