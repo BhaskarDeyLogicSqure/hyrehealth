@@ -30,14 +30,14 @@ const LegalDocumentViewer: React.FC<LegalDocumentViewerProps> = ({
   // If no document found, show fallback content or default message
   if (!document) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-4xl min-h-[80vh]">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-4 flex items-center justify-center gap-3">
-            <FileText className="h-8 w-8" />
+          <h1 className="text-3xl font-bold text-foreground mb-4 flex items-center justify-start gap-3">
+            {/* <FileText className="h-8 w-8" /> */}
             {fallbackTitle}
           </h1>
         </div>
-        <Alert className="max-w-2xl mx-auto">
+        <Alert className="max-w-2xl">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             This document is currently not available. Please contact support for
@@ -51,7 +51,7 @@ const LegalDocumentViewer: React.FC<LegalDocumentViewerProps> = ({
   // Check if document has HTML content
   if (document?.documentDetailsHtmlText) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-4xl min-h-[80vh]">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
             {document?.documentName || fallbackTitle}
