@@ -109,3 +109,9 @@ export const formatPriceInDollars = (price: number) => {
 export const getCurrentYear = () => {
   return new Date().getFullYear();
 };
+
+export const getFullName = (user: { firstName: string; lastName: string }) => {
+  if (!user) return "";
+
+  return `${user?.firstName} ${user?.lastName}`?.trim();
+};

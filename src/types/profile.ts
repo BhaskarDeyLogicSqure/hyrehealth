@@ -68,3 +68,21 @@ export interface Invoice {
   };
   currency: string;
 }
+
+export interface Testimonial {
+  _id: string;
+  rating: number;
+  reviewText: string;
+  reviewImages: string[];
+  isReviewShow: boolean;
+  product: {
+    name: string;
+  } | null;
+  createdBy: {
+    firstName: string;
+    lastName: string;
+  };
+  __v: number;
+  platform: string;
+  createdAt?: string;
+}

@@ -5,10 +5,12 @@ import {
   CREATE_REVIEW_FOR_PRODUCT,
   GET_SINGLE_PRODUCT_REVIEW,
   DOWNLOAD_INVOICE,
+  GET_FEATURED_TESTIMONIALS,
 } from "@/api-helper/ProfileEndpoints";
 import apiService from "..";
 import { Invoice } from "@/types/profile";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
+import { Testimonial } from "@/types/profile";
 
 export const profileApi = {
   getProfile: async () => {
@@ -118,6 +120,22 @@ export const profileApi = {
 
     if (response?.error) {
       throw new Error("Failed to download invoice");
+    }
+
+    return response?.data;
+  },
+
+  getFeaturedTestimonials: async (origin: string) => {
+    const response = await apiService.get<{
+      data: {
+        testimonials: Testimonial[];
+        count: number;
+      };
+      error: boolean;
+    }>(`${GET_FEATURED_TESTIMONIALS.endpoint}?origin=${origin}`);
+
+    if (response?.error) {
+      throw new Error("Failed to load testimonials");
     }
 
     return response?.data;

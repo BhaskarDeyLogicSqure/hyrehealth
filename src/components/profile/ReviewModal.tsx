@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
 import { useProfileApi } from "@/api/profile/useProfileApi";
 import { showErrorToast } from "../GlobalErrorHandler";
+import ThemeLoader from "../ThemeLoader";
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -124,11 +125,11 @@ const ReviewModal = ({
     });
   };
 
-  useEffect(() => {
-    if (productReviewError) {
-      showErrorToast("Review not found");
-    }
-  }, [productReviewError]);
+  // useEffect(() => {
+  //   if (productReviewError) {
+  //     showErrorToast("Review not found");
+  //   }
+  // }, [productReviewError]);
 
   useEffect(() => {
     if (productReviewData) {
@@ -146,8 +147,11 @@ const ReviewModal = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-semibold">
-              Rate & Review Product
+            <DialogTitle className="text-xl font-semibold flex items-center gap-2">
+              Rate & Review Product{" "}
+              {isProductReviewLoading ? (
+                <ThemeLoader type="inline" variant="simple" size="sm" />
+              ) : null}
             </DialogTitle>
           </div>
         </DialogHeader>
