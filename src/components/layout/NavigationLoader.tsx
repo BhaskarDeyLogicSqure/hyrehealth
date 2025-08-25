@@ -81,7 +81,7 @@ const NavigationLoader = () => {
       </div>
 
       {/* Loading text (optional, appears only for very long loads) */}
-      {progress > 50 && (
+      {/* {progress > 50 && (
         <div className="absolute top-2 right-4">
           <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border">
             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
@@ -90,7 +90,7 @@ const NavigationLoader = () => {
             </span>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

@@ -83,7 +83,7 @@ const HomePageTestimonials = ({
       key={index}
       className="h-full hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-white to-gray-50/30 shadow-lg hover:-translate-y-1"
     >
-      <CardContent className="p-5 flex flex-col h-full">
+      <CardContent className="p-5 flex flex-col h-full min-h-[280px]">
         {/* Quote Icon */}
         <div className="mb-3">
           <svg
@@ -96,27 +96,9 @@ const HomePageTestimonials = ({
           </svg>
         </div>
 
-        {/* Star Rating */}
-        <div className="flex mb-4 gap-1">
-          {[...Array(5)]?.map((_, i: number) => (
-            <Star
-              key={i}
-              className={`h-4 w-4 transition-colors ${
-                i < testimonial?.rating
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "fill-gray-200 text-gray-200"
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Review Text */}
-        <blockquote className="text-gray-700 mb-4 leading-relaxed text-base italic flex-grow">
-          "{testimonial?.reviewText}"
-        </blockquote>
-
-        {/* Author Section */}
-        <div className="mt-auto border-t border-gray-100 pt-4">
+        {/* Header Section - Name and Rating */}
+        <div className="flex justify-between items-start mb-4">
+          {/* Author Info */}
           <div className="flex items-center">
             {/* Avatar */}
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3 shadow-md">
@@ -125,7 +107,7 @@ const HomePageTestimonials = ({
               </span>
             </div>
 
-            {/* Author Info */}
+            {/* Author Details */}
             <div>
               <p className="font-semibold text-gray-900 text-base">
                 {getFullName(testimonial?.createdBy)}
@@ -133,7 +115,26 @@ const HomePageTestimonials = ({
               <p className="text-gray-500 text-xs">Verified Customer</p>
             </div>
           </div>
+
+          {/* Star Rating */}
+          <div className="flex gap-1">
+            {[...Array(5)]?.map((_, i: number) => (
+              <Star
+                key={i}
+                className={`h-4 w-4 transition-colors ${
+                  i < testimonial?.rating
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "fill-gray-200 text-gray-200"
+                }`}
+              />
+            ))}
+          </div>
         </div>
+
+        {/* Review Text */}
+        <blockquote className="text-gray-700 leading-relaxed text-base italic flex-grow line-clamp-4">
+          "{testimonial?.reviewText}"
+        </blockquote>
       </CardContent>
     </Card>
   );
