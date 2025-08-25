@@ -73,7 +73,18 @@ const ReviewModal = ({
     field: keyof typeof formFields,
     value: any
   ) => {
-    setFormFields({ ...formFields, [field]: value });
+    if (field === "review") {
+      // Enforce max 200 chars for review
+      if (typeof value === "string") {
+        if (value?.length > 200) {
+          value = value?.slice(0, 200);
+          showErrorToast("Review must be less than 200 characters");
+        }
+        setFormFields({ ...formFields, [field]: value });
+      }
+    } else {
+      setFormFields({ ...formFields, [field]: value });
+    }
   };
 
   const _handleStarHover = (starIndex: number) => {
