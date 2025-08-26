@@ -104,7 +104,13 @@ const useCheckoutDetails = () => {
                     newErrors[key] = "*First name is required";
                     isFormValid = false;
                   } else if (
-                    // validate firatName for length constraints, and lastName for length constraints only if lastName value is present
+                    // check if the name has special characters / numbers
+                    /[^a-zA-Z\s'-]/?.test(newFormFields?.[key] || "")
+                  ) {
+                    newErrors[key] =
+                      "*Special characters and numbers are not allowed";
+                    isFormValid = false;
+                  } else if (
                     (key === "firstName" ||
                       (key === "lastName" &&
                         newFormFields?.[key]?.trim()?.length)) &&
@@ -181,6 +187,14 @@ const useCheckoutDetails = () => {
                   !newFormFields?.[key]?.trim()?.length
                 ) {
                   newErrors[key] = `*Required`;
+                  isFormValid = false;
+                } else if (
+                  // check if the address fields have special characters / numbers
+                  key !== "zipCode" &&
+                  /[^a-zA-Z\s'-]/?.test(newFormFields?.[key] || "")
+                ) {
+                  newErrors[key] =
+                    "*Special characters and numbers are not allowed";
                   isFormValid = false;
                 } else if (
                   (key === "streetAddress" ||

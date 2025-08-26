@@ -20,6 +20,7 @@ import { UserDataType } from "@/types/user";
 import { setUser } from "@/store/actions/authAction";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
+import { isValidPassword } from "@/lib/utils";
 
 export default function LoginPage() {
   const dispatch = useDispatch();
@@ -47,8 +48,9 @@ export default function LoginPage() {
 
     if (!password?.trim()) {
       errors.password = "Password is required";
-    } else if (password?.length < 6) {
-      errors.password = "Password must be at least 6 characters";
+    } else if (!isValidPassword(password)) {
+      errors.password =
+        "*Password must be 8–20 characters with a letter, number, and special character.";
     }
 
     setValidationErrors(errors);
