@@ -19,7 +19,7 @@ export const useAuthApi = () => {
     onSuccess: (response) => {
       // Set token in cookie
       setCookie("customer-token", response?.data?.token);
-      showSuccessToast("Login successful");
+      showSuccessToast("Login Successful");
       // Update Redux store
       dispatch(setUser(response?.data?.user));
       // Redirect to dashboard
