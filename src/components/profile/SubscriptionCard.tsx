@@ -5,11 +5,15 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { CalendarIcon, CheckCircle, AlertTriangle, X } from "lucide-react";
 import { addDays, formatDate, isDateBefore } from "@/lib/dayjs";
+import { differenceInDays } from "date-fns";
 
 import { formatCurrency } from "@/lib/utils";
 import { READABLE_DATE_FORMAT, US_SHORT_DATE_FORMAT } from "@/configs";
+import { useRouter } from "next/navigation";
 
 const SubscriptionCard = ({ subscription }: { subscription: any }) => {
+  const router = useRouter();
+
   // Helper functions
   const _getSubscriptionStatusBadge = (
     status: string,
@@ -18,14 +22,15 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
     const now = new Date();
     // check if the next billing date is within 14 days
     const isExpiringSoon = isDateBefore(nextBillingDate, addDays(now, 14));
+    const daysUntilExpiration = differenceInDays(nextBillingDate, now);
 
     if (status === "reconsult_needed") {
       return <Badge variant="destructive">Reconsult Required</Badge>;
     }
     if (isExpiringSoon && status === "active") {
       return (
-        <Badge className="bg-orange-100 text-orange-800">
-          Consultation Expires Soon
+        <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-200">
+          Consultation Expiring in {daysUntilExpiration} days
         </Badge>
       );
     }
@@ -35,7 +40,14 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
     if (status === "paused") {
       return <Badge variant="secondary">Paused</Badge>;
     }
-    return <Badge variant="secondary">{status}</Badge>;
+    if (status === "expired") {
+      return <Badge variant="destructive">Expired</Badge>;
+    }
+    return (
+      <Badge variant="secondary" className="capitalize text-sm">
+        {status}
+      </Badge>
+    );
   };
 
   const _getPricePerMonth = useMemo(() => {
@@ -46,6 +58,12 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
     return pricePerMonth;
   }, [subscription]);
 
+  const _redirectToConsultationRenewalPage = (subscriptioId: string) => {
+    if (!subscriptioId) return;
+
+    router.push(`/consultation-renewal?subscriptionId=${subscriptioId}`);
+  };
+
   return (
     <Card key={subscription?._id} className="overflow-hidden">
       <CardHeader className="pb-4">
@@ -53,7 +71,9 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
           <div>
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               <Package className="h-5 w-5" />
-              {subscription?.product?.name || "N/A"}
+              <span className="capitalize">
+                {subscription?.product?.name || "N/A"}
+              </span>
               {subscription?.strength ? (
                 <Badge variant="outline" className="text-sm">
                   {subscription?.strength}mg
@@ -66,14 +86,22 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
 
             <p className="text-gray-600 text-sm mt-1">
               Purchased Date:{" "}
-              {subscription?.billing?.startDate
-                ? formatDate(
+              {subscription?.billing?.startDate ? (
+                <span
+                  title={formatDate(
+                    subscription?.billing?.startDate,
+                    READABLE_DATE_FORMAT
+                  )}
+                >
+                  {formatDate(
                     subscription?.billing?.startDate,
                     US_SHORT_DATE_FORMAT
-                  )
-                : null}
+                  )}
+                </span>
+              ) : null}
             </p>
           </div>
+
           {_getSubscriptionStatusBadge(
             subscription?.status,
             subscription?.billing?.nextBillingDate
@@ -83,7 +111,7 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
 
       <CardContent className="space-y-6">
         {/* Status-specific alerts */}
-        {subscription?.status === "reconsult_needed" && (
+        {subscription?.status === "expired" && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <div className="flex items-start">
               <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 mr-3" />
@@ -93,11 +121,23 @@ const SubscriptionCard = ({ subscription }: { subscription: any }) => {
                 </h4>
                 <p className="text-red-700 text-sm mt-1">
                   Your consultation expired on{" "}
-                  {formatDate(subscription?.billing?.nextBillingDate)}. Complete
-                  a new consultation to resume your subscription.
+                  <span className="font-medium">
+                    {formatDate(
+                      subscription?.billing?.nextBillingDate,
+                      READABLE_DATE_FORMAT
+                    )}
+                    .
+                  </span>{" "}
+                  Complete a new consultation to resume your subscription.
                 </p>
-                <Button size="sm" className="mt-3 bg-red-600 hover:bg-red-700">
-                  Schedule Consultation
+                <Button
+                  size="sm"
+                  className="mt-3 bg-red-600 hover:bg-red-700"
+                  onClick={() =>
+                    _redirectToConsultationRenewalPage(subscription?._id)
+                  }
+                >
+                  Renew Consultation
                 </Button>
               </div>
             </div>

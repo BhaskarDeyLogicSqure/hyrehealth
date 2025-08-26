@@ -26,12 +26,16 @@ export const authApi = {
   forgotPassword: async (payload: {
     handle: string;
   }): Promise<ApiResponse<IForgotPasswordResponseData>> => {
-    const response = await apiService.post(
-      FORGOT_PASSWORD_ENDPOINT?.endpoint,
-      payload
-    );
+    try {
+      const response = await apiService.post(
+        FORGOT_PASSWORD_ENDPOINT?.endpoint,
+        payload
+      );
 
-    return response?.data as ApiResponse<IForgotPasswordResponseData>;
+      return response?.data as ApiResponse<IForgotPasswordResponseData>;
+    } catch (error) {
+      throw error;
+    }
   },
 
   resetPassword: async (payload: {
