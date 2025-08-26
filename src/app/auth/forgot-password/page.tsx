@@ -24,7 +24,7 @@ export default function ForgotPasswordPage() {
     email,
     isLoading,
     isSubmitted,
-    error,
+    // error,
     validationError,
     handleSubmit,
     setEmail,
@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
                 }}
                 className="theme-text-primary hover:underline font-medium"
               >
-                Try again with a different email
+                Try again!
               </button>
             </div>
 
@@ -111,13 +111,13 @@ export default function ForgotPasswordPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Global Error */}
-            {error && (
+            {/* {error && (
               <div className="bg-red-50 border border-red-200 rounded-md p-3 dark:bg-red-900/20 dark:border-red-800">
                 <p className="text-red-700 dark:text-red-400 text-sm">
                   {error?.message}
                 </p>
               </div>
-            )}
+            )} */}
 
             {/* Email Field */}
             <div className="space-y-2">
@@ -128,7 +128,7 @@ export default function ForgotPasswordPage() {
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 theme-text-muted" />
                 <Input
                   id="email"
-                  type="email"
+                  type="text"
                   placeholder="Enter your email address"
                   value={email}
                   onChange={(e) => {

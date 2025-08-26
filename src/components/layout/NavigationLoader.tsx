@@ -32,16 +32,20 @@ const NavigationLoader = () => {
       const target = event.target as HTMLElement;
       const link = target.closest("a[href]") as HTMLAnchorElement;
 
-      if (link && link.href) {
-        const url = new URL(link.href);
-        const currentUrl = new URL(window.location.href);
+      if (link && link?.href) {
+        const url = new URL(link?.href);
+        const currentUrl = new URL(window?.location?.href);
 
-        // Only trigger for internal navigation
+        // Only trigger for internal navigation (pathname or search params change)
         if (
-          url.origin === currentUrl.origin &&
-          url.pathname !== currentUrl.pathname
+          url.origin === currentUrl?.origin &&
+          (url?.pathname !== currentUrl?.pathname ||
+            url?.search !== currentUrl?.search)
         ) {
-          console.log("🔗 Link click intercepted:", url.pathname);
+          console.log(
+            "🔗 Link click intercepted:",
+            url?.pathname + url?.search
+          );
           startLoading();
         }
       }

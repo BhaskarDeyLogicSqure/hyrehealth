@@ -49,7 +49,10 @@ export interface ApiError {
 function handleError(error: AxiosError | Error): never {
   if (axios.isAxiosError(error)) {
     throw {
-      message: error.response?.data?.message || error.message,
+      message:
+        error.response?.data?.message ||
+        error.response?.data?.reason ||
+        error.message,
       status: error.response?.status,
       success: error.response?.data?.success || false,
     } as ApiError;

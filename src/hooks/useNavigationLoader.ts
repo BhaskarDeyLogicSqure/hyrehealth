@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export const useNavigationLoader = () => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const progressTimerRef = useRef<NodeJS.Timeout>(); // ref to track the progress timer
   const prevPathnameRef = useRef(pathname); // ref to track the previous pathname
+  const prevSearchParamsRef = useRef(searchParams?.toString()); // ref to track the previous search params
 
   const [isLoading, setIsLoading] = useState(false); // state to track if the page is loading
   const [showLoader, setShowLoader] = useState(false); // state to track if the loader is shown
@@ -58,23 +60,34 @@ export const useNavigationLoader = () => {
     }
   }, [showLoader]);
 
-  // Monitor pathname changes to stop loading
+  // Monitor pathname and search params changes to stop loading
   useEffect(() => {
-    if (pathname !== prevPathnameRef?.current) {
+    const currentSearchParams = searchParams?.toString();
+    const hasPathnameChanged = pathname !== prevPathnameRef?.current;
+    const hasSearchParamsChanged =
+      currentSearchParams !== prevSearchParamsRef?.current;
+
+    if (hasPathnameChanged || hasSearchParamsChanged) {
       console.log(
-        "📍 Pathname changed:",
-        prevPathnameRef.current,
-        "->",
-        pathname
+        "📍 Navigation changed:",
+        hasPathnameChanged
+          ? `Pathname: ${prevPathnameRef.current} -> ${pathname}`
+          : "Pathname unchanged",
+        hasSearchParamsChanged
+          ? `Search: ${prevSearchParamsRef.current} -> ${currentSearchParams}`
+          : "Search unchanged"
       );
-      prevPathnameRef.current = pathname; // Update the previous pathname to the current one
+
+      // Update refs
+      prevPathnameRef.current = pathname;
+      prevSearchParamsRef.current = currentSearchParams;
 
       // If the page is still loading, stop the loading
       if (isLoading) {
         _stopLoading();
       }
     }
-  }, [pathname, isLoading, _stopLoading]);
+  }, [pathname, searchParams, isLoading, _stopLoading]);
 
   // Cleanup on unmount
   useEffect(() => {
