@@ -11,7 +11,14 @@ import { Theme } from "./types/theme";
 
 // Configuration - easily extensible
 const MIDDLEWARE_CONFIG: MiddlewareConfig = {
-  protectedRoutes: ["/profile"],
+  protectedRoutes: [
+    "/profile",
+    "/checkout",
+    "/intake-form",
+    "/pre-consultation",
+    "/post-consultation-summary",
+    "/consultation-renewal",
+  ],
   authRoutes: ["/auth/login", "/auth/forgot-password"],
   publicRoutes: ["/", "/categories", "/products", "/checkout", "/privacy"],
   themeRoutes: ["/"], // Only apply theme logic to specific routes if needed
