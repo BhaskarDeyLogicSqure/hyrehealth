@@ -139,15 +139,22 @@ const ProductsCard = ({
         ) : null}
 
         {/* Rating */}
-        <div className="flex items-center mb-4">
-          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-          <span className="ml-1 text-sm font-medium">
-            {product?.statistics?.averageRating}
-          </span>
-          <span className="ml-1 text-sm theme-text-muted">
-            ({product?.statistics?.reviewCount})
-          </span>
-        </div>
+        {product?.statistics?.averageRating ? (
+          <div className="flex items-center mb-4">
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <span className="ml-1 text-sm font-medium">
+              {product?.statistics?.averageRating}
+            </span>
+            {product?.statistics?.reviewCount ? (
+              <span
+                className="ml-1 text-sm theme-text-muted"
+                title={`${product?.statistics?.reviewCount} reviews`}
+              >
+                ({product?.statistics?.reviewCount})
+              </span>
+            ) : null}
+          </div>
+        ) : null}
 
         {/* Price */}
         <div className="flex items-center justify-between mb-4">
