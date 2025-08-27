@@ -17,32 +17,37 @@ const RelatedProductsSection = ({
 }) => {
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
-  const handleImageError = (productId: string) => {
+  const _handleImageError = (productId: string) => {
     setFailedImages((prev) => new Set(prev).add(productId));
   };
 
-  const isImageFailed = (productId: string) => {
+  const _isImageFailed = (productId: string) => {
     return failedImages.has(productId);
   };
 
   // Function to get default pricing for a related product
-  const getDefaultPricing = (relatedProduct: any) => {
+  const _getDefaultPricing = (relatedProduct: any) => {
     if (!relatedProduct?.pricing?.subscriptionOptions) {
       return {
         dosage: "N/A",
         duration: "N/A",
-        price: relatedProduct?.pricing?.basePrice || 0,
+        price: relatedProduct?.pricing?.lowestPrice || 0,
       };
     }
 
-    // Find the default dosage option
+    // Find the default dosage option, and with lowest duration
     const defaultDosageOption =
-      relatedProduct?.pricing?.subscriptionOptions?.find(
+      relatedProduct?.pricing?.subscriptionOptions?.filter(
         (option: any) => option?.isDefault === true
       );
 
-    // fallback to first option if no default dosage option is found
-    if (!defaultDosageOption) {
+    const defaultDurationOptionWithLowestDuration =
+      defaultDosageOption?.reduce((acc: any, option: any) => {
+        return acc?.duration?.value < option?.duration?.value ? acc : option;
+      }, defaultDosageOption?.[0]) || defaultDosageOption?.[0];
+
+    // fallback to first option if no default dosage option with lowest duration is found
+    if (!defaultDurationOptionWithLowestDuration) {
       const firstOption = relatedProduct?.pricing?.subscriptionOptions?.[0];
       return {
         dosage: firstOption ? `${firstOption?.strength}mg` : "N/A",
@@ -51,33 +56,18 @@ const RelatedProductsSection = ({
               firstOption?.duration?.unit || "month"
             }`
           : "N/A",
-        price: firstOption?.price || relatedProduct?.pricing?.basePrice || 0,
+        price: firstOption?.price || relatedProduct?.pricing?.lowestPrice || 0,
       };
     }
 
-    // Find default duration for the selected dosage
-    const defaultDurationOption =
-      relatedProduct?.pricing?.subscriptionOptions?.find(
-        (option: any) =>
-          option?.strength === defaultDosageOption?.strength &&
-          option?.isDefault === true
-      );
-
     return {
-      dosage: `${defaultDosageOption.strength}mg`,
-      duration: `${
-        defaultDurationOption?.duration?.value ||
-        defaultDosageOption?.duration?.value ||
-        1
-      } ${
-        defaultDurationOption?.duration?.unit ||
-        defaultDosageOption?.duration?.unit ||
-        "month"
+      dosage: `${defaultDurationOptionWithLowestDuration?.strength}mg`,
+      duration: `${defaultDurationOptionWithLowestDuration?.duration?.value} ${
+        defaultDurationOptionWithLowestDuration?.duration?.unit || "month"
       }`,
       price:
-        defaultDurationOption?.price ||
-        defaultDosageOption?.price ||
-        relatedProduct?.pricing?.basePrice ||
+        defaultDurationOptionWithLowestDuration?.price ||
+        relatedProduct?.pricing?.lowestPrice ||
         0,
     };
   };
@@ -94,7 +84,7 @@ const RelatedProductsSection = ({
             const isSelected = selectedRelatedProducts?.includes(
               relatedProduct?._id
             );
-            const defaultPricing = getDefaultPricing(relatedProduct);
+            const defaultPricing = _getDefaultPricing(relatedProduct);
 
             return (
               <div
@@ -109,7 +99,7 @@ const RelatedProductsSection = ({
                   <div className="flex items-center space-x-4">
                     <div className="text-2xl">
                       {relatedProduct?.media?.images?.[0]?.url &&
-                      !isImageFailed(relatedProduct?._id) ? (
+                      !_isImageFailed(relatedProduct?._id) ? (
                         <Image
                           src={
                             relatedProduct?.media?.images?.[0]?.url &&
@@ -122,7 +112,7 @@ const RelatedProductsSection = ({
                           alt={relatedProduct?.name || "N/A"}
                           width={36}
                           height={36}
-                          onError={() => handleImageError(relatedProduct?._id)}
+                          onError={() => _handleImageError(relatedProduct?._id)}
                         />
                       ) : (
                         <div className="w-9 h-9 bg-gray-100 rounded flex items-center justify-center">
@@ -134,10 +124,13 @@ const RelatedProductsSection = ({
                       <h3 className="font-semibold theme-text-primary">
                         {relatedProduct?.name || "N/A"}
                       </h3>
-                      <p className="text-sm theme-text-muted">
-                        {relatedProduct?.contentAndDescription
-                          ?.shortDescription || "N/A"}
-                      </p>
+                      {relatedProduct?.contentAndDescription
+                        ?.shortDescription ? (
+                        <p className="text-sm theme-text-muted">
+                          {relatedProduct?.contentAndDescription
+                            ?.shortDescription || "N/A"}
+                        </p>
+                      ) : null}
 
                       {/* Default Selection Info */}
                       <div className="mt-2 space-y-1">
@@ -154,12 +147,6 @@ const RelatedProductsSection = ({
                           )}
                         </div>
                       </div>
-
-                      {relatedProduct?.requiresConsultation && (
-                        <p className="text-xs text-orange-600 mt-1">
-                          Additional consultation required
-                        </p>
-                      )}
                     </div>
                   </div>
 
