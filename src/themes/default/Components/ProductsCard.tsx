@@ -44,19 +44,38 @@ const ProductsCard = ({
       className="hover:shadow-lg transition-shadow duration-300"
     >
       <CardContent className="p-6">
-        <div className="flex justify-between items-start mb-4">
-          <Badge variant="secondary">{product?.category?.[0]?.name}</Badge>
-          <div className="flex items-center">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm text-gray-600 ml-1">
-              {product?.statistics?.averageRating}
-            </span>
+        {product?.category?.length ? (
+          <div className="flex justify-between items-start mb-4">
+            <Badge variant="secondary">{product?.category?.[0]?.name}</Badge>
           </div>
+        ) : null}
+
+        <div className="flex gap-2 items-center">
+          <h3 className="text-xl font-semibold">{product?.name}</h3>
+
+          {/* Rating */}
+          {product?.statistics?.averageRating ? (
+            <div className="flex items-center">
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              <span className="ml-1 text-sm font-medium">
+                {product?.statistics?.averageRating}
+              </span>
+              {product?.statistics?.reviewCount ? (
+                <span
+                  className="ml-1 text-sm theme-text-muted"
+                  title={`${product?.statistics?.reviewCount} reviews`}
+                >
+                  ({product?.statistics?.reviewCount})
+                </span>
+              ) : null}
+            </div>
+          ) : null}
         </div>
-        <h3 className="text-xl font-semibold mb-2">{product?.name}</h3>
+
         <p className="text-gray-600 mb-4">
           {product?.contentAndDescription?.shortDescription}
         </p>
+
         <div className="flex justify-between items-center">
           <span className="text-2xl font-bold text-blue-600">
             ${product?.pricing?.basePrice}/mo
@@ -74,7 +93,7 @@ const ProductsCard = ({
                 className="gap-2"
               />
             ) : (
-              "Learn More"
+              "View Details"
             )}
           </Button>
         </div>
@@ -185,7 +204,7 @@ const ProductsCard = ({
               className="gap-2"
             />
           ) : (
-            "Learn More"
+            "View Details"
           )}
         </Button>
       </CardContent>
