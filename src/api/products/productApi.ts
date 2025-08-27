@@ -80,7 +80,7 @@ export const productApi = {
       };
       error: boolean;
     }>(`${BASE_URL}${GET_PRODUCTS_ENDPOINT?.endpoint}`, {
-      isPopular: true,
+      // isPopular: true,
       limit: 3,
       origin,
     });
