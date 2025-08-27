@@ -7,7 +7,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import React from "react";
+import React, { useMemo } from "react";
 import { Star, CheckCircle, AlertCircle, ChevronRight } from "lucide-react";
 import { Product } from "@/types/products";
 import RelatedProductsSection from "./RelatedProductsSection";
@@ -35,6 +35,15 @@ const ProductDetailsSection = ({
     })),
   ];
 
+  const _getFaqsWithAnswer = useMemo(() => {
+    return product?.contentAndDescription?.faqs?.filter((faq: any) => {
+      if (faq?.answer && faq?.answer?.trim() !== "") {
+        return faq;
+      }
+      return null;
+    });
+  }, [product?.contentAndDescription?.faqs]);
+
   console.log({ product });
   return (
     <div>
@@ -47,15 +56,22 @@ const ProductDetailsSection = ({
         <h1 className="text-3xl font-bold theme-text-primary mb-2">
           {product?.name}
         </h1>
-        <div className="flex items-center justify-center mb-4">
-          <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-          <span className="ml-1 font-semibold">
-            {product?.statistics?.averageRating}
-          </span>
-          <span className="ml-1 theme-text-muted">
-            ({product?.statistics?.reviewCount} reviews)
-          </span>
-        </div>
+        {product?.statistics?.averageRating || 0 ? (
+          <div className="flex items-center justify-center mb-4">
+            <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+            <span className="ml-1 font-semibold">
+              {product?.statistics?.averageRating || 0}
+            </span>
+            {product?.statistics?.reviewCount ? (
+              <span
+                className="ml-1 theme-text-muted"
+                title={`${product?.statistics?.reviewCount} reviews`}
+              >
+                ({product?.statistics?.reviewCount || 0} reviews)
+              </span>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       {/* Product Description */}
@@ -199,36 +215,33 @@ const ProductDetailsSection = ({
       )}
 
       {/* Frequently Asked Questions */}
-      {product?.contentAndDescription?.faqs &&
-        product?.contentAndDescription?.faqs?.length > 0 && (
-          <Card className="mb-8">
-            <CardContent className="p-6">
-              <h2 className="text-xl font-semibold theme-text-primary mb-4">
-                Frequently Asked Questions
-              </h2>
-              <div className="space-y-2">
-                {product?.contentAndDescription?.faqs?.map(
-                  (faq: any, index: number) => (
-                    <Collapsible
-                      key={index}
-                      className="border border-gray-200 rounded-lg"
-                    >
-                      <CollapsibleTrigger className="flex w-full items-center justify-between p-4 text-left theme-text-primary hover:theme-bg-muted font-medium transition-colors">
-                        <span>{removeHtmlTags(faq?.question)}</span>
-                        <ChevronRight className="h-4 w-4 transition-transform duration-200 data-[state=open]:rotate-90" />
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="px-4 pb-4">
-                        <div className="theme-text-muted whitespace-pre-line border-t border-gray-100 pt-3">
-                          {removeHtmlTags(faq?.answer)}
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  )
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+      {_getFaqsWithAnswer && _getFaqsWithAnswer?.length > 0 && (
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-semibold theme-text-primary mb-4">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-2">
+              {_getFaqsWithAnswer?.map((faq: any, index: number) => (
+                <Collapsible
+                  key={index}
+                  className="border border-gray-200 rounded-lg"
+                >
+                  <CollapsibleTrigger className="flex w-full items-center justify-between p-4 text-left theme-text-primary hover:theme-bg-muted font-medium transition-colors">
+                    <span>{removeHtmlTags(faq?.question)}</span>
+                    <ChevronRight className="h-4 w-4 transition-transform duration-200 data-[state=open]:rotate-90" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="px-4 pb-4">
+                    <div className="theme-text-muted whitespace-pre-line border-t border-gray-100 pt-3">
+                      {removeHtmlTags(faq?.answer)}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Related Products Section */}
       {product?.similarProducts?.length ? (
