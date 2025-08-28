@@ -28,7 +28,7 @@ const NavigationLoader = () => {
     };
 
     // Also intercept Link clicks
-    const handleLinkClick = (event: Event) => {
+    const _handleLinkClick = (event: Event) => {
       const target = event.target as HTMLElement;
       const link = target.closest("a[href]") as HTMLAnchorElement;
 
@@ -52,14 +52,14 @@ const NavigationLoader = () => {
     };
 
     // Add global click listener for links
-    document.addEventListener("click", handleLinkClick, true);
+    document.addEventListener("click", _handleLinkClick, true);
 
     return () => {
       console.log("🔧 NavigationLoader unmounting");
       // Restore original methods
       router.push = originalPush;
       router.replace = originalReplace;
-      document.removeEventListener("click", handleLinkClick, true);
+      document.removeEventListener("click", _handleLinkClick, true);
     };
   }, [router, startLoading]);
 
