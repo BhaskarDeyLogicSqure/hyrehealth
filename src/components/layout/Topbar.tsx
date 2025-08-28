@@ -28,9 +28,7 @@ const Topbar = () => {
   const { removeCookie } = useCookies();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const { user, isAuthenticated: isAuthenticatedFromRedux } = useSelector(
-    (state: RootState) => state?.authReducer
-  );
+  const { user } = useSelector((state: RootState) => state?.authReducer);
 
   // Navigation items for the main menu
   const navigationItems = useMemo(
@@ -77,9 +75,8 @@ const Topbar = () => {
     router.push(path);
   };
 
-  // Use Redux state directly for authentication status
-  // Check if user is authenticated from the cookie or the redux store
-  const isAuthenticated = isAuthenticatedFromRedux || isUserAuthenticated();
+  // Check if user is authenticated from the cookie
+  const isAuthenticated = isUserAuthenticated();
 
   return (
     <>

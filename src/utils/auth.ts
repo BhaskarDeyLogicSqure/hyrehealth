@@ -23,7 +23,7 @@ export const getTokenFromCookie = (): string | null => {
     return null; // Server-side rendering
   }
 
-  const cookies = document.cookie.split(";");
+  const cookies = document?.cookie?.split(";");
   for (let cookie of cookies) {
     const [name, value] = cookie?.trim()?.split("=");
     if (name === "customer-token") {
