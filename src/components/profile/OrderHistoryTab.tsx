@@ -23,7 +23,8 @@ import ReviewModal from "./ReviewModal";
 import CustomPagination from "@/components/CustomPagination";
 import ThemeLoader from "@/components/ThemeLoader";
 import useOrderHistory from "@/hooks/useOrderHistory";
-import { showSuccessToast } from "../GlobalErrorHandler";
+import { showErrorToast, showSuccessToast } from "../GlobalErrorHandler";
+
 const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
   const {
     ordersList,
@@ -171,6 +172,32 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
     }
   };
 
+  const _redirectToTrackingWebsite = (
+    trackingNumber: string,
+    shippingCompany: string
+  ) => {
+    let trackingLink = "";
+
+    // get the tracking link based on the shipping company
+    if (shippingCompany === "FedEx") {
+      trackingLink = `https://www.fedex.com/fedextrack/?trknbr=${trackingNumber}`;
+    } else if (shippingCompany === "DHL") {
+      trackingLink = `https://www.mydhli.com/global-en/home/tracking/tracking-express.html?submit=1&tracking-id=${trackingNumber}`;
+    } else if (shippingCompany === "UPS") {
+      trackingLink = `https://www.ups.com/track?tracknum=${trackingNumber}&loc=en_US&requester=ST/`;
+    } else if (shippingCompany === "USPS") {
+      trackingLink = `https://tools.usps.com/go/TrackConfirmAction?tRef=fullpage&tLc=2&text28777=&tLabels=${trackingNumber}%2C&tABt=true`;
+    }
+
+    if (!trackingLink) {
+      showErrorToast("No tracking link found, please try again later");
+      return;
+    }
+
+    // Redirect to the tracking website
+    window.open(trackingLink, "_blank");
+  };
+
   return (
     <>
       {/* Desktop Table View */}
@@ -230,7 +257,16 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
                           Invoice
                         </Button>
                         {order?.trackingNumber && (
-                          <Button variant="outline" size="sm">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              _redirectToTrackingWebsite(
+                                order?.trackingNumber,
+                                order?.deliveryService
+                              )
+                            }
+                          >
                             <Truck className="h-4 w-4 mr-1" />
                             Track
                           </Button>

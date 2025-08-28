@@ -44,8 +44,6 @@ const useOrderHistory = (customerId: string) => {
   );
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
-  console.log({ orders });
-
   // Handle pagination data structure
   const ordersList = Array.isArray(orders) ? orders : orders?.invoices || [];
   const paginationData = Array.isArray(orders) ? null : orders?.pagination;
