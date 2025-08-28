@@ -8,6 +8,7 @@ export const useNavigationLoader = () => {
   const searchParams = useSearchParams();
 
   const progressTimerRef = useRef<NodeJS.Timeout>(); // ref to track the progress timer
+  const timeoutTimerRef = useRef<NodeJS.Timeout>(); // ref to track the timeout timer
   const prevPathnameRef = useRef(pathname); // ref to track the previous pathname
   const prevSearchParamsRef = useRef(searchParams?.toString()); // ref to track the previous search params
 
@@ -20,6 +21,7 @@ export const useNavigationLoader = () => {
 
     // Clear any existing timers
     if (progressTimerRef?.current) clearInterval(progressTimerRef?.current);
+    if (timeoutTimerRef?.current) clearTimeout(timeoutTimerRef?.current);
 
     setIsLoading(true);
     setProgress(0);
@@ -36,13 +38,22 @@ export const useNavigationLoader = () => {
       }
       setProgress(currentProgress);
     }, 200);
+
+    // Set timeout to automatically stop loading after 15 seconds, doing this in case of same route navigation
+    timeoutTimerRef.current = setTimeout(() => {
+      console.log(
+        "⏰ Navigation loading timeout reached (15s), stopping automatically"
+      );
+      _stopLoading();
+    }, 12000);
   }, []);
 
   const _stopLoading = useCallback(() => {
     console.log("🛑 Navigation loading stopped");
 
-    // Clear progress timer
+    // Clear all timers
     if (progressTimerRef?.current) clearInterval(progressTimerRef?.current);
+    if (timeoutTimerRef?.current) clearTimeout(timeoutTimerRef?.current);
 
     if (showLoader) {
       setProgress(100);
@@ -93,6 +104,7 @@ export const useNavigationLoader = () => {
   useEffect(() => {
     return () => {
       if (progressTimerRef?.current) clearInterval(progressTimerRef?.current);
+      if (timeoutTimerRef?.current) clearTimeout(timeoutTimerRef?.current);
     };
   }, []);
 

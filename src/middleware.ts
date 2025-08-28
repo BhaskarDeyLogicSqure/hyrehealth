@@ -13,14 +13,20 @@ import { Theme } from "./types/theme";
 const MIDDLEWARE_CONFIG: MiddlewareConfig = {
   protectedRoutes: [
     "/profile",
-    "/checkout",
     "/intake-form",
     "/pre-consultation",
     "/post-consultation-summary",
     "/consultation-renewal",
   ],
   authRoutes: ["/auth/login", "/auth/forgot-password"],
-  publicRoutes: ["/", "/categories", "/products", "/checkout", "/privacy"],
+  publicRoutes: [
+    "/",
+    "/categories",
+    "/products",
+    "/checkout",
+    "/privacy",
+    "/checkout",
+  ],
   themeRoutes: ["/"], // Only apply theme logic to specific routes if needed
 };
 
