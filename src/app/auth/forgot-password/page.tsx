@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,19 +14,25 @@ import {
 import { Loader2, Mail, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import useForgotPassword from "@/hooks/useForgotPassword";
+import ThemeLoader from "@/components/ThemeLoader";
+import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
+
   const {
     email,
     isLoading,
     isSubmitted,
-    error,
+    // error,
     validationError,
     handleSubmit,
     setEmail,
     setIsSubmitted,
     setValidationError,
   } = useForgotPassword();
+
+  const [loading, startTransition] = useTransition();
 
   // Success state
   if (isSubmitted) {
@@ -45,14 +52,14 @@ export default function ForgotPasswordPage() {
           </CardHeader>
 
           <CardContent className="space-y-4">
-            <div className="theme-bg-muted p-4 rounded-lg text-center">
+            {/* <div className="theme-bg-muted p-4 rounded-lg text-center">
               <p className="text-sm theme-text-primary mb-2">
                 We've sent a password reset link to:
               </p>
               <p className="font-medium theme-text-primary break-all">
                 {email}
               </p>
-            </div>
+            </div> */}
 
             <div className="text-sm theme-text-muted text-center space-y-2">
               <p>
@@ -65,7 +72,7 @@ export default function ForgotPasswordPage() {
                 }}
                 className="theme-text-primary hover:underline font-medium"
               >
-                Try again with a different email
+                Try again!
               </button>
             </div>
 
@@ -104,13 +111,13 @@ export default function ForgotPasswordPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Global Error */}
-            {error && (
+            {/* {error && (
               <div className="bg-red-50 border border-red-200 rounded-md p-3 dark:bg-red-900/20 dark:border-red-800">
                 <p className="text-red-700 dark:text-red-400 text-sm">
                   {error?.message}
                 </p>
               </div>
-            )}
+            )} */}
 
             {/* Email Field */}
             <div className="space-y-2">
@@ -121,7 +128,7 @@ export default function ForgotPasswordPage() {
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 theme-text-muted" />
                 <Input
                   id="email"
-                  type="email"
+                  type="text"
                   placeholder="Enter your email address"
                   value={email}
                   onChange={(e) => {
@@ -170,12 +177,19 @@ export default function ForgotPasswordPage() {
             </Link>
             <div className="text-sm theme-text-muted">
               Remember your password?{" "}
-              <Link
-                href="/auth/login"
+              <Button
+                variant="link"
                 className="theme-text-primary hover:underline font-medium "
+                onClick={() => {
+                  startTransition(() => {
+                    router.push("/auth/login");
+                  });
+                }}
+                disabled={loading}
               >
-                Sign In
-              </Link>
+                Sign In{" "}
+                {loading ? <ThemeLoader type="inline" variant="simple" /> : ""}
+              </Button>
             </div>
           </div>
         </CardContent>

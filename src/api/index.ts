@@ -21,9 +21,9 @@ const axiosInstance = axios.create({
 
 // Add request interceptor to include token for all requests(if token is present, i.e protected routes)
 axiosInstance.interceptors.request.use((config) => {
-  const token = getTokenFromCookie();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const customerToken = getTokenFromCookie();
+  if (customerToken) {
+    config.headers.Authorization = `Bearer ${customerToken}`;
   }
   return config;
 });
@@ -49,7 +49,10 @@ export interface ApiError {
 function handleError(error: AxiosError | Error): never {
   if (axios.isAxiosError(error)) {
     throw {
-      message: error.response?.data?.message || error.message,
+      message:
+        error.response?.data?.message ||
+        error.response?.data?.reason ||
+        error.message,
       status: error.response?.status,
       success: error.response?.data?.success || false,
     } as ApiError;

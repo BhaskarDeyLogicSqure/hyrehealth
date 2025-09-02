@@ -1,14 +1,35 @@
 "use client";
 
+import useMerchantDetails from "@/api/auth/useMerchantDetails";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { setMerchantData } from "@/store/slices/merchantSlice";
+import { getCurrentYear } from "@/lib/utils";
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
+  const dispatch = useDispatch();
 
+  // Call the hook at the component level, not inside a function
+  const { merchantData: fetchedMerchantData, merchantDataError } =
+    useMerchantDetails();
+
+  useEffect(() => {
+    if (merchantDataError) {
+      console.error("Error fetching merchant data:", merchantDataError);
+      return;
+    }
+
+    // update it with latest fetched merchant data
+    if (fetchedMerchantData) {
+      dispatch(setMerchantData(fetchedMerchantData));
+    }
+  }, [fetchedMerchantData, merchantDataError, dispatch]);
+
+  // prevent rendering of footer on auth pages
   const pathname = usePathname();
-
-  if (pathname.startsWith("/auth/")) {
+  if (pathname?.startsWith("/auth/")) {
     return null;
   }
 
@@ -31,53 +52,25 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Treatments */}
-          {/* <div>
-            <h3 className="font-semibold mb-4 footer-text">Treatments</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/categories?category=weight-loss"
-                  className="footer-link transition-colors"
-                >
-                  Weight Loss
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/categories?category=peptides"
-                  className="footer-link transition-colors"
-                >
-                  Peptides
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/categories?category=wellness"
-                  className="footer-link transition-colors"
-                >
-                  Wellness
-                </Link>
-              </li>
-            </ul>
-          </div> */}
+          {/* empty div for spacing and alignment */}
+          <div />
 
           {/* Support */}
           <div>
             <h3 className="font-semibold mb-4 footer-text">Support</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/help" className="footer-link transition-colors">
+                <Link href="/support" className="footer-link transition-colors">
                   Help Center
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="footer-link transition-colors">
+                <Link href="/support" className="footer-link transition-colors">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="footer-link transition-colors">
+                <Link href="/support" className="footer-link transition-colors">
                   FAQ
                 </Link>
               </li>
@@ -89,17 +82,26 @@ export function Footer() {
             <h3 className="font-semibold mb-4 footer-text">Legal</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/privacy" className="footer-link transition-colors">
+                <Link
+                  href="/privacy-policy"
+                  className="footer-link transition-colors"
+                >
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="footer-link transition-colors">
+                <Link
+                  href="/terms-and-conditions"
+                  className="footer-link transition-colors"
+                >
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="/hipaa" className="footer-link transition-colors">
+                <Link
+                  href="/hipaa-compliance"
+                  className="footer-link transition-colors"
+                >
                   HIPAA Notice
                 </Link>
               </li>
@@ -110,7 +112,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t footer-border mt-8 pt-8 text-center">
           <p className="footer-text-muted text-sm">
-            &copy; <span suppressHydrationWarning>{currentYear}</span>{" "}
+            &copy; <span suppressHydrationWarning>{getCurrentYear()}</span>{" "}
             HealthPortal. All rights reserved. | Licensed Medical Professionals
           </p>
         </div>

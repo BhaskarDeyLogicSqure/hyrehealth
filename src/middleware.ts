@@ -11,9 +11,22 @@ import { Theme } from "./types/theme";
 
 // Configuration - easily extensible
 const MIDDLEWARE_CONFIG: MiddlewareConfig = {
-  protectedRoutes: ["/profile"],
+  protectedRoutes: [
+    "/profile",
+    "/intake-form",
+    "/pre-consultation",
+    "/post-consultation-summary",
+    "/consultation-renewal",
+  ],
   authRoutes: ["/auth/login", "/auth/forgot-password"],
-  publicRoutes: ["/", "/categories", "/products", "/checkout", "/privacy"],
+  publicRoutes: [
+    "/",
+    "/categories",
+    "/products",
+    "/checkout",
+    "/privacy",
+    "/checkout",
+  ],
   themeRoutes: ["/"], // Only apply theme logic to specific routes if needed
 };
 
@@ -94,7 +107,7 @@ class AuthValidator {
   static async validateToken(token: string): Promise<AuthValidationResult> {
     try {
       // Basic token format validation
-      if (!token || token.length < 10) {
+      if (!token || token?.length < 10) {
         return { isValid: false, error: "Invalid token format" };
       }
 
@@ -191,15 +204,15 @@ class MiddlewareHandlers {
 
       logger.info("Checking protected route access", { pathname });
 
-      const token = request.cookies.get("token")?.value;
+      const customerToken = request.cookies.get("customer-token")?.value;
 
-      if (!token) {
+      if (!customerToken) {
         logger.info("No token found, redirecting to login");
         return NextResponse.redirect(new URL("/auth/login", request.url));
       }
 
       // Validate token
-      const validation = await AuthValidator.validateToken(token);
+      const validation = await AuthValidator.validateToken(customerToken);
 
       if (!validation.isValid) {
         logger.warn("Invalid token, redirecting to login", {
@@ -210,7 +223,7 @@ class MiddlewareHandlers {
         const response = NextResponse.redirect(
           new URL("/auth/login", request.url)
         );
-        response.cookies.delete("token");
+        response.cookies.delete("customer-token");
         return response;
       }
 
@@ -235,23 +248,23 @@ class MiddlewareHandlers {
 
       logger.info("Checking auth route access", { pathname });
 
-      const token = request.cookies.get("token")?.value;
+      const customerToken = request.cookies.get("customer-token")?.value;
 
-      if (!token) {
+      if (!customerToken) {
         return null; // No token, allow access to auth routes
       }
 
       // Validate existing token
-      const validation = await AuthValidator.validateToken(token);
+      const validation = await AuthValidator.validateToken(customerToken);
 
-      if (validation.isValid) {
+      if (validation?.isValid) {
         logger.info("Valid token found, redirecting to profile");
         return NextResponse.redirect(new URL("/profile", request.url));
       } else {
         // Invalid token, clear it and allow access to auth routes
         logger.info("Invalid token found, clearing and allowing auth access");
         const response = NextResponse.next();
-        response.cookies.delete("token");
+        response.cookies.delete("customer-token");
         return response;
       }
     } catch (error) {

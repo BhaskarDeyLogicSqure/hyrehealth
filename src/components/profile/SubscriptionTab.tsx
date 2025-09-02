@@ -6,8 +6,11 @@ import SubscriptionCard from "./SubscriptionCard";
 import CustomPagination from "@/components/CustomPagination";
 import ThemeLoader from "@/components/ThemeLoader";
 import useSubscription from "@/hooks/useSubscription";
+import { useRouter } from "next/navigation";
 
 const SubscriptionTab = () => {
+  const router = useRouter();
+
   const {
     subscriptionsList,
     totalItems,
@@ -17,6 +20,10 @@ const SubscriptionTab = () => {
     dataPayload,
     _handlePageChange,
   } = useSubscription();
+
+  const _redirectToProducts = () => {
+    router.push("/products");
+  };
 
   // Show loading state
   if (isSubscriptionLoading) {
@@ -66,7 +73,7 @@ const SubscriptionTab = () => {
             Start your health journey with our personalized treatments
           </p>
           <Button
-            onClick={() => (window.location.href = "/products")}
+            onClick={_redirectToProducts}
             className="bg-brand-dark-blue hover:bg-brand-dark-blue/90"
           >
             Browse Treatments
@@ -112,7 +119,7 @@ const SubscriptionTab = () => {
             Explore our comprehensive range of personalized treatments
           </p>
           <Button
-            onClick={() => (window.location.href = "/products")}
+            onClick={_redirectToProducts}
             className="bg-brand-dark-blue hover:bg-brand-dark-blue/90"
           >
             Browse Treatments

@@ -51,3 +51,8 @@ export const DOWNLOAD_INVOICE: EndpointConfigType = {
   attachToken: true,
   attachXUserId: true,
 };
+
+export const GET_FEATURED_TESTIMONIALS: EndpointConfigType = {
+  endpoint: "/testimonials",
+  httpType: httpType.GET,
+};

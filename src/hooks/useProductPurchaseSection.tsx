@@ -40,13 +40,20 @@ const useProductPurchaseSection = ({
   }, [product]);
 
   const _generateSubscriptionDurationOptions = useMemo(() => {
+    // Find the strength of the selected dosage option
     const selectedDosageOptionStrength =
       product?.pricing?.subscriptionOptions?.find(
         (option) => option?._id === selectedDosageId
       )?.strength;
 
+    // Filter options by selected strength and exclude those with price === 0
     const durationOptions = product?.pricing?.subscriptionOptions
-      ?.filter((option) => option?.strength === selectedDosageOptionStrength)
+      ?.filter(
+        (option) =>
+          option?.strength === selectedDosageOptionStrength &&
+          option?.price !== 0 // Exclude options where price is exactly 0
+      )
+      // Sort by duration value in ascending order
       ?.sort((a, b) => a?.duration?.value - b?.duration?.value);
 
     return durationOptions;

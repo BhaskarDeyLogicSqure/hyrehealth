@@ -29,13 +29,6 @@ const config = {
           charcoal: "#222222", // Standard body and heading text
           "dark-charcoal": "#333333", // Alternative text color
         },
-        // Hyre Health custom colors (from reference repo)
-        linden: {
-          blue: "#234A66",
-          gold: "#C9A95C",
-          lightblue: "#E5F0F9",
-          gray: "#F1F1F1",
-        },
         // shadcn/ui Color System - Standard compatibility
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

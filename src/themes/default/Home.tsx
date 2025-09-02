@@ -1,32 +1,15 @@
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Star, CheckCircle, Heart, Scale, Zap } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import HomePageHeroSection from "./Components/HomePageHeroSection";
 import HomePageFeaturedProducts from "./Components/HomePageFeaturedProducts";
 import HomePageFeaturedTreatment from "./Components/HomePageFeaturedTreatment";
 import { howItWorks } from "@/configs/constants";
 import { getHomePageData } from "@/utils/getHomePageData";
+import HomePageTestimonials from "./Components/HomePageTestimonials";
 
 const DefaultHomePage = async () => {
-  const testimonials = [
-    {
-      rating: 5,
-      text: "I've been using this product for a month now and it's been amazing. I've seen a significant improvement in my skin.",
-      name: "John Doe",
-    },
-    {
-      rating: 5,
-      text: "I've been using this product for a month now and it's been amazing. I've seen a significant improvement in my skin.",
-      name: "John Doe",
-    },
-    {
-      rating: 5,
-      text: "I've been using this product for a month now and it's been amazing. I've seen a significant improvement in my skin.",
-      name: "John Doe",
-    },
-  ];
-
-  const { featuredCategories, featuredProducts } = await getHomePageData();
+  const { featuredCategories, featuredProducts, featuredTestimonials } =
+    await getHomePageData();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -58,31 +41,7 @@ const DefaultHomePage = async () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            What Our Patients Say
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index}>
-                <CardContent className="p-6">
-                  <div className="flex mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  </div>
-                  <p className="text-gray-600 mb-4">"{testimonial.text}"</p>
-                  <p className="font-semibold">— {testimonial.name}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      <HomePageTestimonials testimonials={featuredTestimonials} />
 
       {/* Trust Banner */}
       <section className="bg-blue-50 py-12">

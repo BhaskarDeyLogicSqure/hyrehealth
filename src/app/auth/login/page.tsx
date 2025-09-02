@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,10 +19,13 @@ import { profileApi } from "@/api/profile/profileApi";
 import { UserDataType } from "@/types/user";
 import { setUser } from "@/store/actions/authAction";
 import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
+import { isValidPassword } from "@/lib/utils";
 
 export default function LoginPage() {
   const dispatch = useDispatch();
   const { login, isLoading } = useAuthApi();
+  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,6 +34,8 @@ export default function LoginPage() {
     email?: string;
     password?: string;
   }>({});
+
+  const [loading, startTransition] = useTransition();
 
   const _validateForm = () => {
     const errors: { email?: string; password?: string } = {};
@@ -43,8 +48,9 @@ export default function LoginPage() {
 
     if (!password?.trim()) {
       errors.password = "Password is required";
-    } else if (password?.length < 6) {
-      errors.password = "Password must be at least 6 characters";
+    } else if (!isValidPassword(password)) {
+      errors.password =
+        "*Password must be 8–20 characters with a letter, number, and special character.";
     }
 
     setValidationErrors(errors);
@@ -209,12 +215,19 @@ export default function LoginPage() {
             </Link>
             <div className="text-sm theme-text-muted">
               Forgot your password?{" "}
-              <Link
-                href="/auth/forgot-password"
+              <Button
+                variant="link"
                 className="theme-text-primary hover:underline font-medium"
+                onClick={() => {
+                  startTransition(() => {
+                    router.push("/auth/forgot-password");
+                  });
+                }}
+                disabled={loading}
               >
-                Reset it here
-              </Link>
+                Reset it here{" "}
+                {loading ? <ThemeLoader type="inline" variant="simple" /> : ""}
+              </Button>
             </div>
           </div>
         </CardContent>

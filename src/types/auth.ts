@@ -25,9 +25,19 @@ export interface IResetPasswordResponseData {
   handle?: string;
 }
 
+export interface MerchantLegalDocument {
+  id: string;
+  _id: string;
+  documentName: string;
+  documentType: string;
+  documentUrl?: string;
+  documentDetailsHtmlText?: string;
+}
+
 export interface MerchantNMIpaymentTokenResponse {
   error: boolean;
   data: {
+    merchantOwnLegalDocuments: MerchantLegalDocument[];
     nmiMerchantApiKey: string;
   };
 }

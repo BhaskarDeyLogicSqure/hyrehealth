@@ -17,6 +17,7 @@ import ThemeLoader from "@/components/ThemeLoader";
 import useProductPurchaseSection from "@/hooks/useProductPurchaseSection";
 import { useNavigationState } from "@/hooks/useNavigationState";
 import { DIGITS_AFTER_DECIMALS } from "@/configs";
+
 const ProductPurchaseSection = ({
   product,
   selectedRelatedProducts,
@@ -30,12 +31,12 @@ const ProductPurchaseSection = ({
     selectedDosageId,
     subscriptionDuration,
     selectedDosageWithDuration,
-    handleDosageAndSubscriptionDurationChange,
     generateDosageOptions,
     generateSubscriptionDurationOptions,
     getTotalPrice,
-    handleProceedToCheckout,
     isCheckoutLoading,
+    handleProceedToCheckout,
+    handleDosageAndSubscriptionDurationChange,
   } = useProductPurchaseSection({
     product,
     selectedRelatedProducts,
@@ -45,22 +46,10 @@ const ProductPurchaseSection = ({
 
   const isLoading = isCheckoutLoading || isNavigatingTo("/checkout");
 
-  console.log({ isLoading, isCheckoutLoading });
-
   return (
     <div>
       <Card className="sticky top-24">
         <CardContent className="p-8">
-          {/* Consultation Status - only show if no valid consultation */}
-
-          {/* Price Header */}
-          {/* <div className="text-center mb-6">
-            <div className="text-3xl font-bold theme-text-primary">
-              ${product?.pricing?.basePrice}
-            </div>
-            <div className="theme-text-muted">per month</div>
-          </div> */}
-
           {/* Dosage Selection */}
           <div className="mb-6">
             <label className="block text-sm font-medium theme-text-primary mb-2">

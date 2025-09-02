@@ -31,7 +31,6 @@ export const categoryApi = {
     );
 
     cleanFilters["origin"] = origin;
-
     const response = await apiService.get<{
       data: {
         categories: Category[];
