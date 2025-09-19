@@ -78,7 +78,7 @@ const ProductsCard = ({
 
         <div className="flex justify-between items-center">
           <span className="text-2xl font-bold text-blue-600">
-            ${product?.pricing?.basePrice}/mo
+            ${product?.pricing?.lowestPrice}/mo
           </span>
           <Button
             onClick={() => _handleProductClick(product?._id)}
