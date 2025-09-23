@@ -1,7 +1,7 @@
 "use client";
 
 import { Testimonial } from "@/types/profile";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
@@ -19,46 +19,47 @@ const HomePageTestimonials = ({
   const totalPages = Math.ceil(testimonials?.length / testimonialsPerPage);
   const shouldShowCarousel = testimonials?.length > 3;
 
-  if (!testimonials) return null;
+  if (!testimonials || !testimonials?.length) return null;
 
-  const nextSlide = () => {
+  const _nextSlide = () => {
     if (isTransitioning) return;
-    setCurrentSlide((prev) => (prev + 1) % testimonials.length);
+    setCurrentSlide((prev) => (prev + 1) % testimonials?.length);
   };
 
-  const prevSlide = () => {
+  const _prevSlide = () => {
     if (isTransitioning) return;
     setCurrentSlide(
-      (prev) => (prev - 1 + testimonials.length) % testimonials.length
+      (prev) => (prev - 1 + testimonials?.length) % testimonials?.length
     );
   };
 
-  const goToSlide = (slideIndex: number) => {
-    if (isTransitioning) return;
-    setCurrentSlide(slideIndex);
-  };
-
-  const goToPage = (pageIndex: number) => {
+  const _goToPage = (pageIndex: number) => {
     if (isTransitioning) return;
     // Calculate the starting slide for this page
     const startSlide = Math.floor(
-      (pageIndex * testimonials.length) / totalPages
+      (pageIndex * testimonials?.length) / totalPages
     );
     setCurrentSlide(startSlide);
   };
 
-  const getCurrentPage = () => {
+  const _getCurrentPage = () => {
     // Calculate which page we're currently on
-    return Math.floor((currentSlide * totalPages) / testimonials.length);
+    return Math.floor((currentSlide * totalPages) / testimonials?.length);
   };
 
-  const getTransformValue = () => {
+  const _getTransformValue = () => {
     if (!shouldShowCarousel) return "translateX(0)";
 
     const cardWidth = 100 / 3; // Each card takes 33.33% width when showing 3 cards
     const translateX = -currentSlide * cardWidth;
     return `translateX(${translateX}%)`;
   };
+
+  const _getTestimonialsWithReviewText = useMemo(() => {
+    return testimonials?.filter(
+      (testimonial: Testimonial) => testimonial?.reviewText
+    );
+  }, [testimonials]);
 
   // Handle smooth infinite loop
   useEffect(() => {
@@ -159,21 +160,23 @@ const HomePageTestimonials = ({
               <div
                 ref={containerRef}
                 className="flex transition-transform duration-500 ease-in-out"
-                style={{ transform: getTransformValue() }}
+                style={{ transform: _getTransformValue() }}
               >
-                {testimonials.map((testimonial: Testimonial, index: number) => (
-                  <div
-                    key={`slide-${index}`}
-                    className="w-1/3 flex-shrink-0 px-3"
-                  >
-                    <div className="transform hover:scale-105 transition-transform duration-300">
-                      <TestimonialCard
-                        testimonial={testimonial}
-                        index={index}
-                      />
+                {_getTestimonialsWithReviewText?.map(
+                  (testimonial: Testimonial, index: number) => (
+                    <div
+                      key={`slide-${index}`}
+                      className="w-1/3 flex-shrink-0 px-3"
+                    >
+                      <div className="transform hover:scale-105 transition-transform duration-300">
+                        <TestimonialCard
+                          testimonial={testimonial}
+                          index={index}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             </div>
 
@@ -182,7 +185,7 @@ const HomePageTestimonials = ({
               variant="outline"
               size="icon"
               className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-6 bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 shadow-xl hover:shadow-2xl transition-all duration-300 w-12 h-12"
-              onClick={prevSlide}
+              onClick={_prevSlide}
             >
               <ChevronLeft className="h-5 w-5 text-blue-600" />
             </Button>
@@ -190,19 +193,19 @@ const HomePageTestimonials = ({
               variant="outline"
               size="icon"
               className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-6 bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 shadow-xl hover:shadow-2xl transition-all duration-300 w-12 h-12"
-              onClick={nextSlide}
+              onClick={_nextSlide}
             >
               <ChevronRight className="h-5 w-5 text-blue-600" />
             </Button>
 
             {/* Page Indicators */}
             <div className="flex justify-center mt-12 space-x-3">
-              {Array.from({ length: totalPages }).map((_, index) => (
+              {Array.from({ length: totalPages })?.map((_, index) => (
                 <button
                   key={index}
-                  onClick={() => goToPage(index)}
+                  onClick={() => _goToPage(index)}
                   className={`transition-all duration-300 rounded-full ${
-                    index === getCurrentPage()
+                    index === _getCurrentPage()
                       ? "w-8 h-3 bg-blue-600 shadow-lg"
                       : "w-3 h-3 bg-gray-300 hover:bg-gray-400 hover:scale-110"
                   }`}
@@ -213,14 +216,16 @@ const HomePageTestimonials = ({
         ) : (
           // Regular grid for 3 or fewer testimonials
           <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {testimonials?.map((testimonial: Testimonial, index: number) => (
-              <div
-                key={index}
-                className="transform hover:scale-105 transition-transform duration-300"
-              >
-                <TestimonialCard testimonial={testimonial} index={index} />
-              </div>
-            ))}
+            {_getTestimonialsWithReviewText?.map(
+              (testimonial: Testimonial, index: number) => (
+                <div
+                  key={index}
+                  className="transform hover:scale-105 transition-transform duration-300"
+                >
+                  <TestimonialCard testimonial={testimonial} index={index} />
+                </div>
+              )
+            )}
           </div>
         )}
       </div>

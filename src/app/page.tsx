@@ -16,7 +16,7 @@ const DefaultHomePage = dynamic(() => import("@/themes/default/Home"), {
 });
 
 //  --------- Modern Theme ---------
-const ModernHomePage = dynamic(() => import("@/themes/modern/Home"), {
+const ModernHomePage = dynamic(() => import("@/themes/modern/home"), {
   loading: () => (
     <div className="min-h-screen flex items-center justify-center theme-bg">
       <ThemeLoader type="general" message="Loading homepage..." size="lg" />

@@ -886,7 +886,7 @@ QuestionCardProps) => {
       <div className="space-y-6">
         <div>
           <div className="flex justify-between items-start mb-2">
-            <h1 className="text-2xl font-bold theme-text-primary">
+            <h1 className="text-2xl font-bold theme-text-primary flex-1">
               {stepInfo?.title}
             </h1>
             {stepInfo?.showProgress && (
@@ -911,7 +911,7 @@ QuestionCardProps) => {
 
   return (
     <Card className="mb-8">
-      <CardContent className="p-8">{_renderStep()}</CardContent>
+      <CardContent className="p-2 lg:p-6 xl:p-8">{_renderStep()}</CardContent>
     </Card>
   );
 };
