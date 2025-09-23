@@ -60,9 +60,9 @@ const AccountCreationCard = ({
               }
             >
               {showHidePassword?.password ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
                 <Eye className="h-4 w-4" />
+              ) : (
+                <EyeOff className="h-4 w-4" />
               )}
             </button>
           </div>
@@ -104,9 +104,9 @@ const AccountCreationCard = ({
               tabIndex={-1}
             >
               {showHidePassword?.confirmPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
                 <Eye className="h-4 w-4" />
+              ) : (
+                <EyeOff className="h-4 w-4" />
               )}
             </button>
           </div>
