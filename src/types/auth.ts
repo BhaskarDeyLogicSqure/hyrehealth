@@ -39,5 +39,9 @@ export interface MerchantNMIpaymentTokenResponse {
   data: {
     merchantOwnLegalDocuments: MerchantLegalDocument[];
     nmiMerchantApiKey: string;
+    merchantAddress: string;
+    merchantWebsiteName: string;
+    merchantEmail: string;
+    merchantName: string;
   };
 }
