@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
 import { MerchantLegalDocument } from "@/types/auth";
@@ -48,8 +48,20 @@ const LegalDocumentViewer: React.FC<LegalDocumentViewerProps> = ({
     );
   }
 
+  const _updatedDocumentText = useMemo(() => {
+    if (document?.documentDetailsHtmlText) {
+      let updatedText = document?.documentDetailsHtmlText;
+      updatedText = updatedText
+        ?.replace(/{{name}}/g, merchantData?.merchantName || "")
+        ?.replace(/{{address}}/g, merchantData?.merchantAddress || "")
+        ?.replace(/{{websiteName}}/g, merchantData?.merchantWebsiteName || "")
+        ?.replace(/{{email}}/g, merchantData?.merchantEmail || "");
+      return updatedText;
+    }
+  }, [document?.documentDetailsHtmlText, merchantData]);
+
   // Check if document has HTML content
-  if (document?.documentDetailsHtmlText) {
+  if (_updatedDocumentText) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl min-h-[80vh]">
         <div className="mb-8">
@@ -61,7 +73,7 @@ const LegalDocumentViewer: React.FC<LegalDocumentViewerProps> = ({
         <div
           className="legal-document-content max-w-none"
           dangerouslySetInnerHTML={{
-            __html: document?.documentDetailsHtmlText || "",
+            __html: _updatedDocumentText || "",
           }}
         />
       </div>
