@@ -29,10 +29,10 @@ const useChekoutApi = () => {
     onSuccess: (data) => {
       return data;
     },
-    onError: (error) => {
-      console.log({ error });
-      showErrorToast(error?.message);
-    },
+    // onError: (error) => {
+    //   console.log({ error });
+    //   showErrorToast(error?.message);
+    // },
   });
 
   // order checkout - for login users
