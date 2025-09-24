@@ -5,6 +5,7 @@ import { isValidEmail, isValidPhone, isValidPassword } from "@/lib/utils";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
 import { formatDate } from "@/lib/dayjs";
 import { isUserAuthenticated } from "@/utils/auth";
+import { REGEX_CONFIG } from "@/configs/regexConfig";
 const initialFormFields = {
   firstName: "",
   lastName: "",
@@ -213,7 +214,7 @@ const useCheckoutDetails = () => {
                   isFormValid = false;
                 } else if (
                   key === "zipCode" &&
-                  newFormFields?.[key]?.trim()?.length !== 5
+                  !REGEX_CONFIG?.USZipCode?.test(newFormFields?.[key])
                 ) {
                   newErrors[key] = "*Invalid zip code";
                   isFormValid = false;
