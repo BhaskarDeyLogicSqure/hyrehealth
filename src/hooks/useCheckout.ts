@@ -12,6 +12,9 @@ import {
   CheckoutState,
   ProductEligibility,
   setProductEligibility,
+  updateFormData,
+  setOnCheckoutPage,
+  clearFormData,
 } from "@/store/slices/checkoutSlice";
 
 // Import the action payload types from the slice
@@ -41,5 +44,12 @@ export const useCheckout = () => {
     clearCheckout: () => dispatch(clearCheckout()),
     setProductEligibility: (eligibilityData: ProductEligibility) =>
       dispatch(setProductEligibility(eligibilityData)),
+
+    // Form data actions
+    updateFormData: (formData: Partial<CheckoutState["formData"]>) =>
+      dispatch(updateFormData(formData)),
+    setOnCheckoutPage: (isOnPage: boolean) =>
+      dispatch(setOnCheckoutPage(isOnPage)),
+    clearFormData: () => dispatch(clearFormData()),
   };
 };

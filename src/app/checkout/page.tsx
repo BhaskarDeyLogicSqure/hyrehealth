@@ -15,10 +15,11 @@ import { useCheckout } from "@/hooks/useCheckout";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
 import useNMIPayments from "@/hooks/useNMIPayments";
+import useCheckoutPersistence from "@/hooks/useCheckoutPersistence";
 
 const CheckoutPage = () => {
   const router = useRouter();
-  const { clearCheckout } = useCheckout();
+  // const { clearCheckout } = useCheckout();
   const { eligibleProducts } = useCheckoutQuestionnaire();
   const {
     isLoggedIn,
@@ -28,6 +29,9 @@ const CheckoutPage = () => {
     handleGetPayload,
     setErrors,
   } = useCheckoutDetails();
+
+  // Handle checkout data persistence
+  useCheckoutPersistence();
 
   useEffect(() => {
     // Check if we have valid checkout data, if not redirect to products page
@@ -60,11 +64,11 @@ const CheckoutPage = () => {
     return () => {
       window.removeEventListener("popstate", handlePopState);
 
-      // Clear checkout data when component unmounts (navigating away)
-      const isLeavingCheckout = !window.location.pathname.includes("/checkout");
-      if (isLeavingCheckout) {
-        clearCheckout();
-      }
+      // // Clear checkout data when component unmounts (navigating away)
+      // const isLeavingCheckout = !window.location.pathname.includes("/checkout");
+      // if (isLeavingCheckout) {
+      //   clearCheckout();
+      // }
     };
   }, []);
 

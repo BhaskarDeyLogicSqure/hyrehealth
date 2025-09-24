@@ -54,6 +54,32 @@ interface QuestionnaireData {
   totalQuestions: number;
 }
 
+// Define interface for checkout form data
+interface CheckoutFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dob: string;
+  streetAddress: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  cardNumber: string;
+  expiryDate: string;
+  cvv: string;
+  cardholderName: string;
+  password: string;
+  confirmPassword: string;
+  acceptTerms: boolean;
+  paymentToken: string;
+  paymentMethod: string;
+  cardType: string;
+  cardLast4: string;
+}
+
 // Define the checkout state interface
 export interface CheckoutState {
   // Product data
@@ -74,6 +100,10 @@ export interface CheckoutState {
   // Checkout flow state
   currentStep: "questionnaire" | "review" | "payment" | "confirmation";
   isFromQuestionnaire: boolean;
+
+  // Form data
+  formData: CheckoutFormData;
+  isOnCheckoutPage: boolean;
 }
 
 // Initial questionnaire state
@@ -87,6 +117,32 @@ const initialQuestionnaireState: QuestionnaireData = {
   totalQuestions: 0,
 };
 
+// Initial form data state
+const initialFormData: CheckoutFormData = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  dob: "",
+  streetAddress: "",
+  addressLine2: "",
+  city: "",
+  state: "",
+  zipCode: "",
+  country: "US",
+  cardNumber: "",
+  expiryDate: "",
+  cvv: "",
+  cardholderName: "",
+  password: "",
+  confirmPassword: "",
+  acceptTerms: false,
+  paymentToken: "",
+  paymentMethod: "",
+  cardType: "",
+  cardLast4: "",
+};
+
 // Initial state
 const initialState: CheckoutState = {
   mainProduct: null,
@@ -98,6 +154,8 @@ const initialState: CheckoutState = {
   error: null,
   currentStep: "questionnaire",
   isFromQuestionnaire: false,
+  formData: initialFormData,
+  isOnCheckoutPage: false,
 };
 
 // Helper function to get eligible product IDs from productEligibilities
@@ -105,8 +163,8 @@ const getEligibleProductIds = (
   productEligibilities: ProductEligibility[]
 ): string[] => {
   return productEligibilities
-    .filter((p) => p.isEligible === true)
-    .map((p) => p.productId);
+    ?.filter((p) => p?.isEligible === true)
+    ?.map((p) => p?.productId);
 };
 
 // Create the checkout slice
@@ -293,6 +351,24 @@ const checkoutSlice = createSlice({
       state.isFromQuestionnaire = false;
     },
 
+    // Update form data
+    updateFormData: (
+      state,
+      action: PayloadAction<Partial<CheckoutFormData>>
+    ) => {
+      state.formData = { ...state.formData, ...action.payload };
+    },
+
+    // Set checkout page status
+    setOnCheckoutPage: (state, action: PayloadAction<boolean>) => {
+      state.isOnCheckoutPage = action.payload;
+    },
+
+    // Clear form data only
+    clearFormData: (state) => {
+      state.formData = { ...initialFormData };
+    },
+
     // Clear all checkout data
     clearCheckout: (state) => {
       state.mainProduct = null;
@@ -307,6 +383,8 @@ const checkoutSlice = createSlice({
       state.error = null;
       state.currentStep = "questionnaire";
       state.isFromQuestionnaire = false;
+      state.formData = { ...initialFormData };
+      state.isOnCheckoutPage = false;
     },
   },
 });
@@ -329,6 +407,9 @@ export const {
   setError,
   clearError,
   clearQuestionnaireData,
+  updateFormData,
+  setOnCheckoutPage,
+  clearFormData,
   clearCheckout,
 } = checkoutSlice.actions;
 
@@ -340,6 +421,7 @@ export type {
   MainProduct,
   RelatedProduct,
   SelectedOption,
+  CheckoutFormData,
 };
 
 // Export reducer
