@@ -19,6 +19,7 @@ export type RegexConfigType = {
   alphanumericMultiWord: RegExp;
   ifscValidation: RegExp;
   noSpecialChar: RegExp;
+  USZipCode: RegExp;
 };
 
 export const REGEX_CONFIG: RegexConfigType = {
@@ -45,4 +46,5 @@ export const REGEX_CONFIG: RegexConfigType = {
   alphanumericMultiWord: /^[0-9a-zA-Z-.&,'/ ]{0,}$/,
   ifscValidation: /^[A-Z]{4}0[A-Z0-9]{6}$/,
   noSpecialChar: /^[A-Za-z0-9 ]{11,17}$/,
+  USZipCode: /^(?!0{5})[0-9]{5}$/,
 };
