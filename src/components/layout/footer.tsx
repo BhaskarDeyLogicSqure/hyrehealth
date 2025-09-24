@@ -3,13 +3,19 @@
 import useMerchantDetails from "@/api/auth/useMerchantDetails";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { setMerchantData } from "@/store/slices/merchantSlice";
 import { getCurrentYear } from "@/lib/utils";
+import Image from "next/image";
+import type { RootState } from "@/store";
+import { APP_NAME } from "@/configs";
 
 export function Footer() {
   const dispatch = useDispatch();
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
 
   // Call the hook at the component level, not inside a function
   const { merchantData: fetchedMerchantData, merchantDataError } =
@@ -39,21 +45,40 @@ export function Footer() {
         <div className="grid md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <div className="flex items-center mb-4">
-              <div className="w-8 h-8 footer-logo-bg rounded-lg flex items-center justify-center mr-2">
-                <span className="text-white font-bold">H</span>
+            <div className="flex flex-col gap-2 mb-4">
+              <div className="flex items-center gap-3">
+                {merchantData?.customizeBranding?.businessLogo?.url ? (
+                  <div className="rounded-md border bg-muted flex items-center justify-center w-10 h-10">
+                    <Image
+                      src={merchantData?.customizeBranding?.businessLogo?.url}
+                      alt={
+                        merchantData?.customizeBranding?.platformDisplayName ||
+                        "Logo"
+                      }
+                      width={40}
+                      height={40}
+                      className="object-contain w-8 h-8"
+                    />
+                  </div>
+                ) : (
+                  <div className="rounded-md border bg-primary flex items-center justify-center w-10 h-10">
+                    <span className="text-white font-bold text-lg">
+                      {merchantData?.customizeBranding
+                        ?.platformDisplayName?.[0] || "H"}
+                    </span>
+                  </div>
+                )}
+                <span className="text-xl font-semibold tracking-tight">
+                  {merchantData?.customizeBranding?.platformDisplayName ||
+                    APP_NAME}
+                </span>
               </div>
-              <span className="text-lg font-bold footer-text">
-                HealthPortal
-              </span>
+              <p className="text-muted-foreground text-sm">
+                {merchantData?.customizeBranding?.platformTagline ||
+                  "Personalized telehealth treatments delivered to your door."}
+              </p>
             </div>
-            <p className="footer-text-muted text-sm">
-              Personalized telehealth treatments delivered to your door.
-            </p>
           </div>
-
-          {/* empty div for spacing and alignment */}
-          <div />
 
           {/* Support */}
           <div>
@@ -107,13 +132,82 @@ export function Footer() {
               </li>
             </ul>
           </div>
+
+          <div>
+            {/* Social Media Links */}
+            {merchantData?.customizeBranding?.socialMediaLinks &&
+              merchantData?.customizeBranding?.socialMediaLinks.length > 0 && (
+                <>
+                  <h4 className="font-semibold mb-3 footer-text text-sm">
+                    Follow Us
+                  </h4>
+                  <div className="flex space-x-3">
+                    {merchantData?.customizeBranding?.socialMediaLinks?.map(
+                      (socialLink) => {
+                        // Map platform to icon and color
+                        let IconComponent;
+                        let iconColor = "";
+                        switch (socialLink?.platform?.toLowerCase()) {
+                          case "facebook":
+                            IconComponent = require("lucide-react").Facebook;
+                            iconColor = "#1877F3";
+                            break;
+                          case "twitter":
+                            IconComponent = require("lucide-react").Twitter;
+                            iconColor = "#1DA1F2";
+                            break;
+                          case "instagram":
+                            IconComponent = require("lucide-react").Instagram;
+                            iconColor =
+                              "radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)";
+                            break;
+                          case "linkedin":
+                            IconComponent = require("lucide-react").Linkedin;
+                            iconColor = "#0077B5";
+                            break;
+                          case "youtube":
+                            IconComponent = require("lucide-react").Youtube;
+                            iconColor = "#FF0000";
+                            break;
+                          case "tiktok":
+                            IconComponent = require("lucide-react").Tiktok;
+                            iconColor = "#010101";
+                            break;
+                          default:
+                            IconComponent = require("lucide-react").Globe;
+                            iconColor = "#6B7280"; // neutral gray
+                        }
+
+                        return (
+                          <Link
+                            key={socialLink?.id}
+                            href={socialLink?.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="footer-link transition-colors text-muted-foreground hover:text-primary"
+                            title={`Follow us on ${socialLink?.platform}`}
+                          >
+                            <IconComponent
+                              className="h-5 w-5"
+                              aria-label={socialLink?.platform}
+                              // style={iconStyle}
+                            />
+                          </Link>
+                        );
+                      }
+                    )}
+                  </div>
+                </>
+              )}
+          </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="border-t footer-border mt-8 pt-8 text-center">
           <p className="footer-text-muted text-sm">
             &copy; <span suppressHydrationWarning>{getCurrentYear()}</span>{" "}
-            HealthPortal. All rights reserved. | Licensed Medical Professionals
+            {merchantData?.customizeBranding?.platformDisplayName || APP_NAME}.
+            All rights reserved. | Licensed Medical Professionals
           </p>
         </div>
       </div>

@@ -6,6 +6,7 @@ import {
   showErrorToast,
 } from "@/components/GlobalErrorHandler";
 import useChekoutApi from "@/api/checkout/useChekoutApi";
+import { useCheckout } from "@/hooks/useCheckout";
 
 interface ProductConfiguration {
   productId: string;
@@ -30,6 +31,15 @@ const useOrderCheckout = ({
 }) => {
   const { validateCoupon, isValidateCouponLoading, isValidateCouponError } =
     useChekoutApi();
+
+  // Redux actions for order summary
+  const {
+    calculateTotal,
+    setMainProduct,
+    setRelatedProducts,
+    mainProduct,
+    relatedProducts,
+  } = useCheckout();
 
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
@@ -229,6 +239,11 @@ const useOrderCheckout = ({
     return discount || 0;
   }, [_getTotalPrice, _getDiscountedTotalPrice]);
 
+  // Sync total amount with Redux store when pricing changes
+  useEffect(() => {
+    calculateTotal();
+  }, [_getTotalPrice, _getDiscountedTotalPrice, calculateTotal]);
+
   // handles the change of dosage and subscription duration
   const _handleDosageAndSubscriptionDurationChange = (
     productId: string,
@@ -272,6 +287,59 @@ const useOrderCheckout = ({
     );
 
     setProductConfigurations(updatedProductConfigurations);
+
+    // Update Redux store with the new product configurations
+    // Update main product if it's the main product being changed
+    if (productId === product?._id && mainProduct) {
+      const updatedMainProduct = { ...mainProduct };
+      const updatedConfig = updatedProductConfigurations.find(
+        (config) => config.productId === productId
+      );
+
+      if (updatedConfig) {
+        const selectedOption = _getSelectedDosageWithDuration(productId);
+        if (selectedOption) {
+          updatedMainProduct.selectedOption = {
+            dosageId: updatedConfig.dosageId,
+            dosageStrength: updatedConfig.strength,
+            duration: parseInt(updatedConfig.subscriptionDuration),
+            price: selectedOption.price,
+          };
+          setMainProduct(updatedMainProduct);
+        }
+      }
+    }
+
+    // Update related products if it's a related product being changed
+    if (productId !== product?._id && relatedProducts.length > 0) {
+      const updatedRelatedProducts = relatedProducts.map((relatedProduct) => {
+        if (relatedProduct.productId === productId) {
+          const updatedConfig = updatedProductConfigurations.find(
+            (config) => config.productId === productId
+          );
+
+          if (updatedConfig) {
+            const selectedOption = _getSelectedDosageWithDuration(productId);
+            if (selectedOption) {
+              return {
+                ...relatedProduct,
+                selectedOption: {
+                  dosageId: updatedConfig.dosageId,
+                  dosageStrength: updatedConfig.strength,
+                  duration: parseInt(updatedConfig.subscriptionDuration),
+                  price: selectedOption.price,
+                },
+              };
+            }
+          }
+        }
+        return relatedProduct;
+      });
+      setRelatedProducts(updatedRelatedProducts);
+    }
+
+    // This will trigger a recalculation of totals
+    calculateTotal();
   };
 
   // removes a product from the product configurations
@@ -287,6 +355,18 @@ const useOrderCheckout = ({
     }
 
     setProductConfigurations(remainingProducts);
+
+    // Update Redux store with the new product configurations
+    // Remove the product from related products if it's a related product
+    if (productId !== product?._id && relatedProducts.length > 0) {
+      const updatedRelatedProducts = relatedProducts.filter(
+        (relatedProduct) => relatedProduct.productId !== productId
+      );
+      setRelatedProducts(updatedRelatedProducts);
+    }
+
+    // This will trigger a recalculation of totals
+    calculateTotal();
   };
 
   // make api call to validate the coupon code, and if the coupon is valid, set the applied coupon
@@ -320,6 +400,10 @@ const useOrderCheckout = ({
             type: couponType || "",
           });
           setCouponCode("");
+
+          // Update Redux store with new totals after coupon application
+          calculateTotal();
+
           showSuccessToast(`Coupon code "${coupon}" applied successfully!`);
         } else {
           // coupon is not valid, show error toast
@@ -346,6 +430,10 @@ const useOrderCheckout = ({
         discount: 0,
         type: "",
       });
+
+      // Update Redux store with new totals after coupon removal
+      calculateTotal();
+
       showSuccessToast(`Coupon code "${removedCoupon}" has been removed`);
     }
   };

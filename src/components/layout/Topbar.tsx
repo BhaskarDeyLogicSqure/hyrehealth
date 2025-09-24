@@ -20,6 +20,8 @@ import { useCookies } from "@/hooks/useCookies";
 import { isUserAuthenticated } from "@/utils/auth";
 import Swal from "sweetalert2";
 import NavigationLoader from "./NavigationLoader";
+import Image from "next/image";
+import { APP_NAME } from "@/configs";
 
 const Topbar = () => {
   const pathname = usePathname();
@@ -29,6 +31,9 @@ const Topbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { user } = useSelector((state: RootState) => state?.authReducer);
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
 
   // Navigation items for the main menu
   const navigationItems = useMemo(
@@ -86,13 +91,39 @@ const Topbar = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo and Brand */}
             <div className="flex items-center space-x-2">
-              <Link href="/" className="flex items-center space-x-3">
-                <div className="w-10 h-10 navbar-logo-bg rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">H</span>
+              <Link href="/" className="flex items-center space-x-3 group">
+                {merchantData?.customizeBranding?.businessLogo?.url ? (
+                  <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center border bg-muted">
+                    <Image
+                      src={merchantData?.customizeBranding?.businessLogo?.url}
+                      alt={
+                        merchantData?.customizeBranding?.platformDisplayName ||
+                        "Logo"
+                      }
+                      width={40}
+                      height={40}
+                      className="object-contain w-full h-full"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 navbar-logo-bg rounded-lg flex items-center justify-center border bg-primary">
+                    <span className="text-white font-bold text-xl">
+                      {merchantData?.customizeBranding
+                        ?.platformDisplayName?.[0] || "H"}
+                    </span>
+                  </div>
+                )}
+                <div className="flex flex-col">
+                  <span className="text-xl font-bold navbar-logo-text leading-tight">
+                    {merchantData?.customizeBranding?.platformDisplayName ||
+                      APP_NAME}
+                  </span>
+                  {merchantData?.customizeBranding?.platformTagline && (
+                    <span className="text-xs text-muted-foreground font-normal leading-tight">
+                      {merchantData?.customizeBranding?.platformTagline}
+                    </span>
+                  )}
                 </div>
-                <span className="text-xl font-bold navbar-logo-text">
-                  HealthPortal
-                </span>
               </Link>
             </div>
 

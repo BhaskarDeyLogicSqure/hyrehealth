@@ -3,8 +3,14 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useNavigationState } from "@/hooks/useNavigationState";
 import ThemeLoader from "@/components/ThemeLoader";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const HomePageHeroSection = () => {
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
+
   const { navigateWithLoading, isNavigatingTo } = useNavigationState();
 
   const _handleExploreClick = () => {
@@ -14,7 +20,16 @@ const HomePageHeroSection = () => {
   const isLoading = isNavigatingTo("/categories");
 
   return (
-    <section className="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-16">
+    <section
+      className="py-16 text-white"
+      style={{
+        background:
+          merchantData?.customizeBranding?.brandColor &&
+          merchantData?.customizeBranding?.accentColor
+            ? `linear-gradient(90deg, ${merchantData.customizeBranding.brandColor} 0%, ${merchantData.customizeBranding.accentColor} 100%)`
+            : undefined,
+      }}
+    >
       <div className="container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
           Your Health Journey Starts Here

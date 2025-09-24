@@ -6,6 +6,7 @@ import { showErrorToast } from "@/components/GlobalErrorHandler";
 import { formatDate } from "@/lib/dayjs";
 import { isUserAuthenticated } from "@/utils/auth";
 import { REGEX_CONFIG } from "@/configs/regexConfig";
+import { useCheckout } from "@/hooks/useCheckout";
 const initialFormFields = {
   firstName: "",
   lastName: "",
@@ -58,24 +59,26 @@ const initialIsDirty = {
 
 const useCheckoutDetails = () => {
   const isLoggedIn = isUserAuthenticated();
+  const { formData, updateFormData } = useCheckout();
 
-  const [formFields, setFormFields] =
-    useState<Record<string, any>>(initialFormFields);
   const [isDirty, setIsDirty] =
     useState<Record<string, boolean>>(initialIsDirty);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
 
-  const _handleOnChange = (field: string, value: string | boolean) => {
-    const newFormFields = { ...formFields };
-    const newIsDirty = { ...isDirty };
+  // Use Redux form data as the source of truth
+  const formFields = formData;
 
-    newFormFields[field] = value;
+  const _handleOnChange = (field: string, value: string | boolean) => {
+    const newIsDirty = { ...isDirty };
     newIsDirty[field] = true;
 
-    setFormFields(newFormFields);
+    // Update Redux store with the new form data
+    updateFormData({ [field]: value });
     setIsDirty(newIsDirty);
 
-    _validateForm({ newFormFields, newIsDirty });
+    // Validate with updated form data
+    const updatedFormFields = { ...formFields, [field]: value };
+    _validateForm({ newFormFields: updatedFormFields, newIsDirty });
   };
 
   const _validateForm = ({
