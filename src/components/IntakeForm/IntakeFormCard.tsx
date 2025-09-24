@@ -233,6 +233,9 @@ const IntakeFormCard = ({
           <div>
             <Label className="theme-text-primary">
               {currentQuestion?.question?.questionText}
+              {currentQuestion?.isRequired && (
+                <span className="text-red-500 ml-1">*</span>
+              )}
             </Label>
             <Select value={currentValue || ""} onValueChange={updateResponse}>
               <SelectTrigger className="mt-2">
@@ -260,6 +263,9 @@ const IntakeFormCard = ({
           <div>
             <Label className="theme-text-primary">
               {currentQuestion?.question?.questionText}
+              {currentQuestion?.isRequired && (
+                <span className="text-red-500 ml-1">*</span>
+              )}
             </Label>
             <div className="mt-2 space-y-2">
               {currentQuestion?.question?.options?.map((option) => {
