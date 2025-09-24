@@ -7,8 +7,12 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, Video, Clock, Truck, Mail, Box } from "lucide-react";
 import { SUPPORT_EMAIL } from "@/configs";
 import { useOrderConfirmation } from "@/api/postCheckout/useOrderConfirmation";
-import { showErrorToast } from "@/components/GlobalErrorHandler";
+import {
+  showErrorToast,
+  showSuccessToast,
+} from "@/components/GlobalErrorHandler";
 import ThemeLoader from "@/components/ThemeLoader";
+import useMeetingDetails from "@/api/postCheckout/useMeetingDetails";
 
 const ThankYouPage = () => {
   const router = useRouter();
@@ -26,8 +30,36 @@ const ThankYouPage = () => {
     orderConfirmationError,
   } = useOrderConfirmation(orderId);
 
+  const { meetingDetails, isMeetingDetailsError, meetingDetailsError } =
+    useMeetingDetails(orderId || "");
+
   const orderStatus = "Awaiting Consultation"; // Default status since it's not in the API response
   const products = orderConfirmation?.products || [];
+
+  const _handleJoinConsultation = async () => {
+    try {
+      // setIsLoading(true);
+      showSuccessToast("Connecting to Provider...");
+
+      // simulate delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      if (isMeetingDetailsError) {
+        showErrorToast(meetingDetailsError?.message || "Connection Error");
+        return;
+      }
+
+      const meetingId = meetingDetails?.meetingUuid;
+
+      showSuccessToast("Consultation Ready");
+      router.push(`/meeting-room?meetingId=${meetingId}`);
+    } catch (error) {
+      console.error("Error joining consultation:", error);
+      showErrorToast("Connection Error");
+    } finally {
+      // setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Show error toast if there's an error
@@ -139,19 +171,22 @@ const ThankYouPage = () => {
             <div className="pt-6 text-center">
               <Button
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
-                onClick={() => {
-                  setTransition(() => {
-                    router.push(`/intake-form?orderId=${orderId}`);
-                  });
-                }}
+                onClick={
+                  () => setTransition(() => _handleJoinConsultation())
+                  //   {
+                  //   setTransition(() => {
+                  //     // router.push(`/intake-form?orderId=${orderId}`); // skip intake form in current flow (not needed for now)
+                  //   });
+                  // }
+                }
                 disabled={isLoading}
               >
                 <Video className="h-5 w-5 mr-2" />
                 Start Consultation {isLoading ? "..." : ""}
               </Button>
-              <p className="text-sm text-gray-500 mt-2">
+              {/* <p className="text-sm text-gray-500 mt-2">
                 Complete your intake form first
-              </p>
+              </p> */}
             </div>
           </CardContent>
         </Card>

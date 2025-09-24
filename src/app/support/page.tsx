@@ -17,7 +17,7 @@ const SupportPage = () => {
         </div>
 
         {/* Contact Methods */}
-        <SupportMethodsCard />
+        {/* <SupportMethodsCard /> */}
 
         {/* Support Tabs - FAQ & Contact Us Form */}
         <SupportTabs />
