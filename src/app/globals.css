@@ -35,6 +35,11 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+
+    /* Font family variables */
+    --font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-family-base: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   }
 
   .dark {

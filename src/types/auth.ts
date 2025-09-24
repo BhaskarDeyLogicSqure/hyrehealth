@@ -34,6 +34,28 @@ export interface MerchantLegalDocument {
   documentDetailsHtmlText?: string;
 }
 
+export interface BusinessLogo {
+  logoType: string;
+  url: string;
+}
+
+export interface SocialMediaLink {
+  _id: string;
+  platform: string;
+  url: string;
+  id: string;
+}
+
+export interface CustomizeBranding {
+  businessLogo: BusinessLogo;
+  brandColor: string;
+  accentColor: string;
+  fontFamily: string;
+  platformDisplayName: string;
+  platformTagline: string;
+  socialMediaLinks: SocialMediaLink[];
+}
+
 export interface MerchantNMIpaymentTokenResponse {
   error: boolean;
   data: {
@@ -43,5 +65,8 @@ export interface MerchantNMIpaymentTokenResponse {
     merchantWebsiteName: string;
     merchantEmail: string;
     merchantName: string;
+    // Branding fields
+    businessName: string;
+    customizeBranding: CustomizeBranding;
   };
 }

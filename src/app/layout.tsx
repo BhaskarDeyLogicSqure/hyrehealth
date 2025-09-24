@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/contexts/ThemeProvider";
 import { DEFAULT_THEME } from "@/lib/theme-utils";
 import Layout from "@/components/layout/Layout";
 import Topbar from "@/components/layout/Topbar";
+import DynamicMetadata from "@/components/DynamicMetadata";
 import { cookies } from "next/headers";
 import { Theme } from "@/types/theme";
 import { Suspense } from "react";
@@ -35,6 +36,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <ThemeProvider theme={theme}>
           <AppProviders>
+            <DynamicMetadata />
             <Topbar />
             <Layout>{children}</Layout>
             <ToasterWrapper />
