@@ -25,6 +25,7 @@ export interface IResetPasswordResponseData {
   handle?: string;
 }
 
+// merchant data types
 export interface MerchantLegalDocument {
   id: string;
   _id: string;
@@ -65,6 +66,7 @@ export interface MerchantNMIpaymentTokenResponse {
     merchantWebsiteName: string;
     merchantEmail: string;
     merchantName: string;
+    supportEmail: string;
     // Branding fields
     businessName: string;
     customizeBranding: CustomizeBranding;

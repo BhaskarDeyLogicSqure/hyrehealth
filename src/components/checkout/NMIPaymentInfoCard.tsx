@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Shield, AlertCircle, RefreshCw } from "lucide-react";
 import RenderFormError from "../RenderFormError";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const NMIPaymentInfoCard = ({
   formFields,
@@ -21,6 +23,9 @@ const NMIPaymentInfoCard = ({
   paymentError: string | null;
   handleOnChange: (field: string, value: string) => void;
 }) => {
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
   const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   useEffect(() => {
@@ -76,7 +81,14 @@ const NMIPaymentInfoCard = ({
                 Payment system is taking longer than expected to load.
               </p>
             </div>
-            <Button size="sm" variant="outline" onClick={handleRetry}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleRetry}
+              style={{
+                color: merchantData?.customizeBranding?.accentColor,
+              }}
+            >
               <RefreshCw className="h-4 w-4 mr-1" />
               Refresh
             </Button>
