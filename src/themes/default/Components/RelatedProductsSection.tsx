@@ -5,6 +5,8 @@ import Image from "next/image";
 import { DEFAULT_IMAGE_URL, DIGITS_AFTER_DECIMALS } from "@/configs";
 import { Product } from "@/types/products";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const RelatedProductsSection = ({
   product,
@@ -15,6 +17,9 @@ const RelatedProductsSection = ({
   selectedRelatedProducts: string[];
   handleRelatedProductToggle: (productId: string) => void;
 }) => {
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   const _handleImageError = (productId: string) => {
@@ -160,6 +165,9 @@ const RelatedProductsSection = ({
                       className={
                         isSelected ? "border-blue-500 text-blue-600" : ""
                       }
+                      style={{
+                        color: merchantData?.customizeBranding?.accentColor,
+                      }}
                     >
                       {isSelected ? (
                         <>

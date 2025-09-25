@@ -12,8 +12,14 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Send, Phone } from "lucide-react";
 import { showSuccessToast } from "@/components/GlobalErrorHandler";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const SupportContactUsForm = () => {
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
+
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
@@ -127,7 +133,13 @@ const SupportContactUsForm = () => {
               />
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              style={{
+                backgroundColor: merchantData?.customizeBranding?.accentColor,
+              }}
+            >
               <Send className="h-4 w-4 mr-2" />
               Send Message
             </Button>

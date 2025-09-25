@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Image from "next/image";
 
 const imageUrl =
@@ -11,7 +11,8 @@ import {
 } from "@/hooks/useNavigationState";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Image as ImageIcon, Star } from "lucide-react";
-import { DEFAULT_THEME_CATEGORIES_COLORS } from "@/configs";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const CategoriesCard = ({
   category,
@@ -23,6 +24,9 @@ const CategoriesCard = ({
   index: number;
 }) => {
   const { navigateWithState, isNavigatingTo } = useNavigationState();
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
   const [imageFailed, setImageFailed] = useState(false);
 
   const _handleCategoryClick = (categoryId: string) => {
@@ -37,14 +41,42 @@ const CategoriesCard = ({
     setImageFailed(true);
   };
 
-  const _getRandomCategoryColor = (index: number) => {
-    const colors = DEFAULT_THEME_CATEGORIES_COLORS;
-    return colors[index % colors?.length]; // Use modulo to cycle through colors
-  };
+  // Returns a light background color based on brandColor/accentColor for better contrast and visibility
+  const _getCardStylesAccordingToCategoryColor = useCallback(
+    (index: number) => {
+      // Helper to add opacity to hex color (returns rgba)
+      const hexToRgba = (hex: string, alpha: number) => {
+        let c = hex?.replace("#", "");
+        if (c?.length === 3)
+          c = c
+            ?.split("")
+            ?.map((x) => x + x)
+            ?.join("");
+        const num = parseInt(c, 16);
+        return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${
+          num & 255
+        }, ${alpha})`;
+      };
 
-  const categoryColor = useMemo(() => {
-    return _getRandomCategoryColor(index);
-  }, [category, index]);
+      const brandColor =
+        merchantData?.customizeBranding?.brandColor || "#2563eb"; // fallback blue-600
+      const accentColor =
+        merchantData?.customizeBranding?.accentColor || "#f59e42"; // fallback orange-400
+
+      if (index % 2 === 0) {
+        return {
+          borderColor: brandColor,
+          backgroundColor: hexToRgba(brandColor, 0.1), // 10% opacity for light bg
+        };
+      } else {
+        return {
+          borderColor: accentColor,
+          backgroundColor: hexToRgba(accentColor, 0.1), // 10% opacity for light bg
+        };
+      }
+    },
+    [index, merchantData]
+  );
 
   const categoryUrl = `/products?category=${category?._id}`;
   const isLoading = isNavigatingTo(categoryUrl);
@@ -113,9 +145,10 @@ const CategoriesCard = ({
       ) : (
         <Card
           key={category?._id || category?.id}
-          className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 relative ${categoryColor} hover:scale-105  ${
+          className={`cursor-pointer hover:shadow-lg transition-all duration-300 border-2 relative hover:scale-105  ${
             isLoading ? "opacity-75 pointer-events-none scale-100" : ""
           }`}
+          style={_getCardStylesAccordingToCategoryColor(index)}
           onClick={() => _handleCategoryClick(category?._id)}
         >
           <CardContent className="p-6">
@@ -185,7 +218,15 @@ const CategoriesCard = ({
             </p>
 
             <div className="mt-4 pt-4 border-t theme-border">
-              <span className="text-sm font-medium theme-text-primary flex items-center gap-2">
+              <span
+                className="text-sm font-medium theme-text-primary flex items-center gap-2"
+                style={{
+                  color: merchantData?.customizeBranding?.accentColor,
+                  // background:
+                  //   "linear-gradient(90deg, rgba(245,245,250,0.85) 0%, rgba(240,240,255,0.85) 100%)",
+                  // width: "fit-content",
+                }}
+              >
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />

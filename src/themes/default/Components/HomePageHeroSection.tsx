@@ -26,7 +26,7 @@ const HomePageHeroSection = () => {
         background:
           merchantData?.customizeBranding?.brandColor &&
           merchantData?.customizeBranding?.accentColor
-            ? `linear-gradient(90deg, ${merchantData.customizeBranding.brandColor} 0%, ${merchantData.customizeBranding.accentColor} 100%)`
+            ? `linear-gradient(90deg, ${merchantData?.customizeBranding?.brandColor} 0%, ${merchantData?.customizeBranding?.accentColor} 100%)`
             : undefined,
       }}
     >
@@ -42,6 +42,9 @@ const HomePageHeroSection = () => {
           className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4"
           onClick={_handleExploreClick}
           disabled={isLoading}
+          style={{
+            color: merchantData?.customizeBranding?.accentColor,
+          }}
         >
           {isLoading ? (
             <ThemeLoader

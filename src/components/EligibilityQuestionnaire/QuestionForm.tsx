@@ -7,6 +7,8 @@ import useQuestionnaire from "@/hooks/useQuestionnaire";
 import QuestionCard from "./QuestionCard";
 import ThemeLoader from "@/components/ThemeLoader";
 import UploadProgressPopup from "@/components/ui/UploadProgressPopup";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 interface QuestionFormProps {
   questions: any;
@@ -41,7 +43,9 @@ const QuestionForm = ({ questions, productId, origin }: QuestionFormProps) => {
     uploadComplete,
     closeUploadPopup,
   } = useQuestionnaire(questions, productId);
-
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
   console.log("current origin", origin);
 
   const _getStepTitle = () => {
@@ -190,7 +194,13 @@ const QuestionForm = ({ questions, productId, origin }: QuestionFormProps) => {
               <span>{_getStepTitle()}</span>
               <span>{Math.round(progress)}% Complete</span>
             </div>
-            <Progress value={progress} className="h-2" />
+            <Progress
+              value={progress}
+              className="h-2"
+              indicatorStyle={{
+                backgroundColor: merchantData?.customizeBranding?.brandColor,
+              }}
+            />
 
             {/* Additional progress info for multi-product flow */}
             {productSections?.length > 1 && (
@@ -218,6 +228,7 @@ const QuestionForm = ({ questions, productId, origin }: QuestionFormProps) => {
           restartProduct={restartProduct}
           restartGeneralQuestions={restartGeneralQuestions}
           isUploadingFile={isUploadingFile}
+          merchantData={merchantData}
         />
 
         {/* Navigation */}
@@ -266,6 +277,10 @@ const QuestionForm = ({ questions, productId, origin }: QuestionFormProps) => {
                   <Button
                     onClick={() => _handleNextBtn(currentStepInfo)}
                     disabled={isNavigatingToCheckout || isUploadingFile}
+                    style={{
+                      backgroundColor:
+                        merchantData?.customizeBranding?.accentColor,
+                    }}
                   >
                     {_getNextBtnText(currentStepInfo)}
                   </Button>

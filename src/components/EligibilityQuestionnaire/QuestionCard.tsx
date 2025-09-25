@@ -59,6 +59,7 @@ interface QuestionCardProps {
   restartGeneralQuestions?: () => void;
   isUploadingFile?: boolean;
   // handleContinueAfterIneligible?: () => void;
+  merchantData: any | null;
 }
 
 const QuestionCard = ({
@@ -80,6 +81,7 @@ const QuestionCard = ({
   restartProduct,
   restartGeneralQuestions,
   isUploadingFile = false,
+  merchantData,
 }: // handleContinueAfterIneligible,
 QuestionCardProps) => {
   const router = useRouter();
@@ -641,7 +643,13 @@ QuestionCardProps) => {
             >
               Restart General Questions
             </Button>
-            <Button onClick={() => router.push("/")} className="flex-1">
+            <Button
+              onClick={() => router.push("/")}
+              className="flex-1"
+              style={{
+                backgroundColor: merchantData?.customizeBranding?.accentColor,
+              }}
+            >
               Explore Other Treatment
             </Button>
           </div>
@@ -667,7 +675,13 @@ QuestionCardProps) => {
             <Button onClick={() => setCurrentStep(0)} variant="outline">
               Review Responses
             </Button>
-            <Button onClick={() => router.push("/")} className="w-full">
+            <Button
+              onClick={() => router.push("/")}
+              className="w-full"
+              style={{
+                backgroundColor: merchantData?.customizeBranding?.accentColor,
+              }}
+            >
               Explore Other Treatments
             </Button>
           </div>
@@ -710,7 +724,13 @@ QuestionCardProps) => {
             )}
           </div>
 
-          <Button onClick={handleNext} className="w-full">
+          <Button
+            onClick={handleNext}
+            className="w-full"
+            style={{
+              backgroundColor: merchantData?.customizeBranding?.accentColor,
+            }}
+          >
             Start Questionnaire
           </Button>
         </div>
@@ -734,9 +754,9 @@ QuestionCardProps) => {
               </p>
             )}
           </div>
-          <Button onClick={handleNext} className="w-full">
+          {/* <Button onClick={handleNext} className="w-full">
             Continue to Product Questions
-          </Button>
+          </Button> */}
         </div>
       );
     }
@@ -758,9 +778,9 @@ QuestionCardProps) => {
               </p>
             )}
           </div>
-          <Button onClick={handleNext} className="w-full">
+          {/* <Button onClick={handleNext} className="w-full">
             Start {stepInfo?.productName} Questions
-          </Button>
+          </Button> */}
         </div>
       );
     }
@@ -807,7 +827,14 @@ QuestionCardProps) => {
               )}
 
               {isLastProduct && (
-                <Button onClick={handleNext} className="w-full">
+                <Button
+                  onClick={handleNext}
+                  className="w-full"
+                  style={{
+                    backgroundColor:
+                      merchantData?.customizeBranding?.accentColor,
+                  }}
+                >
                   Complete & Review Results
                 </Button>
               )}

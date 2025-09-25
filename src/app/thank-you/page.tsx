@@ -13,12 +13,17 @@ import {
 } from "@/components/GlobalErrorHandler";
 import ThemeLoader from "@/components/ThemeLoader";
 import useMeetingDetails from "@/api/postCheckout/useMeetingDetails";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const ThankYouPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
-  console.log("1111", { orderId });
+
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
 
   const [isLoading, setTransition] = useTransition();
 
@@ -179,6 +184,9 @@ const ThankYouPage = () => {
                   //   });
                   // }
                 }
+                style={{
+                  backgroundColor: merchantData?.customizeBranding?.accentColor,
+                }}
                 disabled={isLoading}
               >
                 <Video className="h-5 w-5 mr-2" />
