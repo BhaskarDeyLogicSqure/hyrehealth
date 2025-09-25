@@ -17,6 +17,8 @@ import ThemeLoader from "@/components/ThemeLoader";
 import useProductPurchaseSection from "@/hooks/useProductPurchaseSection";
 import { useNavigationState } from "@/hooks/useNavigationState";
 import { DIGITS_AFTER_DECIMALS } from "@/configs";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const ProductPurchaseSection = ({
   product,
@@ -27,6 +29,9 @@ const ProductPurchaseSection = ({
   selectedRelatedProducts: string[];
   relatedProductsTotal: number;
 }) => {
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
   const {
     selectedDosageId,
     subscriptionDuration,
@@ -157,6 +162,9 @@ const ProductPurchaseSection = ({
             className="w-full text-lg py-6"
             onClick={handleProceedToCheckout}
             disabled={!selectedDosageId || !subscriptionDuration || isLoading}
+            style={{
+              backgroundColor: merchantData?.customizeBranding?.accentColor,
+            }}
           >
             {isLoading ? (
               <ThemeLoader
@@ -165,6 +173,9 @@ const ProductPurchaseSection = ({
                 size="sm"
                 message="Proceeding to checkout..."
                 className="gap-2"
+                inlineSimpleVariantStyles={{
+                  color: "white",
+                }}
               />
             ) : (
               "Proceed to Checkout"

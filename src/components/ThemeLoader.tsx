@@ -24,6 +24,7 @@ interface ThemeLoaderProps {
     | "skeleton"
     | "product-details-skeleton"
     | "full-page";
+  inlineSimpleVariantStyles?: React.CSSProperties;
 }
 
 const ThemeLoader: React.FC<ThemeLoaderProps> = ({
@@ -33,6 +34,7 @@ const ThemeLoader: React.FC<ThemeLoaderProps> = ({
   showIcon = true,
   size = "md",
   variant = "card",
+  inlineSimpleVariantStyles,
 }) => {
   // Default content based on type
   const getDefaultContent = () => {
@@ -108,7 +110,10 @@ const ThemeLoader: React.FC<ThemeLoaderProps> = ({
             currentSize?.iconSize
           )}
         />
-        <span className={cn("theme-text-muted", currentSize?.textSize)}>
+        <span
+          className={cn("theme-text-muted", currentSize?.textSize)}
+          style={inlineSimpleVariantStyles}
+        >
           {displayMessage}
         </span>
       </div>

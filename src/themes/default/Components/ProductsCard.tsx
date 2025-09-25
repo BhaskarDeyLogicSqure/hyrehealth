@@ -12,6 +12,8 @@ import {
   NAVIGATION_KEYS,
 } from "@/hooks/useNavigationState";
 import ThemeLoader from "@/components/ThemeLoader";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const ProductsCard = ({
   product,
@@ -21,6 +23,10 @@ const ProductsCard = ({
   isFeatured?: boolean;
 }) => {
   const { navigateWithState, isNavigatingTo } = useNavigationState();
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
+
   const [imageFailed, setImageFailed] = useState(false);
 
   const _handleProductClick = (productId: string) => {
@@ -77,10 +83,19 @@ const ProductsCard = ({
         </p>
 
         <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-blue-600">
-            ${product?.pricing?.lowestPrice}/mo
+          <span className="text-2xl font-bold">
+            <span
+              style={{
+                color: merchantData?.customizeBranding?.brandColor,
+              }}
+            >
+              ${product?.pricing?.lowestPrice} /mo
+            </span>
           </span>
           <Button
+            style={{
+              backgroundColor: merchantData?.customizeBranding?.accentColor,
+            }}
             onClick={() => _handleProductClick(product?._id)}
             disabled={isLoading}
           >
@@ -194,6 +209,9 @@ const ProductsCard = ({
           className="w-full mt-auto"
           onClick={() => _handleProductClick(product?._id)}
           disabled={isLoading}
+          style={{
+            backgroundColor: merchantData?.customizeBranding?.accentColor,
+          }}
         >
           {isLoading ? (
             <ThemeLoader

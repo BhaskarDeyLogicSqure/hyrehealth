@@ -11,6 +11,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 interface CustomPaginationProps {
   currentPage: number;
@@ -32,9 +34,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   maxVisiblePages = 5,
 }) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
   // Don't render pagination if there's only one page or less
-  if (totalPages <= 1) return null;
+  // if (totalPages <= 1) return null;
 
   const handlePrevious = () => {
     if (currentPage > 1) {
@@ -129,11 +133,14 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
                   ? "opacity-50 cursor-not-allowed pointer-events-none"
                   : "hover:theme-bg-muted theme-border"
               )}
+              style={{
+                color: merchantData?.customizeBranding?.accentColor,
+              }}
             />
           </PaginationItem>
 
           {/* Page Numbers */}
-          {pageNumbers.map((page, index) => (
+          {pageNumbers?.map((page, index) => (
             <PaginationItem key={index}>
               {page === "ellipsis" ? (
                 <PaginationEllipsis className="theme-text-muted" />
@@ -147,6 +154,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
                       ? "theme-bg-primary theme-text-primary-foreground border-transparent"
                       : "theme-border hover:theme-bg-muted theme-text-primary"
                   )}
+                  style={{
+                    backgroundColor:
+                      merchantData?.customizeBranding?.accentColor,
+                  }}
                 >
                   {page}
                 </PaginationLink>
@@ -164,6 +175,9 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
                   ? "opacity-50 cursor-not-allowed pointer-events-none"
                   : "hover:theme-bg-muted theme-border"
               )}
+              style={{
+                color: merchantData?.customizeBranding?.accentColor,
+              }}
             />
           </PaginationItem>
         </PaginationContent>

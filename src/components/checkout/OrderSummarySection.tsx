@@ -19,11 +19,13 @@ import useOrderCheckout from "@/hooks/useOrderCheckout";
 import { useCheckout } from "@/hooks/useCheckout";
 import { DIGITS_AFTER_DECIMALS } from "@/configs";
 import useChekoutApi from "@/api/checkout/useChekoutApi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/store/actions/authAction";
 import { useCookies } from "@/hooks/useCookies";
 import { isUserAuthenticated } from "@/utils/auth";
 import CouponCodeSection from "./CouponCodeSection";
+import { RootState } from "@/store";
+
 const OrderSummarySection = ({
   isProcessing,
   fieldValidation,
@@ -45,6 +47,9 @@ const OrderSummarySection = ({
   const { clearCheckout } = useCheckout();
   const { signUpWithPayment, loginOrderCheckout } = useChekoutApi();
 
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
   // check if the user is logged in
   const isUserLoggedIn = isUserAuthenticated();
 
@@ -392,6 +397,9 @@ const OrderSummarySection = ({
             onClick={_handleSubmit}
             className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 text-lg font-medium"
             disabled={isCheckoutLoading || isProcessing}
+            style={{
+              backgroundColor: merchantData?.customizeBranding?.accentColor,
+            }}
           >
             {isCheckoutLoading || isProcessing
               ? "Processing..."

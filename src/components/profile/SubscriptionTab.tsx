@@ -7,9 +7,14 @@ import CustomPagination from "@/components/CustomPagination";
 import ThemeLoader from "@/components/ThemeLoader";
 import useSubscription from "@/hooks/useSubscription";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const SubscriptionTab = () => {
   const router = useRouter();
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
 
   const {
     subscriptionsList,
@@ -121,6 +126,9 @@ const SubscriptionTab = () => {
           <Button
             onClick={_redirectToProducts}
             className="bg-brand-dark-blue hover:bg-brand-dark-blue/90"
+            style={{
+              backgroundColor: merchantData?.customizeBranding?.accentColor,
+            }}
           >
             Browse Treatments
           </Button>
