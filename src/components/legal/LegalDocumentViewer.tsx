@@ -55,7 +55,8 @@ const LegalDocumentViewer: React.FC<LegalDocumentViewerProps> = ({
         ?.replace(/{{name}}/g, merchantData?.merchantName || "")
         ?.replace(/{{address}}/g, merchantData?.merchantAddress || "")
         ?.replace(/{{websiteName}}/g, merchantData?.merchantWebsiteName || "")
-        ?.replace(/{{email}}/g, merchantData?.merchantEmail || "");
+        ?.replace(/{{email}}/g, merchantData?.merchantEmail || "")
+        ?.replace(/{{supportEmail}}/g, merchantData?.supportEmail || "");
       return updatedText;
     }
   }, [document?.documentDetailsHtmlText, merchantData]);

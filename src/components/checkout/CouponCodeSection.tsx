@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tag, X, Ticket } from "lucide-react";
 import ThemeLoader from "../ThemeLoader";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const CouponCodeSection = ({
   couponCode,
@@ -20,6 +22,10 @@ const CouponCodeSection = ({
   handleApplyCoupon: () => void;
   handleClearCoupon: () => void;
 }) => {
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
+
   return (
     <Card className="border border-gray-200">
       <CardContent className="p-4">
@@ -46,6 +52,9 @@ const CouponCodeSection = ({
             onClick={handleApplyCoupon}
             className="px-4"
             disabled={isValidateCouponLoading}
+            style={{
+              color: merchantData?.customizeBranding?.accentColor,
+            }}
           >
             {isValidateCouponLoading ? (
               <>
