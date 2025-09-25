@@ -16,9 +16,14 @@ import Link from "next/link";
 import useForgotPassword from "@/hooks/useForgotPassword";
 import ThemeLoader from "@/components/ThemeLoader";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
 
   const {
     email,
@@ -71,6 +76,9 @@ export default function ForgotPasswordPage() {
                   setEmail("");
                 }}
                 className="theme-text-primary hover:underline font-medium"
+                style={{
+                  color: merchantData?.customizeBranding?.accentColor,
+                }}
               >
                 Try again!
               </button>
@@ -81,6 +89,9 @@ export default function ForgotPasswordPage() {
               <Link
                 href="/"
                 className="text-sm theme-text-primary hover:underline transition-colors"
+                style={{
+                  color: merchantData?.customizeBranding?.accentColor,
+                }}
               >
                 ← Back to Home
               </Link>
@@ -96,10 +107,20 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen theme-bg flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-lg theme-bg theme-border border">
         <CardHeader className="space-y-1 text-center">
-          <div className="w-16 h-16 theme-bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+          <div
+            className="w-16 h-16 theme-bg-primary rounded-full flex items-center justify-center mx-auto mb-4"
+            style={{
+              backgroundColor: merchantData?.customizeBranding?.brandColor,
+            }}
+          >
             <Mail className="h-8 w-8 text-white" />
           </div>
-          <CardTitle className="text-2xl font-bold theme-text-primary">
+          <CardTitle
+            className="text-2xl font-bold theme-text-primary"
+            style={{
+              color: merchantData?.customizeBranding?.brandColor,
+            }}
+          >
             Forgot Password
           </CardTitle>
           <CardDescription className="theme-text-muted">
@@ -155,6 +176,9 @@ export default function ForgotPasswordPage() {
               type="submit"
               className="w-full theme-bg-primary text-white hover:opacity-90 transition-opacity"
               disabled={isLoading}
+              style={{
+                backgroundColor: merchantData?.customizeBranding?.accentColor,
+              }}
             >
               {isLoading ? (
                 <>
@@ -172,6 +196,9 @@ export default function ForgotPasswordPage() {
             <Link
               href="/"
               className="text-sm theme-text-primary hover:underline transition-colors"
+              style={{
+                color: merchantData?.customizeBranding?.accentColor,
+              }}
             >
               ← Back to Home
             </Link>
@@ -186,6 +213,9 @@ export default function ForgotPasswordPage() {
                   });
                 }}
                 disabled={loading}
+                style={{
+                  color: merchantData?.customizeBranding?.accentColor,
+                }}
               >
                 Sign In{" "}
                 {loading ? <ThemeLoader type="inline" variant="simple" /> : ""}

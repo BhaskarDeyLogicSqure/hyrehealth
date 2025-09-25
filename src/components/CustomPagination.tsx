@@ -38,7 +38,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     (state: RootState) => state?.merchantReducer
   );
   // Don't render pagination if there's only one page or less
-  // if (totalPages <= 1) return null;
+  if (totalPages <= 1) return null;
 
   const handlePrevious = () => {
     if (currentPage > 1) {

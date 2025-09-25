@@ -21,11 +21,16 @@ import { setUser } from "@/store/actions/authAction";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { isValidPassword } from "@/lib/utils";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 export default function LoginPage() {
   const dispatch = useDispatch();
   const { login, isLoading } = useAuthApi();
   const router = useRouter();
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -83,10 +88,20 @@ export default function LoginPage() {
     <div className="min-h-screen theme-bg flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-lg theme-bg theme-border border">
         <CardHeader className="space-y-1 text-center">
-          <div className="w-16 h-16 theme-bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+          <div
+            className="w-16 h-16 theme-bg-primary rounded-full flex items-center justify-center mx-auto mb-4"
+            style={{
+              backgroundColor: merchantData?.customizeBranding?.brandColor,
+            }}
+          >
             <Lock className="h-8 w-8 text-white" />
           </div>
-          <CardTitle className="text-2xl font-bold theme-text-primary">
+          <CardTitle
+            className="text-2xl font-bold theme-text-primary"
+            style={{
+              color: merchantData?.customizeBranding?.brandColor,
+            }}
+          >
             Welcome Back
           </CardTitle>
           <CardDescription className="theme-text-muted">
@@ -188,6 +203,9 @@ export default function LoginPage() {
               type="submit"
               className="w-full theme-bg-primary text-white hover:opacity-90 transition-opacity"
               disabled={isLoading}
+              style={{
+                backgroundColor: merchantData?.customizeBranding?.accentColor,
+              }}
             >
               {isLoading ? (
                 <>
@@ -210,6 +228,9 @@ export default function LoginPage() {
             <Link
               href="/"
               className="text-sm theme-text-primary hover:underline transition-colors"
+              style={{
+                color: merchantData?.customizeBranding?.accentColor,
+              }}
             >
               ← Back to Home
             </Link>
@@ -218,6 +239,9 @@ export default function LoginPage() {
               <Button
                 variant="link"
                 className="theme-text-primary hover:underline font-medium"
+                style={{
+                  color: merchantData?.customizeBranding?.accentColor,
+                }}
                 onClick={() => {
                   startTransition(() => {
                     router.push("/auth/forgot-password");

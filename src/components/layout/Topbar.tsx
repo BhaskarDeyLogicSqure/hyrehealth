@@ -151,6 +151,9 @@ const Topbar = () => {
                     variant="outline"
                     onClick={() => _handleRoute("/profile?tab=subscriptions")} // Navigate to profile page with subscriptions tab
                     className="text-sm"
+                    style={{
+                      color: merchantData?.customizeBranding?.accentColor,
+                    }}
                   >
                     <User className="h-4 w-4 mr-2" />
                     My Account
@@ -173,6 +176,9 @@ const Topbar = () => {
                   variant="outline"
                   size="sm"
                   className="navbar-nav-text text-sm"
+                  style={{
+                    color: merchantData?.customizeBranding?.accentColor,
+                  }}
                 >
                   <User className="h-4 w-4 mr-2" />
                   Sign In
@@ -279,6 +285,9 @@ const Topbar = () => {
                       }}
                       variant="outline"
                       className="w-full justify-start navbar-nav-text"
+                      style={{
+                        color: merchantData?.customizeBranding?.accentColor,
+                      }}
                     >
                       <User className="mr-2 h-4 w-4" />
                       Sign In
