@@ -109,10 +109,15 @@ const ThemeLoader: React.FC<ThemeLoaderProps> = ({
             "animate-spin theme-text-primary",
             currentSize?.iconSize
           )}
+          style={{
+            color: inlineSimpleVariantStyles?.color,
+          }}
         />
         <span
           className={cn("theme-text-muted", currentSize?.textSize)}
-          style={inlineSimpleVariantStyles}
+          style={{
+            color: inlineSimpleVariantStyles?.color,
+          }}
         >
           {displayMessage}
         </span>

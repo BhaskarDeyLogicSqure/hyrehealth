@@ -20,9 +20,14 @@ import ThemeLoader from "@/components/ThemeLoader";
 import ProductsCard from "../Components/ProductsCard";
 import { PRODUCT_SORT_OPTIONS } from "@/configs";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const DefaultProductsPage = () => {
   const [showFilters, setShowFilters] = useState(false);
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
 
   const {
     products,
@@ -85,6 +90,9 @@ const DefaultProductsPage = () => {
                   onClick={handleResetFilters}
                   className="flex items-center gap-1 text-gray-500 hover:text-gray-700 h-8 px-2"
                   title="Reset all filters"
+                  style={{
+                    color: merchantData?.customizeBranding?.accentColor,
+                  }}
                 >
                   <RotateCcw className="h-4 w-4" /> Reset Filters
                 </Button>
@@ -97,7 +105,10 @@ const DefaultProductsPage = () => {
             <div className="grid md:grid-cols-3 gap-4">
               {/* Search */}
               <div className="space-y-2">
-                <Label htmlFor="search-input" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="search-input"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Search Treatments
                 </Label>
                 <div className="relative">
@@ -116,7 +127,10 @@ const DefaultProductsPage = () => {
 
               {/* Category Filter */}
               <div className="space-y-2">
-                <Label htmlFor="category-filter" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="category-filter"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Category
                 </Label>
                 <Select
@@ -141,12 +155,17 @@ const DefaultProductsPage = () => {
 
               {/* Sort */}
               <div className="space-y-2">
-                <Label htmlFor="sort-filter" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="sort-filter"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Sort By
                 </Label>
                 <Select
                   value={filters?.sort}
-                  onValueChange={(value) => handleOnChangeFilters("sort", value)}
+                  onValueChange={(value) =>
+                    handleOnChangeFilters("sort", value)
+                  }
                 >
                   <SelectTrigger id="sort-filter">
                     <ArrowUpDown className="h-4 w-4 mr-2" />
