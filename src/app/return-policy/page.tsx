@@ -1,13 +1,13 @@
 import React from "react";
 import LegalDocumentViewer from "@/components/legal/LegalDocumentViewer";
 
-const HIPAACompliancePage = () => {
+const ReturnPolicyPage = () => {
   return (
     <LegalDocumentViewer
       documentType="hipaaCompliance"
-      fallbackTitle="HIPAA Notice of Privacy Practices"
+      fallbackTitle="Return / Refund Policy"
     />
   );
 };
 
-export default HIPAACompliancePage;
+export default ReturnPolicyPage;

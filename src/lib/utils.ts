@@ -3,6 +3,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { isValidDate as isValidDateWithDayjs } from "@/lib/dayjs";
 import { DIGITS_AFTER_DECIMALS } from "@/configs";
+import { Address } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -114,4 +115,25 @@ export const getFullName = (user: { firstName: string; lastName: string }) => {
   if (!user) return "";
 
   return `${user?.firstName} ${user?.lastName}`?.trim();
+};
+
+export const formatAddress = (address: Address) => {
+  if (!address) return "";
+  const capitalize = (str: string) =>
+    str
+      ? str
+          ?.toLowerCase()
+          ?.replace(/\b\w/g, (char) => char?.toUpperCase())
+          ?.trim()
+      : "";
+
+  const parts = [
+    capitalize(address?.street || ""),
+    capitalize(address?.city || ""),
+    capitalize(address?.state || ""),
+    address?.zipCode || "",
+    capitalize(address?.country || ""),
+  ]?.filter(Boolean);
+
+  return parts?.join(", ");
 };

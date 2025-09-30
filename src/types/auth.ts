@@ -35,6 +35,15 @@ export interface MerchantLegalDocument {
   documentDetailsHtmlText?: string;
 }
 
+export interface Address {
+  addressLine1: string;
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
 export interface BusinessLogo {
   logoType: string;
   url: string;
@@ -62,11 +71,14 @@ export interface MerchantNMIpaymentTokenResponse {
   data: {
     merchantOwnLegalDocuments: MerchantLegalDocument[];
     nmiMerchantApiKey: string;
-    merchantAddress: string;
+    merchantAddress: Address;
+    address: Address;
     merchantWebsiteName: string;
     merchantEmail: string;
     merchantName: string;
     supportEmail: string;
+    supportPhone: string;
+    isApplyLegitScript: boolean;
     // Branding fields
     businessName: string;
     customizeBranding: CustomizeBranding;
