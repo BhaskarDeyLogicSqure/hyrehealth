@@ -220,8 +220,35 @@ const NMIPaymentInfoCard = ({
           <RenderFormError errors={errors} field="cardholderName" />
         </div>
 
+        {/* Accepted Cards */}
+        <div className="pt-2 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+          <p className="text-sm font-medium text-gray-700 mb-3">We accept:</p>
+          <div className="flex items-center space-x-4">
+            <img
+              src="/visa.png"
+              alt="Visa"
+              className="h-8 w-auto opacity-90 hover:opacity-100 hover:scale-110 hover:drop-shadow-md transition-all duration-300 ease-in-out"
+            />
+            <img
+              src="/mastercard.png"
+              alt="Mastercard"
+              className="h-8 w-auto opacity-90 hover:opacity-100 hover:scale-110 hover:drop-shadow-md transition-all duration-300 ease-in-out"
+            />
+            <img
+              src="/american_express.png"
+              alt="American Express"
+              className="h-8 w-auto opacity-90 hover:opacity-100 hover:scale-110 hover:drop-shadow-md transition-all duration-300 ease-in-out"
+            />
+            <img
+              src="/discover-card-logo-vector.png"
+              alt="Discover"
+              className="h-8 w-auto opacity-90 hover:opacity-100 hover:scale-110 hover:drop-shadow-md transition-all duration-300 ease-in-out"
+            />
+          </div>
+        </div>
+
         {/* Test Card Info for Development */}
-        {process.env.NODE_ENV === "development" && (
+        {/* {process.env.NODE_ENV === "development" && (
           <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-sm text-yellow-800 font-medium">Test Mode</p>
             <p className="text-xs text-yellow-700 mt-1">
@@ -229,7 +256,7 @@ const NMIPaymentInfoCard = ({
               digits
             </p>
           </div>
-        )}
+        )} */}
       </CardContent>
     </Card>
   );

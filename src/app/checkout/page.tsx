@@ -16,11 +16,16 @@ import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
 import useNMIPayments from "@/hooks/useNMIPayments";
 import useCheckoutPersistence from "@/hooks/useCheckoutPersistence";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import useOrderCheckout from "@/hooks/useOrderCheckout";
+import Link from "next/link";
 
 const CheckoutPage = () => {
   const router = useRouter();
   // const { clearCheckout } = useCheckout();
-  const { eligibleProducts } = useCheckoutQuestionnaire();
+  const { eligibleProducts, mainProductIfEligible, selectedRelatedProducts } =
+    useCheckoutQuestionnaire();
   const {
     isLoggedIn,
     formFields,
@@ -29,6 +34,19 @@ const CheckoutPage = () => {
     handleGetPayload,
     setErrors,
   } = useCheckoutDetails();
+
+  // Get merchant data for dynamic content
+  const { merchantData } = useSelector(
+    (state: RootState) => state?.merchantReducer
+  );
+
+  // Get order checkout data for pricing and product info
+  const { totalPrice, discountedTotalPrice, selectedProducts } =
+    useOrderCheckout({
+      product: mainProductIfEligible ?? null,
+      initialMainProductSelectedOption: eligibleProducts?.[0]?.selectedOption,
+      selectedRelatedProducts,
+    });
 
   // Handle checkout data persistence
   useCheckoutPersistence();
@@ -132,24 +150,104 @@ const CheckoutPage = () => {
             {/* Terms and Conditions */}
             <Card>
               <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      className="h-5 w-5 border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-colors"
-                      id="acceptTerms"
-                      checked={formFields?.acceptTerms}
-                      onCheckedChange={(checked: boolean) =>
-                        handleOnChange("acceptTerms", !!checked)
-                      }
-                    />
-                    <Label
-                      htmlFor="acceptTerms"
-                      className="text-sm leading-relaxed text-gray-600 cursor-pointer"
-                    >
-                      I accept the Terms of Service, Privacy Policy, and HIPAA
-                      Consent. I understand this medication requires a valid
-                      prescription from a licensed physician.
-                    </Label>
+                <div className="space-y-4 flex bg-muted/50 rounded-lg p-5">
+                  {/* Vertical grey line */}
+                  <div
+                    className="w-px bg-gray-200 mr-6"
+                    style={{ minHeight: 80 }}
+                  />
+                  <div className="flex-1 space-y-4">
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        className="h-5 w-5 border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-colors"
+                        id="acceptTerms"
+                        checked={formFields?.acceptTerms}
+                        onCheckedChange={(checked: boolean) =>
+                          handleOnChange("acceptTerms", !!checked)
+                        }
+                      />
+                      <Label
+                        htmlFor="acceptTerms"
+                        className="text-sm leading-relaxed text-gray-600 cursor-pointer"
+                      >
+                        I accept the{" "}
+                        <Link
+                          href="/terms-and-conditions"
+                          className="text-sky-600 underline underline-offset-4 hover:text-sky-500 transition-colors"
+                        >
+                          Terms of Service
+                        </Link>
+                        ,{" "}
+                        <Link
+                          href="/privacy-policy"
+                          className="text-sky-600 underline underline-offset-4 hover:text-sky-500 transition-colors"
+                        >
+                          Privacy Policy
+                        </Link>
+                        , and{" "}
+                        <Link
+                          href="/return-policy"
+                          className="text-sky-600 underline underline-offset-4 hover:text-sky-500 transition-colors"
+                        >
+                          Return Policy
+                        </Link>
+                        . I understand this medication requires a valid
+                        prescription from a licensed physician.
+                      </Label>
+                    </div>
+
+                    {/* Order Confirmation Text */}
+                    <div className="space-y-4">
+                      <p className="text-sm leading-relaxed text-gray-700">
+                        By placing an order, I agree that my card will be
+                        charged{" "}
+                        <span className="font-semibold">
+                          $
+                          {(discountedTotalPrice || totalPrice || 0).toFixed(2)}
+                        </span>{" "}
+                        + Free Shipping for{" "}
+                        <span className="font-semibold">
+                          {selectedProducts?.length || 1} x{" "}
+                          {mainProductIfEligible?.name || "Product"}
+                        </span>
+                        , for one-time purchase. If this product is not right
+                        for me, or I have any questions, contact customer
+                        service by{" "}
+                        {merchantData?.supportPhone ? (
+                          <>
+                            calling{" "}
+                            <a
+                              href={`tel:${merchantData?.supportPhone}`}
+                              className="font-semibold text-sky-600 underline underline-offset-4 hover:text-sky-500 transition-colors"
+                            >
+                              {merchantData?.supportPhone || "888-439-3564"}
+                            </a>
+                          </>
+                        ) : (
+                          "call"
+                        )}{" "}
+                        {merchantData?.supportEmail ? (
+                          <>
+                            or e-mailing{" "}
+                            <a
+                              href={`mailto:${merchantData?.supportEmail}`}
+                              className="font-semibold text-sky-600 underline underline-offset-4 hover:text-sky-500 transition-colors"
+                            >
+                              {merchantData?.supportEmail}
+                            </a>
+                          </>
+                        ) : (
+                          "email"
+                        )}{" "}
+                        . Charges will appear on my credit card statements as{" "}
+                        <span className="font-semibold">
+                          {merchantData?.businessName ||
+                            merchantData?.merchantName ||
+                            "yupcbdstore"}
+                        </span>
+                        . Thank you for your business.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
