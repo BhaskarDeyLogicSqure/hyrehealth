@@ -7,6 +7,8 @@ import { MerchantLegalDocument } from "@/types/auth";
 import { AlertCircle, FileText, ExternalLink } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { formatAddress } from "@/lib/utils";
+import { Address } from "@/types";
 
 interface LegalDocumentViewerProps {
   documentType: "termsAndConditions" | "privacyPolicy" | "hipaaCompliance";
@@ -53,7 +55,14 @@ const LegalDocumentViewer: React.FC<LegalDocumentViewerProps> = ({
       let updatedText = document?.documentDetailsHtmlText;
       updatedText = updatedText
         ?.replace(/{{name}}/g, merchantData?.merchantName || "")
-        ?.replace(/{{address}}/g, merchantData?.merchantAddress || "")
+        ?.replace(
+          /{{address}}/g,
+          formatAddress(
+            merchantData?.merchantAddress ||
+              merchantData?.address ||
+              ({} as Address)
+          )
+        )
         ?.replace(/{{websiteName}}/g, merchantData?.merchantWebsiteName || "")
         ?.replace(/{{email}}/g, merchantData?.merchantEmail || "")
         ?.replace(/{{supportEmail}}/g, merchantData?.supportEmail || "");
@@ -67,7 +76,9 @@ const LegalDocumentViewer: React.FC<LegalDocumentViewerProps> = ({
       <div className="container mx-auto px-4 py-8 max-w-4xl min-h-[80vh]">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {document?.documentName || fallbackTitle}
+            {documentType === "hipaaCompliance"
+              ? "Return / Refund Policy"
+              : document?.documentName || fallbackTitle}
           </h1>
           {/* <p className="text-muted-foreground">Legal Document</p> */}
         </div>
@@ -123,7 +134,9 @@ const LegalDocumentViewer: React.FC<LegalDocumentViewerProps> = ({
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-4 flex items-center justify-center gap-3">
           <FileText className="h-8 w-8" />
-          {document?.documentName || fallbackTitle}
+          {documentType === "hipaaCompliance"
+            ? "Return / Refund Policy"
+            : document?.documentName || fallbackTitle}
         </h1>
       </div>
       <Alert className="max-w-2xl mx-auto">
