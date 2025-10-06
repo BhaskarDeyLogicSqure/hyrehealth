@@ -16,7 +16,7 @@ const DefaultHomePage = dynamic(() => import("@/themes/default/Home"), {
 });
 
 //  --------- Modern Theme ---------
-const ModernHomePage = dynamic(() => import("@/themes/classic/home"), {
+const ClassicHomePage = dynamic(() => import("@/themes/classic/home"), {
   loading: () => (
     <div className="min-h-screen flex items-center justify-center theme-bg">
       <ThemeLoader type="general" message="Loading homepage..." size="lg" />
@@ -29,12 +29,13 @@ const ModernHomePage = dynamic(() => import("@/themes/classic/home"), {
 const HomePage = () => {
   // Get current theme from cookie store
   const cookieStore = cookies(); // get the cookie store
-  const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
+  // const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
+  const theme = "classic";
 
   // Component mapping based on theme
   const ThemeComponents = {
     default: DefaultHomePage,
-    modern: ModernHomePage,
+    classic: ClassicHomePage,
   };
 
   const SelectedComponent = ThemeComponents[theme] || DefaultHomePage;
