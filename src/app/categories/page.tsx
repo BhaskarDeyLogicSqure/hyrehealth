@@ -23,7 +23,7 @@ const DefaultCategoriesPage = dynamic(
 
 //  --------- Modern Theme ---------
 const ModernCategoriesPage = dynamic(
-  () => import("@/themes/modern/ModernCategoriesPage"),
+  () => import("@/themes/classic/ModernCategoriesPage"),
   {
     loading: () => (
       <div className="min-h-screen flex items-center justify-center theme-bg">
