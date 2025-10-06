@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { authApi } from "./authApi";
+import { MerchantNMIpaymentTokenResponse } from "@/types/auth";
 
 const useMerchantDetails = () => {
   // get merchant NMI tokenization key and other merchant details
@@ -14,7 +15,8 @@ const useMerchantDetails = () => {
   });
 
   return {
-    merchantData: getMerchantNMITokenizationKey?.data,
+    merchantData:
+      getMerchantNMITokenizationKey?.data as MerchantNMIpaymentTokenResponse["data"],
     merchantDataError: getMerchantNMITokenizationKeyError,
   };
 };
