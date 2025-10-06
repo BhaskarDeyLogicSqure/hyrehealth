@@ -14,6 +14,14 @@ export const DEFAULT_IMAGE_URL = "https://placehold.co/250x250/png";
 // consultation fee
 export const CONSULTATION_FEE = 49;
 
+// Navigation items for the main menu
+export const navigationItems = [
+  { name: "Treatments", href: "/categories" },
+  { name: "All Products", href: "/products" },
+  { name: "How It Works", href: "/how-it-works" },
+  { name: "Support", href: "/support" },
+];
+
 // product sort options for products list
 export const PRODUCT_SORT_OPTIONS = [
   {
