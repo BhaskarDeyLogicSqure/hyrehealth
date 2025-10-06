@@ -5,9 +5,9 @@ import DataNotFound from "@/components/DataNotFound";
 import ThemeLoader from "@/components/ThemeLoader";
 import useCategories from "@/hooks/useCategories";
 import { Category } from "@/types/categories";
-import CategoriesCard from "../Components/CategoriesCard";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import CategoriesCard from "../Components/CategoriesCard";
 
 const TreatmentCategoriesClient = () => {
   const {
@@ -22,13 +22,13 @@ const TreatmentCategoriesClient = () => {
   return (
     <div className=" theme-bg">
       <div className="container mx-auto px-4 py-8">
+        classic
         <h1 className="text-3xl font-bold text-black mb-2">
           Treatment Categories
         </h1>
         <p className="theme-text-muted mb-6">
           Choose a category to explore our specialized treatments
         </p>
-
         {/* Categories Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.isArray(categories?.data) && categories?.data?.length > 0 ? (
@@ -82,7 +82,6 @@ const TreatmentCategoriesClient = () => {
             </div>
           )}
         </div>
-
         {/* Custom Pagination Component */}
         {categories?.total && dataPayload?.page && dataPayload?.limit ? (
           <div className="mt-8">

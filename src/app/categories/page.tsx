@@ -1,8 +1,7 @@
 import { cookies } from "next/headers";
-import { Theme } from "@/types/theme";
-import { DEFAULT_THEME } from "@/lib/theme-utils";
 import dynamic from "next/dynamic";
 import ThemeLoader from "@/components/ThemeLoader";
+import { testTheme } from "@/configs";
 
 // Dynamic imports for theme components
 //  --------- Default Theme ---------
@@ -22,8 +21,8 @@ const DefaultCategoriesPage = dynamic(
 );
 
 //  --------- Modern Theme ---------
-const ModernCategoriesPage = dynamic(
-  () => import("@/themes/classic/ModernCategoriesPage"),
+const ClassicCategoriesPage = dynamic(
+  () => import("@/themes/classic/TreatmentCategories/ServerPage"),
   {
     loading: () => (
       <div className="min-h-screen flex items-center justify-center theme-bg">
@@ -46,12 +45,13 @@ interface CategoriesPageProps {
 const CategoriesPage = ({ searchParams }: CategoriesPageProps) => {
   // Get current theme from cookie store
   const cookieStore = cookies(); // get the cookie store
-  const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
+  // const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
+  const theme = testTheme;
 
   // Component mapping based on theme
   const ThemeComponents = {
     default: DefaultCategoriesPage,
-    modern: ModernCategoriesPage,
+    classic: ClassicCategoriesPage,
   };
 
   const SelectedComponent =
