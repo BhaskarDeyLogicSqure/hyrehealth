@@ -5,7 +5,11 @@ import useCategoryApi from "@/api/categories/useCategoryApi";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
 import { useProductsUrlParams } from "./useUrlParams";
 
-const useProducts = () => {
+interface useProductsHookProps {
+  fdaApproved?: boolean;
+}
+
+const useProducts = ({ fdaApproved = false }: useProductsHookProps) => {
   const searchRef = useRef<NodeJS.Timeout | null>(null);
 
   // Use URL params hook for state management
@@ -16,7 +20,7 @@ const useProducts = () => {
     setPage: setUrlPage,
     resetParams,
     hasNonDefaultValue,
-  } = useProductsUrlParams();
+  } = useProductsUrlParams(fdaApproved);
 
   const [search, setSearch] = useState<string>(filters.search || ""); // need a different state for search, as search is being debounced
 

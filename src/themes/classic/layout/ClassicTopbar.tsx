@@ -40,9 +40,9 @@ const ClassicTopbar = ({
 }: ClassicTopbarProps) => {
   return (
     <>
-      <nav className="navbar-bg navbar-border border-b sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
+      <nav className="navbar-border border-b sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
         <div className="container px-4">
-          classic
+          
           <div className="flex justify-between items-center h-16">
             {/* Logo and Brand */}
             <div className="flex items-center space-x-2">
@@ -89,11 +89,13 @@ const ClassicTopbar = ({
                   key={item?.href}
                   href={item?.href}
                   className={`
-              px-3 py-2 text-md font-medium transition-colors navbar-nav-text
+              relative px-3 py-2 text-md font-medium transition-colors navbar-nav-text group
               ${pathname === item?.href ? "navbar-nav-text-active" : ""}
             `}
                 >
                   {item?.name}
+                  {/* Hover line effect */}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-current transition-all duration-300 ease-in-out group-hover:w-full"></span>
                 </Link>
               ))}
             </div>
@@ -130,12 +132,13 @@ const ClassicTopbar = ({
                   onClick={() => handleRoute("/auth/login")}
                   variant="outline"
                   size="sm"
-                  className="navbar-nav-text text-sm"
+                  className="navbar-nav-text text-sm font-medium py-2 h-10 px-4"
                   style={{
-                    color: merchantData?.customizeBranding?.accentColor,
+                    backgroundColor: merchantData?.customizeBranding?.accentColor,
+                    color:"white",
                   }}
                 >
-                  <User className="h-4 w-4 mr-2" />
+                  {/* <User className="h-4 w-4 mr-2" /> */}
                   Sign In
                 </Button>
               )}
@@ -167,12 +170,14 @@ const ClassicTopbar = ({
                     key={item?.href}
                     href={item?.href}
                     className={`
-                text-sm font-medium transition-colors py-2 navbar-nav-text
+                relative text-sm font-medium transition-colors py-2 navbar-nav-text group
                 ${pathname === item?.href ? "navbar-nav-text-active" : ""}
               `}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item?.name}
+                    {/* Hover line effect */}
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-current transition-all duration-300 ease-in-out group-hover:w-full"></span>
                   </Link>
                 ))}
 

@@ -3,6 +3,8 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { CATEGORIES_PER_PAGE } from "@/configs";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 interface UrlParamsOptions {
   debounceMs?: number;
   preserveParams?: string[]; // Params to preserve when updating others
@@ -188,7 +190,7 @@ export const useUrlParams = <T extends Record<string, any>>(
 };
 
 // Specialized hook for products page
-export const useProductsUrlParams = () => {
+export const useProductsUrlParams = (fdaApproved: boolean) => {
   return useUrlParams(
     {
       search: "",
@@ -196,6 +198,7 @@ export const useProductsUrlParams = () => {
       sort: "",
       page: 1,
       limit: 6,
+      fdaApproved: fdaApproved,
     },
     {
       debounceMs: 500, // Longer debounce for search

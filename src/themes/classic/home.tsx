@@ -1,22 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { 
-  ArrowRight, 
-  Play, 
-  Scale, 
-  Dna, 
-  Zap, 
-  Leaf, 
-  Shield, 
-  Brain,
-  Star,
-  Check,
-  Quote,
-  Truck,
-  FlaskConical,
-  Users,
-  ShieldCheck
-} from "lucide-react";
 import React from "react";
 import HomeHeroSection from "./Components/HomeHeroSection";
 import HomeTrustBadges from "./Components/HomeTrustBadges";
@@ -24,25 +5,28 @@ import HomeTreatmentCategories from "./Components/HomeTreatmentCategories";
 import HomeFeaturedTreatments from "./Components/HomeFeaturedTreatments";
 import HomeHowItWorks from "./Components/HomeHowItWorks";
 import HomePatientSuccessStrories from "./Components/HomePatientSuccessStrories";
+import { getHomePageData } from "@/utils/getHomePageData";
 
-const ModernHomePage = () => {
+const ModernHomePage = async () => {
+  const { featuredCategories, featuredProducts, featuredTestimonials } =
+    await getHomePageData();
+
   return (
     <div className="min-h-screen theme-bg">
       {/* Hero Section */}
       <HomeHeroSection />
 
-
       {/* Treatment Categories Section */}
-      <HomeTreatmentCategories />
+      <HomeTreatmentCategories featuredCategories={featuredCategories} />
 
       {/* Featured Treatments Section */}
-      <HomeFeaturedTreatments />
+      <HomeFeaturedTreatments featuredProducts={featuredProducts} />
 
       {/* How It Works Section */}
       <HomeHowItWorks />
 
       {/* Patient Success Stories Section */}
-      <HomePatientSuccessStrories />
+      <HomePatientSuccessStrories testimonials={featuredTestimonials} />
 
       {/* Trust Badges Section */}
       <HomeTrustBadges />
