@@ -1,5 +1,5 @@
-import { Award, ShieldCheck, Users, Truck } from 'lucide-react'
 import React from 'react'
+import { Award, ShieldCheck, Users, Truck } from 'lucide-react'
 
 const HomeTrustBadges = () => {
   const badges = [

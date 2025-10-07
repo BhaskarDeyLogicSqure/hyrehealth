@@ -10,7 +10,7 @@ import {
   NAVIGATION_KEYS,
 } from "@/hooks/useNavigationState";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Image as ImageIcon, Star } from "lucide-react";
+import { Loader2, Image as ImageIcon, Star, ArrowRight, ChevronRight } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
@@ -66,12 +66,12 @@ const CategoriesCard = ({
       if (index % 2 === 0) {
         return {
           borderColor: brandColor,
-          backgroundColor: hexToRgba(brandColor, 0.1), // 10% opacity for light bg
+          // backgroundColor: hexToRgba(brandColor, 0.1), // 10% opacity for light bg
         };
       } else {
         return {
           borderColor: accentColor,
-          backgroundColor: hexToRgba(accentColor, 0.1), // 10% opacity for light bg
+          // backgroundColor: hexToRgba(accentColor, 0.1), // 10% opacity for light bg
         };
       }
     },
@@ -86,7 +86,7 @@ const CategoriesCard = ({
       {featuredCard ? (
         <Card
           key={category?._id}
-          className={`cursor-pointer hover:shadow-lg transition-shadow duration-300 relative ${
+          className={`bg-white cursor-pointer hover:shadow-lg transition-shadow duration-300 relative ${
             isLoading ? "opacity-75 pointer-events-none" : ""
           }`}
           onClick={() => _handleCategoryClick(category?._id)}
@@ -188,7 +188,7 @@ const CategoriesCard = ({
               </div>
 
               {category?.products?.length > 0 ? (
-                <span className="text-sm theme-text-muted bg-white px-2 py-1 rounded-full shadow-sm">
+                <span className="text-sm theme-text-muted bg-gray-100 px-2 py-1 rounded-full shadow-sm">
                   {category?.products?.length}{" "}
                   {category?.products?.length === 1 ? "product" : "products"}
                 </span>
@@ -217,15 +217,10 @@ const CategoriesCard = ({
               {category?.description}
             </p>
 
-            <div className="mt-4 pt-4 border-t theme-border">
-              <span
-                className="text-sm font-medium theme-text-primary flex items-center gap-2"
-                style={{
-                  color: merchantData?.customizeBranding?.accentColor,
-                  // background:
-                  //   "linear-gradient(90deg, rgba(245,245,250,0.85) 0%, rgba(240,240,255,0.85) 100%)",
-                  // width: "fit-content",
-                }}
+            
+              <div
+                 className="w-full mt-4 bg-white border border-gray-300 flex items-center justify-center text-gray-900 hover:bg-gray-50 hover:border-gray-400 font-semibold text-sm h-10 px-3 group items-center"
+                
               >
                 {isLoading ? (
                   <>
@@ -233,10 +228,14 @@ const CategoriesCard = ({
                     Loading treatments...
                   </>
                 ) : (
-                  "Explore treatments →"
+                  <>
+                    
+                    Explore Treatments
+                    <ChevronRight className="ml-1 w-3 h-3 transition-transform group-hover:translate-x-1" />
+                  </>
                 )}
-              </span>
-            </div>
+              </div>
+            
           </CardContent>
         </Card>
       )}

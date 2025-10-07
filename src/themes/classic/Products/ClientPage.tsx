@@ -22,6 +22,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import ProductsCard from "../Components/ProductsCard";
+import ProductsTitle from "../Components/ProductsTitle";
 
 const DefaultProductsPage = () => {
   const [showFilters, setShowFilters] = useState(false);
@@ -44,32 +45,14 @@ const DefaultProductsPage = () => {
 
   return (
     <div className="theme-bg">
-      <div className="container mx-auto px-4 py-8">
+      
         {/* Page Header */}
-        <div className="mb-8">
-          classic
-          <h1 className="text-3xl font-bold text-black mb-2 flex items-center">
-            All Treatments{" "}
-            {isProductsLoading ? (
-              <span className="ml-2">
-                <ThemeLoader
-                  type="inline"
-                  variant="simple"
-                  size="sm"
-                  showIcon={true}
-                  className="ml-2"
-                />
-              </span>
-            ) : null}
-          </h1>
-          <p className="theme-text-muted">
-            Explore our comprehensive range of wellness treatments
-          </p>
-        </div>
+        <ProductsTitle isLoading={isProductsLoading} />
 
         {/* Filters */}
-        <div className="bg-white rounded-lg p-6 mb-8 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white p-6 border-b border-gray-200">
+          <div className="container mx-auto">
+          <div className=" flex items-center justify-between mb-4">
             <h3 className="text-lg  font-semibold text-black">Filters</h3>
             <div className="flex items-center gap-2">
               {/* Filter Toggle Button - Shows below 767px */}
@@ -183,6 +166,7 @@ const DefaultProductsPage = () => {
               </div>
             </div>
           </div>
+          </div>
         </div>
 
         {/* Results Summary */}
@@ -197,7 +181,9 @@ const DefaultProductsPage = () => {
           </div>
         ) : null}
 
-        {/* Product Grid */}
+        <div className="bg-white px-6 py-16 lg:px-8">
+        <div className="container mx-auto">
+          {/* Product Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products?.data?.length ? (
             products?.data?.map((product: Product) => (
@@ -227,8 +213,10 @@ const DefaultProductsPage = () => {
             />
           </div>
         ) : null}
+        </div>
+        </div>
       </div>
-    </div>
+   
   );
 };
 
