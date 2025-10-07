@@ -9,20 +9,20 @@ const NavigationLoader = () => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("🔧 NavigationLoader mounted");
+    // console.log("🔧 NavigationLoader mounted");
 
     // Intercept router navigation methods
     const originalPush = router.push;
     const originalReplace = router.replace;
 
     router.push = (...args: Parameters<typeof router.push>) => {
-      console.log("🔀 Router.push intercepted:", args[0]);
+      // console.log("🔀 Router.push intercepted:", args[0]);
       startLoading();
       return originalPush.apply(router, args);
     };
 
     router.replace = (...args: Parameters<typeof router.replace>) => {
-      console.log("🔀 Router.replace intercepted:", args[0]);
+      // console.log("🔀 Router.replace intercepted:", args[0]);
       startLoading();
       return originalReplace.apply(router, args);
     };
@@ -42,10 +42,10 @@ const NavigationLoader = () => {
           (url?.pathname !== currentUrl?.pathname ||
             url?.search !== currentUrl?.search)
         ) {
-          console.log(
-            "🔗 Link click intercepted:",
-            url?.pathname + url?.search
-          );
+          // console.log(
+          //   "🔗 Link click intercepted:",
+          //   url?.pathname + url?.search
+          // );
           startLoading();
         }
       }
@@ -55,7 +55,7 @@ const NavigationLoader = () => {
     document.addEventListener("click", _handleLinkClick, true);
 
     return () => {
-      console.log("🔧 NavigationLoader unmounting");
+      // console.log("🔧 NavigationLoader unmounting");
       // Restore original methods
       router.push = originalPush;
       router.replace = originalReplace;
@@ -63,7 +63,7 @@ const NavigationLoader = () => {
     };
   }, [router, startLoading]);
 
-  console.log("🎨 NavigationLoader render:", { showLoader, progress });
+  // console.log("🎨 NavigationLoader render:", { showLoader, progress });
 
   if (!showLoader) return null;
 
