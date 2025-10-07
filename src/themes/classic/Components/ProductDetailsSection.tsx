@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -7,7 +8,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import React, { useMemo } from "react";
 import { Star, CheckCircle, AlertCircle, ChevronRight } from "lucide-react";
 import { Product } from "@/types/products";
 // import RelatedProductsSection from "../Components/RelatedProductsSection";
@@ -47,33 +47,65 @@ const ProductDetailsSection = ({
   console.log({ product });
   return (
     <div>
-      asdfasdfas lcassic
+      {/* Product Info Header Section */}
+      <div className="mb-4">
+        <div className="flex items-start space-x-4">
+          {/* Avatar */}
+          <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-gray-700 font-semibold text-2xl">
+              {product?.name?.charAt(0)?.toUpperCase() || 'C'}
+            </span>
+          </div>
+          
+          <div className="flex-1">
+            {/* Category Badge */}
+            <div className="mb-3">
+              <Badge className="bg-green-700 text-white px-3 py-1 rounded-full text-xs font-medium">
+                {product?.category?.[0]?.name || 'Cognitive Enhancement'}
+              </Badge>
+            </div>
+            
+            {/* Star Rating */}
+            {product?.statistics?.averageRating && product?.statistics?.averageRating > 0 ? (
+              <div className="flex items-center mb-4">
+                <div className="flex items-center">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`h-4 w-4 ${
+                        star <= Math.floor(product?.statistics?.averageRating || 0)
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : star === Math.ceil(product?.statistics?.averageRating || 0) &&
+                            (product?.statistics?.averageRating || 0) % 1 !== 0
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="ml-2 text-sm text-gray-600">
+                  ({product?.statistics?.reviewCount || 0} reviews)
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center mb-4">
+                <span className="text-sm text-gray-500">No rating</span>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Product Title */}
+        <div className="mt-6">
+          <h1 className="text-3xl font-bold text-gray-800 font-serif">
+            {product?.name || 'Cognitive Enhancement Blend'}
+          </h1>
+        </div>
+      </div>
+
       {/* Media Carousel */}
       <ImageVideoCarousel allMedia={allMedia} product={product} />
 
-      {/* Product Info Section - Below Carousel */}
-      <div className="text-center mb-8">
-        <Badge className="mb-4">{product?.category?.[0]?.name}</Badge>
-        <h1 className="text-3xl font-bold theme-text-primary mb-2">
-          {product?.name}
-        </h1>
-        {product?.statistics?.averageRating || 0 ? (
-          <div className="flex items-center justify-center mb-4">
-            <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-            <span className="ml-1 font-semibold">
-              {product?.statistics?.averageRating || 0}
-            </span>
-            {product?.statistics?.reviewCount ? (
-              <span
-                className="ml-1 theme-text-muted"
-                title={`${product?.statistics?.reviewCount} reviews`}
-              >
-                ({product?.statistics?.reviewCount || 0} reviews)
-              </span>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
 
       {/* Product Description */}
       <Card className="mb-8">
