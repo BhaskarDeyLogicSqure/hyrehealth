@@ -1,4 +1,4 @@
-import ProductSection from "../Components/ProductSection";
+import ProductSection from "../../classic/Components/ProductSection";
 import { productApi } from "@/api/products/productApi";
 import { handleServerError } from "@/lib/error-handler";
 import { getCurrentDomain } from "@/lib/utils";
