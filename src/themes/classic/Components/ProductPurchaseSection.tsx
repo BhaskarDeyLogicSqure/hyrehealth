@@ -54,8 +54,25 @@ const ProductPurchaseSection = ({
   return (
     <div>
       <Card className="sticky top-24">
-        asdfasd
+        
         <CardContent className="p-8">
+          {/* Price Display at Top */}
+          <div className="mb-8">
+            <div className="flex items-baseline justify-start gap-2 mb-2">
+              <span className="text-4xl font-bold theme-text-primary">
+                {selectedDosageWithDuration?.price
+                  ? `$${selectedDosageWithDuration?.price?.toFixed(
+                      DIGITS_AFTER_DECIMALS
+                    )}`
+                  : "$89"}
+              </span>
+              <span className="text-lg theme-text-muted">per month</span>
+            </div>
+            <p className="text-sm theme-text-muted">
+              Subscription includes medical consultation and ongoing support
+            </p>
+          </div>
+
           {/* Dosage Selection */}
           <div className="mb-6">
             <label className="block text-sm font-medium theme-text-primary mb-2">
@@ -113,28 +130,22 @@ const ProductPurchaseSection = ({
 
           <Separator className="my-6" />
 
-          {/* Pricing */}
-          <div className="space-y-3 mb-6">
+          {/* Cost Breakdown */}
+          <div className="space-y-3 mb-6 bg-muted/90 p-4 rounded-lg">
             <div className="flex justify-between text-sm theme-text-muted">
-              <span>Price:</span>
+              <span>Subtotal:</span>
               <span>
                 {selectedDosageWithDuration?.price
                   ? `$${selectedDosageWithDuration?.price?.toFixed(
                       DIGITS_AFTER_DECIMALS
                     )}`
-                  : "-"}
+                  : "$89"}
               </span>
             </div>
 
             <div className="flex justify-between text-sm theme-text-muted">
-              <span>Duration:</span>
-              <span>
-                {subscriptionDuration
-                  ? `${subscriptionDuration} month${
-                      subscriptionDuration > "2" ? "s" : ""
-                    }`
-                  : "-"}
-              </span>
+              <span>Consultation Fee:</span>
+              <span>Included</span>
             </div>
 
             {selectedRelatedProducts?.length > 0 &&
@@ -148,12 +159,12 @@ const ProductPurchaseSection = ({
             ) : null}
 
             <Separator />
-            <div className="flex justify-between text-lg font-semibold theme-text-primary">
+            <div className="flex justify-between text-lg font-bold theme-text-primary">
               <span>Total:</span>
               <span>
                 {getTotalPrice
                   ? `$${getTotalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}`
-                  : "-"}
+                  : "$89"}
               </span>
             </div>
           </div>
@@ -184,7 +195,7 @@ const ProductPurchaseSection = ({
           </Button>
 
           {/* Trust Indicators */}
-          <div className="mt-6 space-y-3">
+          {/* <div className="mt-6 space-y-3">
             <div className="flex items-center text-sm theme-text-muted">
               <Shield className="h-4 w-4 mr-2 text-green-600" />
               FDA approved ingredients
@@ -197,16 +208,18 @@ const ProductPurchaseSection = ({
               <Clock className="h-4 w-4 mr-2 text-purple-600" />
               Licensed physician consultation
             </div>
-          </div>
+          </div> */}
 
-          {/* Important Notice */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-xs theme-text-muted">
-              <strong>Important:</strong> This medication requires a valid
-              prescription. Our licensed physicians will review your health
-              information and determine if this treatment is appropriate for
-              you.
-            </p>
+          {/* Important Disclaimers */}
+          <div className="mt-6 space-y-2">
+            <div className="flex items-start text-xs theme-text-muted">
+              <Shield className="h-3 w-3 mr-2 mt-0.5 flex-shrink-0" />
+              <span>Prescription required. Medical consultation included with purchase.</span>
+            </div>
+            <div className="flex items-start text-xs theme-text-muted">
+              <Shield className="h-3 w-3 mr-2 mt-0.5 flex-shrink-0" />
+              <span>All treatments are FDA-approved and sourced from licensed pharmacies.</span>
+            </div>
           </div>
         </CardContent>
       </Card>

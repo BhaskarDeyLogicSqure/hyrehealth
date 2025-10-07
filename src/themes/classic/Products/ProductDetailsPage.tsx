@@ -3,6 +3,8 @@ import { productApi } from "@/api/products/productApi";
 import { handleServerError } from "@/lib/error-handler";
 import { getCurrentDomain } from "@/lib/utils";
 import { headers } from "next/headers";
+import BackButton from "./BackButton";
+import TreatmentInfoCards from "../Components/TreatmentInfoCards";
 // import { notFound } from "next/navigation";
 interface ProductDetailsPageProps {
   params: {
@@ -34,10 +36,12 @@ const DefaultProductDetailsPage = async ({
   }
 
   return (
-    <div className="min-h-screen theme-bg">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-white">
+      
+        <BackButton />
         <ProductSection product={product as any} />
-      </div>
+        <TreatmentInfoCards />
+      
     </div>
   );
 };
