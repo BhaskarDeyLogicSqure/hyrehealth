@@ -14,7 +14,6 @@ const DefaultFooter = ({
   return (
     <footer className="footer-bg footer-text py-12">
       <div className="container mx-auto px-4">
-        zxfg
         <div className="grid md:grid-cols-5 gap-8">
           {/* Company Info */}
           <div>
@@ -52,7 +51,6 @@ const DefaultFooter = ({
               </p>
             </div>
           </div>
-
           {/* Contact Information */}
           <div>
             <h3 className="font-semibold mb-4 footer-text">
@@ -111,7 +109,6 @@ const DefaultFooter = ({
               </li>
             </ul>
           </div>
-
           {/* Support */}
           <div>
             <h3 className="font-semibold mb-4 footer-text">Support</h3>
@@ -133,7 +130,6 @@ const DefaultFooter = ({
               </li>
             </ul>
           </div>
-
           {/* Legal */}
           <div>
             <h3 className="font-semibold mb-4 footer-text">Legal</h3>
@@ -164,7 +160,6 @@ const DefaultFooter = ({
               </li>
             </ul>
           </div>
-
           <div>
             {/* Social Media Links */}
             {merchantData?.customizeBranding?.socialMediaLinks &&
