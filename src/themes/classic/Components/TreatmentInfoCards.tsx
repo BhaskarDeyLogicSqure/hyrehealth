@@ -8,7 +8,8 @@ import {
   Users, 
   Clock, 
   Truck, 
-  Shield 
+  Shield, 
+  Check
 } from "lucide-react";
 
 const TreatmentInfoCards = () => {
@@ -24,25 +25,25 @@ const TreatmentInfoCards = () => {
               </h3>
               <ul className="space-y-4">
                 <li className="flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Check className="h-4 w-4 text-gray-700 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700 text-sm">
                     Enhanced focus and concentration
                   </span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Check className="h-4 w-4 text-gray-700 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700 text-sm">
                     Improved memory formation and recall
                   </span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Check className="h-4 w-4 text-gray-700 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700 text-sm">
                     Reduced mental fatigue
                   </span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Check className="h-4 w-4 text-gray-700 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700 text-sm">
                     Better stress resilience
                   </span>
@@ -59,25 +60,25 @@ const TreatmentInfoCards = () => {
               </h3>
               <ul className="space-y-4">
                 <li className="flex items-start space-x-3">
-                  <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <AlertCircle className="h-4 w-4 text-gray-700 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700 text-sm">
                     Generally well-tolerated
                   </span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700 text-sm">
+                  <AlertCircle className="h-4 w-4 text-gray-700 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700 text-sm">
                     Possible mild headache initially
                   </span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <AlertCircle className="h-4 w-4 text-gray-700 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700 text-sm">
                     Rare: digestive sensitivity
                   </span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <AlertCircle className="h-4 w-4 text-gray-700 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700 text-sm">
                     May cause vivid dreams
                   </span>
@@ -94,25 +95,25 @@ const TreatmentInfoCards = () => {
               </h3>
               <ul className="space-y-4">
                 <li className="flex items-start space-x-3">
-                  <Users className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Users className="h-4 w-4 text-gray-700 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700 text-sm">
                     Licensed physician consultation required
                   </span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <Clock className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Clock className="h-4 w-4 text-gray-700 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700 text-sm">
                     Monthly follow-ups included
                   </span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <Truck className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Truck className="h-4 w-4 text-gray-700 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700 text-sm">
                     Free shipping & discreet packaging
                   </span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <Shield className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Shield className="h-4 w-4 text-gray-700 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700 text-sm">
                     HIPAA-compliant care
                   </span>
