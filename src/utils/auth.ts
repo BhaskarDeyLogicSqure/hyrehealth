@@ -77,3 +77,7 @@ export const logout = (
 export const removeTokenFromCookie = () => {
   document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;";
 };
+
+export const setDataInCookie = (key: string, value: string) => {
+  document.cookie = `${key}=${value}; path=/;`;
+};

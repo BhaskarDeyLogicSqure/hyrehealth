@@ -41,9 +41,7 @@ const DefaultProductsPage = () => {
     getCategoryNameFromId,
     onPageChange,
     handleResetFilters,
-  } = useProducts({
-    fdaApproved: merchantData?.isApplyLegitScript ?? undefined, // undefined means both fda approved and non fda approved products will be shown
-  });
+  } = useProducts({ fdaApproved: false }); // fdaApproved is false because this is a non-fda products page, here we will only show those products that are not fda approved
 
   return (
     <div className="theme-bg">

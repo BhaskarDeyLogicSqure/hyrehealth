@@ -40,7 +40,9 @@ const DefaultProductsPage = () => {
     getCategoryNameFromId,
     onPageChange,
     handleResetFilters,
-  } = useProducts();
+  } = useProducts({
+    fdaApproved: merchantData?.isApplyLegitScript ?? undefined, // undefined means both fda approved and non fda approved products will be shown
+  });
 
   return (
     <div className="theme-bg">
