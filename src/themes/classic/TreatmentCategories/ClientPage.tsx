@@ -8,6 +8,8 @@ import { Category } from "@/types/categories";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CategoriesCard from "../Components/CategoriesCard";
+import TreatmentTitle from "../Components/TreatmentTitle";
+import CategoryTreatmentCTA from "../Components/CategoryTreatmentCTA";
 
 const TreatmentCategoriesClient = () => {
   const {
@@ -21,15 +23,12 @@ const TreatmentCategoriesClient = () => {
 
   return (
     <div className=" theme-bg">
-      <div className="container mx-auto px-4 py-8">
-        classic
-        <h1 className="text-3xl font-bold text-black mb-2">
-          Treatment Categories
-        </h1>
-        <p className="theme-text-muted mb-6">
-          Choose a category to explore our specialized treatments
-        </p>
-        {/* Categories Grid */}
+      
+       
+        <TreatmentTitle />
+       <div className="bg-white px-6 py-16 lg:px-8">
+         {/* Categories Grid */}
+      <div className="max-w-6xl mx-auto">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.isArray(categories?.data) && categories?.data?.length > 0 ? (
             categories?.data?.map((category: Category, index: number) => (
@@ -82,6 +81,8 @@ const TreatmentCategoriesClient = () => {
             </div>
           )}
         </div>
+      </div>
+       </div>
         {/* Custom Pagination Component */}
         {categories?.total && dataPayload?.page && dataPayload?.limit ? (
           <div className="mt-8">
@@ -95,7 +96,7 @@ const TreatmentCategoriesClient = () => {
             />
           </div>
         ) : null}
-      </div>
+      <CategoryTreatmentCTA />
     </div>
   );
 };
