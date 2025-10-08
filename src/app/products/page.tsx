@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
-import { testTheme } from "@/configs";
 import dynamic from "next/dynamic";
 import ThemeLoader from "@/components/ThemeLoader";
+import { Theme } from "@/types/theme";
+import { DEFAULT_THEME } from "@/lib/theme-utils";
 
 // Dynamic imports for theme components
 //  --------- Default Theme ---------
@@ -37,18 +38,15 @@ interface ProductsPageProps {
 const ProductsPage = ({ searchParams }: ProductsPageProps) => {
   // Get current theme from cookie store
   const cookieStore = cookies(); // get the cookie store
-  // const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
-  const theme = testTheme;
+  const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
 
   // Component mapping based on theme
   const ThemeComponents = {
-    default: DefaultProductsPage,
+    modern: DefaultProductsPage,
     classic: ClassicProductsPage,
   } as const;
 
-  const SelectedComponent =
-    ThemeComponents[theme as keyof typeof ThemeComponents] ||
-    DefaultProductsPage;
+  const SelectedComponent = ThemeComponents[theme] || DefaultProductsPage;
 
   return <SelectedComponent searchParams={searchParams} />;
 };

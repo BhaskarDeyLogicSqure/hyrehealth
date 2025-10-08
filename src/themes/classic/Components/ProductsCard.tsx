@@ -50,11 +50,13 @@ const ProductsCard = ({
       className="p-6 bg-white shadow-sm hover:shadow-md transition-shadow relative flex flex-col h-full"
     >
       {/* Category badge - top right */}
-      <div className="absolute top-4 right-4">
-        <span className={`text-xs px-2 py-1 rounded-full`}>
-          {product?.category}
-        </span>
-      </div>
+      {product?.category?.[0]?.name ? (
+        <div className="absolute top-4 right-4">
+          <Badge className="bg-green-700 text-white px-3 py-1 rounded-full text-xs font-medium hover:bg-green-800">
+            {product?.category?.[0]?.name}
+          </Badge>
+        </div>
+      ) : null}
 
       {/* Product Image - top left */}
       <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-4">

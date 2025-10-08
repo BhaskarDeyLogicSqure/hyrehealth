@@ -80,14 +80,19 @@ const ProductDetailsSection = ({
           <h2 className="text-xl font-semibold theme-text-primary mb-4">
             About This Treatment
           </h2>
-          <p className="theme-text-muted mb-4">
-            {removeHtmlTags(product?.contentAndDescription?.description || "")}
-          </p>
-          <p className="theme-text-muted text-sm">
-            {removeHtmlTags(
-              product?.contentAndDescription?.longDescription || ""
-            )}
-          </p>
+
+          <p
+            className="theme-text-muted mb-4"
+            dangerouslySetInnerHTML={{
+              __html: product?.contentAndDescription?.description || "",
+            }}
+          />
+          <p
+            className="theme-text-muted mb-4"
+            dangerouslySetInnerHTML={{
+              __html: product?.contentAndDescription?.longDescription || "",
+            }}
+          />
         </CardContent>
       </Card>
 
@@ -142,7 +147,13 @@ const ProductDetailsSection = ({
                 <CheckCircle className="h-5 w-5 mr-2" />
                 Benefits
               </h3>
-              <ul className="space-y-2">
+
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: product?.contentAndDescription?.benefits?.[0],
+                }}
+              />
+              {/* <ul className="space-y-2">
                 {product?.contentAndDescription?.benefits?.map(
                   (benefit: string, index: number) => (
                     <li
@@ -154,7 +165,7 @@ const ProductDetailsSection = ({
                     </li>
                   )
                 )}
-              </ul>
+              </ul> */}
             </CardContent>
           </Card>
         ) : null}
@@ -166,7 +177,13 @@ const ProductDetailsSection = ({
                 <AlertCircle className="h-5 w-5 mr-2" />
                 Possible Side Effects
               </h3>
-              <ul className="space-y-2">
+
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: product?.contentAndDescription?.sideEffects?.[0],
+                }}
+              />
+              {/* <ul className="space-y-2">
                 {product?.contentAndDescription?.sideEffects?.map(
                   (effect: string, index: number) => (
                     <li
@@ -178,7 +195,7 @@ const ProductDetailsSection = ({
                     </li>
                   )
                 )}
-              </ul>
+              </ul> */}
             </CardContent>
           </Card>
         ) : null}
@@ -191,11 +208,16 @@ const ProductDetailsSection = ({
             <h2 className="text-xl font-semibold theme-text-primary mb-4">
               Shipping & Return Policy
             </h2>
-            <div className="theme-text-muted whitespace-pre-line">
+            <span
+              dangerouslySetInnerHTML={{
+                __html: product?.contentAndDescription?.shippingAndReturnPolicy,
+              }}
+            />
+            {/* <div className="theme-text-muted whitespace-pre-line">
               {removeHtmlTags(
                 product?.contentAndDescription?.shippingAndReturnPolicy
               )}
-            </div>
+            </div> */}
           </CardContent>
         </Card>
       )}
@@ -207,9 +229,15 @@ const ProductDetailsSection = ({
             <h2 className="text-xl font-semibold theme-text-primary mb-4">
               How to Use
             </h2>
-            <div className="theme-text-muted whitespace-pre-line">
+
+            <span
+              dangerouslySetInnerHTML={{
+                __html: product?.contentAndDescription?.howToUse,
+              }}
+            />
+            {/* <div className="theme-text-muted whitespace-pre-line">
               {removeHtmlTags(product?.contentAndDescription?.howToUse)}
-            </div>
+            </div> */}
           </CardContent>
         </Card>
       )}

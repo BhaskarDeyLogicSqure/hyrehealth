@@ -2,7 +2,8 @@ import React from "react";
 import dynamic from "next/dynamic";
 import { cookies } from "next/headers";
 import ThemeLoader from "@/components/ThemeLoader";
-import { testTheme } from "@/configs";
+import { Theme } from "@/types/theme";
+import { DEFAULT_THEME } from "@/lib/theme-utils";
 
 // Dynamic imports for theme components
 //  --------- Default Theme ---------
@@ -14,7 +15,7 @@ const DefaultHomePage = dynamic(() => import("@/themes/default/Home"), {
   ),
 });
 
-//  --------- Modern Theme ---------
+//  --------- Classic Theme ---------
 const ClassicHomePage = dynamic(() => import("@/themes/classic/home"), {
   loading: () => (
     <div className="min-h-screen flex items-center justify-center theme-bg">
@@ -28,12 +29,11 @@ const ClassicHomePage = dynamic(() => import("@/themes/classic/home"), {
 const HomePage = () => {
   // Get current theme from cookie store
   const cookieStore = cookies(); // get the cookie store
-  // const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
-  const theme = testTheme;
+  const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
 
   // Component mapping based on theme
   const ThemeComponents = {
-    default: DefaultHomePage,
+    modern: DefaultHomePage,
     classic: ClassicHomePage,
   };
 

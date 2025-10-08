@@ -8,8 +8,18 @@ import {
   NAVIGATION_KEYS,
 } from "@/hooks/useNavigationState";
 import ThemeLoader from "@/components/ThemeLoader";
+import { useRouter } from "next/navigation";
 
-const BackButton = () => {
+const BackButton = ({
+  categoryName,
+  categoryId,
+  productName,
+}: {
+  categoryName: string;
+  categoryId: string;
+  productName: string;
+}) => {
+  const router = useRouter();
   const { navigateBack, isNavigating } = useNavigationState();
 
   const _handleBackClick = () => {
@@ -21,6 +31,16 @@ const BackButton = () => {
       ],
       "/products"
     );
+  };
+
+  const _handleCategoryClick = (categoryId: string) => {
+    if (!categoryId) return;
+
+    router.push(`/products?category=${categoryId}`);
+  };
+
+  const _moveToAllTreatments = () => {
+    router.push("/products");
   };
 
   return (
@@ -52,13 +72,28 @@ const BackButton = () => {
 
       {/* Breadcrumb Navigation */}
       <div className="container mx-auto text-sm text-gray-600">
-        <span className="hover:text-gray-800 cursor-pointer">All Treatments</span>
+        <span
+          className="hover:text-gray-800 cursor-pointer"
+          onClick={() => _moveToAllTreatments()}
+        >
+          All Treatments
+        </span>
+        {categoryName ? (
+          <>
+            <span className="mx-2">/</span>
+            <span
+              className="hover:text-gray-800 cursor-pointer"
+              onClick={() => _handleCategoryClick(categoryId)}
+            >
+              {categoryName}
+            </span>
+          </>
+        ) : null}
         <span className="mx-2">/</span>
-        <span className="hover:text-gray-800 cursor-pointer">Cognitive Enhancement</span>
-        <span className="mx-2">/</span>
-        <span className="text-gray-800 font-medium">Cognitive Enhancement Blend</span>
+        <span className="text-gray-800 font-medium cursor-pointer">
+          {productName}
+        </span>
       </div>
-
     </div>
   );
 };

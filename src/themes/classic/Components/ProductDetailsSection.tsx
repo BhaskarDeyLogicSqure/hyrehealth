@@ -13,6 +13,7 @@ import { Product } from "@/types/products";
 // import RelatedProductsSection from "../Components/RelatedProductsSection";
 import ImageVideoCarousel from "@/components/ImageVideoCarousel";
 import { removeHtmlTags } from "@/lib/utils";
+import RelatedProductsSection from "@/themes/default/Components/RelatedProductsSection";
 
 const ProductDetailsSection = ({
   product,
@@ -53,39 +54,55 @@ const ProductDetailsSection = ({
           {/* Avatar */}
           <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
             <span className="text-gray-700 font-semibold text-2xl">
-              {product?.name?.charAt(0)?.toUpperCase() || 'C'}
+              {product?.name?.charAt(0)?.toUpperCase() || "C"}
             </span>
           </div>
-          
+
           <div className="flex-1">
             {/* Category Badge */}
-            <div className="mb-3">
-              <Badge className="bg-green-700 text-white px-3 py-1 rounded-full text-xs font-medium">
-                {product?.category?.[0]?.name || 'Cognitive Enhancement'}
-              </Badge>
-            </div>
-            
+            {product?.category?.[0]?.name ? (
+              <div className="mb-3">
+                <Badge className="bg-green-700 text-white px-3 py-1 rounded-full text-xs font-medium">
+                  {product?.category?.[0]?.name}
+                </Badge>
+              </div>
+            ) : null}
+
             {/* Star Rating */}
-            {product?.statistics?.averageRating && product?.statistics?.averageRating > 0 ? (
+            {product?.statistics?.averageRating &&
+            product?.statistics?.averageRating > 0 ? (
               <div className="flex items-center mb-4">
                 <div className="flex items-center">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`h-4 w-4 ${
-                        star <= Math.floor(product?.statistics?.averageRating || 0)
-                          ? 'fill-yellow-400 text-yellow-400'
-                          : star === Math.ceil(product?.statistics?.averageRating || 0) &&
-                            (product?.statistics?.averageRating || 0) % 1 !== 0
-                          ? 'fill-yellow-400 text-yellow-400'
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
+                  {[...Array(product?.statistics?.averageRating || 0)]?.map(
+                    (star) => (
+                      <Star
+                        key={star}
+                        className={`h-4 w-4 ${
+                          star <=
+                          Math.floor(product?.statistics?.averageRating || 0)
+                            ? "fill-yellow-400 text-yellow-400"
+                            : star ===
+                                Math.ceil(
+                                  product?.statistics?.averageRating || 0
+                                ) &&
+                              (product?.statistics?.averageRating || 0) % 1 !==
+                                0
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    )
+                  )}
                 </div>
-                <span className="ml-2 text-sm text-gray-600">
-                  ({product?.statistics?.reviewCount || 0} reviews)
-                </span>
+
+                {product?.statistics?.reviewCount ? (
+                  <span
+                    className="ml-2 text-sm text-gray-600"
+                    title={`${product?.statistics?.reviewCount} reviews`}
+                  >
+                    ({product?.statistics?.reviewCount || 0} reviews)
+                  </span>
+                ) : null}
               </div>
             ) : (
               <div className="flex items-center mb-4">
@@ -94,11 +111,11 @@ const ProductDetailsSection = ({
             )}
           </div>
         </div>
-        
+
         {/* Product Title */}
         <div className="mt-6">
           <h1 className="text-3xl font-bold text-gray-800 font-serif">
-            {product?.name || 'Cognitive Enhancement Blend'}
+            {product?.name || "N/A"}
           </h1>
         </div>
       </div>
@@ -106,26 +123,29 @@ const ProductDetailsSection = ({
       {/* Media Carousel */}
       <ImageVideoCarousel allMedia={allMedia} product={product} />
 
-
       {/* Product Description */}
       <Card className="mb-8">
         <CardContent className="p-6">
           <h2 className="text-xl font-semibold theme-text-primary mb-4">
             About This Treatment
           </h2>
-          <p className="theme-text-muted mb-4">
-            {removeHtmlTags(product?.contentAndDescription?.description || "")}
-          </p>
-          <p className="theme-text-muted text-sm">
-            {removeHtmlTags(
-              product?.contentAndDescription?.longDescription || ""
-            )}
-          </p>
+          <p
+            className="theme-text-muted mb-4"
+            dangerouslySetInnerHTML={{
+              __html: product?.contentAndDescription?.description || "",
+            }}
+          />
+          <p
+            className="theme-text-muted mb-4"
+            dangerouslySetInnerHTML={{
+              __html: product?.contentAndDescription?.longDescription || "",
+            }}
+          />
         </CardContent>
       </Card>
 
       {/* Ingredients & Composition */}
-      {product?.contentAndDescription?.ingredientsOrComposition &&
+      {/* {product?.contentAndDescription?.ingredientsOrComposition &&
       product?.contentAndDescription?.ingredientsOrComposition?.length > 0 ? (
         <Card className="mb-8">
           <CardContent className="p-6">
@@ -164,74 +184,58 @@ const ProductDetailsSection = ({
             </div>
           </CardContent>
         </Card>
-      ) : null}
+      ) : null} */}
 
       {/* Benefits & Side Effects */}
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
-        {product?.contentAndDescription?.benefits?.length ? (
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="font-semibold text-green-700 mb-4 flex items-center">
-                <CheckCircle className="h-5 w-5 mr-2" />
-                Benefits
-              </h3>
-              <ul className="space-y-2">
-                {product?.contentAndDescription?.benefits?.map(
-                  (benefit: string, index: number) => (
-                    <li
-                      key={index}
-                      className="text-sm theme-text-muted flex items-start"
-                    >
-                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                      {removeHtmlTags(benefit)}
-                    </li>
-                  )
-                )}
-              </ul>
-            </CardContent>
-          </Card>
-        ) : null}
+      {/* <div className="grid md:grid-cols-2 gap-6 mb-8">
+          {product?.contentAndDescription?.benefits?.length ? (
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="font-semibold text-green-700 mb-4 flex items-center">
+                  <CheckCircle className="h-5 w-5 mr-2" />
+                  Benefits
+                </h3>
+                <ul className="space-y-2">
+                  {product?.contentAndDescription?.benefits?.map(
+                    (benefit: string, index: number) => (
+                      <li
+                        key={index}
+                        className="text-sm theme-text-muted flex items-start"
+                      >
+                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                        {removeHtmlTags(benefit)}
+                      </li>
+                    )
+                  )}
+                </ul>
+              </CardContent>
+            </Card>
+          ) : null}
 
-        {product?.contentAndDescription?.sideEffects?.length ? (
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="font-semibold text-orange-700 mb-4 flex items-center">
-                <AlertCircle className="h-5 w-5 mr-2" />
-                Possible Side Effects
-              </h3>
-              <ul className="space-y-2">
-                {product?.contentAndDescription?.sideEffects?.map(
-                  (effect: string, index: number) => (
-                    <li
-                      key={index}
-                      className="text-sm theme-text-muted flex items-start"
-                    >
-                      <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                      {removeHtmlTags(effect)}
-                    </li>
-                  )
-                )}
-              </ul>
-            </CardContent>
-          </Card>
-        ) : null}
-      </div>
-
-      {/* Shipping and Return Policy */}
-      {product?.contentAndDescription?.shippingAndReturnPolicy && (
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold theme-text-primary mb-4">
-              Shipping & Return Policy
-            </h2>
-            <div className="theme-text-muted whitespace-pre-line">
-              {removeHtmlTags(
-                product?.contentAndDescription?.shippingAndReturnPolicy
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          {product?.contentAndDescription?.sideEffects?.length ? (
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="font-semibold text-orange-700 mb-4 flex items-center">
+                  <AlertCircle className="h-5 w-5 mr-2" />
+                  Possible Side Effects
+                </h3>
+                <ul className="space-y-2">
+                  {product?.contentAndDescription?.sideEffects?.map(
+                    (effect: string, index: number) => (
+                      <li
+                        key={index}
+                        className="text-sm theme-text-muted flex items-start"
+                      >
+                        <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                        {removeHtmlTags(effect)}
+                      </li>
+                    )
+                  )}
+                </ul>
+              </CardContent>
+            </Card>
+          ) : null}
+        </div> */}
 
       {/* How to Use */}
       {product?.contentAndDescription?.howToUse && (
@@ -240,9 +244,29 @@ const ProductDetailsSection = ({
             <h2 className="text-xl font-semibold theme-text-primary mb-4">
               How to Use
             </h2>
-            <div className="theme-text-muted whitespace-pre-line">
-              {removeHtmlTags(product?.contentAndDescription?.howToUse)}
-            </div>
+            <div
+              className="theme-text-muted whitespace-pre-line"
+              dangerouslySetInnerHTML={{
+                __html: product?.contentAndDescription?.howToUse,
+              }}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Shipping and Return Policy */}
+      {product?.contentAndDescription?.shippingAndReturnPolicy && (
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-semibold theme-text-primary mb-4">
+              Shipping & Return Policy
+            </h2>
+            <div
+              className="theme-text-muted whitespace-pre-line"
+              dangerouslySetInnerHTML={{
+                __html: product?.contentAndDescription?.shippingAndReturnPolicy,
+              }}
+            />
           </CardContent>
         </Card>
       )}
@@ -277,13 +301,13 @@ const ProductDetailsSection = ({
       )}
 
       {/* Related Products Section */}
-      {/* {product?.similarProducts?.length ? (
+      {product?.similarProducts?.length ? (
         <RelatedProductsSection
           product={product}
           selectedRelatedProducts={selectedRelatedProducts}
           handleRelatedProductToggle={handleRelatedProductToggle}
         />
-      ) : null} */}
+      ) : null}
     </div>
   );
 };

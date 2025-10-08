@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import dynamic from "next/dynamic";
 import ThemeLoader from "@/components/ThemeLoader";
-import { testTheme } from "@/configs";
+import { Theme } from "@/types/theme";
+import { DEFAULT_THEME } from "@/lib/theme-utils";
 
 // Dynamic imports for theme components
 //  --------- Default Theme ---------
@@ -20,7 +21,7 @@ const DefaultCategoriesPage = dynamic(
   }
 );
 
-//  --------- Modern Theme ---------
+//  --------- Classic Theme ---------
 const ClassicCategoriesPage = dynamic(
   () => import("@/themes/classic/TreatmentCategories/ServerPage"),
   {
@@ -45,18 +46,15 @@ interface CategoriesPageProps {
 const CategoriesPage = ({ searchParams }: CategoriesPageProps) => {
   // Get current theme from cookie store
   const cookieStore = cookies(); // get the cookie store
-  // const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
-  const theme = testTheme;
+  const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
 
   // Component mapping based on theme
   const ThemeComponents = {
-    default: DefaultCategoriesPage,
+    modern: DefaultCategoriesPage,
     classic: ClassicCategoriesPage,
   };
 
-  const SelectedComponent =
-    ThemeComponents[theme as keyof typeof ThemeComponents] ||
-    DefaultCategoriesPage;
+  const SelectedComponent = ThemeComponents[theme] || DefaultCategoriesPage;
 
   return <SelectedComponent searchParams={searchParams} />;
 };

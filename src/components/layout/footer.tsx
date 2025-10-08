@@ -7,8 +7,9 @@ import { useEffect } from "react";
 import { setMerchantData } from "@/store/slices/merchantSlice";
 import { MerchantNMIpaymentTokenResponse } from "@/types/auth";
 import DefaultFooter from "@/themes/default/layout/DefaultFooter";
-import { testTheme } from "@/configs";
 import ClassicFooter from "@/themes/classic/layout/ClassicFooter";
+import { setDataInCookie } from "@/utils/auth";
+import { DEFAULT_THEME } from "@/lib/theme-utils";
 
 const DefaultFooterComponent = ({
   merchantData,
@@ -42,6 +43,7 @@ export function Footer() {
     // update it with latest fetched merchant data
     if (fetchedMerchantData) {
       dispatch(setMerchantData(fetchedMerchantData));
+      setDataInCookie("theme", fetchedMerchantData?.selectedTemplateType);
     }
   }, [fetchedMerchantData, merchantDataError, dispatch]);
 
@@ -52,18 +54,14 @@ export function Footer() {
   }
 
   // Get current theme from cookie store
-  //  const cookieStore = cookies(); // get the cookie store
-  // const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
-  const theme = testTheme;
+  const theme = fetchedMerchantData?.selectedTemplateType || DEFAULT_THEME;
 
   const ThemeComponents = {
-    default: DefaultFooterComponent,
+    modern: DefaultFooterComponent,
     classic: ClassicFooterComponent,
   };
 
-  const SelectedComponent =
-    ThemeComponents[theme as keyof typeof ThemeComponents] ||
-    DefaultFooterComponent;
+  const SelectedComponent = ThemeComponents[theme] || DefaultFooterComponent;
 
   return <SelectedComponent merchantData={fetchedMerchantData} />;
 }

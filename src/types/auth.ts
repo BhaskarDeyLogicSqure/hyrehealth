@@ -1,3 +1,4 @@
+import { Theme } from "./theme";
 import { UserDataType } from "./user";
 
 export interface LoginCredentials {
@@ -82,5 +83,6 @@ export interface MerchantNMIpaymentTokenResponse {
     // Branding fields
     businessName: string;
     customizeBranding: CustomizeBranding;
+    selectedTemplateType: Theme;
   };
 }

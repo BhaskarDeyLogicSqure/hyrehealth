@@ -1,6 +1,6 @@
 import { Theme } from "@/types/theme";
 
-export const AVAILABLE_THEMES: Theme[] = [Theme.DEFAULT, Theme.MODERN]; // add more themes here
+export const AVAILABLE_THEMES: Theme[] = [Theme.DEFAULT, Theme.CLASSIC]; // add more themes here
 
 export const DEFAULT_THEME: Theme = Theme.DEFAULT;
 

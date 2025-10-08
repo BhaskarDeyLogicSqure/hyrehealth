@@ -9,11 +9,12 @@ import { useCookies } from "@/hooks/useCookies";
 import { isUserAuthenticated } from "@/utils/auth";
 import Swal from "sweetalert2";
 import NavigationLoader from "./NavigationLoader";
-import { testTheme } from "@/configs";
 import { MerchantNMIpaymentTokenResponse } from "@/types/auth";
 import DefaultTopbar from "@/themes/default/layout/DefaultTopbar";
 import ClassicTopbar from "@/themes/classic/layout/ClassicTopbar";
 import { UserDataType } from "@/types";
+import { Theme } from "@/types/theme";
+import { DEFAULT_THEME } from "@/lib/theme-utils";
 
 const DefaultTopbarComponent = ({
   merchantData,
@@ -91,7 +92,7 @@ const Topbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
-  const { removeCookie } = useCookies();
+  const { removeCookie, getCookie } = useCookies();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { user } = useSelector((state: RootState) => state?.authReducer);
@@ -137,18 +138,14 @@ const Topbar = () => {
   const isAuthenticated = isUserAuthenticated();
 
   // Get current theme from cookie store
-  //  const cookieStore = cookies(); // get the cookie store
-  // const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
-  const theme = testTheme;
+  const theme = (getCookie("theme") as Theme) || DEFAULT_THEME; // get the theme from the cookie
 
   const ThemeComponents = {
-    default: DefaultTopbarComponent,
+    modern: DefaultTopbarComponent,
     classic: ClassicTopbarComponent,
   };
 
-  const SelectedComponent =
-    ThemeComponents[theme as keyof typeof ThemeComponents] ||
-    DefaultTopbarComponent;
+  const SelectedComponent = ThemeComponents[theme] || DefaultTopbarComponent;
 
   return (
     <>

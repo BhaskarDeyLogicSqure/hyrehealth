@@ -1,12 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Star } from "lucide-react";
 import React from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
 import ProductsCard from "./ProductsCard";
+import { useRouter } from "next/navigation";
 
 const HomeFeaturedTreatments = ({
   featuredProducts,
@@ -14,10 +11,7 @@ const HomeFeaturedTreatments = ({
   featuredProducts: any;
 }) => {
   if (!featuredProducts?.length) return null;
-
-  const { merchantData } = useSelector(
-    (state: RootState) => state?.merchantReducer
-  );
+  const router = useRouter();
 
   return (
     <>
@@ -45,6 +39,9 @@ const HomeFeaturedTreatments = ({
             <Button
               variant="outline"
               className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 font-normal text-sm h-8 px-4 rounded-md"
+              onClick={() => {
+                router.push("/products");
+              }}
             >
               View All Treatments
             </Button>

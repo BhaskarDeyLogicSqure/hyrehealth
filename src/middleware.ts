@@ -138,10 +138,11 @@ class ThemeManager {
       }
 
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      const url = `${baseUrl}/theme`;
+      const url = `${baseUrl}/payment/merchant-nmi-key`;
       const themeResponse = await axios.get(url);
 
-      const theme = themeResponse?.data?.userColourTheme as Theme;
+      const theme = themeResponse?.data?.selectedTemplateType as Theme;
+      console.log("theme 1111", theme);
 
       if (theme && AVAILABLE_THEMES?.includes(theme)) {
         return theme;
