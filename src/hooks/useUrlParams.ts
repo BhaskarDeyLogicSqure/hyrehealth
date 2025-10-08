@@ -198,7 +198,7 @@ export const useProductsUrlParams = (fdaApproved: boolean) => {
       sort: "",
       page: 1,
       limit: 6,
-      fdaApproved: fdaApproved,
+      fdaApproved: fdaApproved === true ? true : undefined,
     },
     {
       debounceMs: 500, // Longer debounce for search
