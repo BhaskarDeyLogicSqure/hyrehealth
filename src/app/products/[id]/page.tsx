@@ -3,7 +3,6 @@ import { Theme } from "@/types/theme";
 import { DEFAULT_THEME } from "@/lib/theme-utils";
 import dynamic from "next/dynamic";
 import ThemeLoader from "@/components/ThemeLoader";
-import { testTheme } from "@/configs";
 
 // Dynamic imports for theme components
 //  --------- Default Theme ---------
@@ -53,16 +52,14 @@ interface ProductDetailsPageProps {
 const ProductDetailsPage = ({ params }: ProductDetailsPageProps) => {
   // Get current theme from cookie store
   const cookieStore = cookies();
-  // const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
-  const theme = testTheme;
+  const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
+
   const ThemeComponents = {
-    default: DefaultProductDetailsPage,
-    classic: ClassicProductDetailsPage, 
+    modern: DefaultProductDetailsPage,
+    classic: ClassicProductDetailsPage,
   } as const;
 
-  const SelectedComponent =
-    ThemeComponents[theme as keyof typeof ThemeComponents] ||
-    DefaultProductDetailsPage;
+  const SelectedComponent = ThemeComponents[theme] || DefaultProductDetailsPage;
 
   return <SelectedComponent params={params} />;
 };
