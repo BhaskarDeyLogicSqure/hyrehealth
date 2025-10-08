@@ -5,7 +5,7 @@ import { getCurrentDomain } from "@/lib/utils";
 import { headers } from "next/headers";
 import BackButton from "./BackButton";
 import TreatmentInfoCards from "../Components/TreatmentInfoCards";
-// import { notFound } from "next/navigation";
+import { Product } from "@/types/products";
 interface ProductDetailsPageProps {
   params: {
     id: string;
@@ -37,11 +37,15 @@ const DefaultProductDetailsPage = async ({
 
   return (
     <div className="min-h-screen bg-white">
-      
-        <BackButton />
-        <ProductSection product={product as any} />
-        <TreatmentInfoCards />
-      
+      <BackButton
+        categoryName={product?.category?.[0]?.name}
+        categoryId={product?.category?.[0]?._id}
+        productName={product?.name}
+      />
+
+      <ProductSection product={product} />
+
+      <TreatmentInfoCards product={product} />
     </div>
   );
 };

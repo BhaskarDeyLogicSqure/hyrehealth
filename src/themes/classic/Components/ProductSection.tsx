@@ -135,7 +135,7 @@ const ProductSection = ({ product }: { product: Product }) => {
           selectedRelatedProducts={selectedRelatedProductIds}
           relatedProductsTotal={relatedProductsTotal}
         />
-    </div>
+      </div>
     </div>
   );
 };
