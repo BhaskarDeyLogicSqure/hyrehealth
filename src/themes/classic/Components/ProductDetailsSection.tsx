@@ -129,19 +129,23 @@ const ProductDetailsSection = ({
           <h2 className="text-xl font-semibold theme-text-primary mb-4">
             About This Treatment
           </h2>
-          <p className="theme-text-muted mb-4">
-            {removeHtmlTags(product?.contentAndDescription?.description || "")}
-          </p>
-          <p className="theme-text-muted text-sm">
-            {removeHtmlTags(
-              product?.contentAndDescription?.longDescription || ""
-            )}
-          </p>
+          <p
+            className="theme-text-muted mb-4"
+            dangerouslySetInnerHTML={{
+              __html: product?.contentAndDescription?.description || "",
+            }}
+          />
+          <p
+            className="theme-text-muted mb-4"
+            dangerouslySetInnerHTML={{
+              __html: product?.contentAndDescription?.longDescription || "",
+            }}
+          />
         </CardContent>
       </Card>
 
       {/* Ingredients & Composition */}
-      {product?.contentAndDescription?.ingredientsOrComposition &&
+      {/* {product?.contentAndDescription?.ingredientsOrComposition &&
       product?.contentAndDescription?.ingredientsOrComposition?.length > 0 ? (
         <Card className="mb-8">
           <CardContent className="p-6">
@@ -180,7 +184,7 @@ const ProductDetailsSection = ({
             </div>
           </CardContent>
         </Card>
-      ) : null}
+      ) : null} */}
 
       {/* Benefits & Side Effects */}
       {/* <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -233,22 +237,6 @@ const ProductDetailsSection = ({
           ) : null}
         </div> */}
 
-      {/* Shipping and Return Policy */}
-      {product?.contentAndDescription?.shippingAndReturnPolicy && (
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold theme-text-primary mb-4">
-              Shipping & Return Policy
-            </h2>
-            <div className="theme-text-muted whitespace-pre-line">
-              {removeHtmlTags(
-                product?.contentAndDescription?.shippingAndReturnPolicy
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* How to Use */}
       {product?.contentAndDescription?.howToUse && (
         <Card className="mb-8">
@@ -256,9 +244,29 @@ const ProductDetailsSection = ({
             <h2 className="text-xl font-semibold theme-text-primary mb-4">
               How to Use
             </h2>
-            <div className="theme-text-muted whitespace-pre-line">
-              {removeHtmlTags(product?.contentAndDescription?.howToUse)}
-            </div>
+            <div
+              className="theme-text-muted whitespace-pre-line"
+              dangerouslySetInnerHTML={{
+                __html: product?.contentAndDescription?.howToUse,
+              }}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Shipping and Return Policy */}
+      {product?.contentAndDescription?.shippingAndReturnPolicy && (
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-semibold theme-text-primary mb-4">
+              Shipping & Return Policy
+            </h2>
+            <div
+              className="theme-text-muted whitespace-pre-line"
+              dangerouslySetInnerHTML={{
+                __html: product?.contentAndDescription?.shippingAndReturnPolicy,
+              }}
+            />
           </CardContent>
         </Card>
       )}
