@@ -20,7 +20,7 @@ const DefaultCategoriesPage = dynamic(
   }
 );
 
-//  --------- Modern Theme ---------
+//  --------- Classic Theme ---------
 const ClassicCategoriesPage = dynamic(
   () => import("@/themes/classic/TreatmentCategories/ServerPage"),
   {
