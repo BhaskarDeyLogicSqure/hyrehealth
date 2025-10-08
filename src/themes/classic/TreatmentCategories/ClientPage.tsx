@@ -96,6 +96,7 @@ const TreatmentCategoriesClient = () => {
           />
         </div>
       ) : null}
+
       <CategoryTreatmentCTA />
     </div>
   );
