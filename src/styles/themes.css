@@ -207,7 +207,7 @@
 
 /* Navbar specific utility classes */
 .navbar-bg {
-  background: var(--navbar-background);
+  background: #ffffff;
   box-shadow: var(--navbar-shadow);
 }
 
