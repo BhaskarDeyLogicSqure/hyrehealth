@@ -35,7 +35,7 @@ const NotFound = () => {
   const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
 
   const ThemeComponents = {
-    default: DefaultNotFoundPage,
+    modern: DefaultNotFoundPage,
     // modern: ModernNotFoundPage, // TODO: Uncomment when ModernNotFoundPage is implemented
   } as const;
 

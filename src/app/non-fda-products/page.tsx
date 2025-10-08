@@ -33,7 +33,6 @@ const ClassicProductsPage = dynamic(
 
 interface ProductsPageProps {
   searchParams: any;
-  isNonFDAProductsPage: boolean;
 }
 
 const ProductsPage = ({ searchParams }: ProductsPageProps) => {
