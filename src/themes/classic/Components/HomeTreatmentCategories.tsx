@@ -16,7 +16,7 @@ const HomeTreatmentCategories = ({
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-bold text-gray-900 mb-4 text-3xl">
-              Treatment Categories
+              Product Categories
             </h2>
             <p className="text-gray-600 max-w-3xl mx-auto text-lg">
               Discover personalized treatments across our specialized wellness

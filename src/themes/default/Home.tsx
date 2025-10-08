@@ -42,11 +42,15 @@ const DefaultHomePage = async () => {
             </div>
             <div className="flex items-center">
               <CheckCircle className="h-6 w-6 text-green-600 mr-2" />
-              <span className="text-gray-700">FDA Approved</span>
+              <span className="text-gray-700">USA Manufactured</span>
             </div>
             <div className="flex items-center">
               <CheckCircle className="h-6 w-6 text-green-600 mr-2" />
-              <span className="text-gray-700">Free Shipping</span>
+              <span className="text-gray-700">Fast Fulfillment</span>
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="h-6 w-6 text-green-600 mr-2" />
+              <span className="text-gray-700">Secure Payments</span>
             </div>
           </div>
         </div>

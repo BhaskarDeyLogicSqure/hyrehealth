@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock } from "lucide-react";
+import { Clock, ShieldCheck } from "lucide-react";
 import { Shield } from "lucide-react";
 import { Package } from "lucide-react";
 import { useSelector } from "react-redux";
@@ -15,21 +15,28 @@ const FeatureDetails = () => {
 
   const features = [
     {
-      title: "Fast & Convenient",
+      title: "Fast, Simple, Private",
       description:
-        "Get started in minutes, no waiting rooms or appointments needed",
+        "Skip the hassle of traditional visits and start in minutes.",
       icon: Clock,
     },
     {
-      title: "Licensed Physicians",
+      title: "Licensed Providers",
       description:
-        "All treatments reviewed and approved by board-certified doctors",
+        "Every consultation and prescription is reviewed by a real, licensed medical professional.",
       icon: Shield,
     },
     {
-      title: "Discreet Delivery",
-      description: "Your privacy is protected with secure, unmarked packaging",
+      title: "U.S. Based Pharmacies",
+      description:
+        "Orders are fulfilled by certified, state-licensed compounding pharmacies.",
       icon: Package,
+    },
+    {
+      title: "Safe & Transparent",
+      description:
+        "You know who’s providing your care, where it’s coming from, and how it’s handled.",
+      icon: ShieldCheck,
     },
   ];
 
@@ -38,7 +45,7 @@ const FeatureDetails = () => {
       <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">
         Why Choose HealthPortal?
       </h2>
-      <div className="grid md:grid-cols-3 gap-8">
+      <div className="grid md:grid-cols-4 gap-8">
         {features?.map((feature, index) => {
           const Icon = feature?.icon;
           return (

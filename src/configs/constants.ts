@@ -119,23 +119,27 @@ export const faqs = [
 export const howItWorks = [
   {
     step: 1,
-    title: "Choose Treatment",
-    description: "Browse our categories and select the right treatment for you",
+    title: "Choose Your Product",
+    description:
+      "Browse our categories and select the products that fit your goals.",
   },
   {
     step: 2,
-    title: "Complete Consultation",
-    description: "Answer health questions and speak with our medical team",
+    title: "Complete The Form",
+    description:
+      "Answer a few quick questions to help our licensed physicians understand your wellness objectives.",
   },
   {
     step: 3,
-    title: "Get Approved",
-    description: "Receive your personalized treatment plan and dosage",
+    title: "Physician Review",
+    description:
+      "A licensed medical professional reviews your information and, if appropriate, approves your order.",
   },
   {
     step: 4,
-    title: "Start Treatment",
-    description: "Your medication is delivered monthly to your door",
+    title: "Delivery & Support",
+    description:
+      "Your order is prepared by trusted U.S. compounding partners and shipped directly to your door with ongoing renewal options.",
   },
 ];
 

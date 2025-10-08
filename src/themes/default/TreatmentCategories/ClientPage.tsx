@@ -22,9 +22,7 @@ const TreatmentCategoriesClient = () => {
   return (
     <div className=" theme-bg">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-black mb-2">
-          Treatment Categories
-        </h1>
+        <h1 className="text-3xl font-bold text-black mb-2">Categories</h1>
         <p className="theme-text-muted mb-6">
           Choose a category to explore our specialized treatments
         </p>
