@@ -1,5 +1,5 @@
 import React from "react";
-import { Award, ShieldCheck, Users, Truck } from "lucide-react";
+import { Award, ShieldCheck, Users, Truck, Lock } from "lucide-react";
 
 const badges = [
   {
@@ -14,13 +14,18 @@ const badges = [
   },
   {
     icon: Award,
-    title: "FDA Approved",
-    description: "Clinically proven treatments",
+    title: "USA Manufactured",
+    description: "Made in the USA",
   },
   {
     icon: Truck,
-    title: "Free Shipping",
-    description: "Discreet delivery nationwide",
+    title: "Fast Fulfillment",
+    description: "Fast fulfillment of your order",
+  },
+  {
+    icon: Lock,
+    title: "Secure Payments",
+    description: "Secure checkout process",
   },
 ];
 const HomeTrustBadges = () => {

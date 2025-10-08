@@ -265,7 +265,7 @@ const ClassicFooter = ({
           </div>
 
           {/* Medical Disclaimer Box */}
-          <div className="bg-[#F1F5F9] rounded-lg p-6 mb-6">
+          {/* <div className="bg-[#F1F5F9] rounded-lg p-6 mb-6">
             <p className="text-sm leading-relaxed">
               <span className="font-bold">Important Medical Disclaimer:</span>{" "}
               This website is for informational purposes only and does not
@@ -274,7 +274,7 @@ const ClassicFooter = ({
               Individual results may vary. Please consult with your healthcare
               provider before starting any new treatment.
             </p>
-          </div>
+          </div> */}
 
           {merchantData?.isApplyLegitScript ? (
             <div className="w-full mx-auto mt-4">

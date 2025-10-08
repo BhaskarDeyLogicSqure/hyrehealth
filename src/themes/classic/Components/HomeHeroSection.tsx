@@ -29,14 +29,13 @@ const HomeHeroSection = () => {
       >
         <div className="max-w-6xl mx-auto">
           <h1 className="font-bold text-gray-900 mb-8 text-left leading-tight text-6xl">
-            Personalized Wellness,
+            Your Performance Journey
             <br />
-            Scientifically Delivered
+            Starts Here
           </h1>
           <p className="text-gray-600 mb-10 text-xl text-left max-w-3xl leading-relaxed">
-            Access physician-prescribed treatments for weight management,
-            hormone optimization, and longevity through our comprehensive
-            telemedicine platform.
+            Access premium peptides and GLPs through our team of licensed
+            physicians, fast, private, and simple.
           </p>
           <div className="flex flex-col sm:flex-row items-start gap-6 mb-10">
             <Button

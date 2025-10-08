@@ -89,7 +89,7 @@ const DefaultTopbar = ({
                   href={item?.href}
                   className={`
               px-3 py-2 text-md font-medium transition-colors text-gray-500
-              ${pathname === item?.href ? "navbar-nav-text-active" : ""}
+              ${pathname === item?.href ? "text-gray-800" : ""}
             `}
                 >
                   {item?.name}

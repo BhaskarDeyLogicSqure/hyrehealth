@@ -32,10 +32,11 @@ const HomePageHeroSection = () => {
     >
       <div className="container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-          Your Health Journey Starts Here
+          Your Performance Journey Starts Here
         </h1>
         <p className="text-xl md:text-2xl mb-8 opacity-90">
-          Personalized treatments with expert consultation
+          Access premium peptides and GLPs through our team of licensed
+          physicians, fast, private, and simple.
         </p>
         <Button
           size="lg"
