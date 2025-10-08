@@ -43,7 +43,7 @@ const FeatureDetails = () => {
   return (
     <div className="mb-16">
       <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">
-        Why Choose HealthPortal?
+        Why Customers Love This!
       </h2>
       <div className="grid md:grid-cols-4 gap-8">
         {features?.map((feature, index) => {
