@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
-import { Theme } from "@/types/theme";
-import { DEFAULT_THEME } from "@/lib/theme-utils";
 import dynamic from "next/dynamic";
 import ThemeLoader from "@/components/ThemeLoader";
+import { Theme } from "@/types/theme";
+import { DEFAULT_THEME } from "@/lib/theme-utils";
 
 // Dynamic imports for theme components
 //  --------- Default Theme ---------
@@ -17,22 +17,17 @@ const DefaultProductsPage = dynamic(
   }
 );
 
-//  --------- Modern Theme ---------
-// TODO: Implement ModernProductsPage when needed
-// const ModernProductsPage = dynamic(
-//   () => import("@/themes/modern/ModernProductsPage"),
-//   {
-//     loading: () => (
-//       <div className="min-h-screen flex items-center justify-center theme-bg">
-//         <ThemeLoader
-//           type="products"
-//           message="Loading products..."
-//           size="lg"
-//         />
-//       </div>
-//     ),
-//   }
-// );
+//  --------- Classic Theme ---------
+const ClassicProductsPage = dynamic(
+  () => import("@/themes/classic/Products/ServerPage"),
+  {
+    loading: () => (
+      <div className="min-h-screen flex items-center justify-center theme-bg">
+        <ThemeLoader type="products" message="Loading products..." size="lg" />
+      </div>
+    ),
+  }
+);
 
 // --------- Add more theme exports here ---------
 
@@ -47,13 +42,11 @@ const ProductsPage = ({ searchParams }: ProductsPageProps) => {
 
   // Component mapping based on theme
   const ThemeComponents = {
-    default: DefaultProductsPage,
-    // modern: ModernProductsPage,
+    modern: DefaultProductsPage,
+    classic: ClassicProductsPage,
   } as const;
 
-  const SelectedComponent =
-    ThemeComponents[theme as keyof typeof ThemeComponents] ||
-    DefaultProductsPage;
+  const SelectedComponent = ThemeComponents[theme] || DefaultProductsPage;
 
   return <SelectedComponent searchParams={searchParams} />;
 };

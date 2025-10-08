@@ -23,24 +23,23 @@ const DefaultProductDetailsPage = dynamic(
   }
 );
 
-//  --------- Modern Theme ---------
-// TODO: Implement ModernProductDetailsPage when needed
-// const ModernProductDetailsPage = dynamic(
-//   () => import("@/themes/modern/ModernProductDetailsPage"),
-//   {
-//     loading: () => (
-//       <div className="min-h-screen theme-bg">
-//         <div className="container mx-auto px-4 py-8">
-//           <ThemeLoader
-//             type="product-details"
-//             variant="product-details-skeleton"
-//             message="Loading product details..."
-//           />
-//         </div>
-//       </div>
-//     ),
-//   }
-// );
+//  --------- Classic Theme ---------
+const ClassicProductDetailsPage = dynamic(
+  () => import("@/themes/classic/Products/ProductDetailsPage"),
+  {
+    loading: () => (
+      <div className="min-h-screen theme-bg">
+        <div className="container mx-auto px-4 py-8">
+          <ThemeLoader
+            type="product-details"
+            variant="product-details-skeleton"
+            message="Loading product details..."
+          />
+        </div>
+      </div>
+    ),
+  }
+);
 
 // --------- Add more theme exports here ---------
 
@@ -56,13 +55,11 @@ const ProductDetailsPage = ({ params }: ProductDetailsPageProps) => {
   const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
 
   const ThemeComponents = {
-    default: DefaultProductDetailsPage,
-    // modern: ModernProductDetailsPage, // TODO: Uncomment when ModernProductDetailsPage is implemented
+    modern: DefaultProductDetailsPage,
+    classic: ClassicProductDetailsPage,
   } as const;
 
-  const SelectedComponent =
-    ThemeComponents[theme as keyof typeof ThemeComponents] ||
-    DefaultProductDetailsPage;
+  const SelectedComponent = ThemeComponents[theme] || DefaultProductDetailsPage;
 
   return <SelectedComponent params={params} />;
 };

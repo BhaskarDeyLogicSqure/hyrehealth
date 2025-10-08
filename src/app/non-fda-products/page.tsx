@@ -6,32 +6,24 @@ import { DEFAULT_THEME } from "@/lib/theme-utils";
 
 // Dynamic imports for theme components
 //  --------- Default Theme ---------
-const DefaultCategoriesPage = dynamic(
-  () => import("@/themes/default/TreatmentCategories/ServerPage"),
+const DefaultProductsPage = dynamic(
+  () => import("@/themes/default/NonFDAProducts/ServerPage"),
   {
     loading: () => (
       <div className="min-h-screen flex items-center justify-center theme-bg">
-        <ThemeLoader
-          type="categories"
-          message="Loading categories..."
-          size="lg"
-        />
+        <ThemeLoader type="products" message="Loading products..." size="lg" />
       </div>
     ),
   }
 );
 
 //  --------- Classic Theme ---------
-const ClassicCategoriesPage = dynamic(
-  () => import("@/themes/classic/TreatmentCategories/ServerPage"),
+const ClassicProductsPage = dynamic(
+  () => import("@/themes/classic/NonFDAProducts/ServerPage"),
   {
     loading: () => (
       <div className="min-h-screen flex items-center justify-center theme-bg">
-        <ThemeLoader
-          type="categories"
-          message="Loading categories..."
-          size="lg"
-        />
+        <ThemeLoader type="products" message="Loading products..." size="lg" />
       </div>
     ),
   }
@@ -39,24 +31,24 @@ const ClassicCategoriesPage = dynamic(
 
 // --------- Add more theme exports here ---------
 
-interface CategoriesPageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+interface ProductsPageProps {
+  searchParams: any;
 }
 
-const CategoriesPage = ({ searchParams }: CategoriesPageProps) => {
+const ProductsPage = ({ searchParams }: ProductsPageProps) => {
   // Get current theme from cookie store
   const cookieStore = cookies(); // get the cookie store
   const theme = (cookieStore.get("theme")?.value as Theme) || DEFAULT_THEME;
 
   // Component mapping based on theme
   const ThemeComponents = {
-    modern: DefaultCategoriesPage,
-    classic: ClassicCategoriesPage,
-  };
+    modern: DefaultProductsPage,
+    classic: ClassicProductsPage,
+  } as const;
 
-  const SelectedComponent = ThemeComponents[theme] || DefaultCategoriesPage;
+  const SelectedComponent = ThemeComponents[theme] || DefaultProductsPage;
 
   return <SelectedComponent searchParams={searchParams} />;
 };
 
-export default CategoriesPage;
+export default ProductsPage;

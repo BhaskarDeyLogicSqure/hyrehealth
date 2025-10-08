@@ -1,0 +1,53 @@
+import ProductSection from "../../classic/Components/ProductSection";
+import { productApi } from "@/api/products/productApi";
+import { handleServerError } from "@/lib/error-handler";
+import { getCurrentDomain } from "@/lib/utils";
+import { headers } from "next/headers";
+import BackButton from "./BackButton";
+import TreatmentInfoCards from "../Components/TreatmentInfoCards";
+import { Product } from "@/types/products";
+interface ProductDetailsPageProps {
+  params: {
+    id: string;
+  };
+}
+
+const DefaultProductDetailsPage = async ({
+  params,
+}: ProductDetailsPageProps) => {
+  let product;
+
+  // get the origin from the headers
+  const headersList = headers();
+  const origin = getCurrentDomain(headersList);
+
+  try {
+    product = await productApi.getProductById(params?.id, origin);
+  } catch (err: any) {
+    // Use the global error handler
+    handleServerError(err, {
+      customMessage: "Failed to load product details",
+      redirectTo: "/products",
+      showToast: true,
+      logError: true,
+    });
+
+    // return notFound();
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <BackButton
+        categoryName={product?.category?.[0]?.name}
+        categoryId={product?.category?.[0]?._id}
+        productName={product?.name}
+      />
+
+      <ProductSection product={product} />
+
+      <TreatmentInfoCards product={product} />
+    </div>
+  );
+};
+
+export default DefaultProductDetailsPage;

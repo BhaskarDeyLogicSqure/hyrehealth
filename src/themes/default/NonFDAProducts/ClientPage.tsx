@@ -40,9 +40,7 @@ const DefaultProductsPage = () => {
     getCategoryNameFromId,
     onPageChange,
     handleResetFilters,
-  } = useProducts({
-    fdaApproved: merchantData?.isApplyLegitScript ?? undefined, // undefined means both fda approved and non fda approved products will be shown
-  });
+  } = useProducts({ fdaApproved: false }); // fdaApproved is false because this is a non-fda products page, here we will only show those products that are not fda approved
 
   return (
     <div className="theme-bg">
@@ -50,7 +48,7 @@ const DefaultProductsPage = () => {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-black mb-2 flex items-center">
-            All Treatments{" "}
+            All Treatments Non FDA
             {isProductsLoading ? (
               <span className="ml-2">
                 <ThemeLoader

@@ -17,11 +17,12 @@ import useProducts from "@/hooks/useProducts";
 import CustomPagination from "@/components/CustomPagination";
 import DataNotFound from "@/components/DataNotFound";
 import ThemeLoader from "@/components/ThemeLoader";
-import ProductsCard from "../Components/ProductsCard";
 import { PRODUCT_SORT_OPTIONS } from "@/configs";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import ProductsCard from "../Components/ProductsCard";
+import ProductsTitle from "../Components/ProductsTitle";
 
 const DefaultProductsPage = () => {
   const [showFilters, setShowFilters] = useState(false);
@@ -46,31 +47,13 @@ const DefaultProductsPage = () => {
 
   return (
     <div className="theme-bg">
-      <div className="container mx-auto px-4 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-black mb-2 flex items-center">
-            All Treatments{" "}
-            {isProductsLoading ? (
-              <span className="ml-2">
-                <ThemeLoader
-                  type="inline"
-                  variant="simple"
-                  size="sm"
-                  showIcon={true}
-                  className="ml-2"
-                />
-              </span>
-            ) : null}
-          </h1>
-          <p className="theme-text-muted">
-            Explore our comprehensive range of wellness treatments
-          </p>
-        </div>
+      {/* Page Header */}
+      <ProductsTitle isLoading={isProductsLoading} />
 
-        {/* Filters */}
-        <div className="bg-white rounded-lg p-6 mb-8 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
+      {/* Filters */}
+      <div className="bg-white p-6 border-b border-gray-200">
+        <div className="container mx-auto">
+          <div className=" flex items-center justify-between mb-4">
             <h3 className="text-lg  font-semibold text-black">Filters</h3>
             <div className="flex items-center gap-2">
               {/* Filter Toggle Button - Shows below 767px */}
@@ -185,49 +168,53 @@ const DefaultProductsPage = () => {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Results Summary */}
-        {filters?.category && products?.total ? (
-          <div className="mb-6">
-            <p className="theme-text-muted">
-              Showing {products?.total} treatment
-              {products?.total !== 1 ? "s" : ""}
-              {filters?.category !== "all" &&
-                ` in ${getCategoryNameFromId(filters?.category)}`}
-            </p>
-          </div>
-        ) : null}
-
-        {/* Product Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products?.data?.length ? (
-            products?.data?.map((product: Product) => (
-              <ProductsCard key={product?._id} product={product} />
-            ))
-          ) : isProductsLoading ? (
-            <div className="col-span-full">
-              <ThemeLoader type="products" variant="skeleton" />
-            </div>
-          ) : (
-            <div className="col-span-full">
-              <DataNotFound type="products" />
-            </div>
-          )}
+      {/* Results Summary */}
+      {filters?.category && products?.total ? (
+        <div className="mb-6">
+          <p className="theme-text-muted">
+            Showing {products?.total} treatment
+            {products?.total !== 1 ? "s" : ""}
+            {filters?.category !== "all" &&
+              ` in ${getCategoryNameFromId(filters?.category)}`}
+          </p>
         </div>
+      ) : null}
 
-        {/* Custom Pagination Component */}
-        {products?.total && filters?.page && filters?.limit ? (
-          <div className="mt-8">
-            <CustomPagination
-              currentPage={filters.page}
-              totalItems={products.total}
-              itemsPerPage={filters.limit}
-              onPageChange={onPageChange}
-              showInfo={true}
-              maxVisiblePages={5}
-            />
+      <div className="bg-white px-6 py-16 lg:px-8">
+        <div className="container mx-auto">
+          {/* Product Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products?.data?.length ? (
+              products?.data?.map((product: Product) => (
+                <ProductsCard key={product?._id} product={product} />
+              ))
+            ) : isProductsLoading ? (
+              <div className="col-span-full">
+                <ThemeLoader type="products" variant="skeleton" />
+              </div>
+            ) : (
+              <div className="col-span-full">
+                <DataNotFound type="products" />
+              </div>
+            )}
           </div>
-        ) : null}
+
+          {/* Custom Pagination Component */}
+          {products?.total && filters?.page && filters?.limit ? (
+            <div className="mt-8">
+              <CustomPagination
+                currentPage={filters.page}
+                totalItems={products.total}
+                itemsPerPage={filters.limit}
+                onPageChange={onPageChange}
+                showInfo={true}
+                maxVisiblePages={5}
+              />
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );
