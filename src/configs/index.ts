@@ -16,7 +16,7 @@ export const CONSULTATION_FEE = 49;
 
 // Navigation items for the main menu
 export const navigationItems = [
-  { name: "Treatments", href: "/categories" },
+  { name: "Categories", href: "/categories" },
   { name: "All Products", href: "/products" },
   { name: "How It Works", href: "/how-it-works" },
   { name: "Support", href: "/support" },

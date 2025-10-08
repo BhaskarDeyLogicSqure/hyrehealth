@@ -61,14 +61,14 @@ const DefaultTopbar = ({
                   </div>
                 ) : (
                   <div className="w-10 h-10 navbar-logo-bg rounded-lg flex items-center justify-center border bg-primary">
-                    <span className="text-white font-bold text-xl">
+                    <span className="text-gray-800 font-bold text-xl">
                       {merchantData?.customizeBranding
                         ?.platformDisplayName?.[0] || "H"}
                     </span>
                   </div>
                 )}
                 <div className="flex flex-col">
-                  <span className="text-xl font-bold navbar-logo-text leading-tight">
+                  <span className="text-xl font-bold text-gray-800 leading-tight">
                     {merchantData?.customizeBranding?.platformDisplayName ||
                       APP_NAME}
                   </span>
@@ -88,8 +88,8 @@ const DefaultTopbar = ({
                   key={item?.href}
                   href={item?.href}
                   className={`
-              px-3 py-2 text-md font-medium transition-colors navbar-nav-text
-              ${pathname === item?.href ? "navbar-nav-text-active" : ""}
+              px-3 py-2 text-md font-medium transition-colors text-gray-500
+              ${pathname === item?.href ? "text-gray-800" : ""}
             `}
                 >
                   {item?.name}

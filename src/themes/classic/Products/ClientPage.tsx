@@ -172,7 +172,7 @@ const DefaultProductsPage = () => {
 
       {/* Results Summary */}
       {filters?.category && products?.total ? (
-        <div className="mb-6">
+        <div className="p-6 container mx-auto">
           <p className="theme-text-muted">
             Showing {products?.total} treatment
             {products?.total !== 1 ? "s" : ""}

@@ -2,19 +2,17 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  CheckCircle,
-  AlertCircle,
-  Users,
-  Clock,
-  Truck,
-  Shield,
-  Check,
-} from "lucide-react";
 import { Product } from "@/types/products";
-import { removeHtmlTags } from "@/lib/utils";
 
 const TreatmentInfoCards = ({ product }: { product: Product }) => {
+  if (
+    !product?.contentAndDescription?.benefits?.length &&
+    !product?.contentAndDescription?.sideEffects?.length &&
+    !product?.contentAndDescription?.ingredientsOrComposition?.[0]?.name
+  ) {
+    return null;
+  }
+
   return (
     <div className="bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
