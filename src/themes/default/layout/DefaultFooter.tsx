@@ -231,11 +231,11 @@ const DefaultFooter = ({
         {merchantData?.isApplyLegitScript ? (
           <div className="w-full mx-auto mt-4">
             <p className="text-xs text-center text-muted-foreground">
-              <strong>FDA Disclosure:</strong> The statements made regarding
-              these products have not been evaluated by the Food and Drug
-              Administration. The efficacy of these products has not been
-              confirmed by FDA-apporved research. These products are not
-              intended to diagnose, treat, cure or prevent any disease.
+              The statements made regarding these products have not been
+              evaluated by the Food and Drug Administration. The efficacy of
+              these products has not been confirmed by FDA-apporved research.
+              These products are not intended to diagnose, treat, cure or
+              prevent any disease.
             </p>
           </div>
         ) : null}
