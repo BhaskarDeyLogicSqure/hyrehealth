@@ -1,6 +1,10 @@
 // middleware.ts
 import { NextRequest, NextResponse } from "next/server";
-import { AVAILABLE_THEMES, DEFAULT_THEME } from "@/lib/theme-utils";
+import {
+  AVAILABLE_THEMES,
+  DEFAULT_THEME,
+  isValidTheme,
+} from "@/lib/theme-utils";
 import type {
   MiddlewareConfig,
   AuthValidationResult,
@@ -129,34 +133,82 @@ class AuthValidator {
 
 // Theme management utility
 class ThemeManager {
-  static async getTheme(request: NextRequest): Promise<string> {
+  static async getTheme(request: NextRequest): Promise<Theme> {
     try {
       // Check if theme cookie already exists
       const existingTheme = request.cookies.get("theme")?.value;
-      if (existingTheme) {
+      if (existingTheme && isValidTheme(existingTheme)) {
+        logger.info("Using existing theme from cookie", {
+          theme: existingTheme,
+        });
         return existingTheme;
       }
 
+      // Get the base URL from environment variable
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      const url = `${baseUrl}/payment/merchant-nmi-key`;
-      const themeResponse = await axios.get(url);
 
-      const theme = themeResponse?.data?.selectedTemplateType as Theme;
-      console.log("theme 1111", theme);
-
-      if (theme && AVAILABLE_THEMES?.includes(theme)) {
-        return theme;
+      if (!baseUrl) {
+        logger.warn("NEXT_PUBLIC_BASE_URL not configured, using default theme");
+        return DEFAULT_THEME;
       }
 
+      // Construct the full API URL
+      const apiUrl = `${baseUrl}/payment/merchant-nmi-key`;
+
+      // Get origin from request for security headers
+      const origin = request.nextUrl.origin || baseUrl;
+      const referer = request.url;
+
+      logger.info("Fetching theme from API", { apiUrl, origin });
+
+      // Make the API call to get merchant details including theme
+      const themeResponse = await axios.get(apiUrl, {
+        timeout: 5000, // 5 second timeout
+        headers: {
+          "Content-Type": "application/json",
+          Origin: origin,
+          Referer: referer,
+        },
+      });
+
+      // Extract theme from response
+      const themeValue = themeResponse?.data?.data?.selectedTemplateType;
+
+      logger.info("Theme fetched from API", {
+        theme: themeValue,
+        availableThemes: AVAILABLE_THEMES,
+        isValid: themeValue && isValidTheme(themeValue),
+      });
+
+      // Validate the theme
+      if (themeValue && isValidTheme(themeValue)) {
+        logger.info("Valid theme received from API", { theme: themeValue });
+        return themeValue;
+      }
+
+      logger.warn("Invalid or missing theme from API, using default", {
+        receivedTheme: themeValue,
+        defaultTheme: DEFAULT_THEME,
+      });
       return DEFAULT_THEME;
-    } catch (error) {
-      logger.warn("Failed to fetch theme, using default", error);
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || "Unknown error";
+      const statusCode = error?.response?.status;
+
+      logger.error("Failed to fetch theme from API", {
+        error: errorMessage,
+        statusCode,
+        fallbackTheme: DEFAULT_THEME,
+      });
+
       return DEFAULT_THEME;
     }
   }
 
-  static setThemeCookie(response: NextResponse, theme: string): void {
+  static setThemeCookie(response: NextResponse, theme: Theme): void {
     response.cookies.set("theme", theme, THEME_COOKIE_OPTIONS);
+    logger.info("Theme cookie set", { theme });
   }
 }
 
