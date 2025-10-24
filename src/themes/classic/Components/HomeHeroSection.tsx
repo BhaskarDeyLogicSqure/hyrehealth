@@ -23,17 +23,17 @@ const HomeHeroSection = () => {
           background:
             merchantData?.customizeBranding?.brandColor &&
             merchantData?.customizeBranding?.accentColor
-              ? `linear-gradient(90deg, ${merchantData?.customizeBranding?.brandColor}20 0%, ${merchantData?.customizeBranding?.accentColor}20 100%)`
+              ? `linear-gradient(90deg, ${merchantData?.customizeBranding?.brandColor} 0%, ${merchantData?.customizeBranding?.accentColor} 100%)`
               : "linear-gradient(90deg, #e0f2fe20 0%, #b3e5fc20 100%)",
         }}
       >
         <div className="max-w-6xl mx-auto">
-          <h1 className="font-bold text-gray-900 mb-8 text-left leading-tight text-6xl">
+          <h1 className="font-bold text-white mb-8 text-left leading-tight text-6xl">
             Your Performance Journey
             <br />
             Starts Here
           </h1>
-          <p className="text-gray-600 mb-10 text-xl text-left max-w-3xl leading-relaxed">
+          <p className="text-white mb-10 text-xl text-left max-w-3xl leading-relaxed">
             Access premium peptides and GLPs through our team of licensed
             physicians, fast, private, and simple.
           </p>
@@ -70,17 +70,17 @@ const HomeHeroSection = () => {
               How It Works
             </Button>
           </div>
-          <div className="flex flex-col sm:flex-row items-start gap-6 text-base text-gray-700">
+          <div className="flex flex-col sm:flex-row items-start gap-6 text-base text-white">
             <div className="flex items-center  text-sm">
-              <div className="w-2 h-2 bg-gray-900 rounded-full mr-3"></div>
+              <div className="w-2 h-2 bg-white rounded-full mr-3"></div>
               Licensed Physicians
             </div>
             <div className="flex items-center text-sm">
-              <div className="w-2 h-2 bg-gray-900 rounded-full mr-3"></div>
+              <div className="w-2 h-2 bg-white rounded-full mr-3"></div>
               FDA-Approved Treatments
             </div>
             <div className="flex items-center text-sm">
-              <div className="w-2 h-2 bg-gray-900 rounded-full mr-3"></div>
+              <div className="w-2 h-2 bg-white rounded-full mr-3"></div>
               HIPAA Compliant
             </div>
           </div>
