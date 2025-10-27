@@ -5,12 +5,18 @@ import HomeTreatmentCategories from "./Components/HomeTreatmentCategories";
 import HomeFeaturedTreatments from "./Components/HomeFeaturedTreatments";
 import HomeHowItWorks from "./Components/HomeHowItWorks";
 import HomePatientSuccessStrories from "./Components/HomePatientSuccessStrories";
-import { getHomePageData } from "@/utils/getHomePageData";
 
-const ModernHomePage = async () => {
-  const { featuredCategories, featuredProducts, featuredTestimonials } =
-    await getHomePageData();
+interface ModernHomePageProps {
+  featuredCategories: any[];
+  featuredProducts: any[];
+  featuredTestimonials: any[];
+}
 
+const ModernHomePage = ({
+  featuredCategories,
+  featuredProducts,
+  featuredTestimonials,
+}: ModernHomePageProps) => {
   return (
     <div className="min-h-screen theme-bg">
       {/* Hero Section */}
