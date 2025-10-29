@@ -276,17 +276,7 @@ const ClassicFooter = ({
             </p>
           </div> */}
 
-          {merchantData?.isApplyLegitScript ? (
-            <div className="w-full mx-auto mt-4">
-              <p className="text-xs text-center text-muted-foreground">
-                The statements made regarding these products have not been
-                evaluated by the Food and Drug Administration. The efficacy of
-                these products has not been confirmed by FDA-apporved research.
-                These products are not intended to diagnose, treat, cure or
-                prevent any disease.
-              </p>
-            </div>
-          ) : null}
+          
 
           {/* Copyright & Security Information */}
           <div className="border-t border-[#E2E8F0] pt-6">
@@ -313,6 +303,17 @@ const ClassicFooter = ({
               </div>
             </div>
           </div>
+          {merchantData?.isApplyLegitScript ? (
+            <div className="w-full mx-auto mt-8 max-w-xl">
+              <p className="text-xs text-center mb-0 text-muted-foreground">
+                The statements made regarding these products have not been
+                evaluated by the Food and Drug Administration. The efficacy of
+                these products has not been confirmed by FDA-apporved research.
+                These products are not intended to diagnose, treat, cure or
+                prevent any disease.
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
     </footer>
