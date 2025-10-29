@@ -228,8 +228,17 @@ const DefaultFooter = ({
               )}
           </div>
         </div>
-        {merchantData?.isApplyLegitScript ? (
-          <div className="w-full mx-auto mt-4">
+        
+        {/* Bottom Bar */}
+        <div className="border-t footer-border mt-4 text-center">
+          <p className="footer-text-muted text-sm pt-8 ">
+            &copy; <span suppressHydrationWarning>{getCurrentYear()}</span>{" "}
+            {merchantData?.customizeBranding?.platformDisplayName || APP_NAME}.
+            All rights reserved. | Licensed Medical Professionals
+          </p>
+        </div>
+        {!merchantData?.isApplyLegitScript ? (
+          <div className="w-full max-w-xl mx-auto mt-8">
             <p className="text-xs text-center text-muted-foreground">
               The statements made regarding these products have not been
               evaluated by the Food and Drug Administration. The efficacy of
@@ -239,15 +248,8 @@ const DefaultFooter = ({
             </p>
           </div>
         ) : null}
-        {/* Bottom Bar */}
-        <div className="border-t footer-border mt-4 text-center">
-          <p className="footer-text-muted text-sm pt-8 ">
-            &copy; <span suppressHydrationWarning>{getCurrentYear()}</span>{" "}
-            {merchantData?.customizeBranding?.platformDisplayName || APP_NAME}.
-            All rights reserved. | Licensed Medical Professionals
-          </p>
-        </div>
       </div>
+      
     </footer>
   );
 };
