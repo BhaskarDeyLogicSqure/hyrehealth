@@ -3,14 +3,20 @@ import { CheckCircle } from "lucide-react";
 import HomePageHeroSection from "./Components/HomePageHeroSection";
 import HomePageFeaturedProducts from "./Components/HomePageFeaturedProducts";
 import HomePageFeaturedTreatment from "./Components/HomePageFeaturedTreatment";
-import { getHomePageData } from "@/utils/getHomePageData";
 import HomePageTestimonials from "./Components/HomePageTestimonials";
 import HomePageHowItWorksSection from "./Components/HomePageHowItWorksSection";
 
-const DefaultHomePage = async () => {
-  const { featuredCategories, featuredProducts, featuredTestimonials } =
-    await getHomePageData();
+interface DefaultHomePageProps {
+  featuredCategories: any[];
+  featuredProducts: any[];
+  featuredTestimonials: any[];
+}
 
+const DefaultHomePage = ({
+  featuredCategories,
+  featuredProducts,
+  featuredTestimonials,
+}: DefaultHomePageProps) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}

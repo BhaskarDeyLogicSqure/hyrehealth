@@ -137,6 +137,7 @@ class ThemeManager {
     try {
       // Check if theme cookie already exists
       const existingTheme = request.cookies.get("theme")?.value;
+
       if (existingTheme && isValidTheme(existingTheme)) {
         logger.info("Using existing theme from cookie", {
           theme: existingTheme,
