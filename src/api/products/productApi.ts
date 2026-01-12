@@ -68,11 +68,14 @@ export const productApi = {
   },
 
   getFeaturedProducts: async (
+    fdaApproved: boolean = false, // undefined means both fda approved and non fda approved products will be shown
     origin: string = ""
   ): Promise<{
     data: Product[];
     total: number;
   }> => {
+    console.log("fdaApproved 333", fdaApproved);
+
     const response = await apiService.get<{
       data: {
         products: Product[];
@@ -81,6 +84,7 @@ export const productApi = {
       error: boolean;
     }>(`${BASE_URL}${GET_PRODUCTS_ENDPOINT?.endpoint}`, {
       // isPopular: true,
+      fdaApproved,
       limit: 3,
       origin,
     });

@@ -54,20 +54,27 @@ export const authApi = {
   // get footer details and NMI merchant token
 
   // get merchant's NMI payment token for payment processing
-  getMerchantNMITokenizationKey:
-    async (): Promise<MerchantNMIpaymentTokenResponse> => {
-      try {
-        const response = await apiService.get<MerchantNMIpaymentTokenResponse>(
-          `${MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT.endpoint}`
-        );
+  getMerchantNMITokenizationKey: async (
+    origin: string = ""
+  ): Promise<MerchantNMIpaymentTokenResponse> => {
+    try {
+      const response = await apiService.get<MerchantNMIpaymentTokenResponse>(
+        `${MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT.endpoint}`,
+        undefined,
+        {
+          headers: {
+            origin,
+          },
+        }
+      );
 
-        return {
-          error: response?.error || false,
-          data: response?.data,
-        };
-      } catch (error) {
-        console.error("Merchant NMI tokenization key API error:", error);
-        throw error;
-      }
-    },
+      return {
+        error: response?.error || false,
+        data: response?.data,
+      };
+    } catch (error) {
+      console.error("Merchant NMI tokenization key API error:", error);
+      throw error;
+    }
+  },
 };

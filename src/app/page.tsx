@@ -13,6 +13,7 @@ const HomePage = async () => {
 
   // Fetch home page data server-side
   const homePageData = await getHomePageData();
+  console.log("homePageData", homePageData);
 
   // Use client wrapper to handle theme reactivity
   return (
