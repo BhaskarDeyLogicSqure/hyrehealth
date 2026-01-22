@@ -411,7 +411,9 @@ const DefaultFooter = ({
                 <li>
                   <Link
                     className="hover:underline"
-                    href="/terms-and-conditions"
+                    href="https://hyrtechnology.com/terms-of-use"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     Terms of Service
                   </Link>

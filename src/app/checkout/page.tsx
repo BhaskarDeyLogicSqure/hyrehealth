@@ -172,8 +172,10 @@ const CheckoutPage = () => {
                       >
                         I accept the{" "}
                         <Link
-                          href="/terms-and-conditions"
+                          href="https://hyrtechnology.com/terms-of-use"
                           className="text-sky-600 underline underline-offset-4 hover:text-sky-500 transition-colors"
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
                           Terms of Service
                         </Link>
@@ -199,53 +201,17 @@ const CheckoutPage = () => {
                     {/* Order Confirmation Text */}
                     <div className="space-y-4">
                       <p className="text-sm leading-relaxed text-gray-700">
-                        By placing an order, I agree that my card will be
-                        charged{" "}
-                        <span className="font-semibold">
-                          $
-                          {(discountedTotalPrice || totalPrice || 0).toFixed(2)}
-                        </span>{" "}
-                        + Free Shipping for{" "}
+                        By placing your monthly recurring order of{" "}
                         <span className="font-semibold">
                           {selectedProducts?.length || 1} x{" "}
                           {mainProductIfEligible?.name || "Product"}
                         </span>
-                        , for one-time purchase. If this product is not right
-                        for me, or I have any questions, contact customer
-                        service by{" "}
-                        {merchantData?.supportPhone ? (
-                          <>
-                            calling{" "}
-                            <a
-                              href={`tel:${merchantData?.supportPhone}`}
-                              className="font-semibold text-sky-600 underline underline-offset-4 hover:text-sky-500 transition-colors"
-                            >
-                              {merchantData?.supportPhone || "888-439-3564"}
-                            </a>
-                          </>
-                        ) : (
-                          "call"
-                        )}{" "}
-                        {merchantData?.supportEmail ? (
-                          <>
-                            or e-mailing{" "}
-                            <a
-                              href={`mailto:${merchantData?.supportEmail}`}
-                              className="font-semibold text-sky-600 underline underline-offset-4 hover:text-sky-500 transition-colors"
-                            >
-                              {merchantData?.supportEmail}
-                            </a>
-                          </>
-                        ) : (
-                          "email"
-                        )}{" "}
-                        . Charges will appear on my credit card statements as{" "}
+                        {" "} - you will be charged{" "}
                         <span className="font-semibold">
-                          {merchantData?.businessName ||
-                            merchantData?.merchantName ||
-                            "yupcbdstore"}
-                        </span>
-                        . Thank you for your business.
+                          $
+                          {(discountedTotalPrice || totalPrice || 0).toFixed(2)}
+                        </span>{" "}
+                        Now and every 30 days thereafter until you cancel your subscription. You will receive an electronic notification 5 to 7 days prior to your transaction and receipt after each successful transaction.
                       </p>
                     </div>
                   </div>
