@@ -9,7 +9,7 @@ const useMerchantDetails = () => {
     error: getMerchantNMITokenizationKeyError,
   } = useQuery({
     queryKey: ["merchant-nmi-tokenization-key"],
-    queryFn: authApi.getMerchantNMITokenizationKey,
+    queryFn: () => authApi.getMerchantNMITokenizationKey(),
     retry: 2,
     retryDelay: 1000,
   });
