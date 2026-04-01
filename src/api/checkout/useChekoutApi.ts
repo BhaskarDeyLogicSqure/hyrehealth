@@ -82,6 +82,8 @@ const useChekoutApi = () => {
   });
 
   return {
+    getInvoiceStatus: checkoutApi.getInvoiceStatus,
+
     // Checkout data and state
     checkoutData: checkoutData?.data,
     isCheckoutLoading,

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Shield, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { showErrorToast, showSuccessToast } from "../GlobalErrorHandler";
 import { Separator } from "@/components/ui/separator";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
@@ -45,13 +45,18 @@ const OrderSummarySection = ({
   const dispatch = useDispatch();
   const { setCookie } = useCookies();
   const { clearCheckout } = useCheckout();
-  const { signUpWithPayment, loginOrderCheckout } = useChekoutApi();
+  const { signUpWithPayment, loginOrderCheckout, getInvoiceStatus } =
+    useChekoutApi();
 
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer
   );
   // check if the user is logged in
   const isUserLoggedIn = isUserAuthenticated();
+
+  // check for refId from query params
+  const searchParams = useSearchParams();
+  const refId = searchParams?.get("ref");
 
   const {
     eligibleProducts,
@@ -101,8 +106,8 @@ const OrderSummarySection = ({
       // }
 
       // handle payment - generate payment token and wait for it
-      const generatedPaymentToken = await generateToken();
-      console.log("generatedPaymentToken", generatedPaymentToken);
+      // const generatedPaymentToken = await generateToken();
+      // console.log("generatedPaymentToken", generatedPaymentToken);
 
       // get payload for payment details
       const { error, payload } = await handleGetPayload(e);
@@ -110,13 +115,14 @@ const OrderSummarySection = ({
       // return if no payload present or no questionnaire responses are present or payment fields are not filled
       if (
         error ||
-        !payload ||
-        !fieldValidation?.ccnumber ||
-        !fieldValidation?.ccexp ||
-        !fieldValidation?.cvv ||
-        !generatedPaymentToken
-      )
+        !payload
+        // !fieldValidation?.ccnumber
+        // !fieldValidation?.ccexp ||
+        // !fieldValidation?.cvv ||
+        // !generatedPaymentToken
+      ) {
         return;
+      }
 
       //  check if there's a valid questionnaire response
       // if (!questionnaire?.generalResponses?.length) {
@@ -146,9 +152,9 @@ const OrderSummarySection = ({
         payload["paymentInfo"]["couponCode"] = appliedCoupon?.code;
       }
 
-      if (generatedPaymentToken) {
-        payload["paymentInfo"]["paymentToken"] = generatedPaymentToken;
-      }
+      // if (generatedPaymentToken) {
+      //   payload["paymentInfo"]["paymentToken"] = generatedPaymentToken;
+      // }
 
       //  now update the payload with product configurations
       if (productConfigurations?.length > 0) {
@@ -203,16 +209,32 @@ const OrderSummarySection = ({
         // Update Redux store with user details (initiating login)
         dispatch(setUser(response?.data?.customer));
 
-        showSuccessToast("Order Placed Successfully! Welcome to HyreHealth!");
-      } else {
-        showSuccessToast("Order Placed Successfully");
+        // showSuccessToast("Order Placed Successfully! Welcome to HyreHealth!");
       }
 
-      clearCheckout(); // clear the checkout data after successful checkout
+      // ------------------------------------------------------------
+      // if response?.data?.hppUrl is present, redirect to that url to complete the payment, the porcess after the successful payment will be handled through a useEffect hook
+      if (response?.data?.invoice?.hppUrl) {
+        window.location.href = response?.data?.invoice?.hppUrl;
+      }
+      // ------------------------------------------------------------ 
+
+      // ----------------------------NOTE:--------------------------------
+      //
+      // we have removed the success toast and redirect to thank you page as we are not using this flow anymore, 
+      // instead on return of hppUrl, will move to that page, user pay there and if successful, will redirect back to checkout page and then move to thank you page
+
+      //  else {
+      //   showSuccessToast("Order Placed Successfully");
+      // }
+
+      // clearCheckout(); // clear the checkout data after successful checkout
       // Navigate to thank you page after successful checkout
-      router.replace(
-        `/thank-you?orderId=${response?.data?.invoice?.invoiceNumber}`
-      );
+      // router.replace(
+      //   `/thank-you?orderId=${response?.data?.invoice?.invoiceNumber}`
+      // );
+
+      // ------------------------------------------------------------
     } catch (error) {
       console.error(error);
       showErrorToast(
@@ -223,6 +245,53 @@ const OrderSummarySection = ({
       setIsCheckoutLoading(false);
     }
   };
+
+
+  useEffect(() => {
+    if (!refId?.length) return;
+
+    let cancelled = false;
+
+    const confirmPayment = async () => {
+      try {
+        const response = await getInvoiceStatus(refId);
+        if (cancelled) return;
+
+        const envelope = response?.data;
+        if (envelope?.status === "completed" && envelope?.data) {
+          const details = envelope?.data;
+          // if (details.token) {
+          //   setCookie("customer-token", details.token);
+          // }
+
+          // if the payment is successful, clear the checkout data and redirect to the thank you page
+          showSuccessToast("Order placed successfully.");
+          clearCheckout();
+          const invoiceNumber = details?.invoice?.invoiceNumber;
+          if (invoiceNumber) {
+            router.replace(
+              `/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`
+            );
+          }
+        } else if (envelope?.status === "failed") {
+          showErrorToast("Payment failed! Please try again.");
+        }
+      } catch (error) {
+        if (!cancelled) {
+          showErrorToast(
+            (error as { message?: string })?.message ||
+            "Could not confirm payment"
+          );
+        }
+      }
+    };
+
+    void confirmPayment();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [refId]);
 
   return (
     <div>
