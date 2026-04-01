@@ -74,7 +74,7 @@ const ThankYouPage = () => {
       showErrorToast(errorMessage);
 
       // redirect to home page
-      router.push("/");
+      // router.push("/");
     }
 
     // redirect to home page if no orderId

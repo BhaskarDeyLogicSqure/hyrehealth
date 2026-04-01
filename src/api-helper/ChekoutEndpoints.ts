@@ -5,6 +5,11 @@ export const SIGN_UP_WITH_PAYMENT_ENDPOINT = {
   httpType: httpType.POST,
 };
 
+export const INVOICE_STATUS_ENDPOINT = {
+  endpoint: "/signup-with-payment/invoice-status",
+  httpType: httpType.GET,
+};
+
 // order checkout - for login users
 export const ORDER_CHECKOUT_ENDPOINT = {
   endpoint: "/payment/products",
