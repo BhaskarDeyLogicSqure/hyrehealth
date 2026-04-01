@@ -27,6 +27,10 @@ import CouponCodeSection from "./CouponCodeSection";
 import ThemeLoader from "@/components/ThemeLoader";
 import { RootState } from "@/store";
 
+/** Poll invoice status while API returns `pending` (max window ~15s). */
+const INVOICE_STATUS_POLL_BUDGET_MS = 15_000;
+const INVOICE_STATUS_POLL_INTERVAL_MS = 2_000;
+
 const OrderSummarySection = ({
   // isProcessing = false,
   // fieldValidation,
@@ -261,32 +265,53 @@ const OrderSummarySection = ({
       try {
         setIsProcessing(true);
 
-        await new Promise<void>((resolve) => setTimeout(resolve, 3000));
-        if (cancelled) return;
+        const pollStartedAt = Date.now();
 
-        const response = await getInvoiceStatus(refId);
-        if (cancelled) return;
+        while (!cancelled) {
+          const response = await getInvoiceStatus(refId);
+          if (cancelled) return;
 
-        const envelope = response?.data;
-        if (envelope?.status === "completed" && envelope?.data) {
-          const details = envelope?.data;
-          // if (details.token) {
-          //   setCookie("customer-token", details.token);
-          // }
+          const envelope = response?.data;
+          const status = envelope?.status;
 
-          // if the payment is successful, clear the checkout data and redirect to the thank you page
-          showSuccessToast("Order placed successfully.");
-          clearCheckout();
-          const invoiceNumber = details?.invoice?.invoiceNumber;
-          if (invoiceNumber) {
-            router.replace(
-              `/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`
-            );
+          if (status === "completed" && envelope?.data) {
+            const details = envelope.data;
+            showSuccessToast("Order placed successfully.");
+            clearCheckout();
+            const invoiceNumber = details?.invoice?.invoiceNumber;
+            if (invoiceNumber) {
+              router.replace(
+                `/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`
+              );
+            }
+            return;
           }
-        } else if (envelope?.status === "failed") {
-          showErrorToast("Payment failed! Please try again.");
-        } else if (envelope?.status === "pending") {
-          showErrorToast("Payment pending! Please wait for a moment, and then refresh.")
+
+          if (status === "failed") {
+            showErrorToast("Payment failed! Please try again.");
+            return;
+          }
+
+          if (status !== "pending") {
+            showErrorToast(
+              "Could not confirm payment status. Please refresh or try again."
+            );
+            return;
+          }
+
+          const elapsed = Date.now() - pollStartedAt;
+          if (elapsed >= INVOICE_STATUS_POLL_BUDGET_MS) {
+            showErrorToast(
+              "Payment is still processing. Please wait a moment, then refresh the page."
+            );
+            return;
+          }
+
+          const waitMs = Math.min(
+            INVOICE_STATUS_POLL_INTERVAL_MS,
+            INVOICE_STATUS_POLL_BUDGET_MS - elapsed
+          );
+          await new Promise<void>((resolve) => setTimeout(resolve, waitMs));
         }
       } catch (error) {
         if (!cancelled) {
