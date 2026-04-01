@@ -8,13 +8,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import BasicInfoCard from "@/components/checkout/BasicInfoCard";
 import BillingAddressCard from "@/components/checkout/BillingAddressCard";
 import OrderSummarySection from "@/components/checkout/OrderSummarySection";
-import NMIPaymentInfoCard from "@/components/checkout/NMIPaymentInfoCard";
+// import NMIPaymentInfoCard from "@/components/checkout/NMIPaymentInfoCard";
 import AccountCreationCard from "@/components/checkout/AccountCreationCard";
 import useCheckoutDetails from "@/hooks/useCheckoutDetails";
-import { useCheckout } from "@/hooks/useCheckout";
+// import { useCheckout } from "@/hooks/useCheckout";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
-import useNMIPayments from "@/hooks/useNMIPayments";
+// import useNMIPayments from "@/hooks/useNMIPayments";
 import useCheckoutPersistence from "@/hooks/useCheckoutPersistence";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -55,11 +55,11 @@ const CheckoutPage = () => {
     // Check if we have valid checkout data, if not redirect to products page
     const hasValidCheckoutData = eligibleProducts?.length;
 
-    // if (!hasValidCheckoutData) {
-    //   showErrorToast("No valid checkout data found");
-    //   router.replace("/products");
-    //   return;
-    // }
+    if (!hasValidCheckoutData) {
+      showErrorToast("No valid checkout data found");
+      router.replace("/products");
+      return;
+    }
 
     // Handle browser back button - redirect to product page instead of questionnaire
     const handlePopState = () => {
@@ -90,13 +90,13 @@ const CheckoutPage = () => {
     };
   }, []);
 
-  const {
-    isCollectJSLoaded,
-    isProcessing,
-    paymentError,
-    fieldValidation,
-    generateToken,
-  } = useNMIPayments(setErrors);
+  // const {
+  //   isCollectJSLoaded,
+  //   isProcessing,
+  //   paymentError,
+  //   fieldValidation,
+  //   generateToken,
+  // } = useNMIPayments(setErrors);
 
 
   return (
@@ -222,10 +222,10 @@ const CheckoutPage = () => {
 
           {/* Right Column - Order Summary */}
           <OrderSummarySection
-            isProcessing={isProcessing}
-            fieldValidation={fieldValidation}
+            // isProcessing={false} // will change to isProcessing later
+            // fieldValidation={fieldValidation}
             handleGetPayload={handleGetPayload}
-            generateToken={generateToken}
+          // generateToken={generateToken}
           />
         </div>
       </div>
