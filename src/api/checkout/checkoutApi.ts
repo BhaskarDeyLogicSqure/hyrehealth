@@ -1,5 +1,6 @@
 import apiService, { ApiResponse } from "..";
 import {
+  INVOICE_STATUS_ENDPOINT,
   ORDER_CHECKOUT_ENDPOINT,
   SIGN_UP_WITH_PAYMENT_ENDPOINT,
   VALIDATE_COUPON_ENDPOINT,
@@ -15,6 +16,36 @@ interface CheckoutPayload {
 interface CheckoutResponse {
   // Add specific fields based on your API response
   [key: string]: any;
+}
+
+/** GET /signup-with-payment/invoice-status/:referenceId */
+export interface InvoiceStatusNestedData {
+  payment?: {
+    _id?: string;
+    paymentNumber?: string;
+    status?: string;
+    amount?: number;
+    transactionId?: string;
+  };
+  invoice?: {
+    _id?: string;
+    invoiceNumber?: string;
+    status?: string;
+    total?: number;
+    paidDate?: string;
+  };
+  subscriptions?: unknown[];
+  consultations?: unknown[];
+  token?: string;
+}
+
+export interface InvoiceStatusApiResponse {
+  error?: boolean;
+  message?: string;
+  data?: {
+    status?: string;
+    data?: InvoiceStatusNestedData;
+  };
 }
 
 export const checkoutApi = {
@@ -75,6 +106,24 @@ export const checkoutApi = {
       `${BASE_URL}${VALIDATE_COUPON_ENDPOINT?.endpoint}`,
       payload
     );
+
+    return response;
+  },
+
+  getInvoiceStatus: async (
+    referenceId: string
+  ): Promise<InvoiceStatusApiResponse> => {
+    if (!referenceId?.trim()) {
+      throw new Error("Reference ID is required");
+    }
+
+    const response = await apiService.get<InvoiceStatusApiResponse>(
+      `${BASE_URL}${INVOICE_STATUS_ENDPOINT.endpoint}/${encodeURIComponent(referenceId)}`
+    );
+
+    if (response?.error) {
+      throw new Error(response?.message || "Failed to get invoice status");
+    }
 
     return response;
   },

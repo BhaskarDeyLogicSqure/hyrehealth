@@ -55,11 +55,11 @@ const CheckoutPage = () => {
     // Check if we have valid checkout data, if not redirect to products page
     const hasValidCheckoutData = eligibleProducts?.length;
 
-    if (!hasValidCheckoutData) {
-      showErrorToast("No valid checkout data found");
-      router.replace("/products");
-      return;
-    }
+    // if (!hasValidCheckoutData) {
+    //   showErrorToast("No valid checkout data found");
+    //   router.replace("/products");
+    //   return;
+    // }
 
     // Handle browser back button - redirect to product page instead of questionnaire
     const handlePopState = () => {
@@ -98,7 +98,6 @@ const CheckoutPage = () => {
     generateToken,
   } = useNMIPayments(setErrors);
 
-  // test comment
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -129,14 +128,15 @@ const CheckoutPage = () => {
               handleOnChange={handleOnChange}
             />
 
+
             {/* Payment Information */}
-            <NMIPaymentInfoCard
+            {/* <NMIPaymentInfoCard
               formFields={formFields}
               errors={errors}
               isCollectJSLoaded={isCollectJSLoaded}
               paymentError={paymentError}
               handleOnChange={handleOnChange}
-            />
+            /> */}
 
             {/* Account Creation (if not logged in) */}
             {!isLoggedIn ? (

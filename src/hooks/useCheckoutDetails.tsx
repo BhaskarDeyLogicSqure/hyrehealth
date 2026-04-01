@@ -232,16 +232,16 @@ const useCheckoutDetails = () => {
               // case "cardNumber":
               // case "expiryDate":
               // case "cvv":
-              case "cardholderName": {
-                if (!newFormFields?.[key]?.trim()?.length) {
-                  newErrors[key] = `*Required`;
-                  isFormValid = false;
-                } else {
-                  newErrors[key] = null;
-                  newIsDirty[key] = false;
-                }
-                break;
-              }
+              // case "cardholderName": {
+              //   if (!newFormFields?.[key]?.trim()?.length) {
+              //     newErrors[key] = `*Required`;
+              //     isFormValid = false;
+              //   } else {
+              //     newErrors[key] = null;
+              //     newIsDirty[key] = false;
+              //   }
+              //   break;
+              // }
 
               // account creation form validation
               case "password":
