@@ -7,30 +7,30 @@ import { formatDate } from "@/lib/dayjs";
 import { isUserAuthenticated } from "@/utils/auth";
 import { REGEX_CONFIG } from "@/configs/regexConfig";
 import { useCheckout } from "@/hooks/useCheckout";
-const initialFormFields = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  phone: "",
-  streetAddress: "",
-  addressLine2: "",
-  city: "",
-  state: "",
-  zipCode: "",
-  country: "US",
-  cardNumber: "",
-  expiryDate: "",
-  cvv: "",
-  cardholderName: "",
-  password: "",
-  confirmPassword: "",
-  acceptTerms: false,
-  // NMI Payment fields
-  paymentToken: "",
-  paymentMethod: "",
-  cardType: "",
-  cardLast4: "",
-};
+// const initialFormFields = {
+//   firstName: "",
+//   lastName: "",
+//   email: "",
+//   phone: "",
+//   streetAddress: "",
+//   addressLine2: "",
+//   city: "",
+//   state: "",
+//   zipCode: "",
+//   country: "US",
+//   cardNumber: "",
+//   expiryDate: "",
+//   cvv: "",
+//   cardholderName: "",
+//   password: "",
+//   confirmPassword: "",
+//   acceptTerms: false,
+//   // NMI Payment fields
+//   paymentToken: "",
+//   paymentMethod: "",
+//   cardType: "",
+//   cardLast4: "",
+// };
 
 const initialIsDirty = {
   firstName: false,

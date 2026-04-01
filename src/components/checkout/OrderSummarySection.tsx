@@ -27,19 +27,19 @@ import CouponCodeSection from "./CouponCodeSection";
 import { RootState } from "@/store";
 
 const OrderSummarySection = ({
-  isProcessing,
-  fieldValidation,
+  isProcessing = false,
+  // fieldValidation,
   handleGetPayload,
-  generateToken,
+  // generateToken,
 }: {
-  isProcessing: boolean;
+  isProcessing?: boolean;
   handleGetPayload: (e: React.FormEvent) => Promise<any>;
-  generateToken: any;
-  fieldValidation: {
-    ccnumber: boolean;
-    ccexp: boolean;
-    cvv: boolean;
-  };
+  // generateToken: any;
+  // fieldValidation: {
+  //   ccnumber: boolean;
+  //   ccexp: boolean;
+  //   cvv: boolean;
+  // };
 }) => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -91,7 +91,7 @@ const OrderSummarySection = ({
     selectedRelatedProducts, // it is the list of all related products (if any)
   });
 
-  console.log("1111", { fieldValidation });
+  // console.log("1111", { fieldValidation });
   const _handleSubmit = async (e: React.FormEvent) => {
     try {
       if (e) e.preventDefault();
