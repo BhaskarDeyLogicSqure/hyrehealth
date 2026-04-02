@@ -56,6 +56,7 @@ const OrderSummarySection = ({
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer
   );
+  console.log("merchantData", merchantData);
   // check if the user is logged in
   const isUserLoggedIn = isUserAuthenticated();
 
@@ -104,6 +105,17 @@ const OrderSummarySection = ({
   const _handleSubmit = async (e: React.FormEvent) => {
     try {
       if (e) e.preventDefault();
+
+      // check if the payment method is supported
+      if (merchantData?.checkoutPaymentMethod !== "tycoon") {
+        if (merchantData?.checkoutPaymentMethod === "bitcoin") {
+          showErrorToast("Feature coming soon");;
+        } else {
+          showErrorToast("Payment method not supported");
+        }
+        return;
+      }
+
       setIsCheckoutLoading(true);
 
       // if (
@@ -267,7 +279,7 @@ const OrderSummarySection = ({
 
 
   useEffect(() => {
-    if (!refId?.length) return;
+    if (!refId?.length || merchantData?.checkoutPaymentMethod !== "tycoon") return;
 
     let cancelled = false;
 
@@ -530,7 +542,7 @@ const OrderSummarySection = ({
             <Button
               onClick={_handleSubmit}
               className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 text-lg font-medium"
-              disabled={isCheckoutLoading || isProcessing}
+              disabled={isCheckoutLoading || isProcessing || merchantData?.checkoutPaymentMethod !== "tycoon"}
               style={{
                 backgroundColor: merchantData?.customizeBranding?.accentColor,
               }}
