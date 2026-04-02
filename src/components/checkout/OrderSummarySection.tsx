@@ -197,8 +197,8 @@ const OrderSummarySection = ({
         );
       }
 
-      // Mock successful checkout
-      console.log("Final payload:", payload);
+      // // Mock successful checkout
+      // console.log("Final payload:", payload);
 
       // call the checkout api
       let response;
@@ -222,10 +222,20 @@ const OrderSummarySection = ({
       }
 
       // ------------------------------------------------------------
-      // if response?.data?.hppUrl is present, redirect to that url to complete the payment, the porcess after the successful payment will be handled through a useEffect hook
-      if (response?.data?.invoice?.hppUrl) {
-        window.location.href = response?.data?.invoice?.hppUrl;
+      // if  response?.data?.hppUrl (if logged in) or response?.data?.hppUrl (if not logged in) is present, redirect to that url to complete the payment, the porcess after the successful payment will be handled through a useEffect hook
+      if (isUserLoggedIn) {
+        if (response?.data?.hppUrl) {
+          window.location.href = response?.data?.hppUrl;
+        }
+      } else {
+        // console.log("user not logged in", response?.data);
+        if (response?.data?.invoice?.hppUrl) {
+          window.location.href = response?.data?.invoice?.hppUrl;
+        }
       }
+
+
+
       // ------------------------------------------------------------ 
 
       // ----------------------------NOTE:--------------------------------
