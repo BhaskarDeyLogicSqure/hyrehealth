@@ -80,6 +80,7 @@ export interface MerchantNMIpaymentTokenResponse {
     supportEmail: string;
     supportPhone: string;
     isApplyLegitScript: boolean;
+    checkoutPaymentMethod: "tycoon" | "bitcoin";
     // Branding fields
     businessName: string;
     customizeBranding: CustomizeBranding;
