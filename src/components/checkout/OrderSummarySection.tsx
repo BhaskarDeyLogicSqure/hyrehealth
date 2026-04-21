@@ -26,10 +26,11 @@ import { isUserAuthenticated } from "@/utils/auth";
 import CouponCodeSection from "./CouponCodeSection";
 import ThemeLoader from "@/components/ThemeLoader";
 import { RootState } from "@/store";
+import { CHECKOUT_PAYMENT_METHOD } from "@/configs";
 
 /** Poll invoice status while API returns `pending` (max window ~15s). */
-const INVOICE_STATUS_POLL_BUDGET_MS = 15_000;
-const INVOICE_STATUS_POLL_INTERVAL_MS = 2_000;
+// const INVOICE_STATUS_POLL_BUDGET_MS = 15_000;
+// const INVOICE_STATUS_POLL_INTERVAL_MS = 2_000;
 
 const OrderSummarySection = ({
   // isProcessing = false,
@@ -50,13 +51,21 @@ const OrderSummarySection = ({
   const dispatch = useDispatch();
   const { setCookie } = useCookies();
   const { clearCheckout } = useCheckout();
-  const { signUpWithPayment, loginOrderCheckout, getInvoiceStatus } =
+  const {
+    signUpWithPayment,
+    loginOrderCheckout,
+    getInvoiceStatus,
+    initiateBraintreeCheckout,
+  } =
     useChekoutApi();
 
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer
   );
   console.log("merchantData", merchantData);
+  const checkoutPaymentMethod = merchantData?.checkoutPaymentMethod as
+    | string
+    | undefined || CHECKOUT_PAYMENT_METHOD;
   // check if the user is logged in
   const isUserLoggedIn = isUserAuthenticated();
 
@@ -67,6 +76,11 @@ const OrderSummarySection = ({
   const [isProcessing, setIsProcessing] = useState(
     () => Boolean(refId && refId.length > 0)
   );
+
+  const [braintreeInit, setBraintreeInit] = useState<{
+    referenceId?: string;
+    clientToken?: string;
+  } | null>(null);
 
   const {
     eligibleProducts,
@@ -107,28 +121,12 @@ const OrderSummarySection = ({
       if (e) e.preventDefault();
 
       // check if the payment method is supported
-      if (merchantData?.checkoutPaymentMethod !== "tycoon") {
-        if (merchantData?.checkoutPaymentMethod === "bitcoin") {
-          showErrorToast("Feature coming soon");;
-        } else {
-          showErrorToast("Payment method not supported");
-        }
+      if (checkoutPaymentMethod !== "braintree") {
+        showErrorToast("Payment method not supported");
         return;
       }
 
       setIsCheckoutLoading(true);
-
-      // if (
-      //   !fieldValidation?.ccnumber ||
-      //   !fieldValidation?.ccexp ||
-      //   !fieldValidation?.cvv
-      // ) {
-      //   showErrorToast("Please fill all the payment fields");
-      // }
-
-      // handle payment - generate payment token and wait for it
-      // const generatedPaymentToken = await generateToken();
-      // console.log("generatedPaymentToken", generatedPaymentToken);
 
       // get payload for payment details
       const { error, payload } = await handleGetPayload(e);
@@ -167,6 +165,10 @@ const OrderSummarySection = ({
       // add the price info to the payload
       payload["paymentInfo"]["finalAmount"] =
         discountedTotalPrice || totalPrice; // this will be the final amount after applying the coupon
+
+      // ensure currency is set for payment initiation flows
+      payload["paymentInfo"]["currency"] =
+        payload?.paymentInfo?.currency || "USD";
 
       // add the coupon info to the payload
       if (appliedCoupon?.code) {
@@ -214,46 +216,46 @@ const OrderSummarySection = ({
 
       // call the checkout api
       let response;
-      if (isUserLoggedIn) {
-        // call the login order checkout api for logged in users
-        response = await loginOrderCheckout(payload);
-      } else {
-        // call the sign up with payment api for new users
-        response = await signUpWithPayment(payload);
-      }
+      if (checkoutPaymentMethod === "braintree") {
+        payload["paymentInfo"]["paymentMethod"] = "braintree";
 
-      // Handle successful checkout - store token and user details
-      if (response?.data?.token && response?.data?.customer) {
-        // Store token in cookie
-        setCookie("customer-token", response?.data?.token);
+        const initResponse = await initiateBraintreeCheckout(payload);
 
-        // Update Redux store with user details (initiating login)
-        dispatch(setUser(response?.data?.customer));
+        const referenceId = initResponse?.data?.referenceId;
+        const clientToken = initResponse?.data?.clientToken;
 
-        // showSuccessToast("Order Placed Successfully! Welcome to HyreHealth!");
-      }
-
-      // ------------------------------------------------------------
-      // if  response?.data?.hppUrl (if logged in) or response?.data?.hppUrl (if not logged in) is present, redirect to that url to complete the payment, the porcess after the successful payment will be handled through a useEffect hook
-      if (isUserLoggedIn) {
-        if (response?.data?.hppUrl) {
-          window.location.href = response?.data?.hppUrl;
+        if (!referenceId || !clientToken) {
+          showErrorToast("Could not initiate payment. Please try again.");
+          return;
         }
-      } else {
-        // console.log("user not logged in", response?.data);
-        if (response?.data?.invoice?.hppUrl) {
-          window.location.href = response?.data?.invoice?.hppUrl;
-        }
+
+        setBraintreeInit({ referenceId, clientToken });
+        return;
       }
 
+      // if (isUserLoggedIn) {
+      //   // call the login order checkout api for logged in users
+      //   response = await loginOrderCheckout(payload);
+      // } else {
+      //   // call the sign up with payment api for new users
+      //   response = await signUpWithPayment(payload);
+      // }
 
+      // // Handle successful checkout - store token and user details
+      // if (response?.data?.token && response?.data?.customer) {
+      //   // Store token in cookie
+      //   setCookie("customer-token", response?.data?.token);
 
-      // ------------------------------------------------------------ 
+      //   // Update Redux store with user details (initiating login)
+      //   dispatch(setUser(response?.data?.customer));
+
+      //   // showSuccessToast("Order Placed Successfully! Welcome to HyreHealth!");
+      // }
 
       // ----------------------------NOTE:--------------------------------
       //
       // we have removed the success toast and redirect to thank you page as we are not using this flow anymore, 
-      // instead on return of hppUrl, will move to that page, user pay there and if successful, will redirect back to checkout page and then move to thank you page
+      // instead on return of referenceId and clientToken, will render the braintree payment UI, user pay there and if successful, then will move to thank you page
 
       //  else {
       //   showSuccessToast("Order Placed Successfully");
@@ -278,81 +280,89 @@ const OrderSummarySection = ({
   };
 
 
-  useEffect(() => {
-    if (!refId?.length || merchantData?.checkoutPaymentMethod !== "tycoon") return;
+  // useEffect(() => {
+  //   if (!refId?.length || merchantData?.checkoutPaymentMethod !== "tycoon") return;
 
-    let cancelled = false;
+  //   let cancelled = false;
 
-    const confirmPayment = async () => {
-      try {
-        setIsProcessing(true);
+  //   const confirmPayment = async () => {
+  //     try {
+  //       setIsProcessing(true);
 
-        const pollStartedAt = Date.now();
+  //       const pollStartedAt = Date.now();
 
-        while (!cancelled) {
-          const response = await getInvoiceStatus(refId);
-          if (cancelled) return;
+  //       while (!cancelled) {
+  //         const response = await getInvoiceStatus(refId);
+  //         if (cancelled) return;
 
-          const envelope = response?.data;
-          const status = envelope?.status;
+  //         const envelope = response?.data;
+  //         const status = envelope?.status;
 
-          if (status === "completed" && envelope?.data) {
-            const details = envelope.data;
-            showSuccessToast("Order placed successfully.");
-            clearCheckout();
-            const invoiceNumber = details?.invoice?.invoiceNumber;
-            if (invoiceNumber) {
-              router.replace(
-                `/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`
-              );
-            }
-            return;
-          }
+  //         if (status === "completed" && envelope?.data) {
+  //           const details = envelope.data;
+  //           showSuccessToast("Order placed successfully.");
+  //           clearCheckout();
+  //           const invoiceNumber = details?.invoice?.invoiceNumber;
+  //           if (invoiceNumber) {
+  //             router.replace(
+  //               `/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`
+  //             );
+  //           }
+  //           return;
+  //         }
 
-          if (status === "failed") {
-            showErrorToast("Payment failed! Please try again.");
-            return;
-          }
+  //         if (status === "failed") {
+  //           showErrorToast("Payment failed! Please try again.");
+  //           return;
+  //         }
 
-          if (status !== "pending") {
-            showErrorToast(
-              "Could not confirm payment status. Please refresh or try again."
-            );
-            return;
-          }
+  //         if (status !== "pending") {
+  //           showErrorToast(
+  //             "Could not confirm payment status. Please refresh or try again."
+  //           );
+  //           return;
+  //         }
 
-          const elapsed = Date.now() - pollStartedAt;
-          if (elapsed >= INVOICE_STATUS_POLL_BUDGET_MS) {
-            showErrorToast(
-              "Payment is still processing. Please wait a moment, then refresh the page."
-            );
-            return;
-          }
+  //         const elapsed = Date.now() - pollStartedAt;
+  //         if (elapsed >= INVOICE_STATUS_POLL_BUDGET_MS) {
+  //           showErrorToast(
+  //             "Payment is still processing. Please wait a moment, then refresh the page."
+  //           );
+  //           return;
+  //         }
 
-          const waitMs = Math.min(
-            INVOICE_STATUS_POLL_INTERVAL_MS,
-            INVOICE_STATUS_POLL_BUDGET_MS - elapsed
-          );
-          await new Promise<void>((resolve) => setTimeout(resolve, waitMs));
-        }
-      } catch (error) {
-        if (!cancelled) {
-          showErrorToast(
-            (error as { message?: string })?.message ||
-            "Could not confirm payment"
-          );
-        }
-      } finally {
-        setIsProcessing(false);
-      }
-    };
+  //         const waitMs = Math.min(
+  //           INVOICE_STATUS_POLL_INTERVAL_MS,
+  //           INVOICE_STATUS_POLL_BUDGET_MS - elapsed
+  //         );
+  //         await new Promise<void>((resolve) => setTimeout(resolve, waitMs));
+  //       }
+  //     } catch (error) {
+  //       if (!cancelled) {
+  //         showErrorToast(
+  //           (error as { message?: string })?.message ||
+  //           "Could not confirm payment"
+  //         );
+  //       }
+  //     } finally {
+  //       setIsProcessing(false);
+  //     }
+  //   };
 
-    void confirmPayment();
+  //   void confirmPayment();
 
-    return () => {
-      cancelled = true;
-    };
-  }, [refId]);
+  //   return () => {
+  //     cancelled = true;
+  //   };
+  // }, [refId]);
+
+  const shouldShowBraintreePaymentUi =
+    checkoutPaymentMethod === "braintree" &&
+    Boolean(braintreeInit?.referenceId && braintreeInit?.clientToken);
+
+  const handleBackFromBraintreePayment = () => {
+    setBraintreeInit(null);
+  };
 
   return (
     <>
@@ -374,130 +384,163 @@ const OrderSummarySection = ({
       <div>
         <Card className="sticky top-24 shadow-lg">
           <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-bold">Order Summary</CardTitle>
+            <CardTitle className="text-xl font-bold">
+              {shouldShowBraintreePaymentUi ? "Payment" : "Order Summary"}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Product Details Section */}
-            {productConfigurations?.map((config) => {
-              const product = eligibleProducts?.find(
-                (item) => item?.product?._id === config?.productId
-              )?.product;
+            {shouldShowBraintreePaymentUi ? (
+              <div className="space-y-4">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={handleBackFromBraintreePayment}
+                  className="px-0"
+                >
+                  Back
+                </Button>
 
-              if (!product) return null;
+                <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
+                  Payment fields will appear here next step.
+                </div>
 
-              const selectedOption = getSelectedDosageWithDuration(
-                config?.productId
-              );
+                <Button className="w-full py-3 text-lg font-medium" disabled>
+                  Complete Purchase
+                </Button>
+              </div>
+            ) : null}
 
-              const isMainProduct =
-                product?._id === eligibleProducts?.[0]?.product?._id;
+            {!shouldShowBraintreePaymentUi ? (
+              <>
+                {/* Product Details Section */}
+                {productConfigurations?.map((config) => {
+                  const product = eligibleProducts?.find(
+                    (item) => item?.product?._id === config?.productId
+                  )?.product;
 
-              return (
-                <Card key={config?.productId} className="border border-gray-200">
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <h3 className="font-bold text-lg text-gray-900">
-                          {product?.name}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {isMainProduct ? "Primary Product" : "Add-on Product"}
-                        </p>
-                      </div>
-                      <div className="text-right ml-4 flex items-center gap-2">
-                        <p className="font-bold text-lg">
-                          $
-                          {selectedOption?.price?.toFixed(
-                            DIGITS_AFTER_DECIMALS
-                          ) || 0}
-                        </p>
-                        {selectedProducts?.length > 1 && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              handleDeleteProductAlert(
-                                config?.productId,
-                                product?.name
-                              )
-                            }
-                            className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 h-8 w-8 rounded-full"
-                            type="button"
-                            title="Remove product"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
+                  if (!product) return null;
 
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">
-                          Dosage
-                        </label>
-                        <Select
-                          value={config?.dosageId}
-                          onValueChange={(value) =>
-                            handleDosageAndSubscriptionDurationChange(
-                              config?.productId,
-                              "dosage",
-                              value
-                            )
-                          }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {generateDosageOptions(config?.productId)?.map(
-                              (option: any) => (
-                                <SelectItem key={option?.id} value={option?.id}>
-                                  {`${option?.name}`}
-                                </SelectItem>
-                              )
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                  const selectedOption = getSelectedDosageWithDuration(
+                    config?.productId
+                  );
 
-                      <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">
-                          Subscription Plan
-                        </label>
-                        <Select
-                          value={config?.subscriptionDuration}
-                          onValueChange={(value) =>
-                            handleDosageAndSubscriptionDurationChange(
-                              config?.productId,
-                              "subscriptionDuration",
-                              value
-                            )
-                          }
-                          disabled={!config?.dosageId}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {generateSubscriptionDurationOptions(
-                              config?.productId
-                            )?.map((option: any) => (
-                              <SelectItem
-                                key={option?._id}
-                                value={option?.duration?.value?.toString()}
+                  const isMainProduct =
+                    product?._id === eligibleProducts?.[0]?.product?._id;
+
+                  return (
+                    <Card
+                      key={config?.productId}
+                      className="border border-gray-200"
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <h3 className="font-bold text-lg text-gray-900">
+                              {product?.name}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              {isMainProduct
+                                ? "Primary Product"
+                                : "Add-on Product"}
+                            </p>
+                          </div>
+                          <div className="text-right ml-4 flex items-center gap-2">
+                            <p className="font-bold text-lg">
+                              $
+                              {selectedOption?.price?.toFixed(
+                                DIGITS_AFTER_DECIMALS
+                              ) || 0}
+                            </p>
+                            {selectedProducts?.length > 1 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleDeleteProductAlert(
+                                    config?.productId,
+                                    product?.name
+                                  )
+                                }
+                                className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 h-8 w-8 rounded-full"
+                                type="button"
+                                title="Remove product"
                               >
-                                {`${option?.duration?.value} ${option?.duration?.unit}`}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <label className="text-sm font-medium text-gray-700 mb-1 block">
+                              Dosage
+                            </label>
+                            <Select
+                              value={config?.dosageId}
+                              onValueChange={(value) =>
+                                handleDosageAndSubscriptionDurationChange(
+                                  config?.productId,
+                                  "dosage",
+                                  value
+                                )
+                              }
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {generateDosageOptions(config?.productId)?.map(
+                                  (option: any) => (
+                                    <SelectItem
+                                      key={option?.id}
+                                      value={option?.id}
+                                    >
+                                      {`${option?.name}`}
+                                    </SelectItem>
+                                  )
+                                )}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div>
+                            <label className="text-sm font-medium text-gray-700 mb-1 block">
+                              Subscription Plan
+                            </label>
+                            <Select
+                              value={config?.subscriptionDuration}
+                              onValueChange={(value) =>
+                                handleDosageAndSubscriptionDurationChange(
+                                  config?.productId,
+                                  "subscriptionDuration",
+                                  value
+                                )
+                              }
+                              disabled={!config?.dosageId}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {generateSubscriptionDurationOptions(
+                                  config?.productId
+                                )?.map((option: any) => (
+                                  <SelectItem
+                                    key={option?._id}
+                                    value={option?.duration?.value?.toString()}
+                                  >
+                                    {`${option?.duration?.value} ${option?.duration?.unit}`}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
 
             {/* Coupon Code Section */}
             <CouponCodeSection
@@ -542,14 +585,17 @@ const OrderSummarySection = ({
             <Button
               onClick={_handleSubmit}
               className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 text-lg font-medium"
-              disabled={isCheckoutLoading || isProcessing || merchantData?.checkoutPaymentMethod !== "tycoon"}
+              disabled={
+                isCheckoutLoading ||
+                isProcessing
+              }
               style={{
                 backgroundColor: merchantData?.customizeBranding?.accentColor,
               }}
             >
               {isCheckoutLoading || isProcessing
                 ? "Processing..."
-                : "Complete Purchase"}
+                : "Complete Payment"}
             </Button>
 
             {/* Security Information */}
@@ -557,6 +603,8 @@ const OrderSummarySection = ({
               <Shield className="h-4 w-4 mr-2" />
               Secure 256-bit SSL encryption
             </div>
+              </>
+            ) : null}
           </CardContent>
         </Card>
       </div>

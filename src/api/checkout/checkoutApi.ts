@@ -48,6 +48,15 @@ export interface InvoiceStatusApiResponse {
   };
 }
 
+export interface InitiateBraintreeCheckoutResponse {
+  error?: boolean;
+  message?: string;
+  data?: {
+    referenceId?: string;
+    clientToken?: string;
+  };
+}
+
 export const checkoutApi = {
   signUpWithPayment: async (
     payload: CheckoutPayload
@@ -126,5 +135,31 @@ export const checkoutApi = {
     }
 
     return response;
+  },
+
+  /**
+   * Initiate Braintree checkout.
+   * POST /payment/products
+   *
+   * Expected envelope:
+   * { error: false, data: { referenceId, clientToken } }
+   */
+  initiateBraintreeCheckout: async (
+    payload: CheckoutPayload
+  ): Promise<InitiateBraintreeCheckoutResponse> => {
+    if (!payload) {
+      throw new Error("Checkout payload is required");
+    }
+
+    const response = await apiService.post<InitiateBraintreeCheckoutResponse>(
+      `${BASE_URL}${ORDER_CHECKOUT_ENDPOINT.endpoint}`,
+      payload
+    );
+
+    if (response?.error) {
+      throw new Error(response?.message || "Failed to initiate checkout");
+    }
+
+    return response?.data;
   },
 };
