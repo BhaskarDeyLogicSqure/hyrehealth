@@ -8,13 +8,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import BasicInfoCard from "@/components/checkout/BasicInfoCard";
 import BillingAddressCard from "@/components/checkout/BillingAddressCard";
 import OrderSummarySection from "@/components/checkout/OrderSummarySection";
-// import NMIPaymentInfoCard from "@/components/checkout/NMIPaymentInfoCard";
 import AccountCreationCard from "@/components/checkout/AccountCreationCard";
 import useCheckoutDetails from "@/hooks/useCheckoutDetails";
-// import { useCheckout } from "@/hooks/useCheckout";
+import { useCheckout } from "@/hooks/useCheckout";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
-import { showErrorToast } from "@/components/GlobalErrorHandler";
-// import useNMIPayments from "@/hooks/useNMIPayments";
+import { showErrorToast, showSuccessToast } from "@/components/GlobalErrorHandler";
 import useCheckoutPersistence from "@/hooks/useCheckoutPersistence";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -22,10 +20,12 @@ import useOrderCheckout from "@/hooks/useOrderCheckout";
 import Link from "next/link";
 import { CHECKOUT_PAYMENT_METHOD } from "@/configs";
 import BraintreePaymentFields, { BraintreePaymentMethodPayload } from "@/components/checkout/BraintreePaymentFields";
+import useChekoutApi from "@/api/checkout/useChekoutApi";
 
 const CheckoutPage = () => {
   const router = useRouter();
-  // const { clearCheckout } = useCheckout();
+  const { clearCheckout } = useCheckout();
+  const { completePayment } = useChekoutApi();
   // Get merchant data for dynamic content
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer
@@ -114,6 +114,42 @@ const CheckoutPage = () => {
     setBraintreeInit(null);
   };
 
+  const handleBraintreePaymentMethod = async (
+    payload: BraintreePaymentMethodPayload
+  ) => {
+    try {
+      setBraintreePaymentMethod(payload);
+
+      const referenceId = braintreeInit?.referenceId;
+      if (!referenceId?.trim()) {
+        showErrorToast("Missing payment reference. Please try again.");
+        return;
+      }
+
+      const response = await completePayment({
+        referenceId,
+        paymentMethodNonce: payload?.nonce,
+        deviceData: payload?.deviceData,
+      });
+
+      const invoiceNumber = response?.data?.invoice?.invoiceNumber;
+      if (!invoiceNumber) {
+        showErrorToast(
+          "Payment completed, but invoice number is missing. Please contact support."
+        );
+        return;
+      }
+
+      showSuccessToast("Order placed successfully.");
+      clearCheckout();
+      router.replace(`/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`);
+    } catch (e) {
+      showErrorToast(
+        (e as { message?: string })?.message || "Could not complete payment."
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {shouldShowBraintreePaymentUi ? (
@@ -121,7 +157,7 @@ const CheckoutPage = () => {
           clientToken={braintreeInit?.clientToken || ""}
           finalAmount={braintreeInit?.finalAmount || 0}
           onBack={handleBackFromBraintreePayment}
-          onPaymentMethod={(payload) => setBraintreePaymentMethod(payload)}
+          onPaymentMethod={handleBraintreePaymentMethod}
         />
       ) :
         <div className="container mx-auto px-4 py-8 max-w-6xl">

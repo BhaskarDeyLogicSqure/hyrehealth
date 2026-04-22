@@ -16,6 +16,12 @@ export const ORDER_CHECKOUT_ENDPOINT = {
   httpType: httpType.POST,
 };
 
+// complete braintree payment (no auth required)
+export const PAYMENT_COMPLETE_ENDPOINT = {
+  endpoint: "/payment/complete",
+  httpType: httpType.POST,
+};
+
 // validate coupon
 export const VALIDATE_COUPON_ENDPOINT = {
   endpoint: "/coupons/validate",

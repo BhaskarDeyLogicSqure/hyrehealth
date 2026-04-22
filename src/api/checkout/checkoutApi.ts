@@ -2,6 +2,7 @@ import apiService, { ApiResponse } from "..";
 import {
   INVOICE_STATUS_ENDPOINT,
   ORDER_CHECKOUT_ENDPOINT,
+  PAYMENT_COMPLETE_ENDPOINT,
   SIGN_UP_WITH_PAYMENT_ENDPOINT,
   VALIDATE_COUPON_ENDPOINT,
 } from "@/api-helper/ChekoutEndpoints";
@@ -54,6 +55,24 @@ export interface InitiateBraintreeCheckoutResponse {
   data?: {
     referenceId?: string;
     clientToken?: string;
+  };
+}
+
+export interface CompletePaymentPayload {
+  referenceId: string;
+  paymentMethodNonce: string;
+  deviceData?: string;
+}
+
+export interface CompletePaymentResponse {
+  error?: boolean;
+  message?: string;
+  data?: {
+    token?: string;
+    payment?: { _id?: string; amount?: number; status?: string };
+    invoice?: { _id?: string; invoiceNumber?: string; status?: string };
+    subscriptions?: unknown[];
+    consultations?: unknown[];
   };
 }
 
@@ -135,6 +154,30 @@ export const checkoutApi = {
     }
 
     return response;
+  },
+
+  completePayment: async (
+    payload: CompletePaymentPayload,
+  ): Promise<CompletePaymentResponse> => {
+    if (!payload?.referenceId?.trim()) {
+      throw new Error("Reference ID is required");
+    }
+    if (!payload?.paymentMethodNonce?.trim()) {
+      throw new Error("Payment method nonce is required");
+    }
+
+    const response = await apiService.post<CompletePaymentResponse>(
+      `${BASE_URL}${PAYMENT_COMPLETE_ENDPOINT.endpoint}`,
+      payload,
+    );
+
+    if (response?.data?.error) {
+      throw new Error(
+        response?.data?.message || "Could not complete payment. Please try again."
+      );
+    }
+
+    return response?.data;
   },
 
   // /**
