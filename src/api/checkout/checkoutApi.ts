@@ -59,7 +59,7 @@ export interface InitiateBraintreeCheckoutResponse {
 
 export const checkoutApi = {
   signUpWithPayment: async (
-    payload: CheckoutPayload
+    payload: CheckoutPayload,
   ): Promise<CheckoutResponse> => {
     try {
       if (!payload) {
@@ -68,7 +68,7 @@ export const checkoutApi = {
 
       const response = await apiService.post<CheckoutResponse>(
         `${BASE_URL}${SIGN_UP_WITH_PAYMENT_ENDPOINT?.endpoint}`,
-        payload
+        payload,
       );
 
       if (response?.error) {
@@ -84,7 +84,7 @@ export const checkoutApi = {
 
   // order checkout - for login users
   orderCheckout: async (
-    payload: CheckoutPayload
+    payload: CheckoutPayload,
   ): Promise<CheckoutResponse> => {
     try {
       if (!payload) {
@@ -93,7 +93,7 @@ export const checkoutApi = {
 
       const response = await apiService.post<CheckoutResponse>(
         `${BASE_URL}${ORDER_CHECKOUT_ENDPOINT?.endpoint}`,
-        payload
+        payload,
       );
 
       if (response?.error) {
@@ -113,21 +113,21 @@ export const checkoutApi = {
   }): Promise<ApiResponse<CheckoutResponse>> => {
     const response = await apiService.post<CheckoutResponse>(
       `${BASE_URL}${VALIDATE_COUPON_ENDPOINT?.endpoint}`,
-      payload
+      payload,
     );
 
     return response;
   },
 
   getInvoiceStatus: async (
-    referenceId: string
+    referenceId: string,
   ): Promise<InvoiceStatusApiResponse> => {
     if (!referenceId?.trim()) {
       throw new Error("Reference ID is required");
     }
 
     const response = await apiService.get<InvoiceStatusApiResponse>(
-      `${BASE_URL}${INVOICE_STATUS_ENDPOINT.endpoint}/${encodeURIComponent(referenceId)}`
+      `${BASE_URL}${INVOICE_STATUS_ENDPOINT.endpoint}/${encodeURIComponent(referenceId)}`,
     );
 
     if (response?.error) {
@@ -137,29 +137,29 @@ export const checkoutApi = {
     return response;
   },
 
-  /**
-   * Initiate Braintree checkout.
-   * POST /payment/products
-   *
-   * Expected envelope:
-   * { error: false, data: { referenceId, clientToken } }
-   */
-  initiateBraintreeCheckout: async (
-    payload: CheckoutPayload
-  ): Promise<InitiateBraintreeCheckoutResponse> => {
-    if (!payload) {
-      throw new Error("Checkout payload is required");
-    }
+  // /**
+  //  * Initiate Braintree checkout.
+  //  * POST /payment/products
+  //  *
+  //  * Expected envelope:
+  //  * { error: false, data: { referenceId, clientToken } }
+  //  */
+  // initiateBraintreeCheckout: async (
+  //   payload: CheckoutPayload,
+  // ): Promise<InitiateBraintreeCheckoutResponse> => {
+  //   if (!payload) {
+  //     throw new Error("Checkout payload is required");
+  //   }
 
-    const response = await apiService.post<InitiateBraintreeCheckoutResponse>(
-      `${BASE_URL}${ORDER_CHECKOUT_ENDPOINT.endpoint}`,
-      payload
-    );
+  //   const response = await apiService.post<InitiateBraintreeCheckoutResponse>(
+  //     `${BASE_URL}${ORDER_CHECKOUT_ENDPOINT.endpoint}`,
+  //     payload,
+  //   );
 
-    if (response?.error) {
-      throw new Error(response?.message || "Failed to initiate checkout");
-    }
+  //   if (response?.error) {
+  //     throw new Error(response?.message || "Failed to initiate checkout");
+  //   }
 
-    return response?.data;
-  },
+  //   return response?.data;
+  // },
 };

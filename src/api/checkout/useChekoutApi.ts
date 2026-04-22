@@ -83,7 +83,7 @@ const useChekoutApi = () => {
 
   return {
     getInvoiceStatus: checkoutApi.getInvoiceStatus,
-    initiateBraintreeCheckout: checkoutApi.initiateBraintreeCheckout,
+    // initiateBraintreeCheckout: checkoutApi.initiateBraintreeCheckout,
 
     // Checkout data and state
     checkoutData: checkoutData?.data,
