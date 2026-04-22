@@ -81,8 +81,26 @@ const useChekoutApi = () => {
     },
   });
 
+  const {
+    data: completePaymentData,
+    error: completePaymentError,
+    isPending: isCompletePaymentLoading,
+    isError: isCompletePaymentError,
+    mutateAsync: completePayment,
+  } = useMutation({
+    mutationFn: (payload: {
+      referenceId: string;
+      paymentMethodNonce: string;
+      deviceData?: string;
+    }) => checkoutApi.completePayment(payload),
+    onError: (error: any) => {
+      showErrorToast(error?.message);
+    },
+  });
+
   return {
     getInvoiceStatus: checkoutApi.getInvoiceStatus,
+    // initiateBraintreeCheckout: checkoutApi.initiateBraintreeCheckout,
 
     // Checkout data and state
     checkoutData: checkoutData?.data,
@@ -111,6 +129,15 @@ const useChekoutApi = () => {
 
     // Actions
     loginOrderCheckout,
+
+    // Complete payment data and state
+    completePaymentData,
+    isCompletePaymentLoading,
+    isCompletePaymentError,
+    completePaymentError,
+
+    // Actions
+    completePayment,
   };
 };
 

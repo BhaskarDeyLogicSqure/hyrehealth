@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Shield, Trash2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { showErrorToast, showSuccessToast } from "../GlobalErrorHandler";
+import { showErrorToast } from "../GlobalErrorHandler";
 import { Separator } from "@/components/ui/separator";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import useOrderCheckout from "@/hooks/useOrderCheckout";
@@ -28,35 +28,40 @@ import ThemeLoader from "@/components/ThemeLoader";
 import { RootState } from "@/store";
 
 /** Poll invoice status while API returns `pending` (max window ~15s). */
-const INVOICE_STATUS_POLL_BUDGET_MS = 15_000;
-const INVOICE_STATUS_POLL_INTERVAL_MS = 2_000;
+// const INVOICE_STATUS_POLL_BUDGET_MS = 15_000;
+// const INVOICE_STATUS_POLL_INTERVAL_MS = 2_000;
 
 const OrderSummarySection = ({
-  // isProcessing = false,
-  // fieldValidation,
+  checkoutPaymentMethod,
+  setBraintreeInit,
   handleGetPayload,
-  // generateToken,
 }: {
-  // isProcessing?: boolean; // will change to isProcessing later
+  checkoutPaymentMethod: string;
+  setBraintreeInit: (init: {
+    referenceId?: string;
+    clientToken?: string;
+    finalAmount?: number;
+  } | null) => void;
   handleGetPayload: (e: React.FormEvent) => Promise<any>;
-  // generateToken: any;
-  // fieldValidation: {
-  //   ccnumber: boolean;
-  //   ccexp: boolean;
-  //   cvv: boolean;
-  // };
 }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { setCookie } = useCookies();
-  const { clearCheckout } = useCheckout();
-  const { signUpWithPayment, loginOrderCheckout, getInvoiceStatus } =
+  // const { clearCheckout } = useCheckout();
+
+  const {
+    signUpWithPayment,
+    loginOrderCheckout,
+    // getInvoiceStatus,
+    // initiateBraintreeCheckout,
+  } =
     useChekoutApi();
 
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer
   );
-  console.log("merchantData", merchantData);
+  // console.log("merchantData", merchantData);
+
   // check if the user is logged in
   const isUserLoggedIn = isUserAuthenticated();
 
@@ -107,41 +112,18 @@ const OrderSummarySection = ({
       if (e) e.preventDefault();
 
       // check if the payment method is supported
-      if (merchantData?.checkoutPaymentMethod !== "tycoon") {
-        if (merchantData?.checkoutPaymentMethod === "bitcoin") {
-          showErrorToast("Feature coming soon");;
-        } else {
-          showErrorToast("Payment method not supported");
-        }
+      if (checkoutPaymentMethod !== "braintree") {
+        showErrorToast("Payment method not supported");
         return;
       }
 
       setIsCheckoutLoading(true);
 
-      // if (
-      //   !fieldValidation?.ccnumber ||
-      //   !fieldValidation?.ccexp ||
-      //   !fieldValidation?.cvv
-      // ) {
-      //   showErrorToast("Please fill all the payment fields");
-      // }
-
-      // handle payment - generate payment token and wait for it
-      // const generatedPaymentToken = await generateToken();
-      // console.log("generatedPaymentToken", generatedPaymentToken);
-
       // get payload for payment details
       const { error, payload } = await handleGetPayload(e);
 
       // return if no payload present or no questionnaire responses are present or payment fields are not filled
-      if (
-        error ||
-        !payload
-        // !fieldValidation?.ccnumber
-        // !fieldValidation?.ccexp ||
-        // !fieldValidation?.cvv ||
-        // !generatedPaymentToken
-      ) {
+      if (error || !payload) {
         return;
       }
 
@@ -167,6 +149,10 @@ const OrderSummarySection = ({
       // add the price info to the payload
       payload["paymentInfo"]["finalAmount"] =
         discountedTotalPrice || totalPrice; // this will be the final amount after applying the coupon
+
+      // ensure currency is set for payment initiation flows
+      payload["paymentInfo"]["currency"] =
+        payload?.paymentInfo?.currency || "USD";
 
       // add the coupon info to the payload
       if (appliedCoupon?.code) {
@@ -214,6 +200,7 @@ const OrderSummarySection = ({
 
       // call the checkout api
       let response;
+
       if (isUserLoggedIn) {
         // call the login order checkout api for logged in users
         response = await loginOrderCheckout(payload);
@@ -230,42 +217,32 @@ const OrderSummarySection = ({
         // Update Redux store with user details (initiating login)
         dispatch(setUser(response?.data?.customer));
 
-        // showSuccessToast("Order Placed Successfully! Welcome to HyreHealth!");
+        // --- will be shown after payment success ---
+        // showSuccessToast("Order Placed Successfully! Welcome to HyreHealth!"); 
+        // clearCheckout(); // clear the checkout data after successful checkout
+        // // Navigate to thank you page after successful checkout
+        // router.replace(
+        //   `/thank-you?orderId=${response?.data?.invoice?.invoiceNumber}`
+        // );
+        // --- will be shown after payment success ---
       }
 
-      // ------------------------------------------------------------
-      // if  response?.data?.hppUrl (if logged in) or response?.data?.hppUrl (if not logged in) is present, redirect to that url to complete the payment, the porcess after the successful payment will be handled through a useEffect hook
-      if (isUserLoggedIn) {
-        if (response?.data?.hppUrl) {
-          window.location.href = response?.data?.hppUrl;
+      // if the response contains referenceId and clientToken, then set the braintree init data and show the braintree payment UI so that user can proceed to payment step
+      if (response?.data?.referenceId && response?.data?.clientToken) {
+        const referenceId = response?.data?.referenceId;
+        const clientToken = response?.data?.clientToken;
+
+        if (!referenceId?.trim()?.length || !clientToken?.trim()?.length) {
+          showErrorToast("Could not initiate payment. Please try again.");
+          return;
         }
-      } else {
-        // console.log("user not logged in", response?.data);
-        if (response?.data?.invoice?.hppUrl) {
-          window.location.href = response?.data?.invoice?.hppUrl;
-        }
+
+        setBraintreeInit({
+          referenceId,
+          clientToken,
+          finalAmount: payload?.paymentInfo?.finalAmount,
+        });
       }
-
-
-
-      // ------------------------------------------------------------ 
-
-      // ----------------------------NOTE:--------------------------------
-      //
-      // we have removed the success toast and redirect to thank you page as we are not using this flow anymore, 
-      // instead on return of hppUrl, will move to that page, user pay there and if successful, will redirect back to checkout page and then move to thank you page
-
-      //  else {
-      //   showSuccessToast("Order Placed Successfully");
-      // }
-
-      // clearCheckout(); // clear the checkout data after successful checkout
-      // Navigate to thank you page after successful checkout
-      // router.replace(
-      //   `/thank-you?orderId=${response?.data?.invoice?.invoiceNumber}`
-      // );
-
-      // ------------------------------------------------------------
     } catch (error) {
       console.error(error);
       showErrorToast(
@@ -277,82 +254,81 @@ const OrderSummarySection = ({
     }
   };
 
+  // useEffect(() => {
+  //   if (!refId?.length || merchantData?.checkoutPaymentMethod !== "tycoon") return;
 
-  useEffect(() => {
-    if (!refId?.length || merchantData?.checkoutPaymentMethod !== "tycoon") return;
+  //   let cancelled = false;
 
-    let cancelled = false;
+  //   const confirmPayment = async () => {
+  //     try {
+  //       setIsProcessing(true);
 
-    const confirmPayment = async () => {
-      try {
-        setIsProcessing(true);
+  //       const pollStartedAt = Date.now();
 
-        const pollStartedAt = Date.now();
+  //       while (!cancelled) {
+  //         const response = await getInvoiceStatus(refId);
+  //         if (cancelled) return;
 
-        while (!cancelled) {
-          const response = await getInvoiceStatus(refId);
-          if (cancelled) return;
+  //         const envelope = response?.data;
+  //         const status = envelope?.status;
 
-          const envelope = response?.data;
-          const status = envelope?.status;
+  //         if (status === "completed" && envelope?.data) {
+  //           const details = envelope.data;
+  //           showSuccessToast("Order placed successfully.");
+  //           clearCheckout();
+  //           const invoiceNumber = details?.invoice?.invoiceNumber;
+  //           if (invoiceNumber) {
+  //             router.replace(
+  //               `/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`
+  //             );
+  //           }
+  //           return;
+  //         }
 
-          if (status === "completed" && envelope?.data) {
-            const details = envelope.data;
-            showSuccessToast("Order placed successfully.");
-            clearCheckout();
-            const invoiceNumber = details?.invoice?.invoiceNumber;
-            if (invoiceNumber) {
-              router.replace(
-                `/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`
-              );
-            }
-            return;
-          }
+  //         if (status === "failed") {
+  //           showErrorToast("Payment failed! Please try again.");
+  //           return;
+  //         }
 
-          if (status === "failed") {
-            showErrorToast("Payment failed! Please try again.");
-            return;
-          }
+  //         if (status !== "pending") {
+  //           showErrorToast(
+  //             "Could not confirm payment status. Please refresh or try again."
+  //           );
+  //           return;
+  //         }
 
-          if (status !== "pending") {
-            showErrorToast(
-              "Could not confirm payment status. Please refresh or try again."
-            );
-            return;
-          }
+  //         const elapsed = Date.now() - pollStartedAt;
+  //         if (elapsed >= INVOICE_STATUS_POLL_BUDGET_MS) {
+  //           showErrorToast(
+  //             "Payment is still processing. Please wait a moment, then refresh the page."
+  //           );
+  //           return;
+  //         }
 
-          const elapsed = Date.now() - pollStartedAt;
-          if (elapsed >= INVOICE_STATUS_POLL_BUDGET_MS) {
-            showErrorToast(
-              "Payment is still processing. Please wait a moment, then refresh the page."
-            );
-            return;
-          }
+  //         const waitMs = Math.min(
+  //           INVOICE_STATUS_POLL_INTERVAL_MS,
+  //           INVOICE_STATUS_POLL_BUDGET_MS - elapsed
+  //         );
+  //         await new Promise<void>((resolve) => setTimeout(resolve, waitMs));
+  //       }
+  //     } catch (error) {
+  //       if (!cancelled) {
+  //         showErrorToast(
+  //           (error as { message?: string })?.message ||
+  //           "Could not confirm payment"
+  //         );
+  //       }
+  //     } finally {
+  //       setIsProcessing(false);
+  //     }
+  //   };
 
-          const waitMs = Math.min(
-            INVOICE_STATUS_POLL_INTERVAL_MS,
-            INVOICE_STATUS_POLL_BUDGET_MS - elapsed
-          );
-          await new Promise<void>((resolve) => setTimeout(resolve, waitMs));
-        }
-      } catch (error) {
-        if (!cancelled) {
-          showErrorToast(
-            (error as { message?: string })?.message ||
-            "Could not confirm payment"
-          );
-        }
-      } finally {
-        setIsProcessing(false);
-      }
-    };
+  //   void confirmPayment();
 
-    void confirmPayment();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [refId]);
+  //   return () => {
+  //     cancelled = true;
+  //   };
+  // }, [refId]);
 
   return (
     <>
@@ -374,8 +350,11 @@ const OrderSummarySection = ({
       <div>
         <Card className="sticky top-24 shadow-lg">
           <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-bold">Order Summary</CardTitle>
+            <CardTitle className="text-xl font-bold">
+              Order Summary
+            </CardTitle>
           </CardHeader>
+
           <CardContent className="space-y-4">
             {/* Product Details Section */}
             {productConfigurations?.map((config) => {
@@ -393,7 +372,10 @@ const OrderSummarySection = ({
                 product?._id === eligibleProducts?.[0]?.product?._id;
 
               return (
-                <Card key={config?.productId} className="border border-gray-200">
+                <Card
+                  key={config?.productId}
+                  className="border border-gray-200"
+                >
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
@@ -401,7 +383,9 @@ const OrderSummarySection = ({
                           {product?.name}
                         </h3>
                         <p className="text-sm text-gray-600">
-                          {isMainProduct ? "Primary Product" : "Add-on Product"}
+                          {isMainProduct
+                            ? "Primary Product"
+                            : "Add-on Product"}
                         </p>
                       </div>
                       <div className="text-right ml-4 flex items-center gap-2">
@@ -452,7 +436,10 @@ const OrderSummarySection = ({
                           <SelectContent>
                             {generateDosageOptions(config?.productId)?.map(
                               (option: any) => (
-                                <SelectItem key={option?.id} value={option?.id}>
+                                <SelectItem
+                                  key={option?.id}
+                                  value={option?.id}
+                                >
                                   {`${option?.name}`}
                                 </SelectItem>
                               )
@@ -542,14 +529,17 @@ const OrderSummarySection = ({
             <Button
               onClick={_handleSubmit}
               className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 text-lg font-medium"
-              disabled={isCheckoutLoading || isProcessing || merchantData?.checkoutPaymentMethod !== "tycoon"}
+              disabled={
+                isCheckoutLoading ||
+                isProcessing
+              }
               style={{
                 backgroundColor: merchantData?.customizeBranding?.accentColor,
               }}
             >
               {isCheckoutLoading || isProcessing
                 ? "Processing..."
-                : "Complete Purchase"}
+                : "Complete Payment"}
             </Button>
 
             {/* Security Information */}
@@ -559,7 +549,7 @@ const OrderSummarySection = ({
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div >
     </>
   );
 };
