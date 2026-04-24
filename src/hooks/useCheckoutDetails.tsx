@@ -65,6 +65,18 @@ const useCheckoutDetails = () => {
     useState<Record<string, boolean>>(initialIsDirty);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
 
+  const [loading, setLoading] = useState({
+    braintreePaymentProcessing: false,
+  });
+
+  const _manageLoading = (key: keyof typeof loading, value: boolean) => {
+    setLoading((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+
   // Use Redux form data as the source of truth
   const formFields = formData;
 
@@ -388,6 +400,8 @@ const useCheckoutDetails = () => {
     isLoggedIn,
     formFields,
     errors,
+    loading,
+    manageLoading: _manageLoading,
     handleOnChange: _handleOnChange,
     handleGetPayload: _handleGetPayload,
     setErrors,

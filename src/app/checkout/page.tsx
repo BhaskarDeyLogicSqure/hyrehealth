@@ -49,12 +49,11 @@ const CheckoutPage = () => {
     isLoggedIn,
     formFields,
     errors,
+    loading,
     handleOnChange,
     handleGetPayload,
-    setErrors,
+    manageLoading,
   } = useCheckoutDetails();
-
-
 
   // Get order checkout data for pricing and product info
   const { totalPrice, discountedTotalPrice, selectedProducts } =
@@ -66,6 +65,54 @@ const CheckoutPage = () => {
 
   // Handle checkout data persistence
   useCheckoutPersistence();
+
+  const shouldShowBraintreePaymentUi =
+    checkoutPaymentMethod === "braintree" &&
+    Boolean(braintreeInit?.referenceId && braintreeInit?.clientToken);
+
+  const handleBackFromBraintreePayment = () => {
+    setBraintreeInit(null);
+  };
+
+  const handleBraintreePaymentMethod = async (
+    payload: BraintreePaymentMethodPayload
+  ) => {
+    try {
+      manageLoading("braintreePaymentProcessing", true);
+
+      setBraintreePaymentMethod(payload);
+
+      const referenceId = braintreeInit?.referenceId;
+      if (!referenceId?.trim()?.length) {
+        showErrorToast("Missing payment reference. Please try again.");
+        return;
+      }
+
+      const response = await completePayment({
+        referenceId,
+        paymentMethodNonce: payload?.nonce,
+        deviceData: payload?.deviceData,
+      });
+
+      const invoiceNumber = response?.data?.invoice?.invoiceNumber;
+      if (!invoiceNumber) {
+        showErrorToast(
+          "Payment completed, but invoice number is missing. Please contact support."
+        );
+        return;
+      }
+
+      showSuccessToast("Order placed successfully.");
+      clearCheckout();
+      router.replace(`/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`);
+    } catch (e) {
+      showErrorToast(
+        (e as { message?: string })?.message || "Could not complete payment."
+      );
+    } finally {
+      manageLoading("braintreePaymentProcessing", false);
+    }
+  };
 
   useEffect(() => {
     // Check if we have valid checkout data, if not redirect to products page
@@ -106,50 +153,6 @@ const CheckoutPage = () => {
     };
   }, []);
 
-  const shouldShowBraintreePaymentUi =
-    checkoutPaymentMethod === "braintree" &&
-    Boolean(braintreeInit?.referenceId && braintreeInit?.clientToken);
-
-  const handleBackFromBraintreePayment = () => {
-    setBraintreeInit(null);
-  };
-
-  const handleBraintreePaymentMethod = async (
-    payload: BraintreePaymentMethodPayload
-  ) => {
-    try {
-      setBraintreePaymentMethod(payload);
-
-      const referenceId = braintreeInit?.referenceId;
-      if (!referenceId?.trim()) {
-        showErrorToast("Missing payment reference. Please try again.");
-        return;
-      }
-
-      const response = await completePayment({
-        referenceId,
-        paymentMethodNonce: payload?.nonce,
-        deviceData: payload?.deviceData,
-      });
-
-      const invoiceNumber = response?.data?.invoice?.invoiceNumber;
-      if (!invoiceNumber) {
-        showErrorToast(
-          "Payment completed, but invoice number is missing. Please contact support."
-        );
-        return;
-      }
-
-      showSuccessToast("Order placed successfully.");
-      clearCheckout();
-      router.replace(`/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`);
-    } catch (e) {
-      showErrorToast(
-        (e as { message?: string })?.message || "Could not complete payment."
-      );
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {shouldShowBraintreePaymentUi ? (
@@ -158,6 +161,7 @@ const CheckoutPage = () => {
           finalAmount={braintreeInit?.finalAmount || 0}
           onBack={handleBackFromBraintreePayment}
           onPaymentMethod={handleBraintreePaymentMethod}
+          isBraintreePaymentProcessing={loading?.braintreePaymentProcessing}
         />
       ) :
         <div className="container mx-auto px-4 py-8 max-w-6xl">
