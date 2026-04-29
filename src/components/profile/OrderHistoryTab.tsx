@@ -75,7 +75,7 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
           <div>
             <div className="font-medium">{product?.name || "Product"}</div>
             <div className="text-sm text-gray-500">
-              {product?.strength ? `${product?.strength}mg` : "N/A"}
+              {product?.strength ? `${product?.strength} strength` : "N/A"}
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
             <div className="flex-1">
               <div className="font-medium">{product?.name || "Product"}</div>
               <div className="text-sm text-gray-500">
-                {product?.strength ? `${product?.strength}mg` : "N/A"}
+                {product?.strength ? `${product?.strength} strength` : "N/A"}
               </div>
             </div>
           </div>

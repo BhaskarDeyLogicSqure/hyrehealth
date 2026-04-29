@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Shield, Trash2 } from "lucide-react";
+import { Shield, Trash2, Stethoscope } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { showErrorToast, showSuccessToast } from "../GlobalErrorHandler";
 import { Separator } from "@/components/ui/separator";
@@ -378,7 +378,7 @@ const OrderSummarySection = ({
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Product Details Section */}
-            {productConfigurations?.map((config) => {
+            {/* {productConfigurations?.map((config) => {
               const product = eligibleProducts?.find(
                 (item) => item?.product?._id === config?.productId
               )?.product;
@@ -497,7 +497,36 @@ const OrderSummarySection = ({
                   </CardContent>
                 </Card>
               );
-            })}
+            })} */}
+
+
+            {/* Monthly Wellness Program Info */}
+            <Card className="bg-muted/30 border-muted/60">
+              <CardHeader className="px-4 py-3 space-y-0">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 rounded-md bg-muted p-2">
+                    <Stethoscope className="h-4 w-4 theme-text-primary" />
+                  </div>
+
+                  <div className="space-y-1">
+                    <CardTitle className="text-base leading-6">
+                      Monthly Wellness Program
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Includes access to licensed medical providers, consultations,
+                      and personalized care plans.
+                    </p>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="px-4 pt-0 pb-4">
+                <div className="text-xs text-muted-foreground leading-relaxed">
+                  Treatment protocols are determined by a licensed provider when
+                  appropriate.
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Coupon Code Section */}
             <CouponCodeSection
