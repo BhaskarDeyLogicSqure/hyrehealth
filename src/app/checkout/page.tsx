@@ -168,7 +168,7 @@ const CheckoutPage = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
             <p className="text-gray-600 mt-2">
-              Complete your order to start your treatment
+              Complete your order to start your wellness program
             </p>
           </div>
 
@@ -246,13 +246,13 @@ const CheckoutPage = () => {
                           >
                             Return Policy
                           </Link>
-                          . I understand this medication requires a valid
-                          prescription from a licensed physician.
+                          . I understand this wellness program requires a valid
+                          authorization from a licensed physician.
                         </Label>
                       </div>
 
                       {/* Order Confirmation Text */}
-                      <div className="space-y-4">
+                      {/* <div className="space-y-4">
                         <p className="text-sm leading-relaxed text-gray-700">
                           By placing your monthly recurring order of{" "}
                           <span className="font-semibold">
@@ -266,7 +266,7 @@ const CheckoutPage = () => {
                           </span>{" "}
                           Now and every 30 days thereafter until you cancel your subscription. You will receive an electronic notification 5 to 7 days prior to your transaction and receipt after each successful transaction.
                         </p>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </CardContent>
