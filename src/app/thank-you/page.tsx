@@ -240,8 +240,8 @@ const ThankYouPage = () => {
               </div>
               <div>
                 <p className="font-semibold text-gray-900">
-                  Your prescription will be processed and shipped within 1-3
-                  business days
+                  Your physician-approved wellness program will be processed and
+                  shipped within 1-3 business days
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
                   Discreet packaging with tracking information provided
