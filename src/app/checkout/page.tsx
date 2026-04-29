@@ -49,12 +49,11 @@ const CheckoutPage = () => {
     isLoggedIn,
     formFields,
     errors,
+    loading,
     handleOnChange,
     handleGetPayload,
-    setErrors,
+    manageLoading,
   } = useCheckoutDetails();
-
-
 
   // Get order checkout data for pricing and product info
   const { totalPrice, discountedTotalPrice, selectedProducts } =
@@ -66,6 +65,54 @@ const CheckoutPage = () => {
 
   // Handle checkout data persistence
   useCheckoutPersistence();
+
+  const shouldShowBraintreePaymentUi =
+    checkoutPaymentMethod === "braintree" &&
+    Boolean(braintreeInit?.referenceId && braintreeInit?.clientToken);
+
+  const handleBackFromBraintreePayment = () => {
+    setBraintreeInit(null);
+  };
+
+  const handleBraintreePaymentMethod = async (
+    payload: BraintreePaymentMethodPayload
+  ) => {
+    try {
+      manageLoading("braintreePaymentProcessing", true);
+
+      setBraintreePaymentMethod(payload);
+
+      const referenceId = braintreeInit?.referenceId;
+      if (!referenceId?.trim()?.length) {
+        showErrorToast("Missing payment reference. Please try again.");
+        return;
+      }
+
+      const response = await completePayment({
+        referenceId,
+        paymentMethodNonce: payload?.nonce,
+        deviceData: payload?.deviceData,
+      });
+
+      const invoiceNumber = response?.data?.invoice?.invoiceNumber;
+      if (!invoiceNumber) {
+        showErrorToast(
+          "Payment completed, but invoice number is missing. Please contact support."
+        );
+        return;
+      }
+
+      showSuccessToast("Order placed successfully.");
+      clearCheckout();
+      router.replace(`/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`);
+    } catch (e) {
+      showErrorToast(
+        (e as { message?: string })?.message || "Could not complete payment."
+      );
+    } finally {
+      manageLoading("braintreePaymentProcessing", false);
+    }
+  };
 
   useEffect(() => {
     // Check if we have valid checkout data, if not redirect to products page
@@ -106,50 +153,6 @@ const CheckoutPage = () => {
     };
   }, []);
 
-  const shouldShowBraintreePaymentUi =
-    checkoutPaymentMethod === "braintree" &&
-    Boolean(braintreeInit?.referenceId && braintreeInit?.clientToken);
-
-  const handleBackFromBraintreePayment = () => {
-    setBraintreeInit(null);
-  };
-
-  const handleBraintreePaymentMethod = async (
-    payload: BraintreePaymentMethodPayload
-  ) => {
-    try {
-      setBraintreePaymentMethod(payload);
-
-      const referenceId = braintreeInit?.referenceId;
-      if (!referenceId?.trim()) {
-        showErrorToast("Missing payment reference. Please try again.");
-        return;
-      }
-
-      const response = await completePayment({
-        referenceId,
-        paymentMethodNonce: payload?.nonce,
-        deviceData: payload?.deviceData,
-      });
-
-      const invoiceNumber = response?.data?.invoice?.invoiceNumber;
-      if (!invoiceNumber) {
-        showErrorToast(
-          "Payment completed, but invoice number is missing. Please contact support."
-        );
-        return;
-      }
-
-      showSuccessToast("Order placed successfully.");
-      clearCheckout();
-      router.replace(`/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`);
-    } catch (e) {
-      showErrorToast(
-        (e as { message?: string })?.message || "Could not complete payment."
-      );
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {shouldShowBraintreePaymentUi ? (
@@ -158,13 +161,14 @@ const CheckoutPage = () => {
           finalAmount={braintreeInit?.finalAmount || 0}
           onBack={handleBackFromBraintreePayment}
           onPaymentMethod={handleBraintreePaymentMethod}
+          isBraintreePaymentProcessing={loading?.braintreePaymentProcessing}
         />
       ) :
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
             <p className="text-gray-600 mt-2">
-              Complete your order to start your treatment
+              Complete your order to start your wellness program
             </p>
           </div>
 
@@ -242,13 +246,13 @@ const CheckoutPage = () => {
                           >
                             Return Policy
                           </Link>
-                          . I understand this medication requires a valid
-                          prescription from a licensed physician.
+                          . I understand this wellness program requires a valid
+                          authorization from a licensed physician.
                         </Label>
                       </div>
 
                       {/* Order Confirmation Text */}
-                      <div className="space-y-4">
+                      {/* <div className="space-y-4">
                         <p className="text-sm leading-relaxed text-gray-700">
                           By placing your monthly recurring order of{" "}
                           <span className="font-semibold">
@@ -262,7 +266,7 @@ const CheckoutPage = () => {
                           </span>{" "}
                           Now and every 30 days thereafter until you cancel your subscription. You will receive an electronic notification 5 to 7 days prior to your transaction and receipt after each successful transaction.
                         </p>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </CardContent>
