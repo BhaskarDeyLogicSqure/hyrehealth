@@ -53,7 +53,7 @@ const useProducts = ({ fdaApproved = false }: useProductsHookProps) => {
     showErrorToast(productsError?.message || "Something went wrong");
   }
 
-  const { categories: categoriesResponse } = useCategoryApi();
+  const { categories: categoriesResponse } = useCategoryApi({}, origin);
 
   // console.log("productsResponse", { productsResponse });
 

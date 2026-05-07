@@ -207,6 +207,8 @@ const useCheckoutDetails = () => {
                 } else if (
                   // check if the address fields have special characters / numbers
                   key !== "zipCode" &&
+                  key !== "streetAddress" &&
+                  key !== "addressLine2" &&
                   /[^a-zA-Z0-9\s'-]/?.test(newFormFields?.[key] || "")
                 ) {
                   newErrors[key] = "*Special characters are not allowed";
