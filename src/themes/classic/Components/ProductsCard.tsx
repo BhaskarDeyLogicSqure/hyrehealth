@@ -5,7 +5,7 @@ import { DEFAULT_IMAGE_URL } from "@/configs";
 import React, { useState } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { Star, Image as ImageIcon } from "lucide-react";
+import { Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   useNavigationState,
@@ -14,6 +14,7 @@ import {
 import ThemeLoader from "@/components/ThemeLoader";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import RatingDisplay from "./RatingDisplay";
 
 const ProductsCard = ({
   product,
@@ -102,19 +103,11 @@ const ProductsCard = ({
 
       {/* Rating */}
       {product?.statistics?.averageRating ? (
-        <div className="flex items-center gap-1 mb-3">
-          {[...Array(product?.statistics?.averageRating || 0)]?.map((_, i) => (
-            <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-          ))}
-          {product?.statistics?.reviewCount ? (
-            <span
-              className="text-sm text-gray-600 ml-1"
-              title={`${product?.statistics?.reviewCount} reviews`}
-            >
-              ({product?.statistics?.reviewCount} reviews)
-            </span>
-          ) : null}
-        </div>
+        <RatingDisplay
+          className="mb-3"
+          rating={product?.statistics?.averageRating}
+          reviewCount={product?.statistics?.reviewCount}
+        />
       ) : null}
 
       {/* Price */}

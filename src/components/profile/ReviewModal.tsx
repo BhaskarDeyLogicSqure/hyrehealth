@@ -59,11 +59,11 @@ const ReviewModal = ({
       data?._id
     );
 
-  console.log({
-    productReviewData,
-    isProductReviewLoading,
-    productReviewError,
-  });
+  // console.log({
+  //   productReviewData,
+  //   isProductReviewLoading,
+  //   productReviewError,
+  // });
 
   const [formFields, setFormFields] = useState(initialFormFields);
 
@@ -114,9 +114,8 @@ const ReviewModal = ({
         <button
           key={index}
           type="button"
-          className={`${
-            interactive ? "cursor-pointer" : "cursor-default"
-          } transition-colors`}
+          className={`${interactive ? "cursor-pointer" : "cursor-default"
+            } transition-colors`}
           onClick={
             interactive
               ? () => _handleFormFieldChange("rating", index + 1)
@@ -127,9 +126,8 @@ const ReviewModal = ({
           disabled={!interactive}
         >
           <Star
-            className={`h-6 w-6 ${
-              isFilled ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-            }`}
+            className={`h-6 w-6 ${isFilled ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+              }`}
           />
         </button>
       );

@@ -8,12 +8,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Star, CheckCircle, AlertCircle, ChevronRight } from "lucide-react";
+import { CheckCircle, AlertCircle, ChevronRight } from "lucide-react";
 import { Product } from "@/types/products";
 // import RelatedProductsSection from "../Components/RelatedProductsSection";
 import ImageVideoCarousel from "@/components/ImageVideoCarousel";
 import { removeHtmlTags } from "@/lib/utils";
 import RelatedProductsSection from "@/themes/default/Components/RelatedProductsSection";
+import RatingDisplay from "./RatingDisplay";
 
 const ProductDetailsSection = ({
   product,
@@ -69,46 +70,11 @@ const ProductDetailsSection = ({
             ) : null}
 
             {/* Star Rating */}
-            {product?.statistics?.averageRating &&
-            product?.statistics?.averageRating > 0 ? (
-              <div className="flex items-center mb-4">
-                <div className="flex items-center">
-                  {[...Array(product?.statistics?.averageRating || 0)]?.map(
-                    (star) => (
-                      <Star
-                        key={star}
-                        className={`h-4 w-4 ${
-                          star <=
-                          Math.floor(product?.statistics?.averageRating || 0)
-                            ? "fill-yellow-400 text-yellow-400"
-                            : star ===
-                                Math.ceil(
-                                  product?.statistics?.averageRating || 0
-                                ) &&
-                              (product?.statistics?.averageRating || 0) % 1 !==
-                                0
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    )
-                  )}
-                </div>
-
-                {product?.statistics?.reviewCount ? (
-                  <span
-                    className="ml-2 text-sm text-gray-600"
-                    title={`${product?.statistics?.reviewCount} reviews`}
-                  >
-                    ({product?.statistics?.reviewCount || 0} reviews)
-                  </span>
-                ) : null}
-              </div>
-            ) : (
-              <div className="flex items-center mb-4">
-                <span className="text-sm text-gray-500">No rating</span>
-              </div>
-            )}
+            <RatingDisplay
+              className="mb-4"
+              rating={product?.statistics?.averageRating}
+              reviewCount={product?.statistics?.reviewCount}
+            />
           </div>
         </div>
 
