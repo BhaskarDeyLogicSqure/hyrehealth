@@ -107,14 +107,14 @@ const OrderSummarySection = ({
       if (e) e.preventDefault();
 
       // check if the payment method is supported
-      if (merchantData?.checkoutPaymentMethod !== "tycoon") {
-        if (merchantData?.checkoutPaymentMethod === "bitcoin") {
-          showErrorToast("Feature coming soon");;
-        } else {
-          showErrorToast("Payment method not supported");
-        }
-        return;
-      }
+      // if (merchantData?.checkoutPaymentMethod !== "tycoon") {
+      //   if (merchantData?.checkoutPaymentMethod === "bitcoin") {
+      //     showErrorToast("Feature coming soon");;
+      //   } else {
+      //     showErrorToast("Payment method not supported");
+      //   }
+      //   return;
+      // }
 
       setIsCheckoutLoading(true);
 
@@ -279,7 +279,7 @@ const OrderSummarySection = ({
 
 
   useEffect(() => {
-    if (!refId?.length || merchantData?.checkoutPaymentMethod !== "tycoon") return;
+    if (!refId?.length) return;
 
     let cancelled = false;
 
@@ -571,7 +571,7 @@ const OrderSummarySection = ({
             <Button
               onClick={_handleSubmit}
               className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 text-lg font-medium"
-              disabled={isCheckoutLoading || isProcessing || merchantData?.checkoutPaymentMethod !== "tycoon"}
+              disabled={isCheckoutLoading || isProcessing}
               style={{
                 backgroundColor: merchantData?.customizeBranding?.accentColor,
               }}
