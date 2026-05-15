@@ -80,6 +80,7 @@ export interface MerchantNMIpaymentTokenResponse {
     supportEmail: string;
     supportPhone: string;
     isApplyLegitScript: boolean;
+    showLegitScript: boolean;
     checkoutPaymentMethod: "tycoon" | "bitcoin" | "braintree";
     // Branding fields
     businessName: string;
