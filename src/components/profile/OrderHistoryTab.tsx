@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Table,
@@ -15,11 +15,13 @@ import {
   RotateCcw,
   Eye,
   MessageSquare,
+  LifeBuoy,
 } from "lucide-react";
 import { formatDate } from "@/lib/dayjs";
 import { Button } from "../ui/button";
 import { DIGITS_AFTER_DECIMALS, US_SHORT_DATE_FORMAT } from "@/configs";
 import ReviewModal from "./ReviewModal";
+import OrderSupportModal from "./OrderSupportModal";
 import CustomPagination from "@/components/CustomPagination";
 import ThemeLoader from "@/components/ThemeLoader";
 import useOrderHistory from "@/hooks/useOrderHistory";
@@ -45,6 +47,15 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
     handleImageError,
     getImageSrc,
   } = useOrderHistory(customerId);
+
+  const [supportModal, setSupportModal] = useState<{
+    isOpen: boolean;
+    order: any;
+  }>({ isOpen: false, order: null });
+
+  const _toggleSupportModal = (isOpen: boolean = false, order: any = null) => {
+    setSupportModal({ isOpen, order });
+  };
 
   // Component to render multiple products
   const _renderProducts = (
@@ -279,6 +290,14 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
                           <MessageSquare className="h-4 w-4 mr-1" />
                           Reviews
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => _toggleSupportModal(true, order)}
+                        >
+                          <LifeBuoy className="h-4 w-4 mr-1" />
+                          Get Order Support
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -349,6 +368,14 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
                   <MessageSquare className="h-4 w-4 mr-1" />
                   Reviews
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => _toggleSupportModal(true, order)}
+                >
+                  <LifeBuoy className="h-4 w-4 mr-1" />
+                  Get Order Support
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -399,6 +426,15 @@ const OrderHistoryTab = ({ customerId }: { customerId: string }) => {
           onSubmit={handleReviewSubmit}
           isCreateReviewLoading={isCreateReviewLoading}
           createReviewError={createReviewError}
+        />
+      ) : null}
+
+      {/* Order Support Modal */}
+      {supportModal?.isOpen ? (
+        <OrderSupportModal
+          isOpen={supportModal?.isOpen}
+          order={supportModal?.order}
+          toggleModal={() => _toggleSupportModal(false, null)}
         />
       ) : null}
     </>
