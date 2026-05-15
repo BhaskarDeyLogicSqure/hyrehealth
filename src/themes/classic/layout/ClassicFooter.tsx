@@ -332,7 +332,7 @@ const ClassicFooter = ({
               <div className="mt-4 flex items-center gap-3">
                 {merchantData?.customizeBranding?.socialMediaLinks &&
                   merchantData?.customizeBranding?.socialMediaLinks.length >
-                    0 &&
+                  0 &&
                   merchantData?.customizeBranding?.socialMediaLinks?.map(
                     (socialLink) => {
                       let IconComponent;
@@ -382,7 +382,7 @@ const ClassicFooter = ({
               </h3>
               <ul className="mt-3 space-y-2 text-sm">
                 {merchantData?.address?.zipCode ||
-                merchantData?.merchantAddress?.zipCode ? (
+                  merchantData?.merchantAddress?.zipCode ? (
                   <li>
                     Address
                     <br />
@@ -542,6 +542,25 @@ const ClassicFooter = ({
           </div>
 
           <div className="my-8 h-px w-full bg-neutral-200"></div>
+
+          {merchantData?.showLegitScript ? (
+            <div className="mb-6 flex justify-center">
+              <a
+                href="https://www.legitscript.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LegitScript Certified"
+              >
+                <Image
+                  src="/Legit-Script-Certification-Seal.png"
+                  alt="LegitScript Certified"
+                  width={100}
+                  height={110}
+                  className="h-auto w-24"
+                />
+              </a>
+            </div>
+          ) : null}
 
           <div className="space-y-4">
             {merchantData?.isApplyLegitScript ? (
