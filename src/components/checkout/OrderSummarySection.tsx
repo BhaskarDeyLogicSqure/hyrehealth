@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Shield, Trash2, Stethoscope } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { showErrorToast, showSuccessToast } from "../GlobalErrorHandler";
+import { showErrorToast } from "../GlobalErrorHandler";
 import { Separator } from "@/components/ui/separator";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import useOrderCheckout from "@/hooks/useOrderCheckout";
@@ -26,11 +26,10 @@ import { isUserAuthenticated } from "@/utils/auth";
 import CouponCodeSection from "./CouponCodeSection";
 import ThemeLoader from "@/components/ThemeLoader";
 import { RootState } from "@/store";
-import { clearCheckout } from "@/store/slices/checkoutSlice";
 
 /** Poll invoice status while API returns `pending` (max window ~15s). */
-const INVOICE_STATUS_POLL_BUDGET_MS = 15_000;
-const INVOICE_STATUS_POLL_INTERVAL_MS = 2_000;
+// const INVOICE_STATUS_POLL_BUDGET_MS = 15_000;
+// const INVOICE_STATUS_POLL_INTERVAL_MS = 2_000;
 
 const OrderSummarySection = ({
   checkoutPaymentMethod,
@@ -53,7 +52,7 @@ const OrderSummarySection = ({
   const {
     signUpWithPayment,
     loginOrderCheckout,
-    getInvoiceStatus,
+    // getInvoiceStatus,
     // initiateBraintreeCheckout,
   } =
     useChekoutApi();
@@ -255,81 +254,81 @@ const OrderSummarySection = ({
     }
   };
 
-  useEffect(() => {
-    if (!refId?.length || merchantData?.checkoutPaymentMethod !== "tycoon") return;
+  // useEffect(() => {
+  //   if (!refId?.length || merchantData?.checkoutPaymentMethod !== "tycoon") return;
 
-    let cancelled = false;
+  //   let cancelled = false;
 
-    const confirmPayment = async () => {
-      try {
-        setIsProcessing(true);
+  //   const confirmPayment = async () => {
+  //     try {
+  //       setIsProcessing(true);
 
-        const pollStartedAt = Date.now();
+  //       const pollStartedAt = Date.now();
 
-        while (!cancelled) {
-          const response = await getInvoiceStatus(refId);
-          if (cancelled) return;
+  //       while (!cancelled) {
+  //         const response = await getInvoiceStatus(refId);
+  //         if (cancelled) return;
 
-          const envelope = response?.data;
-          const status = envelope?.status;
+  //         const envelope = response?.data;
+  //         const status = envelope?.status;
 
-          if (status === "completed" && envelope?.data) {
-            const details = envelope.data;
-            showSuccessToast("Order placed successfully.");
-            clearCheckout();
-            const invoiceNumber = details?.invoice?.invoiceNumber;
-            if (invoiceNumber) {
-              router.replace(
-                `/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`
-              );
-            }
-            return;
-          }
+  //         if (status === "completed" && envelope?.data) {
+  //           const details = envelope.data;
+  //           showSuccessToast("Order placed successfully.");
+  //           clearCheckout();
+  //           const invoiceNumber = details?.invoice?.invoiceNumber;
+  //           if (invoiceNumber) {
+  //             router.replace(
+  //               `/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`
+  //             );
+  //           }
+  //           return;
+  //         }
 
-          if (status === "failed") {
-            showErrorToast("Payment failed! Please try again.");
-            return;
-          }
+  //         if (status === "failed") {
+  //           showErrorToast("Payment failed! Please try again.");
+  //           return;
+  //         }
 
-          if (status !== "pending") {
-            showErrorToast(
-              "Could not confirm payment status. Please refresh or try again."
-            );
-            return;
-          }
+  //         if (status !== "pending") {
+  //           showErrorToast(
+  //             "Could not confirm payment status. Please refresh or try again."
+  //           );
+  //           return;
+  //         }
 
-          const elapsed = Date.now() - pollStartedAt;
-          if (elapsed >= INVOICE_STATUS_POLL_BUDGET_MS) {
-            showErrorToast(
-              "Payment is still processing. Please wait a moment, then refresh the page."
-            );
-            return;
-          }
+  //         const elapsed = Date.now() - pollStartedAt;
+  //         if (elapsed >= INVOICE_STATUS_POLL_BUDGET_MS) {
+  //           showErrorToast(
+  //             "Payment is still processing. Please wait a moment, then refresh the page."
+  //           );
+  //           return;
+  //         }
 
-          const waitMs = Math.min(
-            INVOICE_STATUS_POLL_INTERVAL_MS,
-            INVOICE_STATUS_POLL_BUDGET_MS - elapsed
-          );
-          await new Promise<void>((resolve) => setTimeout(resolve, waitMs));
-        }
-      } catch (error) {
-        if (!cancelled) {
-          showErrorToast(
-            (error as { message?: string })?.message ||
-            "Could not confirm payment"
-          );
-        }
-      } finally {
-        setIsProcessing(false);
-      }
-    };
+  //         const waitMs = Math.min(
+  //           INVOICE_STATUS_POLL_INTERVAL_MS,
+  //           INVOICE_STATUS_POLL_BUDGET_MS - elapsed
+  //         );
+  //         await new Promise<void>((resolve) => setTimeout(resolve, waitMs));
+  //       }
+  //     } catch (error) {
+  //       if (!cancelled) {
+  //         showErrorToast(
+  //           (error as { message?: string })?.message ||
+  //           "Could not confirm payment"
+  //         );
+  //       }
+  //     } finally {
+  //       setIsProcessing(false);
+  //     }
+  //   };
 
-    void confirmPayment();
+  //   void confirmPayment();
 
-    return () => {
-      cancelled = true;
-    };
-  }, [refId]);
+  //   return () => {
+  //     cancelled = true;
+  //   };
+  // }, [refId]);
 
   return (
     <>
