@@ -1,5 +1,8 @@
 import apiService from "@/api";
 import {
+  DISCLAIMER_GENERATE_ENDPOINT,
+  DISCLAIMER_STATUS_ENDPOINT,
+  DISCLAIMER_VERIFY_ENDPOINT,
   INTAKE_FORM_QUESTIONS_ENDPOINT,
   MEETING_DETAILS_ENDPOINT,
   MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT,
@@ -10,6 +13,9 @@ import {
 } from "@/api-helper/ChekoutEndpoints";
 import { MerchantNMIpaymentTokenResponse } from "@/types/auth";
 import {
+  DisclaimerGenerateResponse,
+  DisclaimerStatusResponse,
+  DisclaimerVerifyResponse,
   IntakeFormQuestionsResponse,
   IntakeFormResponsePayload,
   IntakeFormSubmitResponse,
@@ -24,7 +30,7 @@ import { RenewalDetailsResponse } from "@/types/renewalDetails";
 export const postCheckoutApi = {
   // Get order confirmation details
   getOrderConfirmation: async (
-    orderId: string | null
+    orderId: string | null,
   ): Promise<OrderConfirmationResponse> => {
     try {
       if (!orderId) {
@@ -32,7 +38,7 @@ export const postCheckoutApi = {
       }
 
       const response = await apiService.get<OrderConfirmationResponse>(
-        `${ORDER_CONFIRMATION_DETAILS_ENDPOINT.endpoint}/${orderId}`
+        `${ORDER_CONFIRMATION_DETAILS_ENDPOINT.endpoint}/${orderId}`,
       );
 
       return {
@@ -49,7 +55,7 @@ export const postCheckoutApi = {
   getIntakeFormQuestions: async (): Promise<IntakeFormQuestionsResponse> => {
     try {
       const response = await apiService.post<IntakeFormQuestionsResponse>(
-        `${INTAKE_FORM_QUESTIONS_ENDPOINT.endpoint}`
+        `${INTAKE_FORM_QUESTIONS_ENDPOINT.endpoint}`,
       );
 
       return response?.data;
@@ -61,12 +67,12 @@ export const postCheckoutApi = {
 
   // submit intake form questions with answers
   submitIntakeFormQuestions: async (
-    payload: IntakeFormResponsePayload
+    payload: IntakeFormResponsePayload,
   ): Promise<IntakeFormSubmitResponse> => {
     try {
       const response = await apiService.post<IntakeFormSubmitResponse>(
         `${SUBMIT_INTAKE_FORM_QUESTIONS_ENDPOINT.endpoint}`,
-        payload
+        payload,
       );
 
       console.log({ response });
@@ -83,11 +89,11 @@ export const postCheckoutApi = {
 
   // get meeting id for meeting schedule
   getMeetingDetails: async (
-    invoiceId: string
+    invoiceId: string,
   ): Promise<MeetingDetailsResponse> => {
     try {
       const response = await apiService.get<MeetingDetailsResponse>(
-        `${MEETING_DETAILS_ENDPOINT.endpoint}/${invoiceId}`
+        `${MEETING_DETAILS_ENDPOINT.endpoint}/${invoiceId}`,
       );
 
       return {
@@ -102,11 +108,11 @@ export const postCheckoutApi = {
 
   // get renewal details
   getRenewalDetails: async (
-    subscriptionId: string
+    subscriptionId: string,
   ): Promise<RenewalDetailsResponse> => {
     try {
       const response = await apiService.get<RenewalDetailsResponse>(
-        `${RENEWAL_DETAILS_ENDPOINT.endpoint}/${subscriptionId}/renewal-details`
+        `${RENEWAL_DETAILS_ENDPOINT.endpoint}/${subscriptionId}/renewal-details`,
       );
 
       return {
@@ -119,13 +125,67 @@ export const postCheckoutApi = {
     }
   },
 
+  // get disclaimer status
+  getDisclaimerStatus: async (
+    orderId: string,
+  ): Promise<DisclaimerStatusResponse> => {
+    try {
+      const response = await apiService.get<DisclaimerStatusResponse>(
+        `${DISCLAIMER_STATUS_ENDPOINT.endpoint}/${orderId}`,
+      );
+
+      return {
+        error: response?.error || false,
+        data: response?.data,
+      };
+    } catch (error) {
+      console.error("Disclaimer status API error:", error);
+      throw error;
+    }
+  },
+
+  // generate disclaimer signing URL
+  generateDisclaimer: async (
+    invoiceId: string,
+  ): Promise<DisclaimerGenerateResponse> => {
+    try {
+      const response = await apiService.post<DisclaimerGenerateResponse>(
+        DISCLAIMER_GENERATE_ENDPOINT.endpoint,
+        { invoiceId },
+      );
+
+      return response?.data;
+    } catch (error) {
+      console.error("Disclaimer generate API error:", error);
+      throw error;
+    }
+  },
+
+  // verify disclaimer after DocuSign return
+  verifyDisclaimer: async (payload: {
+    token: string;
+    event: string;
+  }): Promise<DisclaimerVerifyResponse> => {
+    try {
+      const response = await apiService.post<DisclaimerVerifyResponse>(
+        DISCLAIMER_VERIFY_ENDPOINT.endpoint,
+        payload,
+      );
+
+      return response?.data;
+    } catch (error) {
+      console.error("Disclaimer verify API error:", error);
+      throw error;
+    }
+  },
+
   // get post consultation summary
   getPostConsultationSummary: async (
-    consultationId: string
+    consultationId: string,
   ): Promise<PostConsultationSummaryResponse> => {
     try {
       const response = await apiService.get<PostConsultationSummaryResponse>(
-        `${POST_CONSULTATION_SUMMARY_ENDPOINT.endpoint}/${consultationId}/completion`
+        `${POST_CONSULTATION_SUMMARY_ENDPOINT.endpoint}/${consultationId}/completion`,
       );
 
       return {
