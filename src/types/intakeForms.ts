@@ -99,3 +99,36 @@ export interface MeetingDetailsResponse {
     meetingLink: string;
   };
 }
+
+export interface DisclaimerStatusData {
+  status: string;
+  alreadySigned: boolean;
+  envelopeId: string | null;
+}
+
+export interface DisclaimerStatusResponse {
+  error: boolean;
+  data: DisclaimerStatusData;
+}
+
+export interface DisclaimerGenerateData {
+  signingUrl: string;
+  envelopeId: string;
+  alreadySigned: boolean;
+}
+
+export interface DisclaimerGenerateResponse {
+  error: boolean;
+  data: DisclaimerGenerateData;
+}
+
+export interface DisclaimerVerifyData {
+  verified: boolean;
+  event?: string;
+  invoiceId: string;
+}
+
+export interface DisclaimerVerifyResponse {
+  error: boolean;
+  data: DisclaimerVerifyData;
+}
