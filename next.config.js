@@ -34,6 +34,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "hyrtech-dev.s3.us-east-1.amazonaws.com",
       },
+      {
+        protocol: "https",
+        hostname: "hyrtech-live.s3.us-east-1.amazonaws.com",
+      },
     ],
   },
 };

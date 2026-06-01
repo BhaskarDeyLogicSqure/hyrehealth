@@ -62,3 +62,18 @@ export const MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT = {
   endpoint: "/payment/merchant-nmi-key",
   httpType: httpType.GET,
 };
+
+export const DISCLAIMER_STATUS_ENDPOINT = {
+  endpoint: "/disclaimer/status",
+  httpType: httpType.GET,
+};
+
+export const DISCLAIMER_GENERATE_ENDPOINT = {
+  endpoint: "/disclaimer/generate",
+  httpType: httpType.POST,
+};
+
+export const DISCLAIMER_VERIFY_ENDPOINT = {
+  endpoint: "/disclaimer/verify",
+  httpType: httpType.POST,
+};
