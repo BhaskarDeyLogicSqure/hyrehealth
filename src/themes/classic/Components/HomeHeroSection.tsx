@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 
 const HomeHeroSection = () => {
   const { merchantData } = useSelector(
-    (state: RootState) => state?.merchantReducer
+    (state: RootState) => state?.merchantReducer,
   );
 
   const router = useRouter();
@@ -18,7 +18,7 @@ const HomeHeroSection = () => {
   return (
     <>
       <section
-        className="py-20 px-8"
+        className="py-10 px-5 sm:py-16 sm:px-8 md:py-20 overflow-x-hidden"
         style={{
           background:
             merchantData?.customizeBranding?.brandColor &&
@@ -28,12 +28,12 @@ const HomeHeroSection = () => {
         }}
       >
         <div className="max-w-6xl mx-auto">
-          <h1 className="font-bold text-white mb-8 text-left leading-tight text-6xl">
+          <h1 className="font-bold text-white mb-8 text-left leading-tight text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
             Your Performance Journey
             <br />
             Starts Here
           </h1>
-          <p className="text-white mb-10 text-xl text-left max-w-3xl leading-relaxed">
+          <p className="text-white mb-10 text-base sm:text-lg md:text-xl text-left max-w-3xl leading-relaxed">
             Access premium peptides and GLPs through our team of licensed
             physicians, fast, private, and simple.
           </p>
