@@ -17,10 +17,19 @@ const HomePatientSuccessStrories = ({
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const testimonialsPerPage = 3;
+  const cardsPerView = isMobile ? 1 : 3;
+  const testimonialsPerPage = cardsPerView;
   const totalPages = Math.ceil(testimonials?.length / testimonialsPerPage);
-  const shouldShowCarousel = testimonials?.length > 3;
+  const shouldShowCarousel = testimonials?.length > cardsPerView;
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   if (!testimonials || !testimonials?.length) return null;
 
@@ -38,7 +47,6 @@ const HomePatientSuccessStrories = ({
 
   const _goToPage = (pageIndex: number) => {
     if (isTransitioning) return;
-    // Calculate the starting slide for this page
     const startSlide = Math.floor(
       (pageIndex * testimonials?.length) / totalPages
     );
@@ -46,14 +54,13 @@ const HomePatientSuccessStrories = ({
   };
 
   const _getCurrentPage = () => {
-    // Calculate which page we're currently on
     return Math.floor((currentSlide * totalPages) / testimonials?.length);
   };
 
   const _getTransformValue = () => {
     if (!shouldShowCarousel) return "translateX(0)";
 
-    const cardWidth = 100 / 3; // Each card takes 33.33% width when showing 3 cards
+    const cardWidth = 100 / cardsPerView;
     const translateX = -currentSlide * cardWidth;
     return `translateX(${translateX}%)`;
   };
@@ -127,7 +134,7 @@ const HomePatientSuccessStrories = ({
   );
 
   return (
-    <section className="py-16 px-8">
+    <section className="py-10 px-4 sm:py-16 sm:px-8 overflow-x-hidden">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="font-bold text-gray-900 mb-4 text-3xl">
@@ -140,7 +147,7 @@ const HomePatientSuccessStrories = ({
         </div>
 
         {shouldShowCarousel ? (
-          <div className="relative">
+          <div className="relative px-12 md:px-0">
             {/* Carousel Container */}
             <div className="overflow-hidden py-4">
               <div
@@ -152,7 +159,7 @@ const HomePatientSuccessStrories = ({
                   (testimonial: Testimonial, index: number) => (
                     <div
                       key={`slide-${index}`}
-                      className="w-1/3 flex-shrink-0 px-3"
+                      className="w-full md:w-1/3 flex-shrink-0 px-3"
                     >
                       <div className="transform hover:scale-105 transition-transform duration-300">
                         <TestimonialCard
@@ -170,18 +177,18 @@ const HomePatientSuccessStrories = ({
             <Button
               variant="outline"
               size="icon"
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-6 bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 shadow-xl hover:shadow-2xl transition-all duration-300 w-12 h-12"
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 md:-translate-x-6 bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 shadow-xl hover:shadow-2xl transition-all duration-300 w-10 h-10 md:w-12 md:h-12 z-10"
               onClick={_prevSlide}
             >
-              <ChevronLeft className="h-5 w-5 text-blue-600" />
+              <ChevronLeft className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-6 bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 shadow-xl hover:shadow-2xl transition-all duration-300 w-12 h-12"
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 md:translate-x-6 bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 shadow-xl hover:shadow-2xl transition-all duration-300 w-10 h-10 md:w-12 md:h-12 z-10"
               onClick={_nextSlide}
             >
-              <ChevronRight className="h-5 w-5 text-blue-600" />
+              <ChevronRight className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
             </Button>
 
             {/* Page Indicators */}
