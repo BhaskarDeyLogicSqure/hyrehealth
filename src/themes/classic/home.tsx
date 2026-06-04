@@ -18,7 +18,7 @@ const ModernHomePage = ({
   featuredTestimonials,
 }: ModernHomePageProps) => {
   return (
-    <div className="min-h-screen theme-bg">
+    <div className="min-h-screen theme-bg overflow-x-hidden">
       {/* Hero Section */}
       <HomeHeroSection />
 
