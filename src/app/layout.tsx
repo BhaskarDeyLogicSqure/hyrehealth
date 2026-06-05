@@ -10,17 +10,59 @@ import { DEFAULT_THEME } from "@/lib/theme-utils";
 import Layout from "@/components/layout/Layout";
 import Topbar from "@/components/layout/Topbar";
 import DynamicMetadata from "@/components/DynamicMetadata";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { Theme } from "@/types/theme";
 import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Hyre Health Customer",
-  description:
-    "Streamlined, intelligent platform for Hyre Health customers to buy and manage their health products.",
+const fallbackMetadata: Metadata = {
+  title: "Health Portal",
+  description: "Streamlined, intelligent platform for health customers.",
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    if (!baseUrl) return fallbackMetadata;
+
+    const headersList = headers();
+    const origin =
+      headersList.get("origin") ||
+      headersList.get("host") ||
+      baseUrl;
+
+    const response = await fetch(`${baseUrl}/payment/merchant-nmi-key`, {
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        Origin: origin,
+      },
+    });
+
+    if (!response.ok) return fallbackMetadata;
+
+    const json = await response.json();
+    const branding = json?.data?.customizeBranding;
+
+    const displayName: string = branding?.platformDisplayName || "";
+    const tagline: string = branding?.platformTagline || "";
+
+    if (!displayName) return fallbackMetadata;
+
+    const title = tagline ? `${displayName} | ${tagline}` : displayName;
+    const description = tagline || displayName;
+
+    return {
+      title,
+      description,
+      openGraph: { title, description },
+      twitter: { card: "summary", title, description },
+    };
+  } catch {
+    return fallbackMetadata;
+  }
+}
 
 export default async function RootLayout({
   children,
