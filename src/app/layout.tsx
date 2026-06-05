@@ -10,17 +10,80 @@ import { DEFAULT_THEME } from "@/lib/theme-utils";
 import Layout from "@/components/layout/Layout";
 import Topbar from "@/components/layout/Topbar";
 import DynamicMetadata from "@/components/DynamicMetadata";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { Theme } from "@/types/theme";
 import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Hyre Health Customer",
-  description:
-    "Streamlined, intelligent platform for Hyre Health customers to buy and manage their health products.",
+const FALLBACK_TITLE = "Health Portal";
+const FALLBACK_DESCRIPTION =
+  "Streamlined, intelligent platform for health customers to buy and manage their health products.";
+
+const fallbackMetadata: Metadata = {
+  title: FALLBACK_TITLE,
+  description: FALLBACK_DESCRIPTION,
+  openGraph: {
+    title: FALLBACK_TITLE,
+    description: FALLBACK_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary",
+    title: FALLBACK_TITLE,
+    description: FALLBACK_DESCRIPTION,
+  },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    if (!baseUrl) return fallbackMetadata;
+
+    const headersList = headers();
+    const host = headersList.get("host") || "";
+    const protocol = headersList.get("x-forwarded-proto") || "https";
+    const origin =
+      headersList.get("origin") ||
+      (host ? `${protocol}://${host}` : baseUrl);
+
+    const url = `${baseUrl}/payment/merchant-nmi-key`;
+    // console.log({ url, origin })
+    const response = await fetch(url, {
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        Origin: origin,
+      },
+    });
+
+    // console.log("sauvik ", { response })
+    if (!response.ok) return fallbackMetadata;
+
+    const json = await response.json();
+    // console.log("goel ", { json })
+    const branding = json?.data?.customizeBranding;
+
+    // console.log("goel ", { branding })
+    const displayName: string = branding?.platformDisplayName || "";
+    const tagline: string = branding?.platformTagline || "";
+
+
+    // console.log("skg ", { displayName, tagline })
+    if (!displayName) return fallbackMetadata;
+
+    const title = tagline ? `${displayName} | ${tagline}` : displayName;
+    const description = tagline || displayName;
+
+    return {
+      title,
+      description,
+      openGraph: { title, description },
+      twitter: { card: "summary", title, description },
+    };
+  } catch {
+    return fallbackMetadata;
+  }
+}
 
 export default async function RootLayout({
   children,
