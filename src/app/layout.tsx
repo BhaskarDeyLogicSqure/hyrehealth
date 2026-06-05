@@ -34,6 +34,8 @@ const fallbackMetadata: Metadata = {
   },
 };
 
+// comment put for redeployment of live
+
 export async function generateMetadata(): Promise<Metadata> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
