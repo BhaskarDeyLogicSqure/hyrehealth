@@ -27,12 +27,15 @@ export async function generateMetadata(): Promise<Metadata> {
     if (!baseUrl) return fallbackMetadata;
 
     const headersList = headers();
+    const host = headersList.get("host") || "";
+    const protocol = headersList.get("x-forwarded-proto") || "https";
     const origin =
       headersList.get("origin") ||
-      headersList.get("host") ||
-      baseUrl;
+      (host ? `${protocol}://${host}` : baseUrl);
 
-    const response = await fetch(`${baseUrl}/payment/merchant-nmi-key`, {
+    const url = `${baseUrl}/payment/merchant-nmi-key`;
+    // console.log({ url, origin })
+    const response = await fetch(url, {
       cache: "no-store",
       headers: {
         "Content-Type": "application/json",
@@ -40,14 +43,19 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     });
 
+    // console.log("sauvik ", { response })
     if (!response.ok) return fallbackMetadata;
 
     const json = await response.json();
+    // console.log("goel ", { json })
     const branding = json?.data?.customizeBranding;
 
+    // console.log("goel ", { branding })
     const displayName: string = branding?.platformDisplayName || "";
     const tagline: string = branding?.platformTagline || "";
 
+
+    // console.log("skg ", { displayName, tagline })
     if (!displayName) return fallbackMetadata;
 
     const title = tagline ? `${displayName} | ${tagline}` : displayName;
