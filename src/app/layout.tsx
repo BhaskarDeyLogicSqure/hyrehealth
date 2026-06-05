@@ -16,9 +16,22 @@ import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
+const FALLBACK_TITLE = "Health Portal";
+const FALLBACK_DESCRIPTION =
+  "Streamlined, intelligent platform for health customers to buy and manage their health products.";
+
 const fallbackMetadata: Metadata = {
-  title: "Health Portal",
-  description: "Streamlined, intelligent platform for health customers.",
+  title: FALLBACK_TITLE,
+  description: FALLBACK_DESCRIPTION,
+  openGraph: {
+    title: FALLBACK_TITLE,
+    description: FALLBACK_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary",
+    title: FALLBACK_TITLE,
+    description: FALLBACK_DESCRIPTION,
+  },
 };
 
 export async function generateMetadata(): Promise<Metadata> {
