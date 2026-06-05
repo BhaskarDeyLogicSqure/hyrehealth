@@ -61,9 +61,9 @@ const ImageVideoCarousel = ({
       <CardContent className="p-0">
         <div className="relative bg-gradient-to-br from-blue-50 to-purple-50">
           {/* Main Media Display */}
-          <div className="relative h-80 flex items-center justify-center p-4">
+          <div className="relative flex items-center justify-center p-4 min-h-[400px]">
             {allMedia?.length > 0 ? (
-              <div className="relative w-full h-full flex items-center justify-center">
+              <div className="relative w-full flex items-center justify-center">
                 {_getCurrentMedia()?.type === "image" ? (
                   <img
                     src={
@@ -77,7 +77,7 @@ const ImageVideoCarousel = ({
                       product?.name ||
                       "Product Media"
                     }
-                    className="w-full h-full object-cover rounded-lg"
+                    className="max-w-full h-auto max-h-[500px] object-scale-down rounded-lg"
                     onError={() => _handleMediaError(currentMediaIndex)}
                   />
                 ) : _getCurrentMedia()?.type === "video" ? (

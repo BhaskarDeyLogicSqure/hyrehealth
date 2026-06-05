@@ -108,7 +108,7 @@ const ImageVideoViewFullScreenModal = ({
           <Maximize2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-7xl w-full h-[90vh] p-2">
+      <DialogContent className="max-w-7xl w-full h-[90vh] p-2 overflow-auto">
         {/* Custom Close Button */}
         <DialogClose asChild>
           <Button

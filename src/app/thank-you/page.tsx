@@ -1,18 +1,29 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Video, Clock, Truck, Mail, Box } from "lucide-react";
+import {
+  CheckCircle,
+  FileSignature,
+  Video,
+  Clock,
+  Truck,
+  Mail,
+  Box,
+} from "lucide-react";
 import { SUPPORT_EMAIL } from "@/configs";
 import { useOrderConfirmation } from "@/api/postCheckout/useOrderConfirmation";
 import {
   showErrorToast,
+  showInfoToast,
   showSuccessToast,
 } from "@/components/GlobalErrorHandler";
 import ThemeLoader from "@/components/ThemeLoader";
 import useMeetingDetails from "@/api/postCheckout/useMeetingDetails";
+import { useDisclaimerStatus } from "@/api/postCheckout/useDisclaimerStatus";
+import { postCheckoutApi } from "@/api/postCheckout/postCheckoutApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
@@ -20,12 +31,16 @@ const ThankYouPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
+  const token = searchParams.get("token");
+  const event = searchParams.get("event");
 
   const { merchantData } = useSelector(
-    (state: RootState) => state?.merchantReducer
+    (state: RootState) => state?.merchantReducer,
   );
 
   const [isLoading, setTransition] = useTransition();
+  const [isDisclaimerGenerating, setIsDisclaimerGenerating] = useState(false);
+  const disclaimerVerifyAttempted = useRef(false);
 
   // Use the order confirmation hook to fetch real data
   const {
@@ -38,8 +53,30 @@ const ThankYouPage = () => {
   const { meetingDetails, isMeetingDetailsError, meetingDetailsError } =
     useMeetingDetails(orderId || "");
 
+  const { isDisclaimerSigned, isDisclaimerStatusLoading, refetchDisclaimer } =
+    useDisclaimerStatus(orderId);
+
   const orderStatus = "Awaiting Consultation"; // Default status since it's not in the API response
   const products = orderConfirmation?.products || [];
+
+  const _handleSignDisclaimer = async () => {
+    try {
+      setIsDisclaimerGenerating(true);
+      const response = await postCheckoutApi.generateDisclaimer(orderId!);
+      const signingUrl = response?.data?.signingUrl;
+      if (!signingUrl) {
+        showErrorToast("Could not get signing URL. Please try again.");
+        return;
+      }
+      window.location.href = signingUrl;
+    } catch (e) {
+      showErrorToast(
+        (e as any)?.message || "Failed to initiate disclaimer signing.",
+      );
+    } finally {
+      setIsDisclaimerGenerating(false);
+    }
+  };
 
   const _handleJoinConsultation = async () => {
     try {
@@ -65,6 +102,34 @@ const ThankYouPage = () => {
       // setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!token || !event || !orderId || disclaimerVerifyAttempted.current)
+      return;
+    disclaimerVerifyAttempted.current = true;
+
+    const verify = async () => {
+      try {
+        const response = await postCheckoutApi.verifyDisclaimer({
+          token,
+          event,
+        });
+        if (response?.data?.verified) {
+          showSuccessToast("Disclaimer signed successfully!");
+        } else {
+          showInfoToast("Disclaimer signing was not completed.");
+        }
+      } catch (e: any) {
+        showErrorToast(e?.message || "Disclaimer verification failed.");
+      } finally {
+        // strip token + event from URL, keep orderId
+        router.replace(`/thank-you?orderId=${orderId}`);
+        refetchDisclaimer();
+      }
+    };
+
+    verify();
+  }, [token, event, orderId]);
 
   useEffect(() => {
     // Show error toast if there's an error
@@ -172,29 +237,42 @@ const ThankYouPage = () => {
               </div>
             </div>
 
-            {/* Start Consultation Button */}
+            {/* Action Button */}
             <div className="pt-6 text-center">
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
-                onClick={
-                  () => setTransition(() => _handleJoinConsultation())
-                  //   {
-                  //   setTransition(() => {
-                  //     // router.push(`/intake-form?orderId=${orderId}`); // skip intake form in current flow (not needed for now)
-                  //   });
-                  // }
-                }
-                style={{
-                  backgroundColor: merchantData?.customizeBranding?.accentColor,
-                }}
-                disabled={isLoading}
-              >
-                <Video className="h-5 w-5 mr-2" />
-                Start Consultation {isLoading ? "..." : ""}
-              </Button>
-              {/* <p className="text-sm text-gray-500 mt-2">
-                Complete your intake form first
-              </p> */}
+              {isDisclaimerSigned ? (
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+                  onClick={
+                    () => setTransition(() => _handleJoinConsultation())
+                    //   {
+                    //   setTransition(() => {
+                    //     // router.push(`/intake-form?orderId=${orderId}`); // skip intake form in current flow (not needed for now)
+                    //   });
+                    // }
+                  }
+                  style={{
+                    backgroundColor:
+                      merchantData?.customizeBranding?.accentColor,
+                  }}
+                  disabled={isLoading}
+                >
+                  <Video className="h-5 w-5 mr-2" />
+                  Start Consultation {isLoading ? "..." : ""}
+                </Button>
+              ) : (
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+                  onClick={_handleSignDisclaimer}
+                  style={{
+                    backgroundColor:
+                      merchantData?.customizeBranding?.accentColor,
+                  }}
+                  disabled={isDisclaimerGenerating || isDisclaimerStatusLoading}
+                >
+                  <FileSignature className="h-5 w-5 mr-2" />
+                  {isDisclaimerGenerating ? "Opening..." : "Sign Disclaimer"}
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>

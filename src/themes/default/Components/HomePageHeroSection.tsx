@@ -31,10 +31,10 @@ const HomePageHeroSection = () => {
       }}
     >
       <div className="container mx-auto px-4 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-6">
           Your Performance Journey Starts Here
         </h1>
-        <p className="text-xl md:text-2xl mb-8 opacity-90">
+        <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-8 opacity-90">
           Access premium peptides and GLPs through our team of licensed
           physicians, fast, private, and simple.
         </p>

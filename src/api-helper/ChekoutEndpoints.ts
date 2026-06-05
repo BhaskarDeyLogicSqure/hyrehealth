@@ -16,6 +16,12 @@ export const ORDER_CHECKOUT_ENDPOINT = {
   httpType: httpType.POST,
 };
 
+// complete braintree payment (no auth required)
+export const PAYMENT_COMPLETE_ENDPOINT = {
+  endpoint: "/payment/complete",
+  httpType: httpType.POST,
+};
+
 // validate coupon
 export const VALIDATE_COUPON_ENDPOINT = {
   endpoint: "/coupons/validate",
@@ -55,4 +61,19 @@ export const POST_CONSULTATION_SUMMARY_ENDPOINT = {
 export const MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT = {
   endpoint: "/payment/merchant-nmi-key",
   httpType: httpType.GET,
+};
+
+export const DISCLAIMER_STATUS_ENDPOINT = {
+  endpoint: "/disclaimer/status",
+  httpType: httpType.GET,
+};
+
+export const DISCLAIMER_GENERATE_ENDPOINT = {
+  endpoint: "/disclaimer/generate",
+  httpType: httpType.POST,
+};
+
+export const DISCLAIMER_VERIFY_ENDPOINT = {
+  endpoint: "/disclaimer/verify",
+  httpType: httpType.POST,
 };
