@@ -7,6 +7,7 @@ export const useOrderConfirmation = (orderId: string | null) => {
     error: orderConfirmationError,
     isLoading: isOrderConfirmationLoading,
     isError: isOrderConfirmationError,
+    isFetched: isOrderConfirmationFetched,
     refetch: refetchOrderConfirmation,
   } = useQuery({
     queryKey: ["orderConfirmation", orderId],
@@ -25,6 +26,7 @@ export const useOrderConfirmation = (orderId: string | null) => {
     isOrderConfirmationLoading,
     isOrderConfirmationError,
     orderConfirmationError,
+    isOrderConfirmationFetched,
 
     // Actions
     refetchOrderConfirmation,

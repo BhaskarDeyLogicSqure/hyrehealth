@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { postCheckoutApi } from "./postCheckoutApi";
 
-const useMeetingDetails = (invoiceId: string) => {
-  console.log({ invoiceId });
+const useMeetingDetails = (
+  invoiceId: string,
+  options?: { enabled?: boolean },
+) => {
   const {
     data,
     isError: isMeetingDetailsError,
@@ -10,9 +12,10 @@ const useMeetingDetails = (invoiceId: string) => {
   } = useQuery({
     queryKey: ["meetingDetails", invoiceId],
     queryFn: () => postCheckoutApi.getMeetingDetails(invoiceId),
+    // Only fetch the meeting link once disclaimer status has resolved
+    // (that call triggers the meeting invite when already signed).
+    enabled: !!invoiceId && (options?.enabled ?? true),
   });
-
-  console.log({ data });
 
   return {
     meetingDetails: data?.data,
