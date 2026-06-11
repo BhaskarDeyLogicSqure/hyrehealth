@@ -14,6 +14,7 @@ import {
 import ThemeLoader from "@/components/ThemeLoader";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import { formatPriceRange, getProductPriceRange } from "@/lib/utils";
 
 const ProductsCard = ({
   product,
@@ -26,6 +27,8 @@ const ProductsCard = ({
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer
   );
+
+  const priceRange = getProductPriceRange(product);
 
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -89,7 +92,7 @@ const ProductsCard = ({
                 color: merchantData?.customizeBranding?.brandColor,
               }}
             >
-              ${product?.pricing?.lowestPrice} /mo
+              {priceRange ? `${formatPriceRange(priceRange)} /mo` : "-"}
             </span>
           </span>
           <Button
@@ -192,12 +195,12 @@ const ProductsCard = ({
 
         {/* Price */}
         <div className="flex items-center justify-between mb-4">
-          {product?.pricing?.lowestPrice ? (
+          {priceRange ? (
             <div>
               <span className="text-2xl font-bold theme-text-primary">
-                ${product?.pricing?.lowestPrice}
+                {formatPriceRange(priceRange)}
               </span>
-              {/* <span className="theme-text-muted text-sm">/month</span> */}
+              <span className="theme-text-muted text-sm ml-1">/month</span>
             </div>
           ) : (
             "-"

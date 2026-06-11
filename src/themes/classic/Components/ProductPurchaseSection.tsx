@@ -37,7 +37,6 @@ const ProductPurchaseSection = ({
     subscriptionDuration,
     selectedDosageWithDuration,
     generateDosageOptions,
-    generateSubscriptionDurationOptions,
     getTotalPrice,
     isCheckoutLoading,
     handleProceedToCheckout,
@@ -56,7 +55,7 @@ const ProductPurchaseSection = ({
       <Card className="sticky top-24">
         
         <CardContent className="p-8">
-          {/* Price Display at Top */}
+          {/* Price Display at Top (selected dosage, 1-month) */}
           <div className="mb-8">
             <div className="flex items-baseline justify-start gap-2 mb-2">
               <span className="text-4xl font-bold theme-text-primary">
@@ -91,37 +90,6 @@ const ProductPurchaseSection = ({
                 {generateDosageOptions?.map((option: any) => (
                   <SelectItem key={option?.id} value={option?.id}>
                     {`${option?.name}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Subscription Duration */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium theme-text-primary mb-2">
-              Subscription Duration
-            </label>
-            <Select
-              value={subscriptionDuration}
-              onValueChange={(value) =>
-                handleDosageAndSubscriptionDurationChange(
-                  "subscriptionDuration",
-                  value
-                )
-              }
-              disabled={!selectedDosageId}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select duration" />
-              </SelectTrigger>
-              <SelectContent>
-                {generateSubscriptionDurationOptions?.map((option: any) => (
-                  <SelectItem
-                    key={option?._id}
-                    value={option?.duration?.value.toString()}
-                  >
-                    {`${option?.duration?.value} ${option?.duration?.unit}`}
                   </SelectItem>
                 ))}
               </SelectContent>

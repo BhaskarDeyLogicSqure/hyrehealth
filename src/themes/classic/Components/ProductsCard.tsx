@@ -15,6 +15,7 @@ import ThemeLoader from "@/components/ThemeLoader";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import RatingDisplay from "./RatingDisplay";
+import { formatPriceRange, getProductPriceRange } from "@/lib/utils";
 
 const ProductsCard = ({
   product,
@@ -27,6 +28,8 @@ const ProductsCard = ({
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer
   );
+
+  const priceRange = getProductPriceRange(product);
 
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -111,10 +114,10 @@ const ProductsCard = ({
       ) : null}
 
       {/* Price */}
-      {product?.pricing?.lowestPrice ? (
+      {priceRange ? (
         <div className="mb-4">
           <span className="text-2xl font-bold text-gray-900">
-            ${product?.pricing?.lowestPrice}
+            {formatPriceRange(priceRange)}
           </span>
           <span className="text-sm text-gray-600 ml-1">per month</span>
         </div>
