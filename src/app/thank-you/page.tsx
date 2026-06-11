@@ -42,19 +42,27 @@ const ThankYouPage = () => {
   const [isDisclaimerGenerating, setIsDisclaimerGenerating] = useState(false);
   const disclaimerVerifyAttempted = useRef(false);
 
-  // Use the order confirmation hook to fetch real data
+  // Post-checkout data is fetched in a strict sequence:
+  // 1) invoice / order confirmation
+  // 2) disclaimer status — triggers the meeting invite when already signed
+  // 3) meeting link — only after disclaimer status resolves
   const {
     orderConfirmation,
     isOrderConfirmationLoading,
     isOrderConfirmationError,
     orderConfirmationError,
+    isOrderConfirmationFetched,
   } = useOrderConfirmation(orderId);
 
-  const { meetingDetails, isMeetingDetailsError, meetingDetailsError } =
-    useMeetingDetails(orderId || "");
+  const {
+    isDisclaimerSigned,
+    isDisclaimerStatusLoading,
+    isDisclaimerStatusFetched,
+    refetchDisclaimer,
+  } = useDisclaimerStatus(orderId, { enabled: isOrderConfirmationFetched });
 
-  const { isDisclaimerSigned, isDisclaimerStatusLoading, refetchDisclaimer } =
-    useDisclaimerStatus(orderId);
+  const { meetingDetails, isMeetingDetailsError, meetingDetailsError } =
+    useMeetingDetails(orderId || "", { enabled: isDisclaimerStatusFetched });
 
   const orderStatus = "Awaiting Consultation"; // Default status since it's not in the API response
   const products = orderConfirmation?.products || [];

@@ -37,7 +37,6 @@ const ProductPurchaseSection = ({
     subscriptionDuration,
     selectedDosageWithDuration,
     generateDosageOptions,
-    generateSubscriptionDurationOptions,
     getTotalPrice,
     isCheckoutLoading,
     handleProceedToCheckout,
@@ -79,37 +78,6 @@ const ProductPurchaseSection = ({
             </Select>
           </div>
 
-          {/* Subscription Duration */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium theme-text-primary mb-2">
-              Subscription Duration
-            </label>
-            <Select
-              value={subscriptionDuration}
-              onValueChange={(value) =>
-                handleDosageAndSubscriptionDurationChange(
-                  "subscriptionDuration",
-                  value
-                )
-              }
-              disabled={!selectedDosageId}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select duration" />
-              </SelectTrigger>
-              <SelectContent>
-                {generateSubscriptionDurationOptions?.map((option: any) => (
-                  <SelectItem
-                    key={option?._id}
-                    value={option?.duration?.value.toString()}
-                  >
-                    {`${option?.duration?.value} ${option?.duration?.unit}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           <Separator className="my-6" />
 
           {/* Pricing */}
@@ -121,17 +89,6 @@ const ProductPurchaseSection = ({
                   ? `$${selectedDosageWithDuration?.price?.toFixed(
                       DIGITS_AFTER_DECIMALS
                     )}`
-                  : "-"}
-              </span>
-            </div>
-
-            <div className="flex justify-between text-sm theme-text-muted">
-              <span>Duration:</span>
-              <span>
-                {subscriptionDuration
-                  ? `${subscriptionDuration} month${
-                      subscriptionDuration > "2" ? "s" : ""
-                    }`
                   : "-"}
               </span>
             </div>
