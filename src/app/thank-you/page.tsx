@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import toast from "react-hot-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,7 +46,7 @@ const ThankYouPage = () => {
   // Post-checkout data is fetched in a strict sequence:
   // 1) invoice / order confirmation
   // 2) disclaimer status — triggers the meeting invite when already signed
-  // 3) meeting link — only after disclaimer status resolves
+  // 3) meeting link — only once disclaimer status resolves AND is signed
   const {
     orderConfirmation,
     isOrderConfirmationLoading,
@@ -57,12 +58,19 @@ const ThankYouPage = () => {
   const {
     isDisclaimerSigned,
     isDisclaimerStatusLoading,
-    isDisclaimerStatusFetched,
     refetchDisclaimer,
   } = useDisclaimerStatus(orderId, { enabled: isOrderConfirmationFetched });
 
-  const { meetingDetails, isMeetingDetailsError, meetingDetailsError } =
-    useMeetingDetails(orderId || "", { enabled: isDisclaimerStatusFetched });
+  // The meeting link only exists once the disclaimer is signed (signing is what
+  // triggers the invite via disclaimer-status). Fetch it once signed; it may
+  // come back empty for a moment, so the hook retries on a 2s interval.
+  const {
+    meetingDetails,
+    isMeetingDetailsError,
+    meetingDetailsError,
+    hasMeetingLink,
+    isMeetingLinkLoading,
+  } = useMeetingDetails(orderId || "", { enabled: isDisclaimerSigned });
 
   const orderStatus = "Awaiting Consultation"; // Default status since it's not in the API response
   const products = orderConfirmation?.products || [];
@@ -100,6 +108,12 @@ const ThankYouPage = () => {
       }
 
       const meetingId = meetingDetails?.meetingUuid;
+      if (!meetingId) {
+        showErrorToast(
+          "Your consultation room isn't ready yet. Please wait a moment and try again.",
+        );
+        return;
+      }
 
       showSuccessToast("Consultation Ready");
       router.push(`/meeting-room?meetingId=${meetingId}`);
@@ -156,6 +170,38 @@ const ThankYouPage = () => {
       router.push("/");
     }
   }, [orderId, isOrderConfirmationError, orderConfirmationError]);
+
+  // While the consultation room is being provisioned, keep a persistent info
+  // toast up so the user knows why "Start Consultation" is disabled.
+  useEffect(() => {
+    const TOAST_ID = "meeting-link-preparing";
+    if (isDisclaimerSigned && isMeetingLinkLoading) {
+      toast("Preparing your consultation room. This may take a few seconds…", {
+        id: TOAST_ID,
+        duration: Infinity,
+        icon: "⏳",
+        style: {
+          background: "#3b82f6",
+          color: "#fff",
+          fontSize: "16px",
+          padding: "16px",
+          borderRadius: "10px",
+        },
+      });
+    } else {
+      toast.dismiss(TOAST_ID);
+    }
+    return () => toast.dismiss(TOAST_ID);
+  }, [isDisclaimerSigned, isMeetingLinkLoading]);
+
+  // If polling is exhausted and we still have no link, tell the user how to recover.
+  useEffect(() => {
+    if (isDisclaimerSigned && isMeetingDetailsError) {
+      showErrorToast(
+        "Your consultation room is taking longer than expected. Please refresh the page or contact support.",
+      );
+    }
+  }, [isDisclaimerSigned, isMeetingDetailsError]);
 
   // Show loading state
   if (isOrderConfirmationLoading) {
@@ -262,10 +308,12 @@ const ThankYouPage = () => {
                     backgroundColor:
                       merchantData?.customizeBranding?.accentColor,
                   }}
-                  disabled={isLoading}
+                  disabled={isLoading || !hasMeetingLink}
                 >
                   <Video className="h-5 w-5 mr-2" />
-                  Start Consultation {isLoading ? "..." : ""}
+                  {isMeetingLinkLoading
+                    ? "Preparing Consultation..."
+                    : `Start Consultation${isLoading ? "..." : ""}`}
                 </Button>
               ) : (
                 <Button
