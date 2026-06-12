@@ -227,7 +227,10 @@ const useProductPurchaseSection = ({
     }
   }, [product, selectedDosageId]);
 
-  // Auto-select default duration when dosage is selected
+  // Auto-select the 1-month plan when a dosage is selected. The duration
+  // selector has been removed from the UI, so every dosage defaults to its
+  // 1-month plan, falling back to the lowest available duration if 1 month
+  // isn't offered for that dosage.
   useEffect(() => {
     if (selectedDosageId && product?.pricing?.subscriptionOptions) {
       const selectedDosageStrength =
@@ -236,12 +239,17 @@ const useProductPurchaseSection = ({
             option?._id === selectedDosageId || option?.id === selectedDosageId
         )?.strength;
 
-      // Find default duration option for the selected dosage strength
-      const defaultDurationOption = product?.pricing?.subscriptionOptions?.find(
-        (option) =>
-          option?.strength === selectedDosageStrength &&
-          option?.isDefault === true
+      const optionsForStrength = product?.pricing?.subscriptionOptions
+        ?.filter(
+          (option) =>
+            option?.strength === selectedDosageStrength && option?.price !== 0
+        )
+        ?.sort((a, b) => a?.duration?.value - b?.duration?.value);
+
+      const oneMonthOption = optionsForStrength?.find(
+        (option) => option?.duration?.value === 1
       );
+      const defaultDurationOption = oneMonthOption || optionsForStrength?.[0];
 
       if (defaultDurationOption && !subscriptionDuration) {
         setSubscriptionDuration(
