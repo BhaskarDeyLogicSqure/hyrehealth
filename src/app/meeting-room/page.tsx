@@ -12,7 +12,7 @@ const MeetingRoom = () => {
       <div className="h-[90vh]">
         <iframe
           allow="autoplay; camera; microphone"
-          src={`https://staging.qualiphy.me/meeting/${meetingId}`}
+          src={`https://app.qualiphy.me/meeting/${meetingId}`}
           width="100%"
           height="100%"
         />
