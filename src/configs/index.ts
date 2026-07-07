@@ -27,7 +27,7 @@ export const CONSULTATION_FEE = 50;
  * PAYMENT_FLOW_OVERRIDE (env) and then DEFAULT_PAYMENT_FLOW.
  */
 export type PaymentFlowType = "current" | "previous";
-export const DEFAULT_PAYMENT_FLOW: PaymentFlowType = "current";
+export const DEFAULT_PAYMENT_FLOW: PaymentFlowType = "previous";
 export const PAYMENT_FLOW_OVERRIDE = process.env.NEXT_PUBLIC_PAYMENT_FLOW as
   | PaymentFlowType
   | undefined;

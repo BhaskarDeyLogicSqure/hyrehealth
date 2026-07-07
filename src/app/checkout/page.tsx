@@ -102,7 +102,9 @@ const CheckoutPage = () => {
         return;
       }
 
-      showSuccessToast("Order placed successfully.");
+      showSuccessToast(
+        "Payment successful. You can now start your consultation with the doctor."
+      );
       clearCheckout();
       router.replace(`/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`);
     } catch (e) {
