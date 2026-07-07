@@ -17,8 +17,9 @@ import { Separator } from "@/components/ui/separator";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import useOrderCheckout from "@/hooks/useOrderCheckout";
 import { useCheckout } from "@/hooks/useCheckout";
-import { DIGITS_AFTER_DECIMALS } from "@/configs";
+import { CONSULTATION_FEE, DIGITS_AFTER_DECIMALS } from "@/configs";
 import useChekoutApi from "@/api/checkout/useChekoutApi";
+import usePaymentFlow from "@/hooks/usePaymentFlow";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/store/actions/authAction";
 import { useCookies } from "@/hooks/useCookies";
@@ -61,6 +62,13 @@ const OrderSummarySection = ({
     (state: RootState) => state?.merchantReducer
   );
   // console.log("merchantData", merchantData);
+
+  // Pricing implementation for this merchant:
+  // - "current": charge only the flat appointment fee (CONSULTATION_FEE); the
+  //   medication is billed later based on the actual prescription (Qualiphy).
+  // - "previous": customer picks a dosage + duration combo and pays the exact total.
+  const paymentFlow = usePaymentFlow();
+  const isCurrentFlow = paymentFlow === "current";
 
   // check if the user is logged in
   const isUserLoggedIn = isUserAuthenticated();
@@ -106,6 +114,13 @@ const OrderSummarySection = ({
     selectedRelatedProducts, // it is the list of all related products (if any)
   });
 
+  // The amount actually collected at checkout:
+  // - "current": a flat appointment fee (rest billed later via prescription).
+  // - "previous": the exact dosage + duration combo total (after any coupon).
+  const amountDue = isCurrentFlow
+    ? CONSULTATION_FEE
+    : discountedTotalPrice || totalPrice;
+
   // console.log("1111", { fieldValidation });
   const _handleSubmit = async (e: React.FormEvent) => {
     try {
@@ -146,9 +161,10 @@ const OrderSummarySection = ({
         return;
       }
 
-      // add the price info to the payload
-      payload["paymentInfo"]["finalAmount"] =
-        discountedTotalPrice || totalPrice; // this will be the final amount after applying the coupon
+      // add the price info to the payload.
+      // "current" flow charges only the flat appointment fee; "previous" flow
+      // charges the exact combo total (after any coupon).
+      payload["paymentInfo"]["finalAmount"] = amountDue;
 
       // ensure currency is set for payment initiation flows
       payload["paymentInfo"]["currency"] =
@@ -356,203 +372,231 @@ const OrderSummarySection = ({
           </CardHeader>
 
           <CardContent className="space-y-4">
-            {/* Product Details Section */}
-            {/* {productConfigurations?.map((config) => {
-              const product = eligibleProducts?.find(
-                (item) => item?.product?._id === config?.productId
-              )?.product;
+            {/* Product Details Section — only in the "previous" flow, where the
+                customer picks a dosage + duration combo and pays the exact total. */}
+            {paymentFlow === "previous"
+              ? productConfigurations?.map((config) => {
+                  const product = eligibleProducts?.find(
+                    (item) => item?.product?._id === config?.productId
+                  )?.product;
 
-              if (!product) return null;
+                  if (!product) return null;
 
-              const selectedOption = getSelectedDosageWithDuration(
-                config?.productId
-              );
+                  const selectedOption = getSelectedDosageWithDuration(
+                    config?.productId
+                  );
 
-              const isMainProduct =
-                product?._id === eligibleProducts?.[0]?.product?._id;
+                  const isMainProduct =
+                    product?._id === eligibleProducts?.[0]?.product?._id;
 
-              return (
-                <Card
-                  key={config?.productId}
-                  className="border border-gray-200"
-                >
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <h3 className="font-bold text-lg text-gray-900">
-                          {product?.name}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {isMainProduct
-                            ? "Primary Product"
-                            : "Add-on Product"}
-                        </p>
-                      </div>
-                      <div className="text-right ml-4 flex items-center gap-2">
-                        <p className="font-bold text-lg">
-                          $
-                          {selectedOption?.price?.toFixed(
-                            DIGITS_AFTER_DECIMALS
-                          ) || 0}
-                        </p>
-                        {selectedProducts?.length > 1 && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              handleDeleteProductAlert(
-                                config?.productId,
-                                product?.name
-                              )
-                            }
-                            className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 h-8 w-8 rounded-full"
-                            type="button"
-                            title="Remove product"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">
-                          Dosage
-                        </label>
-                        <Select
-                          value={config?.dosageId}
-                          onValueChange={(value) =>
-                            handleDosageAndSubscriptionDurationChange(
-                              config?.productId,
-                              "dosage",
-                              value
-                            )
-                          }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {generateDosageOptions(config?.productId)?.map(
-                              (option: any) => (
-                                <SelectItem
-                                  key={option?.id}
-                                  value={option?.id}
-                                >
-                                  {`${option?.name}`}
-                                </SelectItem>
-                              )
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">
-                          Subscription Plan
-                        </label>
-                        <Select
-                          value={config?.subscriptionDuration}
-                          onValueChange={(value) =>
-                            handleDosageAndSubscriptionDurationChange(
-                              config?.productId,
-                              "subscriptionDuration",
-                              value
-                            )
-                          }
-                          disabled={!config?.dosageId}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {generateSubscriptionDurationOptions(
-                              config?.productId
-                            )?.map((option: any) => (
-                              <SelectItem
-                                key={option?._id}
-                                value={option?.duration?.value?.toString()}
+                  return (
+                    <Card
+                      key={config?.productId}
+                      className="border border-gray-200"
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <h3 className="font-bold text-lg text-gray-900">
+                              {product?.name}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              {isMainProduct
+                                ? "Primary Product"
+                                : "Add-on Product"}
+                            </p>
+                          </div>
+                          <div className="text-right ml-4 flex items-center gap-2">
+                            <p className="font-bold text-lg">
+                              $
+                              {selectedOption?.price?.toFixed(
+                                DIGITS_AFTER_DECIMALS
+                              ) || 0}
+                            </p>
+                            {selectedProducts?.length > 1 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleDeleteProductAlert(
+                                    config?.productId,
+                                    product?.name
+                                  )
+                                }
+                                className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 h-8 w-8 rounded-full"
+                                type="button"
+                                title="Remove product"
                               >
-                                {`${option?.duration?.value} ${option?.duration?.unit}`}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <label className="text-sm font-medium text-gray-700 mb-1 block">
+                              Dosage
+                            </label>
+                            <Select
+                              value={config?.dosageId}
+                              onValueChange={(value) =>
+                                handleDosageAndSubscriptionDurationChange(
+                                  config?.productId,
+                                  "dosage",
+                                  value
+                                )
+                              }
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {generateDosageOptions(config?.productId)?.map(
+                                  (option: any) => (
+                                    <SelectItem
+                                      key={option?.id}
+                                      value={option?.id}
+                                    >
+                                      {`${option?.name}`}
+                                    </SelectItem>
+                                  )
+                                )}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div>
+                            <label className="text-sm font-medium text-gray-700 mb-1 block">
+                              Subscription Plan
+                            </label>
+                            <Select
+                              value={config?.subscriptionDuration}
+                              onValueChange={(value) =>
+                                handleDosageAndSubscriptionDurationChange(
+                                  config?.productId,
+                                  "subscriptionDuration",
+                                  value
+                                )
+                              }
+                              disabled={!config?.dosageId}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {generateSubscriptionDurationOptions(
+                                  config?.productId
+                                )?.map((option: any) => (
+                                  <SelectItem
+                                    key={option?._id}
+                                    value={option?.duration?.value?.toString()}
+                                  >
+                                    {`${option?.duration?.value} ${option?.duration?.unit}`}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              : null}
+
+
+            {/* Monthly Wellness Program Info — only in the "current" flow */}
+            {isCurrentFlow ? (
+              <Card className="bg-muted/30 border-muted/60">
+                <CardHeader className="px-4 py-3 space-y-0">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 rounded-md bg-muted p-2">
+                      <Stethoscope className="h-4 w-4 theme-text-primary" />
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })} */}
 
-
-            {/* Monthly Wellness Program Info */}
-            <Card className="bg-muted/30 border-muted/60">
-              <CardHeader className="px-4 py-3 space-y-0">
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 rounded-md bg-muted p-2">
-                    <Stethoscope className="h-4 w-4 theme-text-primary" />
+                    <div className="space-y-1">
+                      <CardTitle className="text-base leading-6">
+                        Monthly Wellness Program
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Includes access to licensed medical providers,
+                        consultations, and personalized care plans.
+                      </p>
+                    </div>
                   </div>
+                </CardHeader>
 
-                  <div className="space-y-1">
-                    <CardTitle className="text-base leading-6">
-                      Monthly Wellness Program
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Includes access to licensed medical providers, consultations,
-                      and personalized care plans.
-                    </p>
+                <CardContent className="px-4 pt-0 pb-4">
+                  <div className="text-xs text-muted-foreground leading-relaxed">
+                    Treatment protocols are determined by a licensed provider
+                    when appropriate.
                   </div>
-                </div>
-              </CardHeader>
+                </CardContent>
+              </Card>
+            ) : null}
 
-              <CardContent className="px-4 pt-0 pb-4">
-                <div className="text-xs text-muted-foreground leading-relaxed">
-                  Treatment protocols are determined by a licensed provider when
-                  appropriate.
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Coupon Code Section */}
-            <CouponCodeSection
-              couponCode={couponCode}
-              isValidateCouponLoading={isValidateCouponLoading}
-              appliedCoupon={appliedCoupon}
-              handleCouponCodeChange={handleCouponCodeChange}
-              handleApplyCoupon={handleApplyCoupon}
-              handleClearCoupon={handleClearCoupon}
-            />
+            {/* Coupon Code Section — only relevant in the "previous" flow where
+                the customer pays the exact medication total. */}
+            {!isCurrentFlow ? (
+              <CouponCodeSection
+                couponCode={couponCode}
+                isValidateCouponLoading={isValidateCouponLoading}
+                appliedCoupon={appliedCoupon}
+                handleCouponCodeChange={handleCouponCodeChange}
+                handleApplyCoupon={handleApplyCoupon}
+                handleClearCoupon={handleClearCoupon}
+              />
+            ) : null}
 
             {/* Cost Breakdown */}
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span>Subtotal:</span>
-                <span>${totalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}</span>
-              </div>
-              {appliedCoupon?.code ? (
+            {isCurrentFlow ? (
+              <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span>Discount:</span>
-                  <span>${discountApplied?.toFixed(DIGITS_AFTER_DECIMALS)}</span>
+                  <span>Consultation Fee:</span>
+                  <span>${CONSULTATION_FEE?.toFixed(DIGITS_AFTER_DECIMALS)}</span>
                 </div>
-              ) : null}
-              {/* <div className="flex justify-between text-sm">
-              <span>Consultation fee:</span>
-              <span>${CONSULTATION_FEE}</span>
-            </div> */}
 
-              <Separator />
+                <Separator />
 
-              <div className="flex justify-between text-lg font-bold">
-                <span>Total:</span>
-                <span>
-                  $
-                  {discountedTotalPrice?.toFixed(DIGITS_AFTER_DECIMALS) ||
-                    totalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}
-                </span>
+                <div className="flex justify-between text-lg font-bold">
+                  <span>Total:</span>
+                  <span>${CONSULTATION_FEE?.toFixed(DIGITS_AFTER_DECIMALS)}</span>
+                </div>
+
+                <p className="text-xs text-red-600 leading-relaxed">
+                  This ${CONSULTATION_FEE} is for your medical consultation only.
+                  Your medication is billed separately after the consultation,
+                  based on the dosage your provider prescribes.
+                </p>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span>Subtotal:</span>
+                  <span>${totalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}</span>
+                </div>
+                {appliedCoupon?.code ? (
+                  <div className="flex justify-between text-sm">
+                    <span>Discount:</span>
+                    <span>
+                      ${discountApplied?.toFixed(DIGITS_AFTER_DECIMALS)}
+                    </span>
+                  </div>
+                ) : null}
+
+                <Separator />
+
+                <div className="flex justify-between text-lg font-bold">
+                  <span>Total:</span>
+                  <span>
+                    $
+                    {discountedTotalPrice?.toFixed(DIGITS_AFTER_DECIMALS) ||
+                      totalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Complete Purchase Button */}
             <Button

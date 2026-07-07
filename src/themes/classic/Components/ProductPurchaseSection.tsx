@@ -16,9 +16,11 @@ import { Product } from "@/types/products";
 import ThemeLoader from "@/components/ThemeLoader";
 import useProductPurchaseSection from "@/hooks/useProductPurchaseSection";
 import { useNavigationState } from "@/hooks/useNavigationState";
-import { DIGITS_AFTER_DECIMALS } from "@/configs";
+import { CONSULTATION_FEE, DIGITS_AFTER_DECIMALS } from "@/configs";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import usePaymentFlow from "@/hooks/usePaymentFlow";
+import { formatPriceRange, getProductPriceRange } from "@/lib/utils";
 
 const ProductPurchaseSection = ({
   product,
@@ -32,11 +34,13 @@ const ProductPurchaseSection = ({
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer
   );
+  const paymentFlow = usePaymentFlow();
   const {
     selectedDosageId,
     subscriptionDuration,
     selectedDosageWithDuration,
     generateDosageOptions,
+    generateSubscriptionDurationOptions,
     getTotalPrice,
     isCheckoutLoading,
     handleProceedToCheckout,
@@ -45,8 +49,12 @@ const ProductPurchaseSection = ({
     product,
     selectedRelatedProducts,
     relatedProductsTotal,
+    paymentFlow,
   });
   const { isNavigatingTo } = useNavigationState();
+
+  const isCurrentFlow = paymentFlow === "current";
+  const priceRange = getProductPriceRange(product);
 
   const isLoading = isCheckoutLoading || isNavigatingTo("/checkout");
 
@@ -55,11 +63,17 @@ const ProductPurchaseSection = ({
       <Card className="sticky top-24">
         
         <CardContent className="p-8">
-          {/* Price Display at Top (selected dosage, 1-month) */}
+          {/* Price Display at Top
+              - "current": price range (same as the products page)
+              - "previous": exact selected dosage + duration price */}
           <div className="mb-8">
             <div className="flex items-baseline justify-start gap-2 mb-2">
               <span className="text-4xl font-bold theme-text-primary">
-                {selectedDosageWithDuration?.price
+                {isCurrentFlow
+                  ? priceRange
+                    ? formatPriceRange(priceRange)
+                    : "$89"
+                  : selectedDosageWithDuration?.price
                   ? `$${selectedDosageWithDuration?.price?.toFixed(
                       DIGITS_AFTER_DECIMALS
                     )}`
@@ -72,76 +86,143 @@ const ProductPurchaseSection = ({
             </p>
           </div>
 
-          {/* Dosage Selection */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium theme-text-primary mb-2">
-              Select Dosage*
-            </label>
-            <Select
-              value={selectedDosageId}
-              onValueChange={(value) =>
-                handleDosageAndSubscriptionDurationChange("dosage", value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Choose dosage" />
-              </SelectTrigger>
-              <SelectContent>
-                {generateDosageOptions?.map((option: any) => (
-                  <SelectItem key={option?.id} value={option?.id}>
-                    {`${option?.name}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Dosage Selection — hidden in the "current" flow (final dosage is
+              set by the provider during the consultation) */}
+          {!isCurrentFlow ? (
+            <div className="mb-6">
+              <label className="block text-sm font-medium theme-text-primary mb-2">
+                Select Dosage*
+              </label>
+              <Select
+                value={selectedDosageId}
+                onValueChange={(value) =>
+                  handleDosageAndSubscriptionDurationChange("dosage", value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose dosage" />
+                </SelectTrigger>
+                <SelectContent>
+                  {generateDosageOptions?.map((option: any) => (
+                    <SelectItem key={option?.id} value={option?.id}>
+                      {`${option?.name}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+
+          {/* Subscription Duration (only in "previous" flow: pay exact combo price) */}
+          {paymentFlow === "previous" ? (
+            <div className="mb-6">
+              <label className="block text-sm font-medium theme-text-primary mb-2">
+                Subscription Duration*
+              </label>
+              <Select
+                value={subscriptionDuration}
+                onValueChange={(value) =>
+                  handleDosageAndSubscriptionDurationChange(
+                    "subscriptionDuration",
+                    value
+                  )
+                }
+                disabled={!selectedDosageId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  {generateSubscriptionDurationOptions?.map((option: any) => (
+                    <SelectItem
+                      key={option?._id}
+                      value={option?.duration?.value?.toString()}
+                    >
+                      {`${option?.duration?.value} ${option?.duration?.unit}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
 
           <Separator className="my-6" />
 
           {/* Cost Breakdown */}
           <div className="space-y-3 mb-6 bg-muted/90 p-4 rounded-lg">
-            <div className="flex justify-between text-sm theme-text-muted">
-              <span>Subtotal:</span>
-              <span>
-                {selectedDosageWithDuration?.price
-                  ? `$${selectedDosageWithDuration?.price?.toFixed(
-                      DIGITS_AFTER_DECIMALS
-                    )}`
-                  : "$89"}
-              </span>
-            </div>
+            {isCurrentFlow ? (
+              <>
+                <div className="flex justify-between text-sm theme-text-muted">
+                  <span>Consultation Fee:</span>
+                  <span>
+                    ${CONSULTATION_FEE?.toFixed(DIGITS_AFTER_DECIMALS)}
+                  </span>
+                </div>
 
-            <div className="flex justify-between text-sm theme-text-muted">
-              <span>Consultation Fee:</span>
-              <span>Included</span>
-            </div>
+                <Separator />
 
-            {selectedRelatedProducts?.length > 0 &&
-            (relatedProductsTotal || relatedProductsTotal === 0) ? (
-              <div className="flex justify-between text-sm theme-text-muted">
-                <span>Related products:</span>
-                <span>
-                  ${relatedProductsTotal?.toFixed(DIGITS_AFTER_DECIMALS)}
-                </span>
-              </div>
-            ) : null}
+                <div className="flex justify-between text-lg font-bold theme-text-primary">
+                  <span>Total:</span>
+                  <span>
+                    ${CONSULTATION_FEE?.toFixed(DIGITS_AFTER_DECIMALS)}
+                  </span>
+                </div>
 
-            <Separator />
-            <div className="flex justify-between text-lg font-bold theme-text-primary">
-              <span>Total:</span>
-              <span>
-                {getTotalPrice
-                  ? `$${getTotalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}`
-                  : "$89"}
-              </span>
-            </div>
+                <p className="text-xs text-red-600 leading-relaxed">
+                  This ${CONSULTATION_FEE} is for your medical consultation only.
+                  Your medication is billed separately after the consultation,
+                  based on the dosage your provider prescribes.
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between text-sm theme-text-muted">
+                  <span>Subtotal:</span>
+                  <span>
+                    {selectedDosageWithDuration?.price
+                      ? `$${selectedDosageWithDuration?.price?.toFixed(
+                          DIGITS_AFTER_DECIMALS
+                        )}`
+                      : "$89"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm theme-text-muted">
+                  <span>Consultation Fee:</span>
+                  <span>Included</span>
+                </div>
+
+                {selectedRelatedProducts?.length > 0 &&
+                (relatedProductsTotal || relatedProductsTotal === 0) ? (
+                  <div className="flex justify-between text-sm theme-text-muted">
+                    <span>Related products:</span>
+                    <span>
+                      ${relatedProductsTotal?.toFixed(DIGITS_AFTER_DECIMALS)}
+                    </span>
+                  </div>
+                ) : null}
+
+                <Separator />
+                <div className="flex justify-between text-lg font-bold theme-text-primary">
+                  <span>Total:</span>
+                  <span>
+                    {getTotalPrice
+                      ? `$${getTotalPrice?.toFixed(DIGITS_AFTER_DECIMALS)}`
+                      : "$89"}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
 
           {/* CTA Button */}
           <Button
             className="w-full text-lg py-6"
             onClick={handleProceedToCheckout}
-            disabled={!selectedDosageId || !subscriptionDuration || isLoading}
+            disabled={
+              (!isCurrentFlow && (!selectedDosageId || !subscriptionDuration)) ||
+              isLoading
+            }
             style={{
               backgroundColor: merchantData?.customizeBranding?.accentColor,
             }}

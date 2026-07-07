@@ -14,7 +14,42 @@ export const APP_DESCRIPTION = "Hyre Health Customer";
 export const DEFAULT_IMAGE_URL = "https://placehold.co/250x250/png";
 
 // consultation fee
-export const CONSULTATION_FEE = 49;
+export const CONSULTATION_FEE = 50;
+
+/**
+ * Payment / pricing implementation a merchant runs on the product + checkout pages.
+ * - "current": show a price range; charge only the flat appointment fee
+ *   (CONSULTATION_FEE) up front, medication billed later via the Qualiphy webhook.
+ * - "previous": user picks a dosage + duration combo and pays the exact combo total.
+ *
+ * This will eventually come from the `/payment/merchant-nmi-key` API
+ * (merchantData.paymentFlow). Until the backend sends it, we fall back to
+ * PAYMENT_FLOW_OVERRIDE (env) and then DEFAULT_PAYMENT_FLOW.
+ */
+export type PaymentFlowType = "current" | "previous";
+export const DEFAULT_PAYMENT_FLOW: PaymentFlowType = "current";
+export const PAYMENT_FLOW_OVERRIDE = process.env.NEXT_PUBLIC_PAYMENT_FLOW as
+  | PaymentFlowType
+  | undefined;
+
+// The key on the `/payment/merchant-nmi-key` response that carries the flow.
+// (We set it ourselves for now; the backend will send it here later.)
+export const MERCHANT_PAYMENT_FLOW_KEY = "paymentFlow";
+
+export const isValidPaymentFlow = (value: unknown): value is PaymentFlowType =>
+  value === "current" || value === "previous";
+
+/**
+ * Resolves the effective payment flow. Precedence:
+ *   1. the value from the merchant API (once the backend sends it),
+ *   2. the NEXT_PUBLIC_PAYMENT_FLOW env override (handy for local testing),
+ *   3. DEFAULT_PAYMENT_FLOW.
+ */
+export const resolvePaymentFlow = (value?: unknown): PaymentFlowType => {
+  if (isValidPaymentFlow(value)) return value;
+  if (isValidPaymentFlow(PAYMENT_FLOW_OVERRIDE)) return PAYMENT_FLOW_OVERRIDE;
+  return DEFAULT_PAYMENT_FLOW;
+};
 
 // Navigation items for the main menu
 export const navigationItems = [

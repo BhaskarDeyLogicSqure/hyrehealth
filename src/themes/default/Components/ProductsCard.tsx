@@ -14,7 +14,13 @@ import {
 import ThemeLoader from "@/components/ThemeLoader";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { formatPriceRange, getProductPriceRange } from "@/lib/utils";
+import {
+  formatPriceInDollars,
+  formatPriceRange,
+  getProductPriceRange,
+  getProductStartingPrice,
+} from "@/lib/utils";
+import usePaymentFlow from "@/hooks/usePaymentFlow";
 
 const ProductsCard = ({
   product,
@@ -28,7 +34,16 @@ const ProductsCard = ({
     (state: RootState) => state?.merchantReducer
   );
 
+  const isPreviousFlow = usePaymentFlow() === "previous";
   const priceRange = getProductPriceRange(product);
+  const startingPrice = getProductStartingPrice(product);
+  // "current": price range; "previous": dosage-based starting price ("From $X").
+  const priceLabel = isPreviousFlow
+    ? startingPrice != null
+      ? formatPriceInDollars(startingPrice)
+      : "-"
+    : formatPriceRange(priceRange);
+  const hasPrice = isPreviousFlow ? startingPrice != null : Boolean(priceRange);
 
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -92,7 +107,7 @@ const ProductsCard = ({
                 color: merchantData?.customizeBranding?.brandColor,
               }}
             >
-              {priceRange ? `${formatPriceRange(priceRange)} /mo` : "-"}
+              {hasPrice ? `${priceLabel} /mo` : "-"}
             </span>
           </span>
           <Button
@@ -195,10 +210,10 @@ const ProductsCard = ({
 
         {/* Price */}
         <div className="flex items-center justify-between mb-4">
-          {priceRange ? (
+          {hasPrice ? (
             <div>
               <span className="text-2xl font-bold theme-text-primary">
-                {formatPriceRange(priceRange)}
+                {priceLabel}
               </span>
               <span className="theme-text-muted text-sm ml-1">/month</span>
             </div>

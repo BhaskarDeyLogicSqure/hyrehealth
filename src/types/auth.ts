@@ -82,6 +82,9 @@ export interface MerchantNMIpaymentTokenResponse {
     isApplyLegitScript: boolean;
     showLegitScript: boolean;
     checkoutPaymentMethod: "tycoon" | "bitcoin" | "braintree";
+    // Pricing/payment implementation for this merchant's product + checkout pages.
+    // Backend will send this in future; falls back to a default when absent.
+    paymentFlow?: "current" | "previous";
     // Branding fields
     businessName: string;
     customizeBranding: CustomizeBranding;
