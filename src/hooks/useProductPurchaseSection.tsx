@@ -3,6 +3,7 @@ import { useCheckout } from "./useCheckout";
 import { Product } from "@/types/products";
 import { useRouter } from "next/navigation";
 import { PaymentFlowType } from "@/configs";
+import { showErrorToast } from "@/components/GlobalErrorHandler";
 
 const useProductPurchaseSection = ({
   product,
@@ -99,13 +100,13 @@ const useProductPurchaseSection = ({
   };
 
   const _handleProceedToCheckout = async () => {
-    if (!selectedDosageId || !subscriptionDuration) {
-      alert("Please select a dosage first");
+    if (!selectedDosageId) {
+      showErrorToast("Please select a dosage to continue.");
       return;
     }
 
-    if (!selectedDosageWithDuration) {
-      alert("Please select valid dosage and duration");
+    if (!subscriptionDuration || !selectedDosageWithDuration) {
+      showErrorToast("Please select a duration to continue.");
       return;
     }
 
