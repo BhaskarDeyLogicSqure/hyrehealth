@@ -15,7 +15,7 @@ import {
   Box,
 } from "lucide-react";
 import { SUPPORT_EMAIL } from "@/configs";
-import usePaymentFlow from "@/hooks/usePaymentFlow";
+import useAllowPatientSelectDosage from "@/hooks/useAllowPatientSelectDosage";
 import { useOrderConfirmation } from "@/api/postCheckout/useOrderConfirmation";
 import {
   showErrorToast,
@@ -40,9 +40,10 @@ const ThankYouPage = () => {
     (state: RootState) => state?.merchantReducer,
   );
 
-  // In the "current" flow only the flat consultation fee is charged up front;
-  // medication is prescribed + billed later, so we hide product/medication prices.
-  const isCurrentFlow = usePaymentFlow() === "current";
+  // In the Current flow (allowPatientSelectDosage = false) only the flat
+  // consultation fee is charged up front; medication is prescribed + billed later,
+  // so we hide product/medication prices.
+  const isCurrentFlow = !useAllowPatientSelectDosage();
 
   const [isLoading, setTransition] = useTransition();
   const [isDisclaimerGenerating, setIsDisclaimerGenerating] = useState(false);

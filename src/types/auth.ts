@@ -82,9 +82,10 @@ export interface MerchantNMIpaymentTokenResponse {
     isApplyLegitScript: boolean;
     showLegitScript: boolean;
     checkoutPaymentMethod: "tycoon" | "bitcoin" | "braintree";
-    // Pricing/payment implementation for this merchant's product + checkout pages.
+    // Whether the patient may pick their own dosage + duration combo (Previous /
+    // Mechanism A) vs. paying only the flat appointment fee (Current / Mechanism B).
     // Backend will send this in future; falls back to a default when absent.
-    paymentFlow?: "current" | "previous";
+    allowPatientSelectDosage?: boolean;
     // Branding fields
     businessName: string;
     customizeBranding: CustomizeBranding;

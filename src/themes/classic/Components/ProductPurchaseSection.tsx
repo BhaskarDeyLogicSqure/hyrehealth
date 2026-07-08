@@ -19,7 +19,7 @@ import { useNavigationState } from "@/hooks/useNavigationState";
 import { CONSULTATION_FEE, DIGITS_AFTER_DECIMALS } from "@/configs";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import usePaymentFlow from "@/hooks/usePaymentFlow";
+import useAllowPatientSelectDosage from "@/hooks/useAllowPatientSelectDosage";
 import { formatPriceRange, getProductPriceRange } from "@/lib/utils";
 
 const ProductPurchaseSection = ({
@@ -34,7 +34,7 @@ const ProductPurchaseSection = ({
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer
   );
-  const paymentFlow = usePaymentFlow();
+  const allowPatientSelectDosage = useAllowPatientSelectDosage();
   const {
     selectedDosageId,
     subscriptionDuration,
@@ -49,11 +49,11 @@ const ProductPurchaseSection = ({
     product,
     selectedRelatedProducts,
     relatedProductsTotal,
-    paymentFlow,
+    allowPatientSelectDosage,
   });
   const { isNavigatingTo } = useNavigationState();
 
-  const isCurrentFlow = paymentFlow === "current";
+  const isCurrentFlow = !allowPatientSelectDosage;
   const priceRange = getProductPriceRange(product);
 
   const isLoading = isCheckoutLoading || isNavigatingTo("/checkout");
@@ -113,8 +113,8 @@ const ProductPurchaseSection = ({
             </div>
           ) : null}
 
-          {/* Subscription Duration (only in "previous" flow: pay exact combo price) */}
-          {paymentFlow === "previous" ? (
+          {/* Subscription Duration (only when patient selects: pay exact combo price) */}
+          {allowPatientSelectDosage ? (
             <div className="mb-6">
               <label className="block text-sm font-medium theme-text-primary mb-2">
                 Subscription Duration*

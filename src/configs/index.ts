@@ -17,39 +17,26 @@ export const DEFAULT_IMAGE_URL = "https://placehold.co/250x250/png";
 export const CONSULTATION_FEE = 50;
 
 /**
- * Payment / pricing implementation a merchant runs on the product + checkout pages.
- * - "current": show a price range; charge only the flat appointment fee
- *   (CONSULTATION_FEE) up front, medication billed later via the Qualiphy webhook.
- * - "previous": user picks a dosage + duration combo and pays the exact combo total.
+ * Whether the merchant lets the patient pick their own dosage + duration combo
+ * on the product + checkout pages. Comes from the `/payment/merchant-nmi-key`
+ * API (merchantData.allowPatientSelectDosage).
+ * - true  → Previous (Mechanism A): the patient picks a dosage + duration combo
+ *   and pays the exact combo total.
+ * - false → Current (Mechanism B): show a price range; charge only the flat
+ *   appointment fee (CONSULTATION_FEE) up front, medication billed later via the
+ *   Qualiphy webhook.
  *
- * This will eventually come from the `/payment/merchant-nmi-key` API
- * (merchantData.paymentFlow). Until the backend sends it, we fall back to
- * PAYMENT_FLOW_OVERRIDE (env) and then DEFAULT_PAYMENT_FLOW.
+ * Comes straight from the API; when absent we fall back to
+ * DEFAULT_ALLOW_PATIENT_SELECT_DOSAGE.
  */
-export type PaymentFlowType = "current" | "previous";
-export const DEFAULT_PAYMENT_FLOW: PaymentFlowType = "previous";
-export const PAYMENT_FLOW_OVERRIDE = process.env.NEXT_PUBLIC_PAYMENT_FLOW as
-  | PaymentFlowType
-  | undefined;
-
-// The key on the `/payment/merchant-nmi-key` response that carries the flow.
-// (We set it ourselves for now; the backend will send it here later.)
-export const MERCHANT_PAYMENT_FLOW_KEY = "paymentFlow";
-
-export const isValidPaymentFlow = (value: unknown): value is PaymentFlowType =>
-  value === "current" || value === "previous";
+export const DEFAULT_ALLOW_PATIENT_SELECT_DOSAGE = false;
 
 /**
- * Resolves the effective payment flow. Precedence:
- *   1. the value from the merchant API (once the backend sends it),
- *   2. the NEXT_PUBLIC_PAYMENT_FLOW env override (handy for local testing),
- *   3. DEFAULT_PAYMENT_FLOW.
+ * Resolves whether the patient may select their own dosage: the value from the
+ * merchant API when present, otherwise DEFAULT_ALLOW_PATIENT_SELECT_DOSAGE.
  */
-export const resolvePaymentFlow = (value?: unknown): PaymentFlowType => {
-  if (isValidPaymentFlow(value)) return value;
-  if (isValidPaymentFlow(PAYMENT_FLOW_OVERRIDE)) return PAYMENT_FLOW_OVERRIDE;
-  return DEFAULT_PAYMENT_FLOW;
-};
+export const resolveAllowPatientSelectDosage = (value?: unknown): boolean =>
+  typeof value === "boolean" ? value : DEFAULT_ALLOW_PATIENT_SELECT_DOSAGE;
 
 // Navigation items for the main menu
 export const navigationItems = [

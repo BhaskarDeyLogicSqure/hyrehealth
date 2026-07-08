@@ -13,7 +13,7 @@ import {
 import { ApiResponse } from "@/types";
 import apiService from "..";
 import { MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT } from "@/api-helper/ChekoutEndpoints";
-import { resolvePaymentFlow } from "@/configs";
+import { resolveAllowPatientSelectDosage } from "@/configs";
 
 export const authApi = {
   login: async (
@@ -73,10 +73,15 @@ export const authApi = {
 
       return {
         error: response?.error || false,
-        // The backend doesn't send `paymentFlow` yet, so we set it here with a
-        // resolved default. Once the API returns this key, its value wins.
+        // The backend doesn't send `allowPatientSelectDosage` yet, so we set it
+        // here with a resolved default. Once the API returns this key, its value wins.
         data: data
-          ? { ...data, paymentFlow: resolvePaymentFlow(data.paymentFlow) }
+          ? {
+              ...data,
+              allowPatientSelectDosage: resolveAllowPatientSelectDosage(
+                data.allowPatientSelectDosage
+              ),
+            }
           : data,
       };
     } catch (error) {

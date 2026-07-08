@@ -21,7 +21,7 @@ import {
   getProductPriceRange,
   getProductStartingPrice,
 } from "@/lib/utils";
-import usePaymentFlow from "@/hooks/usePaymentFlow";
+import useAllowPatientSelectDosage from "@/hooks/useAllowPatientSelectDosage";
 
 const ProductsCard = ({
   product,
@@ -35,10 +35,10 @@ const ProductsCard = ({
     (state: RootState) => state?.merchantReducer
   );
 
-  const isPreviousFlow = usePaymentFlow() === "previous";
+  const isPreviousFlow = useAllowPatientSelectDosage();
   const priceRange = getProductPriceRange(product);
   const startingPrice = getProductStartingPrice(product);
-  // "current": price range; "previous": dosage-based starting price ("From $X").
+  // Current: price range; Previous: dosage-based starting price ("From $X").
   const priceLabel = isPreviousFlow
     ? startingPrice != null
       ? formatPriceInDollars(startingPrice)

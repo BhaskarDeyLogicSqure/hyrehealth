@@ -2,19 +2,18 @@ import { useMemo, useState, useEffect } from "react";
 import { useCheckout } from "./useCheckout";
 import { Product } from "@/types/products";
 import { useRouter } from "next/navigation";
-import { PaymentFlowType } from "@/configs";
 import { showErrorToast } from "@/components/GlobalErrorHandler";
 
 const useProductPurchaseSection = ({
   product,
   selectedRelatedProducts,
   relatedProductsTotal,
-  paymentFlow = "current",
+  allowPatientSelectDosage = true,
 }: {
   product: Product;
   selectedRelatedProducts: string[];
   relatedProductsTotal: number;
-  paymentFlow?: PaymentFlowType;
+  allowPatientSelectDosage?: boolean;
 }) => {
   const router = useRouter();
   const { setMainProduct, setRelatedProducts, calculateTotal, clearCheckout } =
@@ -218,11 +217,11 @@ const useProductPurchaseSection = ({
   };
 
   // Auto-select default dosage when component mounts or product changes.
-  // - "current": the backend-flagged default dosage (isDefault).
-  // - "previous": the lowest available dosage (min strength).
+  // - Current (flat fee): the backend-flagged default dosage (isDefault).
+  // - Previous (patient selects): the lowest available dosage (min strength).
   useEffect(() => {
     if (product?.pricing?.subscriptionOptions && !selectedDosageId) {
-      if (paymentFlow === "previous") {
+      if (allowPatientSelectDosage) {
         // Pick the lowest strength dosage that has a payable option.
         const lowestDosageOption = product?.pricing?.subscriptionOptions
           ?.filter((option) => option?.price !== 0)
@@ -245,7 +244,7 @@ const useProductPurchaseSection = ({
         setSelectedDosageId(defaultDosageOption._id || defaultDosageOption.id);
       }
     }
-  }, [product, selectedDosageId, paymentFlow]);
+  }, [product, selectedDosageId, allowPatientSelectDosage]);
 
   // Auto-select the 1-month plan when a dosage is selected. The duration
   // selector has been removed from the UI, so every dosage defaults to its
@@ -266,15 +265,14 @@ const useProductPurchaseSection = ({
         )
         ?.sort((a, b) => a?.duration?.value - b?.duration?.value);
 
-      // "previous": default to the lowest available duration (min duration).
-      // "current": default to the 1-month plan, falling back to the lowest.
+      // Previous (patient selects): default to the lowest available duration.
+      // Current (flat fee): default to the 1-month plan, falling back to the lowest.
       const oneMonthOption = optionsForStrength?.find(
         (option) => option?.duration?.value === 1
       );
-      const defaultDurationOption =
-        paymentFlow === "previous"
-          ? optionsForStrength?.[0]
-          : oneMonthOption || optionsForStrength?.[0];
+      const defaultDurationOption = allowPatientSelectDosage
+        ? optionsForStrength?.[0]
+        : oneMonthOption || optionsForStrength?.[0];
 
       if (defaultDurationOption && !subscriptionDuration) {
         setSubscriptionDuration(
@@ -282,7 +280,7 @@ const useProductPurchaseSection = ({
         );
       }
     }
-  }, [selectedDosageId, product, subscriptionDuration, paymentFlow]);
+  }, [selectedDosageId, product, subscriptionDuration, allowPatientSelectDosage]);
 
   return {
     selectedDosageId,

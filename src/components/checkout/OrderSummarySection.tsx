@@ -19,7 +19,7 @@ import useOrderCheckout from "@/hooks/useOrderCheckout";
 import { useCheckout } from "@/hooks/useCheckout";
 import { CONSULTATION_FEE, DIGITS_AFTER_DECIMALS } from "@/configs";
 import useChekoutApi from "@/api/checkout/useChekoutApi";
-import usePaymentFlow from "@/hooks/usePaymentFlow";
+import useAllowPatientSelectDosage from "@/hooks/useAllowPatientSelectDosage";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/store/actions/authAction";
 import { useCookies } from "@/hooks/useCookies";
@@ -64,11 +64,13 @@ const OrderSummarySection = ({
   // console.log("merchantData", merchantData);
 
   // Pricing implementation for this merchant:
-  // - "current": charge only the flat appointment fee (CONSULTATION_FEE); the
-  //   medication is billed later based on the actual prescription (Qualiphy).
-  // - "previous": customer picks a dosage + duration combo and pays the exact total.
-  const paymentFlow = usePaymentFlow();
-  const isCurrentFlow = paymentFlow === "current";
+  // - Current (allowPatientSelectDosage = false): charge only the flat appointment
+  //   fee (CONSULTATION_FEE); the medication is billed later based on the actual
+  //   prescription (Qualiphy).
+  // - Previous (allowPatientSelectDosage = true): customer picks a dosage + duration
+  //   combo and pays the exact total.
+  const allowPatientSelectDosage = useAllowPatientSelectDosage();
+  const isCurrentFlow = !allowPatientSelectDosage;
 
   // check if the user is logged in
   const isUserLoggedIn = isUserAuthenticated();
@@ -372,9 +374,9 @@ const OrderSummarySection = ({
           </CardHeader>
 
           <CardContent className="space-y-4">
-            {/* Product Details Section — only in the "previous" flow, where the
-                customer picks a dosage + duration combo and pays the exact total. */}
-            {paymentFlow === "previous"
+            {/* Product Details Section — only when the patient selects their own
+                dosage + duration combo and pays the exact total. */}
+            {allowPatientSelectDosage
               ? productConfigurations?.map((config) => {
                   const product = eligibleProducts?.find(
                     (item) => item?.product?._id === config?.productId

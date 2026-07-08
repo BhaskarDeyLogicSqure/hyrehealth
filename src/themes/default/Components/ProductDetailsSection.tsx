@@ -13,7 +13,7 @@ import { Product } from "@/types/products";
 import RelatedProductsSection from "./RelatedProductsSection";
 import ImageVideoCarousel from "@/components/ImageVideoCarousel";
 import { removeHtmlTags } from "@/lib/utils";
-import usePaymentFlow from "@/hooks/usePaymentFlow";
+import useAllowPatientSelectDosage from "@/hooks/useAllowPatientSelectDosage";
 
 const ProductDetailsSection = ({
   product,
@@ -24,9 +24,9 @@ const ProductDetailsSection = ({
   selectedRelatedProducts: string[];
   handleRelatedProductToggle: (productId: string) => void;
 }) => {
-  // Add-on / related products are hidden in the "current" flow (customer pays a
+  // Add-on / related products are hidden in the Current flow (customer pays a
   // flat consultation fee; medication + add-ons aren't priced up front).
-  const isCurrentFlow = usePaymentFlow() === "current";
+  const isCurrentFlow = !useAllowPatientSelectDosage();
 
   // Combine images and videos for the carousel
   const allMedia = [
