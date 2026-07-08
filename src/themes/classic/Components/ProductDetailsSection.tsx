@@ -15,6 +15,7 @@ import ImageVideoCarousel from "@/components/ImageVideoCarousel";
 import { removeHtmlTags } from "@/lib/utils";
 import RelatedProductsSection from "@/themes/default/Components/RelatedProductsSection";
 import RatingDisplay from "./RatingDisplay";
+import useAllowPatientSelectDosage from "@/hooks/useAllowPatientSelectDosage";
 
 const ProductDetailsSection = ({
   product,
@@ -25,6 +26,9 @@ const ProductDetailsSection = ({
   selectedRelatedProducts: string[];
   handleRelatedProductToggle: (productId: string) => void;
 }) => {
+  // Add-on / related products are hidden in the Current flow (customer pays a
+  // flat consultation fee; medication + add-ons aren't priced up front).
+  const isCurrentFlow = !useAllowPatientSelectDosage();
   // Combine images and videos for the carousel
   const allMedia = [
     ...(product?.media?.images || [])?.map((img) => ({
@@ -266,8 +270,8 @@ const ProductDetailsSection = ({
         </Card>
       )}
 
-      {/* Related Products Section */}
-      {product?.similarProducts?.length ? (
+      {/* Related Products Section — hidden in the "current" flow */}
+      {!isCurrentFlow && product?.similarProducts?.length ? (
         <RelatedProductsSection
           product={product}
           selectedRelatedProducts={selectedRelatedProducts}

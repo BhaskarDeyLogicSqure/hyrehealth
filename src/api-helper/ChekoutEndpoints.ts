@@ -10,15 +10,24 @@ export const INVOICE_STATUS_ENDPOINT = {
   httpType: httpType.GET,
 };
 
+// Poll a pending payment's fulfillment status (works for both guest + logged-in
+// Stripe checkout). Equivalent to INVOICE_STATUS_ENDPOINT; this is the canonical
+// path the payment guide documents for Step 6.
+export const PAYMENT_INVOICE_STATUS_ENDPOINT = {
+  endpoint: "/payment/invoice-status",
+  httpType: httpType.GET,
+};
+
 // order checkout - for login users
 export const ORDER_CHECKOUT_ENDPOINT = {
   endpoint: "/payment/products",
   httpType: httpType.POST,
 };
 
-// complete braintree payment (no auth required)
-export const PAYMENT_COMPLETE_ENDPOINT = {
-  endpoint: "/payment/complete",
+// create a Stripe PaymentIntent (Connect direct charge) for a pending payment.
+// Body: { referenceId } -> { clientSecret, stripeAccountId, amount, currency }
+export const STRIPE_CREATE_INTENT_ENDPOINT = {
+  endpoint: "/payment/stripe/create-intent",
   httpType: httpType.POST,
 };
 

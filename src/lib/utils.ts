@@ -177,6 +177,39 @@ export const getProductPriceRange = (
 };
 
 /**
+ * Computes the "starting" monthly price for a product — the lowest dosage at
+ * its lowest duration. This matches the default combo the "previous" flow
+ * pre-selects, so the listing "From $X" price lines up with the detail page.
+ * Falls back to the backend-provided lowest price, then null.
+ */
+export const getProductStartingPrice = (product: Product): number | null => {
+  const options = product?.pricing?.subscriptionOptions?.filter(
+    (option: any) => option?.price > 0,
+  );
+
+  if (options?.length) {
+    const minStrength = Array.from(
+      new Set(options?.map((option: any) => option?.strength || 0)),
+    )?.sort((a, b) => a - b)?.[0];
+
+    const forStrength = options
+      ?.filter((option: any) => (option?.strength || 0) === minStrength)
+      ?.sort(
+        (a: any, b: any) =>
+          (a?.duration?.value || 0) - (b?.duration?.value || 0),
+      );
+
+    if (forStrength?.length) {
+      const price = forStrength?.[0]?.price;
+      if (price != null) return price;
+    }
+  }
+
+  const lowest = product?.pricing?.lowestPrice;
+  return lowest != null ? lowest : null;
+};
+
+/**
  * Formats a monthly price range for display, e.g. "$180.00 - $320.00" or a
  * single "$180.00" when the min and max are equal.
  */
