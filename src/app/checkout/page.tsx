@@ -14,12 +14,15 @@ import { useCheckout } from "@/hooks/useCheckout";
 import { useCheckoutQuestionnaire } from "@/hooks/useCheckoutQuestionnaire";
 import { showErrorToast, showSuccessToast } from "@/components/GlobalErrorHandler";
 import useCheckoutPersistence from "@/hooks/useCheckoutPersistence";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
 import useOrderCheckout from "@/hooks/useOrderCheckout";
 import Link from "next/link";
 import StripePaymentFields from "@/components/checkout/StripePaymentFields";
 import useChekoutApi from "@/api/checkout/useChekoutApi";
+import { useCookies } from "@/hooks/useCookies";
+import { setUser } from "@/store/actions/authAction";
+import { profileApi } from "@/api/profile/profileApi";
 
 // After the Stripe PaymentIntent is confirmed client-side, fulfillment happens
 // asynchronously via the backend's Stripe webhook — so we poll invoice-status
@@ -30,6 +33,8 @@ const INVOICE_STATUS_POLL_BUDGET_MS = 40_000;
 const CheckoutPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const dispatch = useDispatch();
+  const { setCookie } = useCookies();
   const { clearCheckout } = useCheckout();
   const { getInvoiceStatus } = useChekoutApi();
   // Get merchant data for dynamic content
@@ -81,6 +86,26 @@ const CheckoutPage = () => {
   };
 
   /**
+   * Log the customer in with the token the invoice-status response returns on
+   * fulfillment. The async Stripe flow issues this token when the payment settles
+   * (not at signup), so this is where the user actually becomes authenticated.
+   * Sets the auth cookie, then hydrates their profile into redux.
+   */
+  const _loginWithToken = async (token: string) => {
+    try {
+      setCookie("customer-token", token);
+      const userProfileData = await profileApi.getProfile();
+      if (userProfileData?.user) {
+        dispatch(setUser(userProfileData.user));
+      }
+    } catch (e) {
+      // Non-fatal: the cookie is already set, so the user is authenticated even
+      // if profile hydration fails. Continue to the thank-you page.
+      console.error("Post-payment login failed:", e);
+    }
+  };
+
+  /**
    * Poll invoice-status until the (async, webhook-driven) Stripe fulfillment
    * settles, then route to the thank-you page. Shared by the inline-confirm path
    * and the redirect-return path.
@@ -94,6 +119,13 @@ const CheckoutPage = () => {
       const status = envelope?.status;
 
       if (status === "completed") {
+        // The async Stripe flow issues the customer's auth token on fulfillment
+        // (not at signup), so log the user in here if the token is present.
+        const token = envelope?.data?.token;
+        if (token) {
+          await _loginWithToken(token);
+        }
+
         const invoiceNumber = envelope?.data?.invoice?.invoiceNumber;
         showSuccessToast(
           "Payment successful. You can now start your consultation with the doctor."
