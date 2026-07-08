@@ -15,7 +15,13 @@ import ThemeLoader from "@/components/ThemeLoader";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import RatingDisplay from "./RatingDisplay";
-import { formatPriceRange, getProductPriceRange } from "@/lib/utils";
+import {
+  formatPriceInDollars,
+  formatPriceRange,
+  getProductPriceRange,
+  getProductStartingPrice,
+} from "@/lib/utils";
+import useAllowPatientSelectDosage from "@/hooks/useAllowPatientSelectDosage";
 
 const ProductsCard = ({
   product,
@@ -29,7 +35,16 @@ const ProductsCard = ({
     (state: RootState) => state?.merchantReducer
   );
 
+  const isPreviousFlow = useAllowPatientSelectDosage();
   const priceRange = getProductPriceRange(product);
+  const startingPrice = getProductStartingPrice(product);
+  // Current: price range; Previous: dosage-based starting price ("From $X").
+  const priceLabel = isPreviousFlow
+    ? startingPrice != null
+      ? formatPriceInDollars(startingPrice)
+      : "-"
+    : formatPriceRange(priceRange);
+  const hasPrice = isPreviousFlow ? startingPrice != null : Boolean(priceRange);
 
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -114,10 +129,10 @@ const ProductsCard = ({
       ) : null}
 
       {/* Price */}
-      {priceRange ? (
+      {hasPrice ? (
         <div className="mb-4">
           <span className="text-2xl font-bold text-gray-900">
-            {formatPriceRange(priceRange)}
+            {priceLabel}
           </span>
           <span className="text-sm text-gray-600 ml-1">per month</span>
         </div>

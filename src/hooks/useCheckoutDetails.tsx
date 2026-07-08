@@ -66,7 +66,7 @@ const useCheckoutDetails = () => {
   const [errors, setErrors] = useState<Record<string, string | null>>({});
 
   const [loading, setLoading] = useState({
-    braintreePaymentProcessing: false,
+    stripePaymentProcessing: false,
   });
 
   const _manageLoading = (key: keyof typeof loading, value: boolean) => {
