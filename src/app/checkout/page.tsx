@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,29 +18,35 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import useOrderCheckout from "@/hooks/useOrderCheckout";
 import Link from "next/link";
-import { CHECKOUT_PAYMENT_METHOD } from "@/configs";
-import BraintreePaymentFields, { BraintreePaymentMethodPayload } from "@/components/checkout/BraintreePaymentFields";
+import StripePaymentFields from "@/components/checkout/StripePaymentFields";
 import useChekoutApi from "@/api/checkout/useChekoutApi";
+
+// After the Stripe PaymentIntent is confirmed client-side, fulfillment happens
+// asynchronously via the backend's Stripe webhook — so we poll invoice-status
+// until it leaves pending/processing before routing to the thank-you page.
+const INVOICE_STATUS_POLL_INTERVAL_MS = 2_000;
+const INVOICE_STATUS_POLL_BUDGET_MS = 40_000;
 
 const CheckoutPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { clearCheckout } = useCheckout();
-  const { completePayment } = useChekoutApi();
+  const { getInvoiceStatus } = useChekoutApi();
   // Get merchant data for dynamic content
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer
   );
 
-  const [braintreePaymentMethod, setBraintreePaymentMethod] =
-    useState<BraintreePaymentMethodPayload | null>(null);
-  const checkoutPaymentMethod = merchantData?.checkoutPaymentMethod || CHECKOUT_PAYMENT_METHOD || "";
-
-
-  const [braintreeInit, setBraintreeInit] = useState<{
+  const [stripeInit, setStripeInit] = useState<{
     referenceId?: string;
-    clientToken?: string;
+    clientSecret?: string;
+    stripeAccountId?: string;
     finalAmount?: number;
+    currency?: string;
   } | null>(null);
+
+  // Guards the redirect-return poll so it runs at most once per mount.
+  const stripeReturnHandled = useRef(false);
 
 
   const { eligibleProducts, mainProductIfEligible, selectedRelatedProducts } =
@@ -66,53 +72,79 @@ const CheckoutPage = () => {
   // Handle checkout data persistence
   useCheckoutPersistence();
 
-  const shouldShowBraintreePaymentUi =
-    checkoutPaymentMethod === "braintree" &&
-    Boolean(braintreeInit?.referenceId && braintreeInit?.clientToken);
+  const shouldShowStripePaymentUi = Boolean(
+    stripeInit?.clientSecret && stripeInit?.stripeAccountId
+  );
 
-  const handleBackFromBraintreePayment = () => {
-    setBraintreeInit(null);
+  const handleBackFromStripePayment = () => {
+    setStripeInit(null);
   };
 
-  const handleBraintreePaymentMethod = async (
-    payload: BraintreePaymentMethodPayload
-  ) => {
-    try {
-      manageLoading("braintreePaymentProcessing", true);
+  /**
+   * Poll invoice-status until the (async, webhook-driven) Stripe fulfillment
+   * settles, then route to the thank-you page. Shared by the inline-confirm path
+   * and the redirect-return path.
+   */
+  const pollInvoiceStatusAndRoute = async (referenceId: string) => {
+    const pollStartedAt = Date.now();
 
-      setBraintreePaymentMethod(payload);
+    while (true) {
+      const response = await getInvoiceStatus(referenceId);
+      const envelope = response?.data;
+      const status = envelope?.status;
 
-      const referenceId = braintreeInit?.referenceId;
-      if (!referenceId?.trim()?.length) {
-        showErrorToast("Missing payment reference. Please try again.");
-        return;
-      }
-
-      const response = await completePayment({
-        referenceId,
-        paymentMethodNonce: payload?.nonce,
-        deviceData: payload?.deviceData,
-      });
-
-      const invoiceNumber = response?.data?.invoice?.invoiceNumber;
-      if (!invoiceNumber) {
-        showErrorToast(
-          "Payment completed, but invoice number is missing. Please contact support."
+      if (status === "completed") {
+        const invoiceNumber = envelope?.data?.invoice?.invoiceNumber;
+        showSuccessToast(
+          "Payment successful. You can now start your consultation with the doctor."
+        );
+        clearCheckout();
+        router.replace(
+          invoiceNumber
+            ? `/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`
+            : "/thank-you"
         );
         return;
       }
 
-      showSuccessToast(
-        "Payment successful. You can now start your consultation with the doctor."
+      if (status === "failed") {
+        showErrorToast("Payment failed. Please try again.");
+        return;
+      }
+
+      const elapsed = Date.now() - pollStartedAt;
+      if (elapsed >= INVOICE_STATUS_POLL_BUDGET_MS) {
+        showErrorToast(
+          "Payment is still processing. Please refresh in a moment to see your order."
+        );
+        return;
+      }
+
+      const waitMs = Math.min(
+        INVOICE_STATUS_POLL_INTERVAL_MS,
+        INVOICE_STATUS_POLL_BUDGET_MS - elapsed
       );
-      clearCheckout();
-      router.replace(`/thank-you?orderId=${encodeURIComponent(invoiceNumber)}`);
+      await new Promise<void>((resolve) => setTimeout(resolve, waitMs));
+    }
+  };
+
+  // Called once the Stripe PaymentIntent is confirmed client-side (inline path).
+  const handleStripePaymentConfirmed = async () => {
+    const referenceId = stripeInit?.referenceId;
+    if (!referenceId?.trim()?.length) {
+      showErrorToast("Missing payment reference. Please try again.");
+      return;
+    }
+
+    try {
+      manageLoading("stripePaymentProcessing", true);
+      await pollInvoiceStatusAndRoute(referenceId);
     } catch (e) {
       showErrorToast(
-        (e as { message?: string })?.message || "Could not complete payment."
+        (e as { message?: string })?.message || "Could not confirm payment."
       );
     } finally {
-      manageLoading("braintreePaymentProcessing", false);
+      manageLoading("stripePaymentProcessing", false);
     }
   };
 
@@ -155,17 +187,48 @@ const CheckoutPage = () => {
     };
   }, []);
 
+  // Stripe redirect-return path: if the card required a full 3DS redirect, Stripe
+  // sends the user back to /checkout?ref=<referenceId>&redirect_status=... . Resume
+  // polling here so the order still advances to the thank-you page.
+  useEffect(() => {
+    if (stripeReturnHandled.current) return;
+
+    const ref = searchParams?.get("ref");
+    const redirectStatus = searchParams?.get("redirect_status");
+    if (!ref) return;
+    if (redirectStatus !== "succeeded" && redirectStatus !== "processing") return;
+
+    stripeReturnHandled.current = true;
+
+    (async () => {
+      try {
+        manageLoading("stripePaymentProcessing", true);
+        await pollInvoiceStatusAndRoute(ref);
+      } catch (e) {
+        showErrorToast(
+          (e as { message?: string })?.message || "Could not confirm payment."
+        );
+      } finally {
+        manageLoading("stripePaymentProcessing", false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {shouldShowBraintreePaymentUi ? (
-        <BraintreePaymentFields
-          clientToken={braintreeInit?.clientToken || ""}
-          finalAmount={braintreeInit?.finalAmount || 0}
-          onBack={handleBackFromBraintreePayment}
-          onPaymentMethod={handleBraintreePaymentMethod}
-          isBraintreePaymentProcessing={loading?.braintreePaymentProcessing}
+      {shouldShowStripePaymentUi ? (
+        <StripePaymentFields
+          clientSecret={stripeInit?.clientSecret || ""}
+          stripeAccountId={stripeInit?.stripeAccountId || ""}
+          referenceId={stripeInit?.referenceId || ""}
+          finalAmount={stripeInit?.finalAmount || 0}
+          currency={stripeInit?.currency}
+          onBack={handleBackFromStripePayment}
+          onConfirmed={handleStripePaymentConfirmed}
+          isProcessing={loading?.stripePaymentProcessing}
         />
-      ) :
+      ) : (
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
@@ -277,12 +340,12 @@ const CheckoutPage = () => {
 
             {/* Right Column - Order Summary */}
             <OrderSummarySection
-              checkoutPaymentMethod={checkoutPaymentMethod}
-              setBraintreeInit={setBraintreeInit}
+              setStripeInit={setStripeInit}
               handleGetPayload={handleGetPayload}
             />
           </div>
-        </div>}
+        </div>
+      )}
     </div>
   );
 };

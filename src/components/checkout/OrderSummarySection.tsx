@@ -33,15 +33,15 @@ import { RootState } from "@/store";
 // const INVOICE_STATUS_POLL_INTERVAL_MS = 2_000;
 
 const OrderSummarySection = ({
-  checkoutPaymentMethod,
-  setBraintreeInit,
+  setStripeInit,
   handleGetPayload,
 }: {
-  checkoutPaymentMethod: string;
-  setBraintreeInit: (init: {
+  setStripeInit: (init: {
     referenceId?: string;
-    clientToken?: string;
+    clientSecret?: string;
+    stripeAccountId?: string;
     finalAmount?: number;
+    currency?: string;
   } | null) => void;
   handleGetPayload: (e: React.FormEvent) => Promise<any>;
 }) => {
@@ -50,12 +50,7 @@ const OrderSummarySection = ({
   const { setCookie } = useCookies();
   // const { clearCheckout } = useCheckout();
 
-  const {
-    signUpWithPayment,
-    loginOrderCheckout,
-    // getInvoiceStatus,
-    // initiateBraintreeCheckout,
-  } =
+  const { signUpWithPayment, loginOrderCheckout, createStripeIntent } =
     useChekoutApi();
 
   const { merchantData } = useSelector(
@@ -127,12 +122,6 @@ const OrderSummarySection = ({
   const _handleSubmit = async (e: React.FormEvent) => {
     try {
       if (e) e.preventDefault();
-
-      // check if the payment method is supported
-      if (checkoutPaymentMethod !== "braintree") {
-        showErrorToast("Payment method not supported");
-        return;
-      }
 
       setIsCheckoutLoading(true);
 
@@ -245,22 +234,25 @@ const OrderSummarySection = ({
         // --- will be shown after payment success ---
       }
 
-      // if the response contains referenceId and clientToken, then set the braintree init data and show the braintree payment UI so that user can proceed to payment step
-      if (response?.data?.referenceId && response?.data?.clientToken) {
-        const referenceId = response?.data?.referenceId;
-        const clientToken = response?.data?.clientToken;
-
-        if (!referenceId?.trim()?.length || !clientToken?.trim()?.length) {
-          showErrorToast("Could not initiate payment. Please try again.");
-          return;
-        }
-
-        setBraintreeInit({
-          referenceId,
-          clientToken,
-          finalAmount: payload?.paymentInfo?.finalAmount,
-        });
+      // Every checkout call returns a referenceId that correlates the pending
+      // payment across the confirm + polling steps.
+      const referenceId = response?.data?.referenceId;
+      if (!referenceId?.trim()?.length) {
+        showErrorToast("Could not initiate payment. Please try again.");
+        return;
       }
+
+      // Create a Stripe PaymentIntent (Connect direct charge) for this pending
+      // payment, then show the Stripe payment UI so the user can confirm the card.
+      const intent = await createStripeIntent(referenceId);
+
+      setStripeInit({
+        referenceId,
+        clientSecret: intent?.clientSecret,
+        stripeAccountId: intent?.stripeAccountId,
+        finalAmount: payload?.paymentInfo?.finalAmount,
+        currency: payload?.paymentInfo?.currency,
+      });
     } catch (error) {
       console.error(error);
       showErrorToast(
