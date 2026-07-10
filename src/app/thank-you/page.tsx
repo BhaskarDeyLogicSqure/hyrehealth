@@ -15,6 +15,7 @@ import {
   Box,
 } from "lucide-react";
 import { SUPPORT_EMAIL } from "@/configs";
+import useAllowPatientSelectDosage from "@/hooks/useAllowPatientSelectDosage";
 import { useOrderConfirmation } from "@/api/postCheckout/useOrderConfirmation";
 import {
   showErrorToast,
@@ -38,6 +39,11 @@ const ThankYouPage = () => {
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer,
   );
+
+  // In the Current flow (allowPatientSelectDosage = false) only the flat
+  // consultation fee is charged up front; medication is prescribed + billed later,
+  // so we hide product/medication prices.
+  const isCurrentFlow = !useAllowPatientSelectDosage();
 
   const [isLoading, setTransition] = useTransition();
   const [isDisclaimerGenerating, setIsDisclaimerGenerating] = useState(false);
@@ -259,7 +265,7 @@ const ThankYouPage = () => {
                         </span>
                       )} */}
                     </div>
-                    {product?.totalPrice ? (
+                    {!isCurrentFlow && product?.totalPrice ? (
                       <div className="mt-2 md:mt-0 text-right">
                         <span className="font-semibold text-gray-900">
                           ${product?.totalPrice} / month
@@ -279,6 +285,14 @@ const ThankYouPage = () => {
                   #{orderConfirmation?.invoiceNumber}
                 </span>
               </div>
+              {isCurrentFlow ? (
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Consultation Fee:</span>
+                  <span className="font-bold text-gray-900">
+                    ${orderConfirmation?.pricing?.total}
+                  </span>
+                </div>
+              ) : null}
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Total Amount:</span>
                 <span className="font-bold text-gray-900">
@@ -289,6 +303,14 @@ const ThankYouPage = () => {
                 <span className="text-gray-600">Status:</span>
                 <span className="font-bold text-green-600">{orderStatus}</span>
               </div>
+
+              {isCurrentFlow ? (
+                <p className="text-xs text-red-600 leading-relaxed">
+                  This charge is for your medical consultation only. Your
+                  medication is billed separately after the consultation, based
+                  on the dosage your provider prescribes.
+                </p>
+              ) : null}
             </div>
 
             {/* Action Button */}
