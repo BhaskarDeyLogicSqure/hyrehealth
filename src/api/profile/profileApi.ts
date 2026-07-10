@@ -49,7 +49,7 @@ export const profileApi = {
   getAllInvoices: async (
     page?: number,
     limit?: number,
-    customerId?: string
+    customerId?: string,
   ) => {
     const params = new URLSearchParams();
     if (page) params?.append("page", page?.toString());
@@ -88,7 +88,7 @@ export const profileApi = {
   createReviewForProduct: async (
     productId: string,
     rating: number,
-    review: string
+    review: string,
   ) => {
     try {
       const response = await apiService.post<{
