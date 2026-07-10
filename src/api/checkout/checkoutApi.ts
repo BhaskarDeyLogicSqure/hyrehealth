@@ -1,9 +1,9 @@
 import apiService, { ApiResponse } from "..";
 import {
-  INVOICE_STATUS_ENDPOINT,
   ORDER_CHECKOUT_ENDPOINT,
-  PAYMENT_COMPLETE_ENDPOINT,
+  PAYMENT_INVOICE_STATUS_ENDPOINT,
   SIGN_UP_WITH_PAYMENT_ENDPOINT,
+  STRIPE_CREATE_INTENT_ENDPOINT,
   VALIDATE_COUPON_ENDPOINT,
 } from "@/api-helper/ChekoutEndpoints";
 import { BASE_URL } from "@/configs";
@@ -34,6 +34,11 @@ export interface InvoiceStatusNestedData {
     status?: string;
     total?: number;
     paidDate?: string;
+    // Mechanism B (allowPatientSelectDosage = false) enrichment: the medication is
+    // charged later, so the invoice surfaces the deferred-charge state here.
+    mechanism?: "old" | "new";
+    medicineChargeStatus?: "pending" | "processing" | "charged" | "failed";
+    medicineChargeAmount?: number;
   };
   subscriptions?: unknown[];
   consultations?: unknown[];
@@ -49,31 +54,20 @@ export interface InvoiceStatusApiResponse {
   };
 }
 
-export interface InitiateBraintreeCheckoutResponse {
-  error?: boolean;
-  message?: string;
-  data?: {
-    referenceId?: string;
-    clientToken?: string;
-  };
+/** POST /payment/stripe/create-intent — Connect direct-charge PaymentIntent. */
+export interface StripeIntentData {
+  clientSecret?: string;
+  /** The merchant's connected account id — required to init Stripe.js. */
+  stripeAccountId?: string;
+  /** Amount actually charged now (cents). For Mechanism B this is the flat consult fee. */
+  amount?: number;
+  currency?: string;
 }
 
-export interface CompletePaymentPayload {
-  referenceId: string;
-  paymentMethodNonce: string;
-  deviceData?: string;
-}
-
-export interface CompletePaymentResponse {
+export interface CreateStripeIntentResponse {
   error?: boolean;
   message?: string;
-  data?: {
-    token?: string;
-    payment?: { _id?: string; amount?: number; status?: string };
-    invoice?: { _id?: string; invoiceNumber?: string; status?: string };
-    subscriptions?: unknown[];
-    consultations?: unknown[];
-  };
+  data?: StripeIntentData;
 }
 
 export const checkoutApi = {
@@ -138,6 +132,36 @@ export const checkoutApi = {
     return response;
   },
 
+  /**
+   * Create a Stripe PaymentIntent for a pending payment (Step 4, Stripe path).
+   * Returns the clientSecret + connected-account id the frontend needs to confirm.
+   */
+  createStripeIntent: async (
+    referenceId: string,
+  ): Promise<StripeIntentData> => {
+    if (!referenceId?.trim()) {
+      throw new Error("Reference ID is required");
+    }
+
+    const response = await apiService.post<CreateStripeIntentResponse>(
+      `${BASE_URL}${STRIPE_CREATE_INTENT_ENDPOINT.endpoint}`,
+      { referenceId },
+    );
+
+    // apiService.post wraps the raw body: response.data is the BE envelope.
+    const body = response?.data;
+    if (body?.error) {
+      throw new Error(body?.message || "Could not initiate payment. Please try again.");
+    }
+
+    const intent = body?.data;
+    if (!intent?.clientSecret || !intent?.stripeAccountId) {
+      throw new Error("Could not initiate payment. Please try again.");
+    }
+
+    return intent;
+  },
+
   getInvoiceStatus: async (
     referenceId: string,
   ): Promise<InvoiceStatusApiResponse> => {
@@ -146,7 +170,7 @@ export const checkoutApi = {
     }
 
     const response = await apiService.get<InvoiceStatusApiResponse>(
-      `${BASE_URL}${INVOICE_STATUS_ENDPOINT.endpoint}/${encodeURIComponent(referenceId)}`,
+      `${BASE_URL}${PAYMENT_INVOICE_STATUS_ENDPOINT.endpoint}/${encodeURIComponent(referenceId)}`,
     );
 
     if (response?.error) {
@@ -155,54 +179,4 @@ export const checkoutApi = {
 
     return response;
   },
-
-  completePayment: async (
-    payload: CompletePaymentPayload,
-  ): Promise<CompletePaymentResponse> => {
-    if (!payload?.referenceId?.trim()) {
-      throw new Error("Reference ID is required");
-    }
-    if (!payload?.paymentMethodNonce?.trim()) {
-      throw new Error("Payment method nonce is required");
-    }
-
-    const response = await apiService.post<CompletePaymentResponse>(
-      `${BASE_URL}${PAYMENT_COMPLETE_ENDPOINT.endpoint}`,
-      payload,
-    );
-
-    if (response?.data?.error) {
-      throw new Error(
-        response?.data?.message || "Could not complete payment. Please try again."
-      );
-    }
-
-    return response?.data;
-  },
-
-  // /**
-  //  * Initiate Braintree checkout.
-  //  * POST /payment/products
-  //  *
-  //  * Expected envelope:
-  //  * { error: false, data: { referenceId, clientToken } }
-  //  */
-  // initiateBraintreeCheckout: async (
-  //   payload: CheckoutPayload,
-  // ): Promise<InitiateBraintreeCheckoutResponse> => {
-  //   if (!payload) {
-  //     throw new Error("Checkout payload is required");
-  //   }
-
-  //   const response = await apiService.post<InitiateBraintreeCheckoutResponse>(
-  //     `${BASE_URL}${ORDER_CHECKOUT_ENDPOINT.endpoint}`,
-  //     payload,
-  //   );
-
-  //   if (response?.error) {
-  //     throw new Error(response?.message || "Failed to initiate checkout");
-  //   }
-
-  //   return response?.data;
-  // },
 };

@@ -14,7 +14,29 @@ export const APP_DESCRIPTION = "Hyre Health Customer";
 export const DEFAULT_IMAGE_URL = "https://placehold.co/250x250/png";
 
 // consultation fee
-export const CONSULTATION_FEE = 49;
+export const CONSULTATION_FEE = 50;
+
+/**
+ * Whether the merchant lets the patient pick their own dosage + duration combo
+ * on the product + checkout pages. Comes from the `/payment/merchant-nmi-key`
+ * API (merchantData.allowPatientSelectDosage).
+ * - true  → Previous (Mechanism A): the patient picks a dosage + duration combo
+ *   and pays the exact combo total.
+ * - false → Current (Mechanism B): show a price range; charge only the flat
+ *   appointment fee (CONSULTATION_FEE) up front, medication billed later via the
+ *   Qualiphy webhook.
+ *
+ * Comes straight from the API; when absent we fall back to
+ * DEFAULT_ALLOW_PATIENT_SELECT_DOSAGE.
+ */
+export const DEFAULT_ALLOW_PATIENT_SELECT_DOSAGE = false;
+
+/**
+ * Resolves whether the patient may select their own dosage: the value from the
+ * merchant API when present, otherwise DEFAULT_ALLOW_PATIENT_SELECT_DOSAGE.
+ */
+export const resolveAllowPatientSelectDosage = (value?: unknown): boolean =>
+  typeof value === "boolean" ? value : DEFAULT_ALLOW_PATIENT_SELECT_DOSAGE;
 
 // Navigation items for the main menu
 export const navigationItems = [

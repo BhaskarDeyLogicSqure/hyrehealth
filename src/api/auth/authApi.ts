@@ -13,6 +13,7 @@ import {
 import { ApiResponse } from "@/types";
 import apiService from "..";
 import { MERCHANT_NMI_PAYMENT_TOKEN_ENDPOINT } from "@/api-helper/ChekoutEndpoints";
+import { resolveAllowPatientSelectDosage } from "@/configs";
 
 export const authApi = {
   login: async (
@@ -68,9 +69,20 @@ export const authApi = {
         }
       );
 
+      const data = response?.data;
+
       return {
         error: response?.error || false,
-        data: response?.data,
+        // The backend doesn't send `allowPatientSelectDosage` yet, so we set it
+        // here with a resolved default. Once the API returns this key, its value wins.
+        data: data
+          ? {
+              ...data,
+              allowPatientSelectDosage: resolveAllowPatientSelectDosage(
+                data.allowPatientSelectDosage
+              ),
+            }
+          : data,
       };
     } catch (error) {
       console.error("Merchant NMI tokenization key API error:", error);
