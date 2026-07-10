@@ -113,8 +113,7 @@ const ThankYouPage = () => {
         return;
       }
 
-      const meetingId = meetingDetails?.meetingUuid;
-      if (!meetingId) {
+      if (!meetingDetails?.meetingLink) {
         showErrorToast(
           "Your consultation room isn't ready yet. Please wait a moment and try again.",
         );
@@ -122,7 +121,7 @@ const ThankYouPage = () => {
       }
 
       showSuccessToast("Consultation Ready");
-      router.push(`/meeting-room?meetingId=${meetingId}`);
+      router.push(`/meeting-room?orderId=${orderId}`);
     } catch (error) {
       console.error("Error joining consultation:", error);
       showErrorToast("Connection Error");

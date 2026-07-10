@@ -18,7 +18,7 @@ const PreConsultation = () => {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") || "";
 
-  const { meetingDetails, isMeetingDetailsError, meetingDetailsError } =
+  const { isMeetingDetailsError, meetingDetailsError } =
     useMeetingDetails(orderId);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,10 +37,8 @@ const PreConsultation = () => {
         return;
       }
 
-      const meetingId = meetingDetails?.meetingUuid;
-
       showSuccessToast("Consultation Ready");
-      router.push(`/meeting-room?meetingId=${meetingId}`);
+      router.push(`/meeting-room?orderId=${orderId}`);
     } catch (error) {
       console.error("Error joining consultation:", error);
       showErrorToast("Connection Error");
