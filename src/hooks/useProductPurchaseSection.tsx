@@ -46,7 +46,8 @@ const useProductPurchaseSection = ({
     // Find the strength of the selected dosage option
     const selectedDosageOptionStrength =
       product?.pricing?.subscriptionOptions?.find(
-        (option) => option?._id === selectedDosageId
+        (option) =>
+          option?._id === selectedDosageId || option?.id === selectedDosageId
       )?.strength;
 
     // Filter options by selected strength and exclude those with price === 0
@@ -67,7 +68,8 @@ const useProductPurchaseSection = ({
 
     // get the strength of the selected dosage as this is used to filter the duration options
     const selectedDosageStrength = product?.pricing?.subscriptionOptions?.find(
-      (option) => option?._id === selectedDosageId
+      (option) =>
+        option?._id === selectedDosageId || option?.id === selectedDosageId
     )?.strength;
 
     // find the dosage that matches the selected dosage strength and duration
@@ -92,7 +94,27 @@ const useProductPurchaseSection = ({
   ) => {
     if (type === "dosage") {
       setSelectedDosageId(value);
-      setSubscriptionDuration("");
+
+      // Preserve the currently selected duration when the newly chosen dosage
+      // still offers it, so switching strength does not silently revert the
+      // duration back to the auto-selected default (the lowest, i.e. 1 month).
+      // Only clear it when the new dosage has no payable option for that
+      // duration — the auto-select effect will then pick a valid default.
+      const newStrength = product?.pricing?.subscriptionOptions?.find(
+        (option) => option?._id === value || option?.id === value
+      )?.strength;
+
+      const isDurationStillAvailable =
+        product?.pricing?.subscriptionOptions?.some(
+          (option) =>
+            option?.strength === newStrength &&
+            option?.price !== 0 &&
+            option?.duration?.value === Number(subscriptionDuration)
+        );
+
+      if (!isDurationStillAvailable) {
+        setSubscriptionDuration("");
+      }
     } else if (type === "subscriptionDuration") {
       setSubscriptionDuration(value);
     }
