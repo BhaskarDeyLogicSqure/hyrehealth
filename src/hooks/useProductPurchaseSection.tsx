@@ -119,7 +119,7 @@ const useProductPurchaseSection = ({
       const mainProductData = {
         product,
         selectedOption: {
-          dosageId: selectedDosageId,
+          dosageId: selectedDosageWithDuration?._id || selectedDosageWithDuration?.id || selectedDosageId,
           dosageStrength: selectedDosageWithDuration?.strength || 0,
           duration: selectedDosageWithDuration?.duration?.value || 0,
           price: selectedDosageWithDuration?.price || 0,
@@ -192,6 +192,7 @@ const useProductPurchaseSection = ({
         ); // Type-safe filter to remove null values
 
       // Dispatch data to Redux store
+      // console.log({ mainProductData, relatedProductsData });
       setMainProduct(mainProductData);
       setRelatedProducts(relatedProductsData);
       calculateTotal();
@@ -201,10 +202,9 @@ const useProductPurchaseSection = ({
 
       // Navigate to eligibility questionnaire with productId and relatedProducts if any
       router.push(
-        `/eligibility-questionnaire?productId=${product?._id}${
-          selectedRelatedProducts && selectedRelatedProducts?.length > 0
-            ? `&relatedProducts=${selectedRelatedProducts?.join(",")}`
-            : ""
+        `/eligibility-questionnaire?productId=${product?._id}${selectedRelatedProducts && selectedRelatedProducts?.length > 0
+          ? `&relatedProducts=${selectedRelatedProducts?.join(",")}`
+          : ""
         }`
       );
     } catch (error) {
