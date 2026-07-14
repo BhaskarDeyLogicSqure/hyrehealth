@@ -61,7 +61,7 @@ const ProductPurchaseSection = ({
   return (
     <div>
       <Card className="sticky top-24">
-        
+
         <CardContent className="p-8">
           {/* Price Display at Top
               - "current": price range (same as the products page)
@@ -74,10 +74,10 @@ const ProductPurchaseSection = ({
                     ? formatPriceRange(priceRange)
                     : "$89"
                   : selectedDosageWithDuration?.price
-                  ? `$${selectedDosageWithDuration?.price?.toFixed(
+                    ? `$${selectedDosageWithDuration?.price?.toFixed(
                       DIGITS_AFTER_DECIMALS
                     )}`
-                  : "$89"}
+                    : "$89"}
               </span>
               <span className="text-lg theme-text-muted">per month</span>
             </div>
@@ -181,8 +181,8 @@ const ProductPurchaseSection = ({
                   <span>
                     {selectedDosageWithDuration?.price
                       ? `$${selectedDosageWithDuration?.price?.toFixed(
-                          DIGITS_AFTER_DECIMALS
-                        )}`
+                        DIGITS_AFTER_DECIMALS
+                      )}`
                       : "$89"}
                   </span>
                 </div>
@@ -193,7 +193,7 @@ const ProductPurchaseSection = ({
                 </div>
 
                 {selectedRelatedProducts?.length > 0 &&
-                (relatedProductsTotal || relatedProductsTotal === 0) ? (
+                  (relatedProductsTotal || relatedProductsTotal === 0) ? (
                   <div className="flex justify-between text-sm theme-text-muted">
                     <span>Related products:</span>
                     <span>
