@@ -141,9 +141,11 @@
   --navbar-border: #e2e8f0;
   --navbar-logo-text: #ffffff;
   --navbar-logo-background: #ffffff;
-  --navbar-nav-text: #e2e8f0;
-  --navbar-nav-text-hover: #ffffff;
-  --navbar-nav-text-active: #ffffff;
+  /* Navbar renders on a white background (.navbar-bg), so nav text must be dark
+     for contrast — the near-white values were only legible on a gradient nav. */
+  --navbar-nav-text: #475569;
+  --navbar-nav-text-hover: #1e293b;
+  --navbar-nav-text-active: #1e293b;
   --navbar-button-variant: ghost;
   --navbar-dropdown-background: #ffffff;
   --navbar-dropdown-border: #e2e8f0;
