@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useTransition } from "react";
+// DocuSign disabled — useRef/useState were only used by disclaimer signing.
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   CheckCircle,
-  FileSignature,
+  // FileSignature, // DocuSign disabled — used only by removed Sign Disclaimer button.
   Video,
   Clock,
   Truck,
@@ -19,7 +20,7 @@ import useAllowPatientSelectDosage from "@/hooks/useAllowPatientSelectDosage";
 import { useOrderConfirmation } from "@/api/postCheckout/useOrderConfirmation";
 import {
   showErrorToast,
-  showInfoToast,
+  // showInfoToast, // DocuSign disabled — used only by removed verify effect.
   showSuccessToast,
 } from "@/components/GlobalErrorHandler";
 import ThemeLoader from "@/components/ThemeLoader";
@@ -33,8 +34,9 @@ const ThankYouPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
-  const token = searchParams.get("token");
-  const event = searchParams.get("event");
+  // DocuSign disabled — token/event were the DocuSign signing-return params.
+  // const token = searchParams.get("token");
+  // const event = searchParams.get("event");
 
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer,
@@ -46,8 +48,9 @@ const ThankYouPage = () => {
   const isCurrentFlow = !useAllowPatientSelectDosage();
 
   const [isLoading, setTransition] = useTransition();
-  const [isDisclaimerGenerating, setIsDisclaimerGenerating] = useState(false);
-  const disclaimerVerifyAttempted = useRef(false);
+  // DocuSign disabled — disclaimer generating/verify state no longer needed.
+  // const [isDisclaimerGenerating, setIsDisclaimerGenerating] = useState(false);
+  // const disclaimerVerifyAttempted = useRef(false);
 
   // Post-checkout data is fetched in a strict sequence:
   // 1) invoice / order confirmation
@@ -81,24 +84,25 @@ const ThankYouPage = () => {
   const orderStatus = "Awaiting Consultation"; // Default status since it's not in the API response
   const products = orderConfirmation?.products || [];
 
-  const _handleSignDisclaimer = async () => {
-    try {
-      setIsDisclaimerGenerating(true);
-      const response = await postCheckoutApi.generateDisclaimer(orderId!);
-      const signingUrl = response?.data?.signingUrl;
-      if (!signingUrl) {
-        showErrorToast("Could not get signing URL. Please try again.");
-        return;
-      }
-      window.location.href = signingUrl;
-    } catch (e) {
-      showErrorToast(
-        (e as any)?.message || "Failed to initiate disclaimer signing.",
-      );
-    } finally {
-      setIsDisclaimerGenerating(false);
-    }
-  };
+  // DocuSign disabled — disclaimer signing not required in current flow.
+  // const _handleSignDisclaimer = async () => {
+  //   try {
+  //     setIsDisclaimerGenerating(true);
+  //     const response = await postCheckoutApi.generateDisclaimer(orderId!);
+  //     const signingUrl = response?.data?.signingUrl;
+  //     if (!signingUrl) {
+  //       showErrorToast("Could not get signing URL. Please try again.");
+  //       return;
+  //     }
+  //     window.location.href = signingUrl;
+  //   } catch (e) {
+  //     showErrorToast(
+  //       (e as any)?.message || "Failed to initiate disclaimer signing.",
+  //     );
+  //   } finally {
+  //     setIsDisclaimerGenerating(false);
+  //   }
+  // };
 
   const _handleJoinConsultation = async () => {
     try {
@@ -130,33 +134,34 @@ const ThankYouPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (!token || !event || !orderId || disclaimerVerifyAttempted.current)
-      return;
-    disclaimerVerifyAttempted.current = true;
-
-    const verify = async () => {
-      try {
-        const response = await postCheckoutApi.verifyDisclaimer({
-          token,
-          event,
-        });
-        if (response?.data?.verified) {
-          showSuccessToast("Disclaimer signed successfully!");
-        } else {
-          showInfoToast("Disclaimer signing was not completed.");
-        }
-      } catch (e: any) {
-        showErrorToast(e?.message || "Disclaimer verification failed.");
-      } finally {
-        // strip token + event from URL, keep orderId
-        router.replace(`/thank-you?orderId=${orderId}`);
-        refetchDisclaimer();
-      }
-    };
-
-    verify();
-  }, [token, event, orderId]);
+  // DocuSign disabled — verify-on-return (token/event) not needed in current flow.
+  // useEffect(() => {
+  //   if (!token || !event || !orderId || disclaimerVerifyAttempted.current)
+  //     return;
+  //   disclaimerVerifyAttempted.current = true;
+  //
+  //   const verify = async () => {
+  //     try {
+  //       const response = await postCheckoutApi.verifyDisclaimer({
+  //         token,
+  //         event,
+  //       });
+  //       if (response?.data?.verified) {
+  //         showSuccessToast("Disclaimer signed successfully!");
+  //       } else {
+  //         showInfoToast("Disclaimer signing was not completed.");
+  //       }
+  //     } catch (e: any) {
+  //       showErrorToast(e?.message || "Disclaimer verification failed.");
+  //     } finally {
+  //       // strip token + event from URL, keep orderId
+  //       router.replace(`/thank-you?orderId=${orderId}`);
+  //       refetchDisclaimer();
+  //     }
+  //   };
+  //
+  //   verify();
+  // }, [token, event, orderId]);
 
   useEffect(() => {
     // Show error toast if there's an error
@@ -337,18 +342,20 @@ const ThankYouPage = () => {
                     : `Start Consultation${isLoading ? "..." : ""}`}
                 </Button>
               ) : (
-                <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
-                  onClick={_handleSignDisclaimer}
-                  style={{
-                    backgroundColor:
-                      merchantData?.customizeBranding?.accentColor,
-                  }}
-                  disabled={isDisclaimerGenerating || isDisclaimerStatusLoading}
-                >
-                  <FileSignature className="h-5 w-5 mr-2" />
-                  {isDisclaimerGenerating ? "Opening..." : "Sign Disclaimer"}
-                </Button>
+                // DocuSign disabled — "Sign Disclaimer" button removed from current flow.
+                // <Button
+                //   className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+                //   onClick={_handleSignDisclaimer}
+                //   style={{
+                //     backgroundColor:
+                //       merchantData?.customizeBranding?.accentColor,
+                //   }}
+                //   disabled={isDisclaimerGenerating || isDisclaimerStatusLoading}
+                // >
+                //   <FileSignature className="h-5 w-5 mr-2" />
+                //   {isDisclaimerGenerating ? "Opening..." : "Sign Disclaimer"}
+                // </Button>
+                null
               )}
             </div>
           </CardContent>
