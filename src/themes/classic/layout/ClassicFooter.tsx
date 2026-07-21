@@ -428,7 +428,7 @@ const ClassicFooter = ({
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="/shop">
+                  <Link className="hover:underline" href="/products">
                     Shop Now
                   </Link>
                 </li>
