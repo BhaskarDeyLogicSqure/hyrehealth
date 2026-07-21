@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useTransition } from "react";
+// DocuSign disabled — useRef/useState were only used by disclaimer signing.
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   CheckCircle,
-  FileSignature,
+  // FileSignature, // DocuSign disabled — used only by removed Sign Disclaimer button.
   Video,
   Clock,
   Truck,
@@ -19,7 +20,7 @@ import useAllowPatientSelectDosage from "@/hooks/useAllowPatientSelectDosage";
 import { useOrderConfirmation } from "@/api/postCheckout/useOrderConfirmation";
 import {
   showErrorToast,
-  showInfoToast,
+  // showInfoToast, // DocuSign disabled — used only by removed verify effect.
   showSuccessToast,
 } from "@/components/GlobalErrorHandler";
 import ThemeLoader from "@/components/ThemeLoader";
@@ -33,8 +34,9 @@ const ThankYouPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
-  const token = searchParams.get("token");
-  const event = searchParams.get("event");
+  // DocuSign disabled — token/event were the DocuSign signing-return params.
+  // const token = searchParams.get("token");
+  // const event = searchParams.get("event");
 
   const { merchantData } = useSelector(
     (state: RootState) => state?.merchantReducer,
@@ -46,8 +48,9 @@ const ThankYouPage = () => {
   const isCurrentFlow = !useAllowPatientSelectDosage();
 
   const [isLoading, setTransition] = useTransition();
-  const [isDisclaimerGenerating, setIsDisclaimerGenerating] = useState(false);
-  const disclaimerVerifyAttempted = useRef(false);
+  // DocuSign disabled — disclaimer generating/verify state no longer needed.
+  // const [isDisclaimerGenerating, setIsDisclaimerGenerating] = useState(false);
+  // const disclaimerVerifyAttempted = useRef(false);
 
   // Post-checkout data is fetched in a strict sequence:
   // 1) invoice / order confirmation
@@ -61,44 +64,44 @@ const ThankYouPage = () => {
     isOrderConfirmationFetched,
   } = useOrderConfirmation(orderId);
 
-  const {
-    isDisclaimerSigned,
-    isDisclaimerStatusLoading,
-    refetchDisclaimer,
-  } = useDisclaimerStatus(orderId, { enabled: isOrderConfirmationFetched });
+  // DocuSign disabled — the signed/loading/refetch values are no longer consumed,
+  // but the call is kept because disclaimer-status is what triggers the meeting
+  // invite on the backend. Do not destructure (nothing here is used any more).
+  useDisclaimerStatus(orderId, { enabled: isOrderConfirmationFetched });
 
-  // The meeting link only exists once the disclaimer is signed (signing is what
-  // triggers the invite via disclaimer-status). Fetch it once signed; it may
-  // come back empty for a moment, so the hook retries on a 2s interval.
+  // DocuSign disabled — no signing step in current flow, so the consultation is
+  // available as soon as the order is confirmed. Fetch the meeting link once the
+  // order confirmation resolves (it may come back empty briefly; hook retries 2s).
   const {
     meetingDetails,
     isMeetingDetailsError,
     meetingDetailsError,
     hasMeetingLink,
     isMeetingLinkLoading,
-  } = useMeetingDetails(orderId || "", { enabled: isDisclaimerSigned });
+  } = useMeetingDetails(orderId || "", { enabled: isOrderConfirmationFetched });
 
   const orderStatus = "Awaiting Consultation"; // Default status since it's not in the API response
   const products = orderConfirmation?.products || [];
 
-  const _handleSignDisclaimer = async () => {
-    try {
-      setIsDisclaimerGenerating(true);
-      const response = await postCheckoutApi.generateDisclaimer(orderId!);
-      const signingUrl = response?.data?.signingUrl;
-      if (!signingUrl) {
-        showErrorToast("Could not get signing URL. Please try again.");
-        return;
-      }
-      window.location.href = signingUrl;
-    } catch (e) {
-      showErrorToast(
-        (e as any)?.message || "Failed to initiate disclaimer signing.",
-      );
-    } finally {
-      setIsDisclaimerGenerating(false);
-    }
-  };
+  // DocuSign disabled — disclaimer signing not required in current flow.
+  // const _handleSignDisclaimer = async () => {
+  //   try {
+  //     setIsDisclaimerGenerating(true);
+  //     const response = await postCheckoutApi.generateDisclaimer(orderId!);
+  //     const signingUrl = response?.data?.signingUrl;
+  //     if (!signingUrl) {
+  //       showErrorToast("Could not get signing URL. Please try again.");
+  //       return;
+  //     }
+  //     window.location.href = signingUrl;
+  //   } catch (e) {
+  //     showErrorToast(
+  //       (e as any)?.message || "Failed to initiate disclaimer signing.",
+  //     );
+  //   } finally {
+  //     setIsDisclaimerGenerating(false);
+  //   }
+  // };
 
   const _handleJoinConsultation = async () => {
     try {
@@ -130,33 +133,34 @@ const ThankYouPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (!token || !event || !orderId || disclaimerVerifyAttempted.current)
-      return;
-    disclaimerVerifyAttempted.current = true;
-
-    const verify = async () => {
-      try {
-        const response = await postCheckoutApi.verifyDisclaimer({
-          token,
-          event,
-        });
-        if (response?.data?.verified) {
-          showSuccessToast("Disclaimer signed successfully!");
-        } else {
-          showInfoToast("Disclaimer signing was not completed.");
-        }
-      } catch (e: any) {
-        showErrorToast(e?.message || "Disclaimer verification failed.");
-      } finally {
-        // strip token + event from URL, keep orderId
-        router.replace(`/thank-you?orderId=${orderId}`);
-        refetchDisclaimer();
-      }
-    };
-
-    verify();
-  }, [token, event, orderId]);
+  // DocuSign disabled — verify-on-return (token/event) not needed in current flow.
+  // useEffect(() => {
+  //   if (!token || !event || !orderId || disclaimerVerifyAttempted.current)
+  //     return;
+  //   disclaimerVerifyAttempted.current = true;
+  //
+  //   const verify = async () => {
+  //     try {
+  //       const response = await postCheckoutApi.verifyDisclaimer({
+  //         token,
+  //         event,
+  //       });
+  //       if (response?.data?.verified) {
+  //         showSuccessToast("Disclaimer signed successfully!");
+  //       } else {
+  //         showInfoToast("Disclaimer signing was not completed.");
+  //       }
+  //     } catch (e: any) {
+  //       showErrorToast(e?.message || "Disclaimer verification failed.");
+  //     } finally {
+  //       // strip token + event from URL, keep orderId
+  //       router.replace(`/thank-you?orderId=${orderId}`);
+  //       refetchDisclaimer();
+  //     }
+  //   };
+  //
+  //   verify();
+  // }, [token, event, orderId]);
 
   useEffect(() => {
     // Show error toast if there's an error
@@ -180,7 +184,7 @@ const ThankYouPage = () => {
   // toast up so the user knows why "Start Consultation" is disabled.
   useEffect(() => {
     const TOAST_ID = "meeting-link-preparing";
-    if (isDisclaimerSigned && isMeetingLinkLoading) {
+    if (isMeetingLinkLoading) {
       toast("Preparing your consultation room. This may take a few seconds…", {
         id: TOAST_ID,
         duration: Infinity,
@@ -197,16 +201,16 @@ const ThankYouPage = () => {
       toast.dismiss(TOAST_ID);
     }
     return () => toast.dismiss(TOAST_ID);
-  }, [isDisclaimerSigned, isMeetingLinkLoading]);
+  }, [isMeetingLinkLoading]);
 
   // If polling is exhausted and we still have no link, tell the user how to recover.
   useEffect(() => {
-    if (isDisclaimerSigned && isMeetingDetailsError) {
+    if (isMeetingDetailsError) {
       showErrorToast(
         "Your consultation room is taking longer than expected. Please refresh the page or contact support.",
       );
     }
-  }, [isDisclaimerSigned, isMeetingDetailsError]);
+  }, [isMeetingDetailsError]);
 
   // Show loading state
   if (isOrderConfirmationLoading) {
@@ -313,43 +317,22 @@ const ThankYouPage = () => {
             </div>
 
             {/* Action Button */}
+            {/* DocuSign disabled — no signing gate; the Start Consultation button
+                is always shown (was previously behind `isDisclaimerSigned`). */}
             <div className="pt-6 text-center">
-              {isDisclaimerSigned ? (
-                <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
-                  onClick={
-                    () => setTransition(() => _handleJoinConsultation())
-                    //   {
-                    //   setTransition(() => {
-                    //     // router.push(`/intake-form?orderId=${orderId}`); // skip intake form in current flow (not needed for now)
-                    //   });
-                    // }
-                  }
-                  style={{
-                    backgroundColor:
-                      merchantData?.customizeBranding?.accentColor,
-                  }}
-                  disabled={isLoading || !hasMeetingLink}
-                >
-                  <Video className="h-5 w-5 mr-2" />
-                  {isMeetingLinkLoading
-                    ? "Preparing Consultation..."
-                    : `Start Consultation${isLoading ? "..." : ""}`}
-                </Button>
-              ) : (
-                <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
-                  onClick={_handleSignDisclaimer}
-                  style={{
-                    backgroundColor:
-                      merchantData?.customizeBranding?.accentColor,
-                  }}
-                  disabled={isDisclaimerGenerating || isDisclaimerStatusLoading}
-                >
-                  <FileSignature className="h-5 w-5 mr-2" />
-                  {isDisclaimerGenerating ? "Opening..." : "Sign Disclaimer"}
-                </Button>
-              )}
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+                onClick={() => setTransition(() => _handleJoinConsultation())}
+                style={{
+                  backgroundColor: merchantData?.customizeBranding?.accentColor,
+                }}
+                disabled={isLoading || !hasMeetingLink}
+              >
+                <Video className="h-5 w-5 mr-2" />
+                {isMeetingLinkLoading
+                  ? "Preparing Consultation..."
+                  : `Start Consultation${isLoading ? "..." : ""}`}
+              </Button>
             </div>
           </CardContent>
         </Card>

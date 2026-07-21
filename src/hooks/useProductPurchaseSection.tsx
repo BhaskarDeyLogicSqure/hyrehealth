@@ -46,7 +46,8 @@ const useProductPurchaseSection = ({
     // Find the strength of the selected dosage option
     const selectedDosageOptionStrength =
       product?.pricing?.subscriptionOptions?.find(
-        (option) => option?._id === selectedDosageId
+        (option) =>
+          option?._id === selectedDosageId || option?.id === selectedDosageId
       )?.strength;
 
     // Filter options by selected strength and exclude those with price === 0
@@ -67,7 +68,8 @@ const useProductPurchaseSection = ({
 
     // get the strength of the selected dosage as this is used to filter the duration options
     const selectedDosageStrength = product?.pricing?.subscriptionOptions?.find(
-      (option) => option?._id === selectedDosageId
+      (option) =>
+        option?._id === selectedDosageId || option?.id === selectedDosageId
     )?.strength;
 
     // find the dosage that matches the selected dosage strength and duration
@@ -92,7 +94,27 @@ const useProductPurchaseSection = ({
   ) => {
     if (type === "dosage") {
       setSelectedDosageId(value);
-      setSubscriptionDuration("");
+
+      // Preserve the currently selected duration when the newly chosen dosage
+      // still offers it, so switching strength does not silently revert the
+      // duration back to the auto-selected default (the lowest, i.e. 1 month).
+      // Only clear it when the new dosage has no payable option for that
+      // duration — the auto-select effect will then pick a valid default.
+      const newStrength = product?.pricing?.subscriptionOptions?.find(
+        (option) => option?._id === value || option?.id === value
+      )?.strength;
+
+      const isDurationStillAvailable =
+        product?.pricing?.subscriptionOptions?.some(
+          (option) =>
+            option?.strength === newStrength &&
+            option?.price !== 0 &&
+            option?.duration?.value === Number(subscriptionDuration)
+        );
+
+      if (!isDurationStillAvailable) {
+        setSubscriptionDuration("");
+      }
     } else if (type === "subscriptionDuration") {
       setSubscriptionDuration(value);
     }
@@ -119,7 +141,7 @@ const useProductPurchaseSection = ({
       const mainProductData = {
         product,
         selectedOption: {
-          dosageId: selectedDosageId,
+          dosageId: selectedDosageWithDuration?._id || selectedDosageWithDuration?.id || selectedDosageId,
           dosageStrength: selectedDosageWithDuration?.strength || 0,
           duration: selectedDosageWithDuration?.duration?.value || 0,
           price: selectedDosageWithDuration?.price || 0,
@@ -192,6 +214,7 @@ const useProductPurchaseSection = ({
         ); // Type-safe filter to remove null values
 
       // Dispatch data to Redux store
+      // console.log({ mainProductData, relatedProductsData });
       setMainProduct(mainProductData);
       setRelatedProducts(relatedProductsData);
       calculateTotal();
@@ -201,10 +224,9 @@ const useProductPurchaseSection = ({
 
       // Navigate to eligibility questionnaire with productId and relatedProducts if any
       router.push(
-        `/eligibility-questionnaire?productId=${product?._id}${
-          selectedRelatedProducts && selectedRelatedProducts?.length > 0
-            ? `&relatedProducts=${selectedRelatedProducts?.join(",")}`
-            : ""
+        `/eligibility-questionnaire?productId=${product?._id}${selectedRelatedProducts && selectedRelatedProducts?.length > 0
+          ? `&relatedProducts=${selectedRelatedProducts?.join(",")}`
+          : ""
         }`
       );
     } catch (error) {
